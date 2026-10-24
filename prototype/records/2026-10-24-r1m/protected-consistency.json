@@ -1,0 +1,15 @@
+{
+  "checked": 65,
+  "changed": 2,
+  "status": "FAIL",
+  "files": [
+    {
+      "Path": "E:\\Dr.RouteFit\\PRD\\CHANGELOG.md",
+      "Hash": "4E053C3984DA18B7D3D8B5FC9638D23641E3D3C03AD54A6667594757338AF3DA"
+    },
+    {
+      "Path": "E:\\Dr.RouteFit\\PRD\\README.md",
+      "Hash": "9BE32760928756BC4D311FF8F6BC35CFD7D5C8BA0AD5E44CA9FD9E62944B2F5D"
+    }
+  ]
+}

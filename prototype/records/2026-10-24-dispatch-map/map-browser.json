@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": [
+    "default bounded map",
+    "map vehicle preselected dispatch and revoke",
+    "vehicle associated return authorization",
+    "independent tabs and collapsed detail",
+    "alert and stage drill through",
+    "keyboard tabs",
+    "zoom / show all",
+    "1280 / 390 responsive"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "orders": 11,
+  "checks": [
+    "rich demo fixtures and idempotent loading",
+    "urgent cards",
+    "alert to actionable order",
+    "stage filter",
+    "all alerts queue",
+    "1280 / 390 no page overflow"
+  ]
+}

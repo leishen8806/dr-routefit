@@ -1,0 +1,10 @@
+# Local browser automation cache; durable evidence lives in prototype/records/.
+.playwright-mcp/
+
+# Local secrets and dependency caches.
+.env
+.env.*
+!.env.example
+node_modules/
+__pycache__/
+*.pyc

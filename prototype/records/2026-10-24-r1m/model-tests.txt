@@ -1,0 +1,35 @@
+✔ cash delivery and finance/remittance are independent (2.7494ms)
+✔ driver cannot verify payment (0.331ms)
+✔ duplicate acceptance returns original state; changed payload conflicts (0.2292ms)
+✔ stale version is rejected without mutating original order (0.1941ms)
+✔ late acceptance rejected; expiry releases vehicle preserving promise (0.2223ms)
+✔ reject and revoke release assignment (0.2083ms)
+✔ competing vehicle bookings cannot both succeed (0.5966ms)
+✔ overload and door constraints block release (0.2152ms)
+✔ warehouse preparation requires all evidence; custody stays warehouse until pickup (0.2902ms)
+✔ transfer must be financially verified before delivery (0.4064ms)
+✔ partial delivery preserves custody until authorized return and exact count (0.4884ms)
+✔ payment discrepancy stays open; cash handover cannot falsely settle (0.3012ms)
+✔ post-pickup cancellation forbidden (0.2809ms)
+✔ new/edit order validation rejects nonfinite values and fractional quantities (0.5857ms)
+✔ unapproved, expired and paused partners blocked (2.6522ms)
+✔ partner accepts only after window and cargo confirmation; own driver denied (0.6151ms)
+✔ pause retains only explicitly authorized existing work (0.3832ms)
+✔ approval rechecked at partner acceptance (0.2766ms)
+✔ booking and vehicle assignment are mutually exclusive (0.3022ms)
+✔ unknown contact and cancellation pending block redispatch until confirmation (0.8774ms)
+✔ label and carrier report without custody do not complete delivery (0.5191ms)
+✔ handover requires warehouse, exact count, signatures and packaging (0.4242ms)
+✔ unknown, duplicate, conflicting and late events preserve trusted state (0.7928ms)
+✔ delivery verification needs complete POD; finance stays independent (0.8751ms)
+✔ post handover cancel blocked; return needs confirmation arrival exact warehouse receipt (0.797ms)
+✔ payable dispute gates payment; partial and append-only reversal reconcile independently (0.6552ms)
+✔ stale partner and unauthorized payable writes blocked (0.2992ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 76.3005

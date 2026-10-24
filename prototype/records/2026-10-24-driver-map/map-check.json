@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "checks": [
+    "driver position and pickup/dropoff map",
+    "zoom and recenter",
+    "task acceptance available",
+    "390px no overflow"
+  ]
+}

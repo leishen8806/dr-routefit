@@ -1,0 +1,242 @@
+[
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\browser-console.txt",
+    "Hash": "8244BBA88BE0B62A7E4395F5AD8839EE394E16C040DCD709E31A5BDD12A704A7"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\browser-r1-regression.json",
+    "Hash": "D932048E649396890C1E8978AA6B010AF4E0119E681CE21D3908B5247376074F"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\browser-r1m-results.json",
+    "Hash": "594A1F0C425F0D47877B8330DA7ECF242188A4C20AB78ECEC92BF6E6400E6405"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\browser-ui-regression.json",
+    "Hash": "6469A7037F2BC68C7CE4F4DE9D180931B76E6D11E6DD208D2AD70660FD200FCC"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\CHANGELOG.md",
+    "Hash": "1D30B37FF19311B594F09C9F1C8CCB6F5791AE47E27DFD19E024BE2D9A472FBD"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\core-consistency.json",
+    "Hash": "B9A3C1DD90883F4A62BDBE808587343D4E939FA755D025404FC8897D1A31654B"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\model-tests.txt",
+    "Hash": "D4B79654AE52960B3A8FA5219B3BE5842300EED87F1EC7800056F586C95F27E2"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\parcel-returned.png",
+    "Hash": "61C3414848974F0C12DBA1CB3A1811026069B5F3A8329D8C378ED433EF86FF6C"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\parcel-verified.png",
+    "Hash": "8B6C8B7A164DA11C932ADC03622DC7A0169FE4A1FA3C93A58E8BB187038ABD71"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\partner-driver-mobile.png",
+    "Hash": "FD95B221FB70A9A9149ECB19224740C8F77300B4A01BBA3FC4304EFE4D7D3328"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\partner-onboarding.png",
+    "Hash": "2C05BB22514B926ECD6D0D5C6558520BBF8E606221E2113911D2985634547741"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\partner-ready-final.png",
+    "Hash": "B20EA2D0F13FCEBDB7FE6D075C35798E4750AABF37CAF1C1F3EE8D28BCDFDF4E"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\partner-returned.png",
+    "Hash": "96F1B605AD920021152EE8D8F2651EEA59E2DDA590F35115951B46C683668132"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\payables-complete.png",
+    "Hash": "B431CC429684C1A662A4B012248A64F5146ED83164318102C8C17B9F977A3487"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\premium-audit.json",
+    "Hash": "71FE94E57DE6AC288E9B30444B8F33EC09F6363F2001406B71E3EBF97367ED83"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\protected-before.json",
+    "Hash": "9985263DF44B78FCEE95D59D94039154FC2CE8C3B512416042B8996EC919921B"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\protected-consistency.json",
+    "Hash": "C52286296A2A539932F3C4E201AAB898F2FAB26546D3B8124F55EC901FBECAC8"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\regression-results.json",
+    "Hash": "6A26B614F53220DDA359DEE636135E845866E87C01C3F2F8C9602453E9A75524"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\app.css",
+    "Hash": "A2AADF96AA28904DE34856E05FF087F0EC0EC729C5A0CAEAF0A9EFB2A7C98159"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\app.mjs",
+    "Hash": "6B9A7B6BF288ED3D6EA5274FF5F733F9167709C4C6AE52CC99956E161C16F04F"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\browser-flow.js",
+    "Hash": "B4B57B413AB309BD7C29DDE47E7DA58F9967AD734403A73EA23F3190430C8AC1"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\browser-r1m.js",
+    "Hash": "08E1169358E633711A81D58E295E8C03DE91CAA49BC5C8EA9F1FA184DBE62984"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\browser-ui-checks.js",
+    "Hash": "DC4F010DAD13C3BCAE66A87F4A13E0BE86BC8A30EFF8ADB6AA773DD4A2A92CAF"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\COVERAGE.md",
+    "Hash": "B98A22812FEA5951FAE4BF3E721F33D9E28DCA9A4B3330ECB7559C20EF0BE274"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\DESIGN.md",
+    "Hash": "D5494A21F9E05D063DC548748406B9571F07F670CA4D4341B6307C33B86994B5"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\index.html",
+    "Hash": "5E13B2123EED89567DAD35E891F8072D8C2BA62483A33742E9839A287DEA8BF4"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\model.mjs",
+    "Hash": "34B008CF58919554E13062817AAED82CC9606FC888BE6E8AA506775DA43A716C"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\model.test.mjs",
+    "Hash": "ECA0CA2BA530C60DC56189EAFB553D9B72FC2C04CF809B81AA56CE7D909CB11E"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\premium-audit.json",
+    "Hash": "71FE94E57DE6AC288E9B30444B8F33EC09F6363F2001406B71E3EBF97367ED83"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\premium-ui.json",
+    "Hash": "7E53C89F95572E3E1B602F8F070B05275A9FE6CCE609836A0E45D990671342A9"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\PROTOTYPE-CONTRACT.md",
+    "Hash": "8F4A18AB60CDBA694523EB8898B362EAD15C194B3D085C2682A247DA61D24BE6"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\R1M-CONTRACT.md",
+    "Hash": "0DC685F18211DA63F94F136DE61C2EC9FE6CEEBAA73C2F21C99095BE388FD87F"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\R1M-COVERAGE.md",
+    "Hash": "8E8D47DCB879F376BDCFC0C069C43C71D964AC1B623882104E281AB0166BDC4C"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\r1m-model.mjs",
+    "Hash": "4D10E7969294DB96353B9B3A277F224B31807C6B6E1C058582F0AABA3EB6ED17"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\r1m-model.test.mjs",
+    "Hash": "BC9497350995F6A4895765C33753CFA70318C0204E69BA929103504EB28F5565"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\r1m-ui.mjs",
+    "Hash": "071CB1133ED9D3453B6D38B0A2AC7758B060EB3CD1959F4A6FF8A84FAD539EFA"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\README.md",
+    "Hash": "C98566769EFE66C5F6A76A621115B3D494C7C3CC57BED6CC62A026CE6846ECDB"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\RECORDS.md",
+    "Hash": "0CB6982C74D9CA7A8FE51554D2160093662D6F7A5CE8D16F36D661C981FDEB88"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\prototype-source\\server.mjs",
+    "Hash": "653B14FBCC37494E81747DB2B7E8E8171753858919210CAC7B5CE8BC63202697"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\api-design.md",
+    "Hash": "13E6E088CEEE703343831B85692397DC1992099A362BE10DE5BEFF1707E229F7"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\database-architecture.md",
+    "Hash": "FB7779518EBD28219FEAE50ABC869E9D7589F1916D9601AD69B69059ADA36658"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\design-standards.md",
+    "Hash": "40CA3B097BBBCAC1252AE70A1CB2EBDFF157BBC494AF15836EDB5CB6825846D0"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\development-standards.md",
+    "Hash": "D36A8B7FB8009BC5CD68B485336673B4EA05CDF18B0C0D4594F78BA2CDDD35F0"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\glossary.md",
+    "Hash": "72B327194C43A334D07C39AA1C5DB4FDCF0CFE793B0EA25326C866A282A2F717"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\phase1-acceptance-map.md",
+    "Hash": "59FDC0683AED325582524FC242E1FF810F58797F7C54012770F01D2EF92EC986"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\phase1-pages-and-ux.md",
+    "Hash": "868E63F6D6FC557BA4100B0517358C0D763C7A878D7B5D89D46F45EF5593D95A"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\PRD-root-CHANGELOG.snapshot.md",
+    "Hash": "F43D9E8455EE9429D1F318F3BF13614CCD31E001D6318F9E1F445FF93D489902"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\PRD-root-README.snapshot.md",
+    "Hash": "F3043E41C19F5A920BA6BBBB58B5F04236663DDEC33E9DAF200EB49CD352C44F"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\PRD-V1.3-final.md",
+    "Hash": "8FB88FE03D85082EF125B9F8B5B8964D9423AB0D17F26448846E4506646A29E4"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\PRD-V1.4-review.md",
+    "Hash": "83E704A2E470FA1637513D797D9348C23B7C27AC544CA101F8BEEE09391922DE"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\system-boundaries.md",
+    "Hash": "DF9DF730C8F0F99264A90B86BB5DCF3F7F82696CCD417B2E4653BA98FF7E0876"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\database\\geocore-g1-schema-draft.sql",
+    "Hash": "FC59C4BD7B4B8C89083813A859E6E49596DCC688EF5900358F34388CD1CA7482"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\database\\routefit-schema-draft.sql",
+    "Hash": "C51B52D3DB7792F14E14E011512CEE5E2390E81445049599C9D203D595A7401B"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\database\\verify-constraints.sql",
+    "Hash": "B65522C2C1AB4C28ADD1E7C235AE32F2D42F6148DE1AC52DA0CF67E50EB99C7D"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\database\\verify-geocore-g1.sql",
+    "Hash": "7EA35FB75B6ED8350CE88228FF6B5C10C02948908C9893456D506B48B27D9C44"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\history\\acceptance-cases.md",
+    "Hash": "BB8DD1E2B189EBD95E14F7265BC8DC1C833FB976CE3CF62D82F25EC9EF92C7D6"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\history\\business-rules.md",
+    "Hash": "9F8E71F29F1F43198E3A02D82FF7EBDC7955151E86F3EF63600EA71960A3BF0F"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\history\\pilot-policy.proposed.json",
+    "Hash": "1AC2D87416EB6EAFCD2073EE3AF8AE638E5EA266ECCA01CFE9DD87F97C6095D3"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\history\\PRD.md",
+    "Hash": "635809BC04582AB3FC341AD6965C40C4195213A46EC9FE709698B701B3906383"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-r1m\\source-docs\\history\\README.md",
+    "Hash": "DF1EBDE4173E0C75A8290B299A40773768B64F31066548B6DF0DDA54FEF08E5E"
+  }
+]

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="DR RouteFit">
+  <!-- 路线从竖笔底部起点出发，向上绕过 R 的上半圆包住货物，再从斜腿驶向目的地 -->
+  <path d="M16 53 V13 A4 4 0 0 1 20 9 H38 A13 13 0 0 1 51 22 A13 13 0 0 1 38 35 H26 L44 53"
+        fill="none" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16" cy="53" r="6" fill="#13C29B"/>
+  <rect x="24" y="16.5" width="15" height="11" rx="2.5" fill="#F5A623"/>
+</svg>

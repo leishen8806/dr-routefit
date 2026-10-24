@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="DR RouteFit">
+  <!-- Android 可裁切图标：满版底色，图形缩到中心 80% 安全圆内 -->
+  <rect width="64" height="64" fill="#0B2545"/>
+  <g transform="translate(32 32) scale(0.62) translate(-32.25 -32.25)">
+    <path d="M16 53 V13 A4 4 0 0 1 20 9 H38 A13 13 0 0 1 51 22 A13 13 0 0 1 38 35 H26 L44 53"
+          fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="16" cy="53" r="6" fill="#13C29B"/>
+    <rect x="24" y="16.5" width="15" height="11" rx="2.5" fill="#F5A623"/>
+  </g>
+</svg>

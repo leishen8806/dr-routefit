@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="260" height="64" role="img" aria-label="DR RouteFit — Smart Dispatch &amp; Delivery">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+  <!-- 草图使用系统字体；定稿须换成授权字体并转为路径 -->
+  <text x="76" y="37" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="27" fill="#0B2545" letter-spacing="-0.3"><tspan font-weight="800">DR</tspan><tspan font-weight="500" dx="7">RouteFit</tspan></text>
+  <text x="77" y="54" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="9.5" font-weight="500" fill="#5B6B7F" letter-spacing="1.2">SMART DISPATCH &amp; DELIVERY</text>
+</svg>

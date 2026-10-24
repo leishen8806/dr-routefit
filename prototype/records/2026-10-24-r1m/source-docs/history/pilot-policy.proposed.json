@@ -1,0 +1,61 @@
+{
+  "policyId": "ROUTEFIT-PILOT-0",
+  "version": "1.2-proposed",
+  "status": "PROPOSED_NOT_PRODUCTION",
+  "productionEnabled": false,
+  "autoDispatchEnabled": false,
+  "serviceAreaApproved": false,
+  "serviceAreaRef": null,
+  "approvedBy": null,
+  "approvedAt": null,
+  "humanIntegrationOwner": null,
+  "timeZone": "Asia/Phnom_Penh",
+  "promiseClock": "promiseAcceptedAt",
+  "s1": {
+    "pickupArrivalLimitMinutes": 30,
+    "deliveryCompletionLimitMinutes": 120,
+    "pickupBufferMinutes": 5,
+    "deliveryBufferMinutes": 10,
+    "requiresCalibratedP90": true
+  },
+  "offerTtlSeconds": {
+    "S1": 60,
+    "default": 120
+  },
+  "s4": {
+    "maxWaitMinutes": 60,
+    "fallbackRequiresCustomerAgreement": true
+  },
+  "detour": {
+    "maxExtraMinutes": 15,
+    "maxFractionOfOriginalRemainingFulfillmentTime": 0.15,
+    "includeWaitingAndHandling": true
+  },
+  "etaNotice": {
+    "delayThresholdMinutes": 10,
+    "normalNoticeCooldownMinutes": 15,
+    "breachOverridesCooldown": true
+  },
+  "locationExperiment": {
+    "movingSampleSeconds": 15,
+    "uploadSeconds": 30,
+    "stationarySeconds": 60,
+    "staleAfterSeconds": 120
+  },
+  "packingExperiment": {
+    "enabled": false,
+    "topK": 5,
+    "onUnknown": "MANUAL_LOAD_REVIEW"
+  },
+  "dataPolicy": {
+    "templateMustBeVerified": true,
+    "unknownIsNotZero": true,
+    "duplicatesRejected": true,
+    "demoSeparated": true
+  },
+  "notes": [
+    "合成数据和影子实验候选参数；不代表客户SLA或已经批准的生产配置。",
+    "serviceAreaRef、责任人与校准证据缺失时不得启用生产自动承诺。",
+    "本JSON是需求参数示例，不是已经接入运行服务的配置。"
+  ]
+}

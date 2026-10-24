@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" role="img" aria-label="DR RouteFit">
+  <!-- 16px 专用版：按 16×16 像素网格重画，线宽 2px 对齐整像素；起点与货物加大，间隙至少 1px -->
+  <path d="M2 13 H10.5 A3.5 3.5 0 0 0 14 9.5 V6.5 A3.5 3.5 0 0 0 10.5 3 H6 A1 1 0 0 0 5 4 V9.5"
+        fill="none" stroke="#0B2545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="2" cy="13" r="1.75" fill="#13C29B"/>
+  <rect x="7" y="5" width="4.5" height="6" rx="0.5" fill="#F5A623"/>
+</svg>

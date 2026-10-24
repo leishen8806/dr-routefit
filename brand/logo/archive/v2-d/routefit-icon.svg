@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="DR RouteFit">
+  <!-- 路线：从起点沿底边进入，绕过右侧圆腹，经顶边折下成竖笔，读作 DR 的 D；竖笔底部留口作装货口 -->
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 起点 -->
+  <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+  <!-- 货物：装在 D 的腹内，四周留隙，表示“刚好装得下” -->
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+</svg>

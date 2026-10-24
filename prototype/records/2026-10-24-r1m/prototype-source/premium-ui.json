@@ -1,0 +1,31 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": [
+    "."
+  ],
+  "locale": "zh-CN",
+  "canonicalMap": "PROTOTYPE-CONTRACT.md",
+  "requiredCapabilities": [
+    "Select/Listbox",
+    "Date",
+    "Form",
+    "Scrollbar",
+    "Toast",
+    "CRUD"
+  ],
+  "ownership": {
+    "Select/Listbox": "native",
+    "Date": "native"
+  },
+  "requiredCommands": [
+    "unit"
+  ],
+  "commands": {
+    "unit": "node --test model.test.mjs r1m-model.test.mjs"
+  },
+  "evidence": {
+    "crudFullFlow": "browser-flow.js",
+    "failurePaths": "browser-flow.js",
+    "r1mFullFlow": "browser-r1m.js"
+  }
+}

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RouteFit Logo 草图 v2</title>
+<style>
+  :root { --ink: #0B2545; --muted: #5B6B7F; --line: #E3E8EF; --bg: #F6F8FB; }
+  body { margin: 0; padding: 24px 16px 48px; background: var(--bg); color: var(--ink);
+         font-family: Inter, "Segoe UI", "Microsoft YaHei", Arial, sans-serif; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.note { color: var(--muted); font-size: 13px; margin: 0 0 24px; max-width: 760px; line-height: 1.6; }
+  h2 { font-size: 14px; margin: 28px 0 10px; color: var(--muted); font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 20px;
+          display: flex; align-items: center; justify-content: center; gap: 20px; min-height: 110px; }
+  .card.black-bg { background: #111; border-color: #111; }
+  .label { font-size: 12px; color: var(--muted); margin-top: 6px; text-align: center; }
+  figure { margin: 0; }
+  .pixel { display: flex; gap: 12px; align-items: center; }
+  .pixel canvas { width: 128px; height: 128px; image-rendering: pixelated; border: 1px solid var(--line); background: #fff; }
+  .src { display: none; }
+</style>
+</head>
+<body>
+  <h1>DR RouteFit · Logo 草图 v2（一笔画成货箱，读作 D）</h1>
+  <p class="note">路线从青绿起点沿底边进入，绕过右侧圆腹，经顶边折下成左侧竖笔，整体读作 DR 的 “D”；竖笔底部留口作装货口，橙色货物装在 D 的腹内。16px 另有按像素网格重画的专用版。草图字体为系统字体，定稿前须换授权字体并转路径。</p>
+
+  <h2>彩色 · 方形图标版</h2>
+  <div class="row">
+    <figure><div class="card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+</svg></div><div class="label">routefit-icon.svg</div></figure>
+    <figure><div class="card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128" role="img" aria-label="DR RouteFit">
+  <rect width="64" height="64" rx="14" fill="#0B2545"/>
+  <g transform="translate(32 32) scale(0.72) translate(-31.75 -31.75)">
+    <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+          fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+    <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+  </g>
+</svg></div><div class="label">routefit-app-icon.svg</div></figure>
+  </div>
+
+  <h2>彩色 · 横版</h2>
+  <div class="row">
+    <figure><div class="card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="390" height="96" role="img" aria-label="DR RouteFit — Smart Dispatch &amp; Delivery">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+  <text x="76" y="37" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="27" fill="#0B2545" letter-spacing="-0.3"><tspan font-weight="800">DR</tspan><tspan font-weight="500" dx="7">RouteFit</tspan></text>
+  <text x="77" y="54" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="9.5" font-weight="500" fill="#5B6B7F" letter-spacing="1.2">SMART DISPATCH &amp; DELIVERY</text>
+</svg></div><div class="label">routefit-horizontal.svg</div></figure>
+  </div>
+
+  <h2>单色</h2>
+  <div class="row">
+    <figure><div class="card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="96" height="96" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#000000"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#000000"/>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="312" height="77" role="img" aria-label="DR RouteFit — Smart Dispatch &amp; Delivery">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#000000"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#000000"/>
+  <text x="76" y="37" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="27" fill="#000000" letter-spacing="-0.3"><tspan font-weight="800">DR</tspan><tspan font-weight="500" dx="7">RouteFit</tspan></text>
+  <text x="77" y="54" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="9.5" font-weight="500" fill="#000000" letter-spacing="1.2">SMART DISPATCH &amp; DELIVERY</text>
+</svg></div><div class="label">mono-black</div></figure>
+    <figure><div class="card black-bg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="96" height="96" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#FFFFFF"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#FFFFFF"/>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="312" height="77" role="img" aria-label="DR RouteFit — Smart Dispatch &amp; Delivery">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#FFFFFF"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#FFFFFF"/>
+  <text x="76" y="37" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="27" fill="#FFFFFF" letter-spacing="-0.3"><tspan font-weight="800">DR</tspan><tspan font-weight="500" dx="7">RouteFit</tspan></text>
+  <text x="77" y="54" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="9.5" font-weight="500" fill="#FFFFFF" letter-spacing="1.2">SMART DISPATCH &amp; DELIVERY</text>
+</svg></div><div class="label">mono-white（深色背景）</div></figure>
+  </div>
+
+  <h2>小尺寸（16 / 24 / 32 / 48 px）</h2>
+  <div class="row">
+    <figure><div class="card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" role="img" aria-label="DR RouteFit">
+  <path d="M2 13 H10.5 A3.5 3.5 0 0 0 14 9.5 V6.5 A3.5 3.5 0 0 0 10.5 3 H6 A1 1 0 0 0 5 4 V9.5"
+        fill="none" stroke="#0B2545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="2" cy="13" r="1.75" fill="#13C29B"/>
+  <rect x="7" y="5" width="4.5" height="6" rx="0.5" fill="#F5A623"/>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="24" height="24" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="48" height="48" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+</svg></div><div class="label">彩色（16px 用专用版）</div></figure>
+    <figure><div class="card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="16" height="16" role="img" aria-label="DR RouteFit">
+  <rect width="64" height="64" rx="14" fill="#0B2545"/>
+  <g transform="translate(32 32) scale(0.72) translate(-31.75 -31.75)">
+    <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+          fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+    <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+  </g>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="24" height="24" role="img" aria-label="DR RouteFit">
+  <rect width="64" height="64" rx="14" fill="#0B2545"/>
+  <g transform="translate(32 32) scale(0.72) translate(-31.75 -31.75)">
+    <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+          fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+    <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+  </g>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" role="img" aria-label="DR RouteFit">
+  <rect width="64" height="64" rx="14" fill="#0B2545"/>
+  <g transform="translate(32 32) scale(0.72) translate(-31.75 -31.75)">
+    <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+          fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+    <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+  </g>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="48" height="48" role="img" aria-label="DR RouteFit">
+  <rect width="64" height="64" rx="14" fill="#0B2545"/>
+  <g transform="translate(32 32) scale(0.72) translate(-31.75 -31.75)">
+    <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+          fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+    <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+  </g>
+</svg></div><div class="label">App 图标</div></figure>
+    <figure><div class="card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" role="img" aria-label="DR RouteFit">
+  <path d="M2 13 H10.5 A3.5 3.5 0 0 0 14 9.5 V6.5 A3.5 3.5 0 0 0 10.5 3 H6 A1 1 0 0 0 5 4 V9.5"
+        fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="2" cy="13" r="1.75" fill="#000000"/>
+  <rect x="7" y="5" width="4.5" height="6" rx="0.5" fill="#000000"/>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="24" height="24" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#000000"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#000000"/>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#000000"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#000000"/>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="48" height="48" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#000000"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#000000"/>
+</svg></div><div class="label">单色</div></figure>
+  </div>
+
+  <h2>16px 像素级对比（先按 16×16 栅格化，再放大 8 倍）</h2>
+  <div class="row">
+    <figure><div class="card pixel"><canvas data-src="src-main" width="16" height="16"></canvas></div><div class="label">主图形直接缩到 16px</div></figure>
+    <figure><div class="card pixel"><canvas data-src="src-fav" width="16" height="16"></canvas></div><div class="label">16px 专用版 routefit-favicon.svg</div></figure>
+    <figure><div class="card pixel"><canvas data-src="src-fav-mono" width="16" height="16"></canvas></div><div class="label">16px 专用版 · 单色</div></figure>
+  </div>
+
+  <div class="src" id="src-main"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="16" height="16" role="img" aria-label="DR RouteFit">
+  <path d="M11 50 H41 A14 14 0 0 0 55 36 V25 A14 14 0 0 0 41 11 H23 A4 4 0 0 0 19 15 V39"
+        fill="none" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11" cy="50" r="6" fill="#13C29B"/>
+  <rect x="27" y="19" width="20" height="23" rx="3" fill="#F5A623"/>
+</svg></div>
+  <div class="src" id="src-fav"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" role="img" aria-label="DR RouteFit">
+  <path d="M2 13 H10.5 A3.5 3.5 0 0 0 14 9.5 V6.5 A3.5 3.5 0 0 0 10.5 3 H6 A1 1 0 0 0 5 4 V9.5"
+        fill="none" stroke="#0B2545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="2" cy="13" r="1.75" fill="#13C29B"/>
+  <rect x="7" y="5" width="4.5" height="6" rx="0.5" fill="#F5A623"/>
+</svg></div>
+  <div class="src" id="src-fav-mono"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" role="img" aria-label="DR RouteFit">
+  <path d="M2 13 H10.5 A3.5 3.5 0 0 0 14 9.5 V6.5 A3.5 3.5 0 0 0 10.5 3 H6 A1 1 0 0 0 5 4 V9.5"
+        fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="2" cy="13" r="1.75" fill="#000000"/>
+  <rect x="7" y="5" width="4.5" height="6" rx="0.5" fill="#000000"/>
+</svg></div>
+
+<script>
+  document.querySelectorAll("canvas[data-src]").forEach(function (cv) {
+    var svg = document.getElementById(cv.dataset.src).querySelector("svg");
+    if (!svg) return;
+    var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.outerHTML);
+    var img = new Image();
+    img.onload = function () {
+      var ctx = cv.getContext("2d");
+      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 16, 16);
+      ctx.drawImage(img, 0, 0, 16, 16);
+    };
+    img.src = url;
+  });
+</script>
+</body>
+</html>

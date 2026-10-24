@@ -1,0 +1,170 @@
+[
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\console.txt",
+    "Hash": "8244BBA88BE0B62A7E4395F5AD8839EE394E16C040DCD709E31A5BDD12A704A7"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\incident-browser.json",
+    "Hash": "4549C39D444EFEFB068A686A56BA12575A54A06605945ED60A38324D3930F911"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\model-tests.txt",
+    "Hash": "489022C93ED7088B362545D410E79645D224F5D192B1E82C294137C14CEB9637"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\r1-regression.json",
+    "Hash": "D932048E649396890C1E8978AA6B010AF4E0119E681CE21D3908B5247376074F"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\r1m-regression.json",
+    "Hash": "594A1F0C425F0D47877B8330DA7ECF242188A4C20AB78ECEC92BF6E6400E6405"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\README.md",
+    "Hash": "A60D709860539135FF5591A5B7B95E0A6D4CB9F699F8FAF865049A91B9110FAB"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\split-allocations.png",
+    "Hash": "25D56E3CCC300305585C9CA69689948D4F9AF394C7AAB78393161536EEEBF8EC"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\split-complete.png",
+    "Hash": "F4B44DE18B9212FAA1DCCC4D089AFE72D17B675FF7E3B100926598EE4E695F18"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\split-returned.png",
+    "Hash": "F4BF5F24409255B9E70B76134768FF598B3EBB7E15F5D7F4598E78B00E1550BC"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\static-audit.json",
+    "Hash": "71FE94E57DE6AC288E9B30444B8F33EC09F6363F2001406B71E3EBF97367ED83"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\app.css",
+    "Hash": "F9BD0883CE1B86B0C44F0536990F2814FAA52848A683AC9569A37D79FF9678F9"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\app.mjs",
+    "Hash": "DF4F52AE396C772AFE3F473E0C797948E445D196B91E2551CAA16572DBFFC17F"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\browser-dispatch-map.js",
+    "Hash": "B4FEF4ECA9BA47BE0B8935248497578790FBE7877F1038C4DC3AF889C17BF2BD"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\browser-dispatch.js",
+    "Hash": "C296DEC4173FCB5CBE828B8FA38512DA15691317DF5DF56F8F253D915C1EB057"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\browser-driver-map.js",
+    "Hash": "13608D8507CE6DD85AEFCC7107F08C288D16D151420628A3F417D9882547AC91"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\browser-flow.js",
+    "Hash": "17FF56F0BA50133BB91BE828EDE54726683530E9EF21739512A06E51527FD992"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\browser-incident.js",
+    "Hash": "CF03A12208EF7AD472D5628EF3E8CA1D9841E61B5968772EE9FB08AC83DE978B"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\browser-r1m.js",
+    "Hash": "E64D43D16DB5FC50815F8652F94CC3B26B60D3767263CFC5366DECEA05A09D7D"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\browser-ui-checks.js",
+    "Hash": "88CC47347781166D83DDDA0EFB7DBE719D852FD0F8B3D0DBC8DCEBDB6E1CF97F"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\COVERAGE.md",
+    "Hash": "B98A22812FEA5951FAE4BF3E721F33D9E28DCA9A4B3330ECB7559C20EF0BE274"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\DESIGN.md",
+    "Hash": "D05880BAF6A2F9347A6F1AEB4CFF2DF8339912C7758EE4B4E5A3ADBAA57EACC2"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\dispatch-map.mjs",
+    "Hash": "0381693B564F24BE0F8446743C009A89F1043DCA63C67D85245A4B58236F3F32"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\dispatch-ui.mjs",
+    "Hash": "AEBC4013787D16FA356B506BDCDA8C5B224AF08ACBF30362A1608319F65972C4"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\dispatch-ui.test.mjs",
+    "Hash": "66CCAE8F7A1772F24B4776A3F3134C60E593575E8ECB1E4834BC26FFF603836D"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\INCIDENT-CONTRACT.md",
+    "Hash": "717CB3DB6A24D67A27892792829B35FB2EDD62838587038F415D2D7104A25498"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\incident-model.mjs",
+    "Hash": "282E510F6E37D25B4DDB7127FC5F70C47A353FD9E938A42A23B784774F1E5ADD"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\incident-model.test.mjs",
+    "Hash": "1A9A97A688F92CCCBE6B117725A0EBBDFCDD24745929701CE9EA3E30568E57A4"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\incident-ui.mjs",
+    "Hash": "846829DFADC39806C01EADAB83480DBB3AB4D82621B9E8B3C6FBA6CC63C672D4"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\index.html",
+    "Hash": "5E13B2123EED89567DAD35E891F8072D8C2BA62483A33742E9839A287DEA8BF4"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\model.mjs",
+    "Hash": "0B1FCCDDEB9DE9CF67FCBC3E0B1AE059EFB6357F76F1FDF375324BDFFD3AFB93"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\model.test.mjs",
+    "Hash": "ECA0CA2BA530C60DC56189EAFB553D9B72FC2C04CF809B81AA56CE7D909CB11E"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\premium-audit.json",
+    "Hash": "71FE94E57DE6AC288E9B30444B8F33EC09F6363F2001406B71E3EBF97367ED83"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\premium-ui.json",
+    "Hash": "596C4806929102890E1821B4432CA7EC2A3E114A4D6ACFE59AF81EE85014EE93"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\PROTOTYPE-CONTRACT.md",
+    "Hash": "8F4A18AB60CDBA694523EB8898B362EAD15C194B3D085C2682A247DA61D24BE6"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\R1M-CONTRACT.md",
+    "Hash": "0DC685F18211DA63F94F136DE61C2EC9FE6CEEBAA73C2F21C99095BE388FD87F"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\R1M-COVERAGE.md",
+    "Hash": "8E8D47DCB879F376BDCFC0C069C43C71D964AC1B623882104E281AB0166BDC4C"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\r1m-model.mjs",
+    "Hash": "1E74CE1FA10C42F95692348D8E9569F36FA8FB310337BA427655315ADE192CB0"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\r1m-model.test.mjs",
+    "Hash": "BC9497350995F6A4895765C33753CFA70318C0204E69BA929103504EB28F5565"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\r1m-ui.mjs",
+    "Hash": "071CB1133ED9D3453B6D38B0A2AC7758B060EB3CD1959F4A6FF8A84FAD539EFA"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\README.md",
+    "Hash": "48550B461AD5450D473F3F77D8A620AD67077490AC7E765125A233581906D151"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\RECORDS.md",
+    "Hash": "52DE0BEA33C92910D7EB1FA04F5910FE56B3953DAC7A142F9CB5A751FC78EF12"
+  },
+  {
+    "Path": "E:\\Dr.RouteFit\\prototype\\records\\2026-10-24-incident\\source\\server.mjs",
+    "Hash": "653B14FBCC37494E81747DB2B7E8E8171753858919210CAC7B5CE8BC63202697"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "checked": 63,
+  "changed": 0,
+  "status": "PASS",
+  "excludedObservedIndexChanges": [
+    "PRD/README.md",
+    "PRD/CHANGELOG.md"
+  ],
+  "note": "Original whole-tree comparison retained in protected-consistency.json"
+}
