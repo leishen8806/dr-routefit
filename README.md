@@ -13,8 +13,8 @@ DR RouteFit is a warehouse and delivery operations project. This repository cont
 | 范围 | 当前状态 |
 | --- | --- |
 | GitHub main 已发布代码 | PRD V1.4评审材料、品牌资产、Web交互原型；支持自营配送、合作车辆、人工快递委托、事故接驳与财务场景演示 |
-| 本地未提交开发增量 | Node.js 24 + PostgreSQL服务；8个费用操作、5个客户／订单草稿操作；独立数据库录单页面 |
-| 本地机器契约 | 共211个操作，其中13个标记为本地实现，198个仍为设计；启动后的 `/dev/openapi.json` 仅列可调用的13个 |
+| 本地未提交开发增量 | Node.js 24 + PostgreSQL服务；8个费用、5个客户／订单草稿、4个策略审核操作；独立数据库录单页面 |
+| 本地机器契约 | 共215个操作，其中17个标记为本地实现，198个仍为设计；启动后的 `/dev/openapi.json` 仅列可调用的17个 |
 | 尚未交付 | 生产身份、正式报价与付款准入、调度／仓库／财务后端、真实地图和外部支付接入、司机移动安装包 |
 
 **本次GitHub更新仅同步README。上表“本地未提交”代码尚不在main，克隆本仓库不会得到这些新增能力。** 本地交接包和Git提交分别记录版本，不用旧main SHA代替新代码快照。
@@ -54,6 +54,7 @@ node prototype/server.mjs
 services/routefit/README.md                  服务启动、身份、数据库和测试
 contracts/pricing-api.md                     8个费用接口
 contracts/orders-api.md                      5个客户／订单接口
+contracts/pricing-policy-api.md              4个固定费策略审核接口
 contracts/local-development-api.md           本机同源开发会话
 prototype/ORDER-ENTRY-CONTRACT.md             数据库录单页面交互与失败恢复
 PRD/docs/project-delivery-depth-v0.1.md        全项目实施顺序与证据标准
@@ -77,7 +78,7 @@ http://127.0.0.1:4180/dev/openapi.json
 
 ## 全项目推进顺序与分工
 
-1. **P01 订单与报价：** 已完成本地录入子集；继续做已批准计价策略、距离依据和绑定订单版本的报价快照。
+1. **P01 订单与报价：** 已完成本地录入与固定费三主体审核子集；继续补订单受理、地址／区域／尺寸来源和距离依据，再做绑定订单版本的报价快照。
 2. **P02 付款准入：** 核验预付款或有效月结资格；截图、申报与实际到账分开。
 3. **P03 调度：** 先满足安全、装载和时效，再优化顺路与成本；一单仅一个有效执行。
 4. **P04 仓库与司机：** 逐件交接、取货、导航、签收和异常；离线补传不能重复推进状态。
