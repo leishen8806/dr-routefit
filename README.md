@@ -2,6 +2,8 @@
 
 ![DR RouteFit](brand/logo/routefit-horizontal.svg)
 
+**The right vehicle. The right route. On time**
+
 **面向柬埔寨仓配业务的智能调度与配送平台。** 围绕订单、计价、调度、仓库交接、司机履约和财务核对，逐步建立可追溯的业务闭环。
 
 DR RouteFit is a warehouse and delivery operations project. This repository contains product specifications, brand assets and an interactive Web prototype. Local backend development is in progress; this is not a production delivery or payment service.
@@ -13,9 +15,9 @@ DR RouteFit is a warehouse and delivery operations project. This repository cont
 | 范围 | 当前状态 |
 | --- | --- |
 | GitHub main 已发布代码 | PRD V1.4评审材料、品牌资产、Web交互原型；支持自营配送、合作车辆、人工快递委托、事故接驳与财务场景演示 |
-| 本地未提交开发增量 | Node.js 24 + PostgreSQL服务；8个费用、5个客户／订单草稿、4个策略审核、8个受理／区域操作；独立数据库录单与核验只读页面 |
-| 本地机器契约 | 共219个操作，其中25个标记为本地实现，194个仍为设计；启动后的 `/dev/openapi.json` 仅列可调用的25个 |
-| 尚未交付 | 生产身份、正式报价与付款准入、调度／仓库／财务后端、真实地图和外部支付接入、司机移动安装包 |
+| 本地未提交开发增量 | Node.js 24 + PostgreSQL服务；8个费用、5个客户／订单草稿、4个策略审核、8个受理／区域、2个订单报价操作；独立数据库录单与核验只读页面 |
+| 本地机器契约 | 共220个操作，其中27个标记为本地实现，193个仍为设计；启动后的 `/dev/openapi.json` 仅列可调用的27个 |
+| 尚未交付 | 生产身份、客户确认报价与付款准入、调度／仓库／财务后端、真实地图和外部支付接入、司机移动安装包 |
 
 **本次GitHub更新仅同步README。上表“本地未提交”代码尚不在main，克隆本仓库不会得到这些新增能力。** 本地交接包和Git提交分别记录版本，不用旧main SHA代替新代码快照。
 
@@ -128,8 +130,12 @@ node --test prototype/model.test.mjs prototype/r1m-model.test.mjs prototype/disp
 
 ## 最近的本地增量：订单受理输入
 
-2026-10-25：本地服务现在共 **25个可调用操作**，新增配送区域发布/停用、版本化人工依据、受理检查、提交核验和有原因退回。完整接口契约219操作，其余194仍只设计。核验中订单在录单页只读展示；完整受理操作页待接线。
+2026-10-25：当轮本地服务共 **25个可调用操作**，新增配送区域发布/停用、版本化人工依据、受理检查、提交核验和有原因退回。完整接口契约219操作，其余194仍只设计。核验中订单在录单页只读展示；完整受理操作页待接线。
 
 区域外或禁送、缺坐标、缺尺寸来源、包装未确认及过期窗口都会阻断；修改订单后旧依据不能沿用。人工登记不冒充地图认证或自动装箱，受理不会生成报价、付款或派单。
 
 本地交接目录新增 `contracts/order-intake-api.md` 与 `npm run smoke:intake`。数据库增量迁移004保留001–003；GitHub本次仅更新README，上述服务增量仍通过本地快照交接，不代表main已有这些代码。
+
+## 最新本地进度：固定费订单报价
+
+本机共27操作；新增创建报价、读取报价有效性。报价绑定当前订单受理版本与已发布策略，保险费独立，不参与配送分成；重报、退回、区域变化及到期均保留原始快照并使旧报价不可用。正式客户确认、付款准入和距离计费尚未实现。大旺对照 `contracts/order-quotes-api.md`，运行 `npm run smoke:quotes`。005为增量迁移，001–004不改。GitHub本次仍仅更新README；业务增量通过本地交接包交付。
