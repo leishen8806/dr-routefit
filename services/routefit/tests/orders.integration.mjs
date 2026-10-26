@@ -57,7 +57,7 @@ test('real PostgreSQL order-draft HTTP integration',async t=>{
    assert.equal((await request('/orders/'+order.order.id+'/timeline',{actor:1})).status,404);
   });
   await t.test('customer creates only its own controlled draft',async()=>{
-   const input={...draft,pickup:{...draft.pickup,point:{lng:104.9,lat:11.5}},delivery:{...draft.delivery,point:{lng:104.9,lat:11.5}}};delete input.customerId;
+   const now=Date.now(),input={...draft,pickup:{...draft.pickup,point:{lng:104.9,lat:11.5}},delivery:{...draft.delivery,point:{lng:104.9,lat:11.5}},requestedPickupWindow:{start:new Date(now+3600000).toISOString(),end:new Date(now+7200000).toISOString()},requestedDeliveryWindow:{start:new Date(now+7200000).toISOString(),end:new Date(now+10800000).toISOString()}};delete input.customerId;
    assert.equal((await customerRequest('/orders',{body:{...input,customerId:f.customers[1]}})).status,422);
    const createKey=randomUUID(),pair=await Promise.all([customerRequest('/orders',{body:input,key:createKey}),customerRequest('/orders',{body:input,key:createKey})]);assert.deepEqual(pair.map(result=>result.status),[201,201]);assert.deepEqual(pair[0].data,pair[1].data);assert.equal(pair[0].data.order.customerId,f.customers[0]);assert.equal('draft' in pair[0].data,false);assert.deepEqual(pair.map(result=>result.headers.get('Idempotent-Replayed')).sort(),['false','true']);
    const customerOrder=pair[0].data,evidenceId=randomUUID(),areaId=randomUUID(),area={name:'DEMO customer coverage',type:'ALLOW',polygon:{type:'Polygon',coordinates:[[[104.8,11.4],[105,11.4],[105,11.6],[104.8,11.6],[104.8,11.4]]]},effectiveFrom:new Date(Date.now()-1000).toISOString()};

@@ -16,7 +16,7 @@
     "session:link": "node --env-file=.local/dev.env scripts/browser-session.mjs",
     "migrate": "node db/migrate.mjs",
     "test": "node --test tests/*.test.mjs",
-    "test:integration": "node --test tests/*.integration.mjs",
+    "test:integration": "node --test --test-concurrency=1 tests/*.integration.mjs",
     "smoke:intake": "node scripts/intake-smoke.mjs",
     "smoke:quotes": "node --env-file=.local/dev.env scripts/policy-smoke.mjs --quotes",
     "smoke:prepayment": "node --env-file=.local/dev.env scripts/policy-smoke.mjs --prepayment",
