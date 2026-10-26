@@ -8,18 +8,17 @@
 
 DR RouteFit is a warehouse and delivery operations project. This repository contains product specifications, brand assets and an interactive Web prototype. Local backend development is in progress; this is not a production delivery or payment service.
 
-## 当前进度：区分仓库原型与本地开发
+## 当前进度
 
-截至 **2026-10-25**，不要把页面演示、接口设计和实际可用服务混为一谈。
+截至 **2026-10-26**，以 main 基线 `2ac993ec20adb24feeb6b5035fb15a69990b608c` 的 [RF-PM-001 实测报告](https://github.com/leishen8806/dr-routefit/blob/test/RF-PM-001-baseline-report/ops/codex/reports/RF-PM-001-baseline.md)为准；代码入库、文档暴露与运行通过分别说明。
 
-| 范围 | 当前状态 |
+| 范围 | 当前状态（数字来源：RF-PM-001） |
 | --- | --- |
-| GitHub main 已发布代码 | PRD V1.4评审材料、品牌资产、Web交互原型；支持自营配送、合作车辆、人工快递委托、事故接驳与财务场景演示 |
-| 本地未提交开发增量 | Node.js 24 + PostgreSQL服务；8个费用、5个客户／订单草稿、4个策略审核、8个受理／区域、2个订单报价、11个预付与核销、5个核销撤销操作；独立数据库录单与核验只读页面 |
-| 本地机器契约 | 共235个操作，其中43个标记为本地实现，192个仍为设计；启动后的 `/dev/openapi.json` 仅列可调用的43个 |
-| 尚未交付 | 生产身份、银行收款纠错与受控订单变更、月结／COD／应付及调度／仓库后端、真实地图和外部支付接入、司机移动安装包 |
-
-**本次GitHub更新仅同步README。上表“本地未提交”代码尚不在main，克隆本仓库不会得到这些新增能力。** 本地交接包和Git提交分别记录版本，不用旧main SHA代替新代码快照。
+| main 已包含 | PRD评审材料、品牌、Web原型、`contracts/`机器契约与`services/routefit/`后端源码；克隆可取得这些文件 |
+| 契约与文档投影 | 235个操作标记为`LOCAL_IMPLEMENTED_NOT_DEPLOYED`；隔离HTTP文档适配器暴露235个，operationId差异0。正式服务启动被阻塞，实际可调用数尚未验证，不将契约状态当成端到端通过 |
+| 数据库迁移 | 63份迁移文件，最高063；干净库执行在051的`customer_scope`语法处失败，不能宣称迁移全部成功 |
+| Node24 + PostgreSQL16实测 | 依赖安装通过；服务单测101/101、原型65/65通过；集成7个顶层测试均初始化失败；bootstrap失败、7个smoke均因缺少初始化文件失败 |
+| 尚未验证或交付 | 正式服务全量API闭环、生产身份、真实银行/KESS、真实地图、外部承运商接入、司机移动安装包、Telegram交付与生产部署。财务、调度、仓库已有本地源码，不再笼统列为完全未开发 |
 
 产品入口方向：客户使用 **Telegram Mini App＋Bot**，司机使用 **iOS／Android App**；运营、调度、仓库及财务使用各自工作界面。当前这些方向仍由网页原型和接口规划承载，不表示已交付Bot或移动App。
 
@@ -48,9 +47,9 @@ node prototype/server.mjs
 
 详细步骤见[原型使用说明](prototype/README.md)。演示数据通过浏览器会话保存；请只填写合成资料。
 
-## 本地开发交接：有增量代码后再使用
+## 从 main 启动本地开发
 
-以下路径和命令用于包含本地增量的交接目录，**不适用于仅克隆当前main的目录**：
+直接克隆 main 即包含服务、契约与原型。**当前干净库bootstrap会在051迁移失败**，以下为标准启动顺序；在另卡修复并重新验证前，不承诺能跑通，不绕过迁移校验。
 
 ```text
 services/routefit/README.md                  服务启动、身份、数据库和测试
@@ -64,7 +63,7 @@ PRD/docs/project-delivery-depth-v0.1.md        全项目实施顺序与证据标
 PRD/docs/development-responsibilities-v0.1.md  双人分工和公共文件边界
 ```
 
-准备Node.js **24 LTS**、本机PostgreSQL **16+**；在 `services/routefit` 执行 `npm ci`。按服务README注入本机数据库管理连接后，执行 `npm run dev:bootstrap` 创建独立合成库，再执行 `npm run start:dev`。
+准备Node.js **24 LTS**、本机PostgreSQL **16+**（基线实测版本见RF-PM-001）；在 `services/routefit` 执行 `npm ci`。按服务README注入本机数据库管理连接后，执行 `npm run dev:bootstrap` 创建独立合成库，再执行 `npm run start:dev`。
 
 另一个终端执行 `npm run session:link`，在60秒内打开一次性链接，再访问：
 
@@ -73,7 +72,7 @@ http://127.0.0.1:4180/prototype/orders.html
 http://127.0.0.1:4180/dev/openapi.json
 ```
 
-录单页可以查询授权客户、新建多行货物草稿、刷新读取和编辑；版本冲突保留输入，结果未知时使用原幂等请求重试。同源Cookie为HttpOnly，CSRF只放内存；不要把开发凭据放进前端或README。
+按设计，服务成功初始化后，录单页用于查询授权客户、新建多行货物草稿、刷新读取和编辑；版本冲突保留输入，结果未知时使用原幂等请求重试。同源Cookie为HttpOnly，CSRF只放内存；不要把开发凭据放进前端或README。
 
 草稿保存不生成正式报价、收款或派单。费用试算按整数金额计算，保险费独立且不参与配送分成。旧共享工作台的演示数据不自动迁移到数据库。
 
@@ -81,8 +80,8 @@ http://127.0.0.1:4180/dev/openapi.json
 
 ## 全项目推进顺序与分工
 
-1. **P01 订单与报价：** 已完成本地录单、人工来源/区域受理、固定费审核与版本化报价；距离计费仍需可靠依据。
-2. **P02 付款准入：** 已完成单订单人工银行核验、独立复核审批、部分核销和准入读取；整笔核销撤销已实现，银行收款纠错与月结例外待开发，尚不放行派单。
+1. **P01 订单与报价：** main已有录单、区域受理、固定费审核与报价源码；本轮干净库验证受迁移阻塞，距离计费仍需可靠依据。
+2. **P02 付款准入：** main已有人工核验、独立复核审批、核销与撤销等本地源码；具体资金能力须分别验收，真实银行与支付接入未交付，不能据源码宣称放行派单。
 3. **P03 调度：** 先满足安全、装载和时效，再优化顺路与成本；一单仅一个有效执行。
 4. **P04 仓库与司机：** 逐件交接、取货、导航、签收和异常；离线补传不能重复推进状态。
 5. **P05 财务：** 应收、应付、司机保管、COD分别核对，独立复核与审批，差额与更正保留来源。
@@ -114,7 +113,7 @@ http://127.0.0.1:4180/dev/openapi.json
 node --test prototype/model.test.mjs prototype/r1m-model.test.mjs prototype/dispatch-ui.test.mjs prototype/incident-model.test.mjs prototype/platform-model.test.mjs
 ```
 
-包含本地增量的目录可运行 `node --test prototype/*.test.mjs`；服务端运行 `npm test`。PostgreSQL集成测试须按服务README配置一次性本机测试环境，禁止使用生产连接。
+从main克隆的目录可运行 `node --test prototype/*.test.mjs`；服务端运行 `npm test`。PostgreSQL集成测试须按服务README配置一次性本机测试环境，禁止使用生产连接。
 
 浏览器走查脚本 `prototype/browser-*.js` 供Playwright MCP使用，不是直接用Node运行的测试。记录必须指明源码／快照、环境、成功和失败场景；作者自测不能代替大旺或业务人员的独立验收。
 
@@ -128,11 +127,3 @@ node --test prototype/model.test.mjs prototype/r1m-model.test.mjs prototype/disp
 - 缺少真实来源的数据应标为未知；Demo、设计与本机测试均不等于生产能力。
 
 问题可通过[GitHub Issues](https://github.com/leishen8806/dr-routefit/issues)记录，附合成复现资料、实际结果和期望结果。每次交付同步代码、接口、页面契约及验证证据。
-
-## 最新本地进度：整笔核销撤销
-
-本机43个操作，完整235个契约中192个仍设计。新增撤销申请、独立复核、独立审批及单独入账；保留银行到账和原核销，恢复未分配资金及费用未结额，并支持重新核销。待审期间付款准入暂停；保险仍逐项处理，不参与配送分成。
-
-大旺对照 `contracts/allocation-reversals-api.md`，运行 `npm run smoke:reversals`。007增量迁移保留001–006。订单页反映有争议、待核销、部分核销和已核销；完整财务操作表单尚待接线。银行收款纠错、真实退款、已确认订单变更和生产身份仍未实现，不可用于真实资金业务。
-
-本次GitHub仅更新README；业务代码及测试材料通过本地交接包交付，不代表main已经包含这些能力。
