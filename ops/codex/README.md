@@ -31,3 +31,23 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 
 Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、钱包/分成/提现、Telegram/iOS 端、库存归属），供人类负责人拍板后再派发 PRD V1.5 同步任务。
 
+
+## 分支与版本
+
+自 2026-10-26 16:07 起，小改动不再逐个合进 `main`：
+
+- 日常任务卡从最新 `origin/develop` 开分支，PR 目标为 `develop`。
+- 合进 `develop` 前须同时满足看板 `APPROVED` 与当前 head 的 CI 三项全部 completed/success；普通任务可由 Codex 普通 merge，不 squash、不 rebase、不强推。标注“需人类批准”的高风险任务仍须负责人批准。
+- 大版本完成后由 Claude 发布 `develop → main` 版本发布 PR；需要 CI 全绿、Claude 版本评审 APPROVED、负责人在 GitHub 点 Approve 后由负责人合并，并打 `vX.Y.0` 标签。
+- `main` 规则集要求三项必需检查、分支与 main 同步（strict）及 1 个审批；`develop` 规则集只要求三项必需检查，不要求审批。
+
+## 版本计划
+
+| 版本 | 范围 | 状态 |
+| --- | --- | --- |
+| v0.1.0 | 截至 main `6cf5f0c` 的基线、CI、迁移修复、费用页设计与真实接线 | 已在 main |
+| v0.2.0 | RF-PM-012、RF-PM-013、RF-PM-014 费用页闭环与 RF-QA-01 独立验收 | 进行中 |
+| v0.3.0 | P01 订单与报价页面：受理、报价表单与明细、策略审核与正式报价 | 待拆卡 |
+| v0.4.0 | P02 付款准入页面：预付财务表单、核销撤销入口、公共入口改接数据库 | 待拆卡 |
+
+大版本完成标准：版本内所有任务卡已合进 `develop`，`develop` CI 全绿，发布 PR 写明变更、PASS/FAIL/NOT_RUN 与已知限制，跨端验收按分工文档由另一方完成。
