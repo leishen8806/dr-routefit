@@ -3,6 +3,18 @@ import pg from 'pg';
 import {migrate} from './migrate.mjs';
 
 // shortcut: synthetic local fixtures only; production provisioning belongs to the reviewed identity/deployment work.
+// routefit_api is a cluster-wide role that migration 001 creates with IF NOT EXISTS. That check is not atomic,
+// so concurrent fixtures (one database each) collide on pg_authid_rolname_index. Create it once here, serialised by
+// an advisory lock (taken on the admin database, which every fixture shares); migration 001 then finds it.
+async function ensureApiRole(admin){
+ const client=await admin.connect();
+ try{
+  await client.query("BEGIN");
+  await client.query("SELECT pg_advisory_xact_lock(hashtext('routefit_api_role'))");
+  await client.query("DO $$ BEGIN IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname='routefit_api') THEN CREATE ROLE routefit_api NOLOGIN NOSUPERUSER NOBYPASSRLS; END IF; END $$");
+  await client.query("COMMIT");
+ }catch(error){await client.query("ROLLBACK").catch(()=>{});throw error;}finally{client.release();}
+}
 export async function localFixture(adminUrl){
  const url=new URL(adminUrl);
  if(!['127.0.0.1','localhost','[::1]'].includes(url.hostname))throw Error('Fixture database must be local');
@@ -16,7 +28,7 @@ export async function localFixture(adminUrl){
  }
  try{
   await admin.query(`CREATE DATABASE "${database}"`);created=true;url.pathname='/'+database;
-  owner=new pg.Pool({connectionString:url.href,max:2});await migrate(owner);
+  await ensureApiRole(admin);owner=new pg.Pool({connectionString:url.href,max:2});await migrate(owner);
   await admin.query(`CREATE ROLE "${role}" LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD '${password}'`);roleCreated=true;
   await owner.query(`GRANT routefit_api TO "${role}"`);
   const principals=[],customers=[];

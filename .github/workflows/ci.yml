@@ -12,7 +12,8 @@ permissions:
 # NOT_RUN: real-device GPS/offline behavior, real maps/banks/KESS need separate approval and evidence.
 # RF-PM-001 / RF-PM-007: migration SQL issues located in 051, 057 and 061.
 # Keep failures visible; do not skip tests or mark continue-on-error.
-# Integration files run one at a time (--test-concurrency=1): migration 001 creates the cluster-wide role routefit_api with IF NOT EXISTS, which races across concurrent fixtures (pg_authid_rolname_index duplicate). Each file applies 63 migrations in one transaction.
+# Seven integration files run concurrently; each applies 63 migrations in one transaction.
+# The cluster-wide role routefit_api is created once, under an advisory lock, by db/local-fixture.mjs.
 # Human local observation: PostgreSQL max_connections=40 caused all seven to fail
 # with "out of shared memory" (53200); max_connections=100 initialized normally.
 # postgres:16 defaults to 100. This observation has not been verified on Actions.
