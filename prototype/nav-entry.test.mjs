@@ -5,7 +5,7 @@ import {readFile} from 'node:fs/promises';
 const source=await readFile(new URL('./app.mjs',import.meta.url),'utf8');
 
 test('database fees entry is limited to operations and finance navigation',()=>{
- const nav=source.match(/const navItems=\(\)=>[\s\S]*?;\nconst viewTitle/)[0];
+ const nav=source.match(/const navItems=\(\)=>[\s\S]*?;\r?\nconst viewTitle/)[0];
  assert.match(nav,/role==='ops'.*\['fees-api','wallet','费用设置（数据库）'\]/s);
  assert.match(nav,/role==='finance'.*\['fees-api','wallet','费用设置（数据库）'\]/s);
  assert.match(nav,/role==='customer'\?\[\['customer','box','我的配送申请'\]\]/);
