@@ -1,0 +1,6918 @@
+[
+  {
+    "id": "Id-valid",
+    "schema": "Id",
+    "valid": true,
+    "value": "demo-001"
+  },
+  {
+    "id": "Id-invalid",
+    "schema": "Id",
+    "valid": false,
+    "value": 13
+  },
+  {
+    "id": "Timestamp-valid",
+    "schema": "Timestamp",
+    "valid": true,
+    "value": "2026-10-24T03:00:00Z"
+  },
+  {
+    "id": "Timestamp-invalid",
+    "schema": "Timestamp",
+    "valid": false,
+    "value": 13
+  },
+  {
+    "id": "Currency-valid",
+    "schema": "Currency",
+    "valid": true,
+    "value": "USD"
+  },
+  {
+    "id": "Currency-invalid",
+    "schema": "Currency",
+    "valid": false,
+    "value": 13
+  },
+  {
+    "id": "Money-valid",
+    "schema": "Money",
+    "valid": true,
+    "value": {
+      "amountMinor": 1200,
+      "currency": "USD"
+    }
+  },
+  {
+    "id": "Money-invalid",
+    "schema": "Money",
+    "valid": false,
+    "value": {
+      "currency": "USD"
+    }
+  },
+  {
+    "id": "PositiveMoney-valid",
+    "schema": "PositiveMoney",
+    "valid": true,
+    "value": {
+      "amountMinor": 1200,
+      "currency": "USD"
+    }
+  },
+  {
+    "id": "PositiveMoney-invalid",
+    "schema": "PositiveMoney",
+    "valid": false,
+    "value": {
+      "currency": "USD"
+    }
+  },
+  {
+    "id": "ResourceVersion-valid",
+    "schema": "ResourceVersion",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1
+    }
+  },
+  {
+    "id": "ResourceVersion-invalid",
+    "schema": "ResourceVersion",
+    "valid": false,
+    "value": {
+      "version": 1
+    }
+  },
+  {
+    "id": "FieldError-valid",
+    "schema": "FieldError",
+    "valid": true,
+    "value": {
+      "path": "example",
+      "code": "example",
+      "message": "example"
+    }
+  },
+  {
+    "id": "FieldError-invalid",
+    "schema": "FieldError",
+    "valid": false,
+    "value": {
+      "code": "example",
+      "message": "example"
+    }
+  },
+  {
+    "id": "ErrorDetail-valid",
+    "schema": "ErrorDetail",
+    "valid": true,
+    "value": {
+      "code": "example",
+      "message": "example",
+      "messageKey": "example",
+      "retryable": true,
+      "requestId": "demo-001",
+      "fields": [
+        {
+          "path": "example",
+          "code": "example",
+          "message": "example"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ErrorDetail-invalid",
+    "schema": "ErrorDetail",
+    "valid": false,
+    "value": {
+      "message": "example",
+      "messageKey": "example",
+      "retryable": true,
+      "requestId": "demo-001",
+      "fields": [
+        {
+          "path": "example",
+          "code": "example",
+          "message": "example"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ApiError-valid",
+    "schema": "ApiError",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "example",
+        "message": "example",
+        "messageKey": "example",
+        "retryable": true,
+        "requestId": "demo-001",
+        "fields": [
+          {
+            "path": "example",
+            "code": "example",
+            "message": "example"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "ApiError-invalid",
+    "schema": "ApiError",
+    "valid": false,
+    "value": {}
+  },
+  {
+    "id": "Reason-valid",
+    "schema": "Reason",
+    "valid": true,
+    "value": {
+      "reason": "example"
+    }
+  },
+  {
+    "id": "Reason-invalid",
+    "schema": "Reason",
+    "valid": false,
+    "value": {}
+  },
+  {
+    "id": "EvidenceAction-valid",
+    "schema": "EvidenceAction",
+    "valid": true,
+    "value": {
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "EvidenceAction-invalid",
+    "schema": "EvidenceAction",
+    "valid": false,
+    "value": {
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "EmptyCommand-valid",
+    "schema": "EmptyCommand",
+    "valid": true,
+    "value": {}
+  },
+  {
+    "id": "EmptyCommand-invalid",
+    "schema": "EmptyCommand",
+    "valid": false,
+    "value": {
+      "undeclaredField": "rejected"
+    }
+  },
+  {
+    "id": "Actor-valid",
+    "schema": "Actor",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "personId": "demo-001",
+      "operatingCompanyId": "demo-001",
+      "subjectIds": [
+        "demo-001"
+      ],
+      "permissions": [
+        "example"
+      ],
+      "locale": "km"
+    }
+  },
+  {
+    "id": "Actor-invalid",
+    "schema": "Actor",
+    "valid": false,
+    "value": {
+      "personId": "demo-001",
+      "operatingCompanyId": "demo-001",
+      "subjectIds": [
+        "demo-001"
+      ],
+      "permissions": [
+        "example"
+      ],
+      "locale": "km"
+    }
+  },
+  {
+    "id": "Session-valid",
+    "schema": "Session",
+    "valid": true,
+    "value": {
+      "actor": {
+        "id": "demo-001",
+        "personId": "demo-001",
+        "operatingCompanyId": "demo-001",
+        "subjectIds": [
+          "demo-001"
+        ],
+        "permissions": [
+          "example"
+        ],
+        "locale": "km"
+      },
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "Session-invalid",
+    "schema": "Session",
+    "valid": false,
+    "value": {
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "TimeWindow-valid",
+    "schema": "TimeWindow",
+    "valid": true,
+    "value": {
+      "start": "2026-10-24T03:00:00Z",
+      "end": "2026-10-24T04:00:00Z"
+    }
+  },
+  {
+    "id": "TimeWindow-invalid",
+    "schema": "TimeWindow",
+    "valid": false,
+    "value": {
+      "end": "2026-10-24T04:00:00Z"
+    }
+  },
+  {
+    "id": "Point-valid",
+    "schema": "Point",
+    "valid": true,
+    "value": {
+      "lat": 11.5564,
+      "lng": 104.9282
+    }
+  },
+  {
+    "id": "Point-invalid",
+    "schema": "Point",
+    "valid": false,
+    "value": {
+      "lng": 104.9282
+    }
+  },
+  {
+    "id": "Location-valid",
+    "schema": "Location",
+    "valid": true,
+    "value": {
+      "address": "example",
+      "contactName": "example",
+      "phone": "+855000000001",
+      "point": {
+        "lat": 11.5564,
+        "lng": 104.9282
+      }
+    }
+  },
+  {
+    "id": "Location-invalid",
+    "schema": "Location",
+    "valid": false,
+    "value": {
+      "contactName": "example",
+      "phone": "+855000000001",
+      "point": {
+        "lat": 11.5564,
+        "lng": 104.9282
+      }
+    }
+  },
+  {
+    "id": "CargoItem-valid",
+    "schema": "CargoItem",
+    "valid": true,
+    "value": {
+      "clientItemId": "demo-001",
+      "name": "example",
+      "quantity": 1,
+      "lengthCm": 1,
+      "widthCm": 1,
+      "heightCm": 1,
+      "weightKg": 1,
+      "rotationAllowed": true,
+      "stackable": true,
+      "uprightOnly": true,
+      "restrictions": [
+        "FRAGILE"
+      ],
+      "measurementEvidenceIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "CargoItem-invalid",
+    "schema": "CargoItem",
+    "valid": false,
+    "value": {
+      "name": "example",
+      "quantity": 1,
+      "lengthCm": 1,
+      "widthCm": 1,
+      "heightCm": 1,
+      "weightKg": 1,
+      "rotationAllowed": true,
+      "stackable": true,
+      "uprightOnly": true,
+      "restrictions": [
+        "FRAGILE"
+      ],
+      "measurementEvidenceIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "OrderDraft-valid",
+    "schema": "OrderDraft",
+    "valid": true,
+    "value": {
+      "customerId": "demo-001",
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "serviceLevel": "S1",
+      "exclusiveVehicle": true,
+      "requestedPickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "requestedDeliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "paymentTerms": "PREPAID"
+    }
+  },
+  {
+    "id": "OrderDraft-invalid",
+    "schema": "OrderDraft",
+    "valid": false,
+    "value": {
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "serviceLevel": "S1",
+      "exclusiveVehicle": true,
+      "requestedPickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "requestedDeliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "paymentTerms": "PREPAID"
+    }
+  },
+  {
+    "id": "CustomerOrderDraft-valid",
+    "schema": "CustomerOrderDraft",
+    "valid": true,
+    "value": {
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "serviceLevel": "S1",
+      "exclusiveVehicle": true,
+      "requestedPickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "requestedDeliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "paymentTerms": "PREPAID"
+    }
+  },
+  {
+    "id": "CustomerOrderDraft-invalid",
+    "schema": "CustomerOrderDraft",
+    "valid": false,
+    "value": {
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "serviceLevel": "S1",
+      "exclusiveVehicle": true,
+      "requestedPickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "requestedDeliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "paymentTerms": "PREPAID"
+    }
+  },
+  {
+    "id": "FeeItem-valid",
+    "schema": "FeeItem",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "purpose": "DELIVERY",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "direction": "CHARGE",
+      "basis": "example"
+    }
+  },
+  {
+    "id": "FeeItem-invalid",
+    "schema": "FeeItem",
+    "valid": false,
+    "value": {
+      "purpose": "DELIVERY",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "direction": "CHARGE",
+      "basis": "example"
+    }
+  },
+  {
+    "id": "QuoteRequest-valid",
+    "schema": "QuoteRequest",
+    "valid": true,
+    "value": {
+      "pricingPolicyVersionId": "demo-001",
+      "insuranceRequested": true
+    }
+  },
+  {
+    "id": "QuoteRequest-invalid",
+    "schema": "QuoteRequest",
+    "valid": false,
+    "value": {
+      "insuranceRequested": true
+    }
+  },
+  {
+    "id": "Quote-valid",
+    "schema": "Quote",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "state": "issued",
+      "fees": [
+        {
+          "id": "demo-001",
+          "purpose": "DELIVERY",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "direction": "CHARGE",
+          "basis": "example"
+        }
+      ],
+      "total": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "pricingPolicyVersionId": "demo-001",
+      "customerConfirmedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "Quote-invalid",
+    "schema": "Quote",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "state": "issued",
+      "fees": [
+        {
+          "id": "demo-001",
+          "purpose": "DELIVERY",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "direction": "CHARGE",
+          "basis": "example"
+        }
+      ],
+      "total": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "pricingPolicyVersionId": "demo-001",
+      "customerConfirmedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "PromiseCheck-valid",
+    "schema": "PromiseCheck",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "quoteId": "demo-001",
+      "feasible": true,
+      "reasons": [
+        "example"
+      ],
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "planVersion": 1
+    }
+  },
+  {
+    "id": "PromiseCheck-invalid",
+    "schema": "PromiseCheck",
+    "valid": false,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "quoteId": "demo-001",
+      "feasible": true,
+      "reasons": [
+        "example"
+      ],
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "planVersion": 1
+    }
+  },
+  {
+    "id": "PromiseCheckRequest-valid",
+    "schema": "PromiseCheckRequest",
+    "valid": true,
+    "value": {
+      "quoteId": "demo-001",
+      "vehicleId": "demo-001",
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "fulfillmentMode": "VEHICLE"
+    }
+  },
+  {
+    "id": "PromiseCheckRequest-invalid",
+    "schema": "PromiseCheckRequest",
+    "valid": false,
+    "value": {
+      "vehicleId": "demo-001",
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "PromiseRequest-valid",
+    "schema": "PromiseRequest",
+    "valid": true,
+    "value": {
+      "quoteId": "demo-001",
+      "checkId": "demo-001",
+      "customerConsentEvidenceIds": [
+        "demo-001"
+      ],
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "PromiseRequest-invalid",
+    "schema": "PromiseRequest",
+    "valid": false,
+    "value": {
+      "checkId": "demo-001",
+      "customerConsentEvidenceIds": [
+        "demo-001"
+      ],
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "Promise-valid",
+    "schema": "Promise",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "acceptedAt": "2026-10-24T03:00:00Z",
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "basis": "APPROVED_MANUAL",
+      "supersedesPromiseId": "demo-001"
+    }
+  },
+  {
+    "id": "Promise-invalid",
+    "schema": "Promise",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "acceptedAt": "2026-10-24T03:00:00Z",
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "basis": "APPROVED_MANUAL",
+      "supersedesPromiseId": "demo-001"
+    }
+  },
+  {
+    "id": "OrderSummary-valid",
+    "schema": "OrderSummary",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "orderNo": "example",
+      "version": 1,
+      "state": "draft",
+      "serviceLevel": "S1",
+      "fulfillmentStage": "none",
+      "customerId": "demo-001",
+      "promiseId": "demo-001",
+      "collectionState": "unpaid",
+      "updatedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "OrderSummary-invalid",
+    "schema": "OrderSummary",
+    "valid": false,
+    "value": {
+      "orderNo": "example",
+      "version": 1,
+      "state": "draft",
+      "serviceLevel": "S1",
+      "fulfillmentStage": "none",
+      "customerId": "demo-001",
+      "promiseId": "demo-001",
+      "collectionState": "unpaid",
+      "updatedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "OrderDetail-valid",
+    "schema": "OrderDetail",
+    "valid": true,
+    "value": {
+      "order": {
+        "id": "demo-001",
+        "orderNo": "example",
+        "version": 1,
+        "state": "draft",
+        "serviceLevel": "S1",
+        "fulfillmentStage": "none",
+        "customerId": "demo-001",
+        "promiseId": "demo-001",
+        "collectionState": "unpaid",
+        "updatedAt": "2026-10-24T03:00:00Z"
+      },
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ],
+          "id": "item-demo",
+          "packageIds": [
+            "package-demo"
+          ]
+        }
+      ],
+      "activeExecutionId": "demo-001",
+      "quoteId": "demo-001",
+      "blockingExceptionIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "OrderDetail-invalid",
+    "schema": "OrderDetail",
+    "valid": false,
+    "value": {
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "activeExecutionId": "demo-001",
+      "quoteId": "demo-001",
+      "blockingExceptionIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "CustomerOrderDetail-valid",
+    "schema": "CustomerOrderDetail",
+    "valid": true,
+    "value": {
+      "order": {
+        "id": "demo-001",
+        "orderNo": "example",
+        "version": 1,
+        "state": "draft",
+        "serviceLevel": "S1",
+        "fulfillmentStage": "none",
+        "customerId": "demo-001",
+        "promiseId": "demo-001",
+        "collectionState": "unpaid",
+        "updatedAt": "2026-10-24T03:00:00Z"
+      },
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ],
+          "id": "item-demo",
+          "packageIds": [
+            "package-demo"
+          ]
+        }
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "quoteId": "demo-001"
+    }
+  },
+  {
+    "id": "CustomerOrderDetail-invalid",
+    "schema": "CustomerOrderDetail",
+    "valid": false,
+    "value": {
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "quoteId": "demo-001"
+    }
+  },
+  {
+    "id": "TimelineEvent-valid",
+    "schema": "TimelineEvent",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "type": "example",
+      "occurredAt": "2026-10-24T03:00:00Z",
+      "summary": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "TimelineEvent-invalid",
+    "schema": "TimelineEvent",
+    "valid": false,
+    "value": {
+      "type": "example",
+      "occurredAt": "2026-10-24T03:00:00Z",
+      "summary": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "Vehicle-valid",
+    "schema": "Vehicle",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "label": "example",
+      "kind": "MOTORCYCLE",
+      "specVersionId": "demo-001",
+      "state": "available",
+      "maxPayloadKg": 1,
+      "internalLengthCm": 1,
+      "internalWidthCm": 1,
+      "internalHeightCm": 1,
+      "doorWidthCm": 1,
+      "doorHeightCm": 1
+    }
+  },
+  {
+    "id": "Vehicle-invalid",
+    "schema": "Vehicle",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "label": "example",
+      "kind": "MOTORCYCLE",
+      "specVersionId": "demo-001",
+      "state": "available",
+      "maxPayloadKg": 1,
+      "internalLengthCm": 1,
+      "internalWidthCm": 1,
+      "internalHeightCm": 1,
+      "doorWidthCm": 1,
+      "doorHeightCm": 1
+    }
+  },
+  {
+    "id": "Candidate-valid",
+    "schema": "Candidate",
+    "valid": true,
+    "value": {
+      "vehicleId": "demo-001",
+      "driverId": "demo-001",
+      "vehicleVersion": 1,
+      "planVersion": 1,
+      "eligible": true,
+      "reasons": [
+        "example"
+      ],
+      "estimatedCost": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "estimateType": "MANUAL"
+    }
+  },
+  {
+    "id": "Candidate-invalid",
+    "schema": "Candidate",
+    "valid": false,
+    "value": {
+      "driverId": "demo-001",
+      "vehicleVersion": 1,
+      "planVersion": 1,
+      "eligible": true,
+      "reasons": [
+        "example"
+      ],
+      "estimatedCost": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "estimateType": "MANUAL"
+    }
+  },
+  {
+    "id": "AssignmentRequest-valid",
+    "schema": "AssignmentRequest",
+    "valid": true,
+    "value": {
+      "vehicleId": "demo-001",
+      "driverId": "demo-001",
+      "vehicleVersion": 1,
+      "planVersion": 1,
+      "loadReviewId": "demo-001",
+      "promiseId": "demo-001"
+    }
+  },
+  {
+    "id": "AssignmentRequest-invalid",
+    "schema": "AssignmentRequest",
+    "valid": false,
+    "value": {
+      "driverId": "demo-001",
+      "vehicleVersion": 1,
+      "planVersion": 1,
+      "loadReviewId": "demo-001",
+      "promiseId": "demo-001"
+    }
+  },
+  {
+    "id": "Assignment-valid",
+    "schema": "Assignment",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "vehicleId": "demo-001",
+      "driverId": "demo-001",
+      "state": "offered",
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "planVersion": 1
+    }
+  },
+  {
+    "id": "Assignment-invalid",
+    "schema": "Assignment",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "vehicleId": "demo-001",
+      "driverId": "demo-001",
+      "state": "offered",
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "planVersion": 1
+    }
+  },
+  {
+    "id": "AcceptAssignment-valid",
+    "schema": "AcceptAssignment",
+    "valid": true,
+    "value": {
+      "planVersion": 1
+    }
+  },
+  {
+    "id": "AcceptAssignment-invalid",
+    "schema": "AcceptAssignment",
+    "valid": false,
+    "value": {}
+  },
+  {
+    "id": "LoadReviewRequest-valid",
+    "schema": "LoadReviewRequest",
+    "valid": true,
+    "value": {
+      "vehicleId": "demo-001",
+      "specVersionId": "demo-001",
+      "result": "RELEASED",
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "LoadReviewRequest-invalid",
+    "schema": "LoadReviewRequest",
+    "valid": false,
+    "value": {
+      "specVersionId": "demo-001",
+      "result": "RELEASED",
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "LoadReview-valid",
+    "schema": "LoadReview",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "vehicleId": "demo-001",
+      "specVersionId": "demo-001",
+      "result": "RELEASED",
+      "reviewerPersonId": "demo-001",
+      "recordedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "LoadReview-invalid",
+    "schema": "LoadReview",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "vehicleId": "demo-001",
+      "specVersionId": "demo-001",
+      "result": "RELEASED",
+      "reviewerPersonId": "demo-001",
+      "recordedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "ItemMovement-valid",
+    "schema": "ItemMovement",
+    "valid": true,
+    "value": {
+      "itemId": "demo-001",
+      "packageIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ItemMovement-invalid",
+    "schema": "ItemMovement",
+    "valid": false,
+    "value": {
+      "packageIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "TransferRequest-valid",
+    "schema": "TransferRequest",
+    "valid": true,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "fromCustodianId": "demo-001",
+      "toCustodianId": "demo-001",
+      "items": [
+        {
+          "itemId": "demo-001",
+          "packageIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "loadReviewId": "demo-001",
+      "observedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "TransferRequest-invalid",
+    "schema": "TransferRequest",
+    "valid": false,
+    "value": {
+      "orderVersion": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "fromCustodianId": "demo-001",
+      "toCustodianId": "demo-001",
+      "items": [
+        {
+          "itemId": "demo-001",
+          "packageIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "loadReviewId": "demo-001",
+      "observedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "Transfer-valid",
+    "schema": "Transfer",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "state": "proposed",
+      "fromCustodianId": "demo-001",
+      "toCustodianId": "demo-001",
+      "items": [
+        {
+          "itemId": "demo-001",
+          "packageIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "signedPersonIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "Transfer-invalid",
+    "schema": "Transfer",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "state": "proposed",
+      "fromCustodianId": "demo-001",
+      "toCustodianId": "demo-001",
+      "items": [
+        {
+          "itemId": "demo-001",
+          "packageIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "signedPersonIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "DeliveryRequest-valid",
+    "schema": "DeliveryRequest",
+    "valid": true,
+    "value": {
+      "deliveredPackageIds": [
+        "demo-001"
+      ],
+      "remainingPackageIds": [],
+      "recipientAuthorizationId": "demo-001",
+      "observedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "DeliveryRequest-invalid",
+    "schema": "DeliveryRequest",
+    "valid": false,
+    "value": {
+      "remainingPackageIds": [
+        "demo-001"
+      ],
+      "recipientAuthorizationId": "demo-001",
+      "observedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ExceptionRequest-valid",
+    "schema": "ExceptionRequest",
+    "valid": true,
+    "value": {
+      "orderId": "demo-001",
+      "category": "ACCIDENT",
+      "description": "example",
+      "packageIds": [
+        "demo-001"
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "ExceptionRequest-invalid",
+    "schema": "ExceptionRequest",
+    "valid": false,
+    "value": {
+      "category": "ACCIDENT",
+      "description": "example",
+      "packageIds": [
+        "demo-001"
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "Exception-valid",
+    "schema": "Exception",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "state": "open",
+      "category": "example",
+      "ownerId": "demo-001",
+      "dueAt": "2026-10-24T03:00:00Z",
+      "blockingActions": [
+        "example"
+      ]
+    }
+  },
+  {
+    "id": "Exception-invalid",
+    "schema": "Exception",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "state": "open",
+      "category": "example",
+      "ownerId": "demo-001",
+      "dueAt": "2026-10-24T03:00:00Z",
+      "blockingActions": [
+        "example"
+      ]
+    }
+  },
+  {
+    "id": "ReturnRequest-valid",
+    "schema": "ReturnRequest",
+    "valid": true,
+    "value": {
+      "packageIds": [
+        "demo-001"
+      ],
+      "reason": "example",
+      "warehouseId": "demo-001",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ReturnRequest-invalid",
+    "schema": "ReturnRequest",
+    "valid": false,
+    "value": {
+      "reason": "example",
+      "warehouseId": "demo-001",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ReturnTask-valid",
+    "schema": "ReturnTask",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "warehouseId": "demo-001",
+      "state": "requested",
+      "packageIds": [
+        "demo-001"
+      ],
+      "discrepancyOpen": true
+    }
+  },
+  {
+    "id": "ReturnTask-invalid",
+    "schema": "ReturnTask",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "warehouseId": "demo-001",
+      "state": "requested",
+      "packageIds": [
+        "demo-001"
+      ],
+      "discrepancyOpen": true
+    }
+  },
+  {
+    "id": "ReturnReceipt-valid",
+    "schema": "ReturnReceipt",
+    "valid": true,
+    "value": {
+      "receivedPackageIds": [
+        "demo-001"
+      ],
+      "missingPackageIds": [
+        "demo-001"
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ReturnReceipt-invalid",
+    "schema": "ReturnReceipt",
+    "valid": false,
+    "value": {
+      "missingPackageIds": [
+        "demo-001"
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ReturnInspection-valid",
+    "schema": "ReturnInspection",
+    "valid": true,
+    "value": {
+      "packageIds": [
+        "demo-001"
+      ],
+      "disposition": "QUARANTINE",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ReturnInspection-invalid",
+    "schema": "ReturnInspection",
+    "valid": false,
+    "value": {
+      "disposition": "QUARANTINE",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "PartnerDraft-valid",
+    "schema": "PartnerDraft",
+    "valid": true,
+    "value": {
+      "name": "example",
+      "kind": "PARTNER_VEHICLE",
+      "contact": "example",
+      "phone": "example",
+      "qualificationFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "PartnerDraft-invalid",
+    "schema": "PartnerDraft",
+    "valid": false,
+    "value": {
+      "kind": "PARTNER_VEHICLE",
+      "contact": "example",
+      "phone": "example",
+      "qualificationFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "Partner-valid",
+    "schema": "Partner",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "name": "example",
+      "kind": "PARTNER_VEHICLE",
+      "state": "draft",
+      "agreementVersionId": "demo-001"
+    }
+  },
+  {
+    "id": "Partner-invalid",
+    "schema": "Partner",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "name": "example",
+      "kind": "PARTNER_VEHICLE",
+      "state": "draft",
+      "agreementVersionId": "demo-001"
+    }
+  },
+  {
+    "id": "BookingRequest-valid",
+    "schema": "BookingRequest",
+    "valid": true,
+    "value": {
+      "partnerId": "demo-001",
+      "agreementVersionId": "demo-001",
+      "proposedCost": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "serviceDescription": "example"
+    }
+  },
+  {
+    "id": "BookingRequest-invalid",
+    "schema": "BookingRequest",
+    "valid": false,
+    "value": {
+      "agreementVersionId": "demo-001",
+      "proposedCost": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "serviceDescription": "example"
+    }
+  },
+  {
+    "id": "Booking-valid",
+    "schema": "Booking",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "partnerId": "demo-001",
+      "state": "draft",
+      "externalTrackingNo": "example"
+    }
+  },
+  {
+    "id": "Booking-invalid",
+    "schema": "Booking",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "partnerId": "demo-001",
+      "state": "draft",
+      "externalTrackingNo": "example"
+    }
+  },
+  {
+    "id": "BookingConfirm-valid",
+    "schema": "BookingConfirm",
+    "valid": true,
+    "value": {
+      "externalTrackingNo": "example",
+      "confirmedCost": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "BookingConfirm-invalid",
+    "schema": "BookingConfirm",
+    "valid": false,
+    "value": {
+      "confirmedCost": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "CarrierEvent-valid",
+    "schema": "CarrierEvent",
+    "valid": true,
+    "value": {
+      "externalEventId": "example",
+      "reportedStatus": "example",
+      "observedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "CarrierEvent-invalid",
+    "schema": "CarrierEvent",
+    "valid": false,
+    "value": {
+      "reportedStatus": "example",
+      "observedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "RescueLeg-valid",
+    "schema": "RescueLeg",
+    "valid": true,
+    "value": {
+      "packageIds": [
+        "demo-001"
+      ],
+      "vehicleId": "demo-001",
+      "driverId": "demo-001",
+      "vehicleVersion": 1,
+      "planVersion": 1,
+      "loadReviewId": "demo-001"
+    }
+  },
+  {
+    "id": "RescueLeg-invalid",
+    "schema": "RescueLeg",
+    "valid": false,
+    "value": {
+      "vehicleId": "demo-001",
+      "driverId": "demo-001",
+      "vehicleVersion": 1,
+      "planVersion": 1,
+      "loadReviewId": "demo-001"
+    }
+  },
+  {
+    "id": "RescueRequest-valid",
+    "schema": "RescueRequest",
+    "valid": true,
+    "value": {
+      "exceptionId": "demo-001",
+      "exceptionVersion": 1,
+      "legs": [
+        {
+          "packageIds": [
+            "demo-001"
+          ],
+          "vehicleId": "demo-001",
+          "driverId": "demo-001",
+          "vehicleVersion": 1,
+          "planVersion": 1,
+          "loadReviewId": "demo-001"
+        }
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "RescueRequest-invalid",
+    "schema": "RescueRequest",
+    "valid": false,
+    "value": {
+      "exceptionVersion": 1,
+      "legs": [
+        {
+          "packageIds": [
+            "demo-001"
+          ],
+          "vehicleId": "demo-001",
+          "driverId": "demo-001",
+          "vehicleVersion": 1,
+          "planVersion": 1,
+          "loadReviewId": "demo-001"
+        }
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "RescuePlan-valid",
+    "schema": "RescuePlan",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "exceptionId": "demo-001",
+      "state": "proposed",
+      "assignmentIds": [
+        "demo-001"
+      ],
+      "remainingPackageIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "RescuePlan-invalid",
+    "schema": "RescuePlan",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "exceptionId": "demo-001",
+      "state": "proposed",
+      "assignmentIds": [
+        "demo-001"
+      ],
+      "remainingPackageIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "AccountMasked-valid",
+    "schema": "AccountMasked",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "subjectId": "demo-001",
+      "bankCode": "example",
+      "last4": "0000",
+      "holderDisplayName": "example",
+      "state": "pending_review"
+    }
+  },
+  {
+    "id": "AccountMasked-invalid",
+    "schema": "AccountMasked",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "subjectId": "demo-001",
+      "bankCode": "example",
+      "last4": "0000",
+      "holderDisplayName": "example",
+      "state": "pending_review"
+    }
+  },
+  {
+    "id": "ReceiptReport-valid",
+    "schema": "ReceiptReport",
+    "valid": true,
+    "value": {
+      "payerSubjectId": "demo-001",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "method": "BANK_TRANSFER",
+      "externalReference": "example",
+      "orderIds": [
+        "demo-001"
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "ReceiptReport-invalid",
+    "schema": "ReceiptReport",
+    "valid": false,
+    "value": {
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "method": "BANK_TRANSFER",
+      "externalReference": "example",
+      "orderIds": [
+        "demo-001"
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "OwnReceiptReport-valid",
+    "schema": "OwnReceiptReport",
+    "valid": true,
+    "value": {
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "receivingAccountId": "demo-001",
+      "externalReference": "example",
+      "orderIds": [
+        "demo-001"
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "OwnReceiptReport-invalid",
+    "schema": "OwnReceiptReport",
+    "valid": false,
+    "value": {
+      "receivingAccountId": "demo-001",
+      "externalReference": "example",
+      "orderIds": [
+        "demo-001"
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "DriverCashReport-valid",
+    "schema": "DriverCashReport",
+    "valid": true,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "deliveryAmountMinor": 1,
+      "insuranceAmountMinor": 1,
+      "codAmountMinor": 1,
+      "currency": "USD",
+      "cashVoucherRef": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "DriverCashReport-invalid",
+    "schema": "DriverCashReport",
+    "valid": false,
+    "value": {
+      "orderVersion": 1,
+      "deliveryAmountMinor": 1,
+      "insuranceAmountMinor": 1,
+      "codAmountMinor": 1,
+      "currency": "USD",
+      "cashVoucherRef": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "Receipt-valid",
+    "schema": "Receipt",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "payerSubjectId": "demo-001",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "method": "BANK_TRANSFER",
+      "state": "reported",
+      "custodyType": "DRIVER",
+      "custodianSubjectId": "demo-001",
+      "confirmedAt": "2026-10-24T03:00:00Z",
+      "allocatedMinor": 1,
+      "unallocatedMinor": 1,
+      "refundReservedMinor": 1,
+      "refundedMinor": 1,
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "Receipt-invalid",
+    "schema": "Receipt",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "payerSubjectId": "demo-001",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "method": "BANK_TRANSFER",
+      "state": "reported",
+      "custodyType": "DRIVER",
+      "custodianSubjectId": "demo-001",
+      "confirmedAt": "2026-10-24T03:00:00Z",
+      "allocatedMinor": 1,
+      "unallocatedMinor": 1,
+      "refundReservedMinor": 1,
+      "refundedMinor": 1,
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "LedgerItem-valid",
+    "schema": "LedgerItem",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "subjectId": "demo-001",
+      "direction": "RECEIVABLE",
+      "purpose": "DELIVERY",
+      "currency": "USD",
+      "originalMinor": 1,
+      "adjustmentMinor": 1,
+      "allocatedMinor": 1,
+      "outstandingMinor": 1,
+      "reservedMinor": 1,
+      "dueDate": "2026-10-24",
+      "sourceType": "example",
+      "sourceId": "demo-001"
+    }
+  },
+  {
+    "id": "LedgerItem-invalid",
+    "schema": "LedgerItem",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "subjectId": "demo-001",
+      "direction": "RECEIVABLE",
+      "purpose": "DELIVERY",
+      "currency": "USD",
+      "originalMinor": 1,
+      "adjustmentMinor": 1,
+      "allocatedMinor": 1,
+      "outstandingMinor": 1,
+      "reservedMinor": 1,
+      "dueDate": "2026-10-24",
+      "sourceType": "example",
+      "sourceId": "demo-001"
+    }
+  },
+  {
+    "id": "AllocationLine-valid",
+    "schema": "AllocationLine",
+    "valid": true,
+    "value": {
+      "ledgerItemId": "demo-001",
+      "ledgerItemVersion": 1,
+      "amountMinor": 1
+    }
+  },
+  {
+    "id": "AllocationLine-invalid",
+    "schema": "AllocationLine",
+    "valid": false,
+    "value": {
+      "ledgerItemVersion": 1,
+      "amountMinor": 1
+    }
+  },
+  {
+    "id": "AllocationDraft-valid",
+    "schema": "AllocationDraft",
+    "valid": true,
+    "value": {
+      "kind": "ALLOCATION",
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "items": [
+        {
+          "ledgerItemId": "demo-001",
+          "ledgerItemVersion": 1,
+          "amountMinor": 1
+        }
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "AllocationDraft-invalid",
+    "schema": "AllocationDraft",
+    "valid": false,
+    "value": {
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "items": [
+        {
+          "ledgerItemId": "demo-001",
+          "ledgerItemVersion": 1,
+          "amountMinor": 1
+        }
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "PaymentDraft-valid",
+    "schema": "PaymentDraft",
+    "valid": true,
+    "value": {
+      "kind": "PAYMENT",
+      "ledgerItemId": "demo-001",
+      "ledgerItemVersion": 1,
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "accountId": "demo-001",
+      "accountVersion": 1,
+      "reason": "example"
+    }
+  },
+  {
+    "id": "PaymentDraft-invalid",
+    "schema": "PaymentDraft",
+    "valid": false,
+    "value": {
+      "ledgerItemId": "demo-001",
+      "ledgerItemVersion": 1,
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "accountId": "demo-001",
+      "accountVersion": 1,
+      "reason": "example"
+    }
+  },
+  {
+    "id": "RefundDraft-valid",
+    "schema": "RefundDraft",
+    "valid": true,
+    "value": {
+      "kind": "REFUND",
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "accountId": "demo-001",
+      "accountVersion": 1,
+      "reason": "example"
+    }
+  },
+  {
+    "id": "RefundDraft-invalid",
+    "schema": "RefundDraft",
+    "valid": false,
+    "value": {
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "accountId": "demo-001",
+      "accountVersion": 1,
+      "reason": "example"
+    }
+  },
+  {
+    "id": "AdjustmentDraft-valid",
+    "schema": "AdjustmentDraft",
+    "valid": true,
+    "value": {
+      "kind": "ADJUSTMENT",
+      "ledgerItemId": "demo-001",
+      "ledgerItemVersion": 1,
+      "direction": "INCREASE",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "AdjustmentDraft-invalid",
+    "schema": "AdjustmentDraft",
+    "valid": false,
+    "value": {
+      "ledgerItemId": "demo-001",
+      "ledgerItemVersion": 1,
+      "direction": "INCREASE",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ReversalDraft-valid",
+    "schema": "ReversalDraft",
+    "valid": true,
+    "value": {
+      "kind": "REVERSAL",
+      "allocationId": "demo-001",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ReversalDraft-invalid",
+    "schema": "ReversalDraft",
+    "valid": false,
+    "value": {
+      "allocationId": "demo-001",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "PayableDraft-valid",
+    "schema": "PayableDraft",
+    "valid": true,
+    "value": {
+      "kind": "PAYABLE",
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "purpose": "CARRIER",
+      "beneficiarySubjectId": "demo-001",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "agreementVersionId": "demo-001",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "PayableDraft-invalid",
+    "schema": "PayableDraft",
+    "valid": false,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "purpose": "CARRIER",
+      "beneficiarySubjectId": "demo-001",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "agreementVersionId": "demo-001",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "AccountChangeDraft-valid",
+    "schema": "AccountChangeDraft",
+    "valid": true,
+    "value": {
+      "kind": "ACCOUNT_CHANGE",
+      "subjectId": "demo-001",
+      "currentAccountVersion": 1,
+      "bankCode": "example",
+      "holderName": "example",
+      "accountNumber": "SYNTHETIC-NOT-A-REAL-ACCOUNT",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "AccountChangeDraft-invalid",
+    "schema": "AccountChangeDraft",
+    "valid": false,
+    "value": {
+      "subjectId": "demo-001",
+      "currentAccountVersion": 1,
+      "bankCode": "example",
+      "holderName": "example",
+      "accountNumber": "SYNTHETIC-NOT-A-REAL-ACCOUNT",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "FinanceDraft-valid",
+    "schema": "FinanceDraft",
+    "valid": true,
+    "value": {
+      "kind": "ALLOCATION",
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "items": [
+        {
+          "ledgerItemId": "demo-001",
+          "ledgerItemVersion": 1,
+          "amountMinor": 1
+        }
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "FinanceDraft-invalid",
+    "schema": "FinanceDraft",
+    "valid": false,
+    "value": {
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "items": [
+        {
+          "ledgerItemId": "demo-001",
+          "ledgerItemVersion": 1,
+          "amountMinor": 1
+        }
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "ApprovalRecord-valid",
+    "schema": "ApprovalRecord",
+    "valid": true,
+    "value": {
+      "personId": "demo-001",
+      "role": "MAKER",
+      "documentVersion": 1,
+      "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "at": "2026-10-24T03:00:00Z",
+      "comment": "example"
+    }
+  },
+  {
+    "id": "ApprovalRecord-invalid",
+    "schema": "ApprovalRecord",
+    "valid": false,
+    "value": {
+      "role": "MAKER",
+      "documentVersion": 1,
+      "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "at": "2026-10-24T03:00:00Z",
+      "comment": "example"
+    }
+  },
+  {
+    "id": "FinanceDocument-valid",
+    "schema": "FinanceDocument",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "kind": "ALLOCATION",
+      "state": "draft",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "subjectId": "demo-001",
+      "makerPersonId": "demo-001",
+      "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "sourceIds": [
+        "demo-001"
+      ],
+      "accountSnapshot": {
+        "id": "demo-001",
+        "version": 1,
+        "subjectId": "demo-001",
+        "bankCode": "example",
+        "last4": "0000",
+        "holderDisplayName": "example",
+        "state": "pending_review"
+      },
+      "history": [
+        {
+          "personId": "demo-001",
+          "role": "MAKER",
+          "documentVersion": 1,
+          "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "at": "2026-10-24T03:00:00Z",
+          "comment": "example"
+        }
+      ],
+      "reason": "example",
+      "details": {
+        "kind": "ALLOCATION",
+        "receiptId": "demo-001",
+        "receiptVersion": 1,
+        "items": [
+          {
+            "ledgerItemId": "demo-001",
+            "ledgerItemVersion": 1,
+            "amountMinor": 1
+          }
+        ],
+        "reason": "example"
+      }
+    }
+  },
+  {
+    "id": "FinanceDocument-invalid",
+    "schema": "FinanceDocument",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "kind": "ALLOCATION",
+      "state": "draft",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "subjectId": "demo-001",
+      "makerPersonId": "demo-001",
+      "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "sourceIds": [
+        "demo-001"
+      ],
+      "accountSnapshot": {
+        "id": "demo-001",
+        "version": 1,
+        "subjectId": "demo-001",
+        "bankCode": "example",
+        "last4": "0000",
+        "holderDisplayName": "example",
+        "state": "pending_review"
+      },
+      "history": [
+        {
+          "personId": "demo-001",
+          "role": "MAKER",
+          "documentVersion": 1,
+          "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "at": "2026-10-24T03:00:00Z",
+          "comment": "example"
+        }
+      ],
+      "reason": "example",
+      "details": {
+        "kind": "ALLOCATION",
+        "receiptId": "demo-001",
+        "receiptVersion": 1,
+        "items": [
+          {
+            "ledgerItemId": "demo-001",
+            "ledgerItemVersion": 1,
+            "amountMinor": 1
+          }
+        ],
+        "reason": "example"
+      }
+    }
+  },
+  {
+    "id": "OwnFinanceRequest-valid",
+    "schema": "OwnFinanceRequest",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "kind": "REFUND",
+      "state": "draft",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "sourceIds": [
+        "demo-001"
+      ],
+      "nextAction": "example",
+      "updatedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "OwnFinanceRequest-invalid",
+    "schema": "OwnFinanceRequest",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "kind": "REFUND",
+      "state": "draft",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "sourceIds": [
+        "demo-001"
+      ],
+      "nextAction": "example",
+      "updatedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "ExecutionRecord-valid",
+    "schema": "ExecutionRecord",
+    "valid": true,
+    "value": {
+      "externalReference": "example",
+      "executedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ExecutionRecord-invalid",
+    "schema": "ExecutionRecord",
+    "valid": false,
+    "value": {
+      "executedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "PaymentResult-valid",
+    "schema": "PaymentResult",
+    "valid": true,
+    "value": {
+      "result": "CONFIRMED",
+      "externalReference": "example",
+      "verifiedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "PaymentResult-invalid",
+    "schema": "PaymentResult",
+    "valid": false,
+    "value": {
+      "externalReference": "example",
+      "verifiedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "CashHandoverLine-valid",
+    "schema": "CashHandoverLine",
+    "valid": true,
+    "value": {
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "amountMinor": 1
+    }
+  },
+  {
+    "id": "CashHandoverLine-invalid",
+    "schema": "CashHandoverLine",
+    "valid": false,
+    "value": {
+      "receiptVersion": 1,
+      "amountMinor": 1
+    }
+  },
+  {
+    "id": "CashHandoverRequest-valid",
+    "schema": "CashHandoverRequest",
+    "valid": true,
+    "value": {
+      "currency": "USD",
+      "items": [
+        {
+          "receiptId": "demo-001",
+          "receiptVersion": 1,
+          "amountMinor": 1
+        }
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "CashHandoverRequest-invalid",
+    "schema": "CashHandoverRequest",
+    "valid": false,
+    "value": {
+      "items": [
+        {
+          "receiptId": "demo-001",
+          "receiptVersion": 1,
+          "amountMinor": 1
+        }
+      ],
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "CashHandover-valid",
+    "schema": "CashHandover",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "driverSubjectId": "demo-001",
+      "declared": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "counted": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "differenceMinor": 1,
+      "differenceDirection": "NONE",
+      "state": "submitted",
+      "reviewDocumentId": "demo-001"
+    }
+  },
+  {
+    "id": "CashHandover-invalid",
+    "schema": "CashHandover",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "driverSubjectId": "demo-001",
+      "declared": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "counted": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "differenceMinor": 1,
+      "differenceDirection": "NONE",
+      "state": "submitted",
+      "reviewDocumentId": "demo-001"
+    }
+  },
+  {
+    "id": "CashCount-valid",
+    "schema": "CashCount",
+    "valid": true,
+    "value": {
+      "actual": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "CashCount-invalid",
+    "schema": "CashCount",
+    "valid": false,
+    "value": {
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "PaymentIntentRequest-valid",
+    "schema": "PaymentIntentRequest",
+    "valid": true,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "quoteId": "demo-001",
+      "ledgerItems": [
+        {
+          "id": "demo-001",
+          "version": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "PaymentIntentRequest-invalid",
+    "schema": "PaymentIntentRequest",
+    "valid": false,
+    "value": {
+      "orderVersion": 1,
+      "quoteId": "demo-001",
+      "ledgerItems": [
+        {
+          "id": "demo-001",
+          "version": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "PaymentIntent-valid",
+    "schema": "PaymentIntent",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "provider": "KESS",
+      "mode": "sandbox",
+      "state": "creating",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "feeItems": [
+        {
+          "id": "demo-001",
+          "purpose": "DELIVERY",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "direction": "CHARGE",
+          "basis": "example"
+        }
+      ],
+      "paymentUrl": "https://api.routefit.invalid/example",
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "receiptId": "demo-001",
+      "settlementState": "not_received",
+      "lastCheckedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "PaymentIntent-invalid",
+    "schema": "PaymentIntent",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "provider": "KESS",
+      "mode": "sandbox",
+      "state": "creating",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "feeItems": [
+        {
+          "id": "demo-001",
+          "purpose": "DELIVERY",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "direction": "CHARGE",
+          "basis": "example"
+        }
+      ],
+      "paymentUrl": "https://api.routefit.invalid/example",
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "receiptId": "demo-001",
+      "settlementState": "not_received",
+      "lastCheckedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "SettlementRuleDraft-valid",
+    "schema": "SettlementRuleDraft",
+    "valid": true,
+    "value": {
+      "subjectId": "demo-001",
+      "direction": "RECEIVABLE",
+      "purpose": "DELIVERY",
+      "currency": "USD",
+      "period": "PER_ORDER",
+      "anchorDate": "2026-10-24",
+      "shortMonthPolicy": "MONTH_END",
+      "issueDelayDays": 1,
+      "dueAfterDays": 1,
+      "remindBeforeDays": 1,
+      "overdueRepeatDays": 1,
+      "effectiveFrom": "2026-10-24",
+      "ownerPersonId": "demo-001"
+    }
+  },
+  {
+    "id": "SettlementRuleDraft-invalid",
+    "schema": "SettlementRuleDraft",
+    "valid": false,
+    "value": {
+      "direction": "RECEIVABLE",
+      "purpose": "DELIVERY",
+      "currency": "USD",
+      "period": "PER_ORDER",
+      "anchorDate": "2026-10-24",
+      "shortMonthPolicy": "MONTH_END",
+      "issueDelayDays": 1,
+      "dueAfterDays": 1,
+      "remindBeforeDays": 1,
+      "overdueRepeatDays": 1,
+      "effectiveFrom": "2026-10-24",
+      "ownerPersonId": "demo-001"
+    }
+  },
+  {
+    "id": "SettlementRule-valid",
+    "schema": "SettlementRule",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "state": "draft",
+      "rule": {
+        "subjectId": "demo-001",
+        "direction": "RECEIVABLE",
+        "purpose": "DELIVERY",
+        "currency": "USD",
+        "period": "PER_ORDER",
+        "anchorDate": "2026-10-24",
+        "shortMonthPolicy": "MONTH_END",
+        "issueDelayDays": 1,
+        "dueAfterDays": 1,
+        "remindBeforeDays": 1,
+        "overdueRepeatDays": 1,
+        "effectiveFrom": "2026-10-24",
+        "ownerPersonId": "demo-001"
+      }
+    }
+  },
+  {
+    "id": "SettlementRule-invalid",
+    "schema": "SettlementRule",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "state": "draft",
+      "rule": {
+        "subjectId": "demo-001",
+        "direction": "RECEIVABLE",
+        "purpose": "DELIVERY",
+        "currency": "USD",
+        "period": "PER_ORDER",
+        "anchorDate": "2026-10-24",
+        "shortMonthPolicy": "MONTH_END",
+        "issueDelayDays": 1,
+        "dueAfterDays": 1,
+        "remindBeforeDays": 1,
+        "overdueRepeatDays": 1,
+        "effectiveFrom": "2026-10-24",
+        "ownerPersonId": "demo-001"
+      }
+    }
+  },
+  {
+    "id": "Statement-valid",
+    "schema": "Statement",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "subjectId": "demo-001",
+      "direction": "RECEIVABLE",
+      "currency": "USD",
+      "periodStart": "2026-10-24",
+      "periodEndExclusive": "2026-10-24",
+      "ruleVersionId": "demo-001",
+      "ledgerItems": [
+        {
+          "id": "demo-001",
+          "version": 1
+        }
+      ],
+      "openingMinor": 1,
+      "chargesMinor": 1,
+      "adjustmentMinor": 1,
+      "allocatedMinor": 1,
+      "closingMinor": 1,
+      "dueDate": "2026-10-24",
+      "internalState": "draft",
+      "customerState": "unseen",
+      "paymentState": "unpaid"
+    }
+  },
+  {
+    "id": "Statement-invalid",
+    "schema": "Statement",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "subjectId": "demo-001",
+      "direction": "RECEIVABLE",
+      "currency": "USD",
+      "periodStart": "2026-10-24",
+      "periodEndExclusive": "2026-10-24",
+      "ruleVersionId": "demo-001",
+      "ledgerItems": [
+        {
+          "id": "demo-001",
+          "version": 1
+        }
+      ],
+      "openingMinor": 1,
+      "chargesMinor": 1,
+      "adjustmentMinor": 1,
+      "allocatedMinor": 1,
+      "closingMinor": 1,
+      "dueDate": "2026-10-24",
+      "internalState": "draft",
+      "customerState": "unseen",
+      "paymentState": "unpaid"
+    }
+  },
+  {
+    "id": "FinanceTask-valid",
+    "schema": "FinanceTask",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "type": "RECEIPT_REVIEW",
+      "subjectId": "demo-001",
+      "sourceId": "demo-001",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "ownerId": "demo-001",
+      "dueAt": "2026-10-24T03:00:00Z",
+      "state": "open",
+      "readAt": "2026-10-24T03:00:00Z",
+      "nextAction": "example"
+    }
+  },
+  {
+    "id": "FinanceTask-invalid",
+    "schema": "FinanceTask",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "type": "RECEIPT_REVIEW",
+      "subjectId": "demo-001",
+      "sourceId": "demo-001",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "ownerId": "demo-001",
+      "dueAt": "2026-10-24T03:00:00Z",
+      "state": "open",
+      "readAt": "2026-10-24T03:00:00Z",
+      "nextAction": "example"
+    }
+  },
+  {
+    "id": "HoldTask-valid",
+    "schema": "HoldTask",
+    "valid": true,
+    "value": {
+      "reason": "example",
+      "until": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "HoldTask-invalid",
+    "schema": "HoldTask",
+    "valid": false,
+    "value": {
+      "until": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ReportRow-valid",
+    "schema": "ReportRow",
+    "valid": true,
+    "value": {
+      "sourceId": "demo-001",
+      "orderId": "demo-001",
+      "subjectId": "demo-001",
+      "purpose": "DELIVERY",
+      "direction": "RECEIVABLE",
+      "currency": "USD",
+      "originalMinor": 1,
+      "adjustmentMinor": 1,
+      "allocatedMinor": 1,
+      "outstandingMinor": 1,
+      "dueDate": "2026-10-24"
+    }
+  },
+  {
+    "id": "ReportRow-invalid",
+    "schema": "ReportRow",
+    "valid": false,
+    "value": {
+      "orderId": "demo-001",
+      "subjectId": "demo-001",
+      "purpose": "DELIVERY",
+      "direction": "RECEIVABLE",
+      "currency": "USD",
+      "originalMinor": 1,
+      "adjustmentMinor": 1,
+      "allocatedMinor": 1,
+      "outstandingMinor": 1,
+      "dueDate": "2026-10-24"
+    }
+  },
+  {
+    "id": "MoneyOverview-valid",
+    "schema": "MoneyOverview",
+    "valid": true,
+    "value": {
+      "currency": "USD",
+      "asOf": "2026-10-24T03:00:00Z",
+      "receivableMinor": 1,
+      "payableMinor": 1,
+      "driverHeldMinor": 1,
+      "codLiabilityMinor": 1,
+      "channelHeldMinor": 1,
+      "companyHeldMinor": 1,
+      "paymentReservedMinor": 1,
+      "unmatchedMinor": 1,
+      "quality": "fresh"
+    }
+  },
+  {
+    "id": "MoneyOverview-invalid",
+    "schema": "MoneyOverview",
+    "valid": false,
+    "value": {
+      "asOf": "2026-10-24T03:00:00Z",
+      "receivableMinor": 1,
+      "payableMinor": 1,
+      "driverHeldMinor": 1,
+      "codLiabilityMinor": 1,
+      "channelHeldMinor": 1,
+      "companyHeldMinor": 1,
+      "paymentReservedMinor": 1,
+      "unmatchedMinor": 1,
+      "quality": "fresh"
+    }
+  },
+  {
+    "id": "ExportRequest-valid",
+    "schema": "ExportRequest",
+    "valid": true,
+    "value": {
+      "report": "LEDGER",
+      "currency": "USD",
+      "dateFrom": "2026-10-24",
+      "dateToExclusive": "2026-10-24",
+      "format": "CSV"
+    }
+  },
+  {
+    "id": "ExportRequest-invalid",
+    "schema": "ExportRequest",
+    "valid": false,
+    "value": {
+      "currency": "USD",
+      "dateFrom": "2026-10-24",
+      "dateToExclusive": "2026-10-24",
+      "format": "CSV"
+    }
+  },
+  {
+    "id": "ExportJob-valid",
+    "schema": "ExportJob",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "state": "queued",
+      "createdAt": "2026-10-24T03:00:00Z",
+      "downloadUrl": "https://api.routefit.invalid/example",
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "ExportJob-invalid",
+    "schema": "ExportJob",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "state": "queued",
+      "createdAt": "2026-10-24T03:00:00Z",
+      "downloadUrl": "https://api.routefit.invalid/example",
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "BankTransactionDraft-valid",
+    "schema": "BankTransactionDraft",
+    "valid": true,
+    "value": {
+      "accountId": "demo-001",
+      "externalTransactionId": "example",
+      "direction": "IN",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "bookedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "BankTransactionDraft-invalid",
+    "schema": "BankTransactionDraft",
+    "valid": false,
+    "value": {
+      "externalTransactionId": "example",
+      "direction": "IN",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "bookedAt": "2026-10-24T03:00:00Z",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "BankTransaction-valid",
+    "schema": "BankTransaction",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "accountId": "demo-001",
+      "externalTransactionId": "example",
+      "direction": "IN",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "matchedMinor": 1,
+      "unmatchedMinor": 1,
+      "bookedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "BankTransaction-invalid",
+    "schema": "BankTransaction",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "accountId": "demo-001",
+      "externalTransactionId": "example",
+      "direction": "IN",
+      "money": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "matchedMinor": 1,
+      "unmatchedMinor": 1,
+      "bookedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "ChannelSettlementDraft-valid",
+    "schema": "ChannelSettlementDraft",
+    "valid": true,
+    "value": {
+      "provider": "KESS",
+      "externalBatchId": "example",
+      "currency": "USD",
+      "receiptIds": [
+        "demo-001"
+      ],
+      "grossMinor": 1,
+      "feeMinor": 1,
+      "refundMinor": 1,
+      "netMinor": 1,
+      "bankTransaction": {
+        "id": "demo-001",
+        "version": 1
+      },
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "ChannelSettlementDraft-invalid",
+    "schema": "ChannelSettlementDraft",
+    "valid": false,
+    "value": {
+      "externalBatchId": "example",
+      "currency": "USD",
+      "receiptIds": [
+        "demo-001"
+      ],
+      "grossMinor": 1,
+      "feeMinor": 1,
+      "refundMinor": 1,
+      "netMinor": 1,
+      "bankTransaction": {
+        "id": "demo-001",
+        "version": 1
+      },
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "ChannelSettlement-valid",
+    "schema": "ChannelSettlement",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "state": "draft",
+      "reviewDocumentId": "demo-001",
+      "data": {
+        "provider": "KESS",
+        "externalBatchId": "example",
+        "currency": "USD",
+        "receiptIds": [
+          "demo-001"
+        ],
+        "grossMinor": 1,
+        "feeMinor": 1,
+        "refundMinor": 1,
+        "netMinor": 1,
+        "bankTransaction": {
+          "id": "demo-001",
+          "version": 1
+        },
+        "evidenceFileIds": [
+          "demo-001"
+        ],
+        "reason": "example"
+      }
+    }
+  },
+  {
+    "id": "ChannelSettlement-invalid",
+    "schema": "ChannelSettlement",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "state": "draft",
+      "reviewDocumentId": "demo-001",
+      "data": {
+        "provider": "KESS",
+        "externalBatchId": "example",
+        "currency": "USD",
+        "receiptIds": [
+          "demo-001"
+        ],
+        "grossMinor": 1,
+        "feeMinor": 1,
+        "refundMinor": 1,
+        "netMinor": 1,
+        "bankTransaction": {
+          "id": "demo-001",
+          "version": 1
+        },
+        "evidenceFileIds": [
+          "demo-001"
+        ],
+        "reason": "example"
+      }
+    }
+  },
+  {
+    "id": "KnownStock-valid",
+    "schema": "KnownStock",
+    "valid": true,
+    "value": {
+      "bookQty": 100,
+      "reservedQty": 20,
+      "quarantineQty": 5,
+      "requestableQty": 75
+    }
+  },
+  {
+    "id": "KnownStock-invalid",
+    "schema": "KnownStock",
+    "valid": false,
+    "value": {
+      "reservedQty": 20,
+      "quarantineQty": 5,
+      "requestableQty": 75
+    }
+  },
+  {
+    "id": "InventoryRow-valid",
+    "schema": "InventoryRow",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "ownerAccountId": "demo-001",
+      "warehouseId": "demo-001",
+      "skuId": "demo-001",
+      "lotRef": "example",
+      "unit": "example",
+      "quantities": {
+        "bookQty": 100,
+        "reservedQty": 20,
+        "quarantineQty": 5,
+        "requestableQty": 75
+      },
+      "source": "ROUTEFIT_WMS",
+      "observedAt": "2026-10-24T03:00:00Z",
+      "quality": "fresh",
+      "unknownReason": "example"
+    }
+  },
+  {
+    "id": "InventoryRow-invalid",
+    "schema": "InventoryRow",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "ownerAccountId": "demo-001",
+      "warehouseId": "demo-001",
+      "skuId": "demo-001",
+      "lotRef": "example",
+      "unit": "example",
+      "quantities": {
+        "bookQty": 100,
+        "reservedQty": 20,
+        "quarantineQty": 5,
+        "requestableQty": 75
+      },
+      "source": "ROUTEFIT_WMS",
+      "observedAt": "2026-10-24T03:00:00Z",
+      "quality": "fresh",
+      "unknownReason": "example"
+    }
+  },
+  {
+    "id": "WarehouseLine-valid",
+    "schema": "WarehouseLine",
+    "valid": true,
+    "value": {
+      "skuId": "demo-001",
+      "quantity": 1
+    }
+  },
+  {
+    "id": "WarehouseLine-invalid",
+    "schema": "WarehouseLine",
+    "valid": false,
+    "value": {
+      "quantity": 1
+    }
+  },
+  {
+    "id": "InboundNoticeRequest-valid",
+    "schema": "InboundNoticeRequest",
+    "valid": true,
+    "value": {
+      "warehouseId": "demo-001",
+      "expectedWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "lines": [
+        {
+          "skuId": "demo-001",
+          "quantity": 1
+        }
+      ],
+      "packingEvidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "InboundNoticeRequest-invalid",
+    "schema": "InboundNoticeRequest",
+    "valid": false,
+    "value": {
+      "expectedWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "lines": [
+        {
+          "skuId": "demo-001",
+          "quantity": 1
+        }
+      ],
+      "packingEvidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "OutboundRequest-valid",
+    "schema": "OutboundRequest",
+    "valid": true,
+    "value": {
+      "warehouseId": "demo-001",
+      "lines": [
+        {
+          "skuId": "demo-001",
+          "quantity": 1
+        }
+      ],
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "requestedWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "serviceLevel": "S1",
+      "exclusiveVehicle": true
+    }
+  },
+  {
+    "id": "OutboundRequest-invalid",
+    "schema": "OutboundRequest",
+    "valid": false,
+    "value": {
+      "lines": [
+        {
+          "skuId": "demo-001",
+          "quantity": 1
+        }
+      ],
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "requestedWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "serviceLevel": "S1",
+      "exclusiveVehicle": true
+    }
+  },
+  {
+    "id": "WarehouseRequest-valid",
+    "schema": "WarehouseRequest",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "type": "INBOUND_NOTICE",
+      "ownerAccountId": "demo-001",
+      "warehouseId": "demo-001",
+      "state": "draft",
+      "relatedOrderId": "demo-001",
+      "createdAt": "2026-10-24T03:00:00Z",
+      "nextAction": "example"
+    }
+  },
+  {
+    "id": "WarehouseRequest-invalid",
+    "schema": "WarehouseRequest",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "type": "INBOUND_NOTICE",
+      "ownerAccountId": "demo-001",
+      "warehouseId": "demo-001",
+      "state": "draft",
+      "relatedOrderId": "demo-001",
+      "createdAt": "2026-10-24T03:00:00Z",
+      "nextAction": "example"
+    }
+  },
+  {
+    "id": "ReservationRequest-valid",
+    "schema": "ReservationRequest",
+    "valid": true,
+    "value": {
+      "warehouseRequestId": "demo-001",
+      "warehouseRequestVersion": 1,
+      "lines": [
+        {
+          "skuId": "demo-001",
+          "quantity": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "ReservationRequest-invalid",
+    "schema": "ReservationRequest",
+    "valid": false,
+    "value": {
+      "warehouseRequestVersion": 1,
+      "lines": [
+        {
+          "skuId": "demo-001",
+          "quantity": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "StockReservation-valid",
+    "schema": "StockReservation",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "state": "requested",
+      "warehouseRequestId": "demo-001",
+      "lines": [
+        {
+          "skuId": "demo-001",
+          "quantity": 1
+        }
+      ],
+      "authority": "ROUTEFIT_WMS"
+    }
+  },
+  {
+    "id": "StockReservation-invalid",
+    "schema": "StockReservation",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "state": "requested",
+      "warehouseRequestId": "demo-001",
+      "lines": [
+        {
+          "skuId": "demo-001",
+          "quantity": 1
+        }
+      ],
+      "authority": "ROUTEFIT_WMS"
+    }
+  },
+  {
+    "id": "WmsStockEvent-valid",
+    "schema": "WmsStockEvent",
+    "valid": true,
+    "value": {
+      "externalEventId": "example",
+      "warehouseId": "demo-001",
+      "ownerAccountId": "demo-001",
+      "skuId": "demo-001",
+      "lotRef": "example",
+      "unit": "example",
+      "quantities": {
+        "bookQty": 100,
+        "reservedQty": 20,
+        "quarantineQty": 5,
+        "requestableQty": 75
+      },
+      "sourceVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "WmsStockEvent-invalid",
+    "schema": "WmsStockEvent",
+    "valid": false,
+    "value": {
+      "warehouseId": "demo-001",
+      "ownerAccountId": "demo-001",
+      "skuId": "demo-001",
+      "lotRef": "example",
+      "unit": "example",
+      "quantities": {
+        "bookQty": 100,
+        "reservedQty": 20,
+        "quarantineQty": 5,
+        "requestableQty": 75
+      },
+      "sourceVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "ExternalOrderRequest-valid",
+    "schema": "ExternalOrderRequest",
+    "valid": true,
+    "value": {
+      "externalOrderId": "example",
+      "externalRevision": 1,
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "requestedPickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "requestedDeliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "serviceLevel": "S1",
+      "deliveryPrice": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "insurancePrice": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "sourcePlatform": "example"
+    }
+  },
+  {
+    "id": "ExternalOrderRequest-invalid",
+    "schema": "ExternalOrderRequest",
+    "valid": false,
+    "value": {
+      "externalRevision": 1,
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "requestedPickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "requestedDeliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "serviceLevel": "S1",
+      "deliveryPrice": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "insurancePrice": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "sourcePlatform": "example"
+    }
+  },
+  {
+    "id": "ImportResult-valid",
+    "schema": "ImportResult",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "externalOrderId": "example",
+      "orderId": "demo-001",
+      "state": "pending_review",
+      "duplicate": true
+    }
+  },
+  {
+    "id": "ImportResult-invalid",
+    "schema": "ImportResult",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "externalOrderId": "example",
+      "orderId": "demo-001",
+      "state": "pending_review",
+      "duplicate": true
+    }
+  },
+  {
+    "id": "DispatchRequest-valid",
+    "schema": "DispatchRequest",
+    "valid": true,
+    "value": {
+      "quoteId": "demo-001",
+      "quoteVersion": 1,
+      "consentEvidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "DispatchRequest-invalid",
+    "schema": "DispatchRequest",
+    "valid": false,
+    "value": {
+      "quoteVersion": 1,
+      "consentEvidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ServiceRequest-valid",
+    "schema": "ServiceRequest",
+    "valid": true,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "type": "ADDRESS_CHANGE",
+      "description": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ServiceRequest-invalid",
+    "schema": "ServiceRequest",
+    "valid": false,
+    "value": {
+      "orderVersion": 1,
+      "type": "ADDRESS_CHANGE",
+      "description": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ServiceCase-valid",
+    "schema": "ServiceCase",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "orderId": "demo-001",
+      "type": "example",
+      "state": "submitted",
+      "ownerDisplayName": "example",
+      "nextAction": "example",
+      "relatedQuoteId": "demo-001",
+      "relatedFinanceDocumentId": "demo-001"
+    }
+  },
+  {
+    "id": "ServiceCase-invalid",
+    "schema": "ServiceCase",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "orderId": "demo-001",
+      "type": "example",
+      "state": "submitted",
+      "ownerDisplayName": "example",
+      "nextAction": "example",
+      "relatedQuoteId": "demo-001",
+      "relatedFinanceDocumentId": "demo-001"
+    }
+  },
+  {
+    "id": "CaseDecision-valid",
+    "schema": "CaseDecision",
+    "valid": true,
+    "value": {
+      "decision": "ACCEPT",
+      "reason": "example"
+    }
+  },
+  {
+    "id": "CaseDecision-invalid",
+    "schema": "CaseDecision",
+    "valid": false,
+    "value": {
+      "reason": "example"
+    }
+  },
+  {
+    "id": "PortalMembershipDraft-valid",
+    "schema": "PortalMembershipDraft",
+    "valid": true,
+    "value": {
+      "invitationEmail": "member@example.invalid",
+      "permissions": [
+        "ORDERS_READ"
+      ],
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "PortalMembershipDraft-invalid",
+    "schema": "PortalMembershipDraft",
+    "valid": false,
+    "value": {
+      "permissions": [
+        "ORDERS_READ"
+      ],
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "PortalMembership-valid",
+    "schema": "PortalMembership",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "ownerAccountId": "demo-001",
+      "personId": "demo-001",
+      "state": "invited",
+      "permissions": [
+        "example"
+      ]
+    }
+  },
+  {
+    "id": "PortalMembership-invalid",
+    "schema": "PortalMembership",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "ownerAccountId": "demo-001",
+      "personId": "demo-001",
+      "state": "invited",
+      "permissions": [
+        "example"
+      ]
+    }
+  },
+  {
+    "id": "PublicTracking-valid",
+    "schema": "PublicTracking",
+    "valid": true,
+    "value": {
+      "orderLabel": "example",
+      "state": "preparing",
+      "promiseWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "etaAt": "2026-10-24T03:00:00Z",
+      "etaType": "MANUAL",
+      "updatedAt": "2026-10-24T03:00:00Z",
+      "quality": "fresh",
+      "contactEntry": "https://api.routefit.invalid/example"
+    }
+  },
+  {
+    "id": "PublicTracking-invalid",
+    "schema": "PublicTracking",
+    "valid": false,
+    "value": {
+      "state": "preparing",
+      "promiseWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "etaAt": "2026-10-24T03:00:00Z",
+      "etaType": "MANUAL",
+      "updatedAt": "2026-10-24T03:00:00Z",
+      "quality": "fresh",
+      "contactEntry": "https://api.routefit.invalid/example"
+    }
+  },
+  {
+    "id": "RecipientChallengeRequest-valid",
+    "schema": "RecipientChallengeRequest",
+    "valid": true,
+    "value": {
+      "trackingRef": "SYNTHETIC-NOT-A-REAL-TOKEN-000000"
+    }
+  },
+  {
+    "id": "RecipientChallengeRequest-invalid",
+    "schema": "RecipientChallengeRequest",
+    "valid": false,
+    "value": {}
+  },
+  {
+    "id": "RecipientChallenge-valid",
+    "schema": "RecipientChallenge",
+    "valid": true,
+    "value": {
+      "challengeId": "demo-001",
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "message": "example"
+    }
+  },
+  {
+    "id": "RecipientChallenge-invalid",
+    "schema": "RecipientChallenge",
+    "valid": false,
+    "value": {
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "message": "example"
+    }
+  },
+  {
+    "id": "RecipientVerify-valid",
+    "schema": "RecipientVerify",
+    "valid": true,
+    "value": {
+      "challengeId": "demo-001",
+      "code": "000000"
+    }
+  },
+  {
+    "id": "RecipientVerify-invalid",
+    "schema": "RecipientVerify",
+    "valid": false,
+    "value": {
+      "code": "000000"
+    }
+  },
+  {
+    "id": "RecipientSession-valid",
+    "schema": "RecipientSession",
+    "valid": true,
+    "value": {
+      "accessToken": "example",
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "orderId": "demo-001",
+      "permissions": [
+        "DELIVERY_READ"
+      ]
+    }
+  },
+  {
+    "id": "RecipientSession-invalid",
+    "schema": "RecipientSession",
+    "valid": false,
+    "value": {
+      "expiresAt": "2026-10-24T03:00:00Z",
+      "orderId": "demo-001",
+      "permissions": [
+        "DELIVERY_READ"
+      ]
+    }
+  },
+  {
+    "id": "RecipientAcknowledgement-valid",
+    "schema": "RecipientAcknowledgement",
+    "valid": true,
+    "value": {
+      "deliveredPackageIds": [
+        "demo-001"
+      ],
+      "deliveryRecordId": "demo-001",
+      "deliveryRecordVersion": 1,
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "RecipientAcknowledgement-invalid",
+    "schema": "RecipientAcknowledgement",
+    "valid": false,
+    "value": {
+      "deliveryRecordId": "demo-001",
+      "deliveryRecordVersion": 1,
+      "evidenceFileIds": [
+        "demo-001"
+      ],
+      "observedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "RecipientAckResult-valid",
+    "schema": "RecipientAckResult",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "state": "recorded",
+      "orderId": "demo-001",
+      "deliveryRecordId": "demo-001"
+    }
+  },
+  {
+    "id": "RecipientAckResult-invalid",
+    "schema": "RecipientAckResult",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "state": "recorded",
+      "orderId": "demo-001",
+      "deliveryRecordId": "demo-001"
+    }
+  },
+  {
+    "id": "EvidenceUploadRequest-valid",
+    "schema": "EvidenceUploadRequest",
+    "valid": true,
+    "value": {
+      "purpose": "PACKAGING",
+      "resourceType": "ORDER",
+      "resourceId": "demo-001",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 1,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  {
+    "id": "EvidenceUploadRequest-invalid",
+    "schema": "EvidenceUploadRequest",
+    "valid": false,
+    "value": {
+      "resourceType": "ORDER",
+      "resourceId": "demo-001",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 1,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  {
+    "id": "UploadTicket-valid",
+    "schema": "UploadTicket",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "uploadUrl": "https://api.routefit.invalid/example",
+      "method": "PUT",
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "UploadTicket-invalid",
+    "schema": "UploadTicket",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "uploadUrl": "https://api.routefit.invalid/example",
+      "method": "PUT",
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "EvidenceFile-valid",
+    "schema": "EvidenceFile",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "state": "uploaded",
+      "mimeType": "example",
+      "sizeBytes": 1,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  {
+    "id": "EvidenceFile-invalid",
+    "schema": "EvidenceFile",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "state": "uploaded",
+      "mimeType": "example",
+      "sizeBytes": 1,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  {
+    "id": "DownloadLink-valid",
+    "schema": "DownloadLink",
+    "valid": true,
+    "value": {
+      "url": "https://api.routefit.invalid/example",
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "DownloadLink-invalid",
+    "schema": "DownloadLink",
+    "valid": false,
+    "value": {
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "SyncEvent-valid",
+    "schema": "SyncEvent",
+    "valid": true,
+    "value": {
+      "eventId": "demo-001",
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "ARRIVED",
+      "payload": {
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        },
+        "evidenceFileIds": [
+          "demo-001"
+        ]
+      }
+    }
+  },
+  {
+    "id": "SyncEvent-invalid",
+    "schema": "SyncEvent",
+    "valid": false,
+    "value": {
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "ARRIVED",
+      "payload": {
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        },
+        "evidenceFileIds": [
+          "demo-001"
+        ]
+      }
+    }
+  },
+  {
+    "id": "SyncBatch-valid",
+    "schema": "SyncBatch",
+    "valid": true,
+    "value": {
+      "deviceId": "demo-001",
+      "events": [
+        {
+          "eventId": "demo-001",
+          "sequence": 1,
+          "assignmentId": "demo-001",
+          "assignmentVersion": 1,
+          "planVersion": 1,
+          "observedAt": "2026-10-24T03:00:00Z",
+          "type": "ARRIVED",
+          "payload": {
+            "point": {
+              "lat": 11.5564,
+              "lng": 104.9282
+            },
+            "evidenceFileIds": [
+              "demo-001"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "SyncBatch-invalid",
+    "schema": "SyncBatch",
+    "valid": false,
+    "value": {
+      "events": [
+        {
+          "eventId": "demo-001",
+          "sequence": 1,
+          "assignmentId": "demo-001",
+          "assignmentVersion": 1,
+          "planVersion": 1,
+          "observedAt": "2026-10-24T03:00:00Z",
+          "type": "ARRIVED",
+          "payload": {
+            "point": {
+              "lat": 11.5564,
+              "lng": 104.9282
+            },
+            "evidenceFileIds": [
+              "demo-001"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "SyncResult-valid",
+    "schema": "SyncResult",
+    "valid": true,
+    "value": {
+      "eventId": "demo-001",
+      "result": "APPLIED",
+      "resourceId": "demo-001",
+      "resourceVersion": 1,
+      "errorCode": "example"
+    }
+  },
+  {
+    "id": "SyncResult-invalid",
+    "schema": "SyncResult",
+    "valid": false,
+    "value": {
+      "result": "APPLIED",
+      "resourceId": "demo-001",
+      "resourceVersion": 1,
+      "errorCode": "example"
+    }
+  },
+  {
+    "id": "LocationPoint-valid",
+    "schema": "LocationPoint",
+    "valid": true,
+    "value": {
+      "clientPointId": "demo-001",
+      "observedAt": "2026-10-24T03:00:00Z",
+      "point": {
+        "lat": 11.5564,
+        "lng": 104.9282
+      },
+      "accuracyM": 1,
+      "permission": "ALWAYS",
+      "foreground": true,
+      "batteryRatio": 1
+    }
+  },
+  {
+    "id": "LocationPoint-invalid",
+    "schema": "LocationPoint",
+    "valid": false,
+    "value": {
+      "observedAt": "2026-10-24T03:00:00Z",
+      "point": {
+        "lat": 11.5564,
+        "lng": 104.9282
+      },
+      "accuracyM": 1,
+      "permission": "ALWAYS",
+      "foreground": true,
+      "batteryRatio": 1
+    }
+  },
+  {
+    "id": "LocationBatch-valid",
+    "schema": "LocationBatch",
+    "valid": true,
+    "value": {
+      "deviceId": "demo-001",
+      "shiftId": "demo-001",
+      "points": [
+        {
+          "clientPointId": "demo-001",
+          "observedAt": "2026-10-24T03:00:00Z",
+          "point": {
+            "lat": 11.5564,
+            "lng": 104.9282
+          },
+          "accuracyM": 1,
+          "permission": "ALWAYS",
+          "foreground": true,
+          "batteryRatio": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "LocationBatch-invalid",
+    "schema": "LocationBatch",
+    "valid": false,
+    "value": {
+      "shiftId": "demo-001",
+      "points": [
+        {
+          "clientPointId": "demo-001",
+          "observedAt": "2026-10-24T03:00:00Z",
+          "point": {
+            "lat": 11.5564,
+            "lng": 104.9282
+          },
+          "accuracyM": 1,
+          "permission": "ALWAYS",
+          "foreground": true,
+          "batteryRatio": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "LocationResult-valid",
+    "schema": "LocationResult",
+    "valid": true,
+    "value": {
+      "acceptedPointIds": [
+        "demo-001"
+      ],
+      "rejectedPointIds": [
+        "demo-001"
+      ],
+      "latestObservedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "LocationResult-invalid",
+    "schema": "LocationResult",
+    "valid": false,
+    "value": {
+      "rejectedPointIds": [
+        "demo-001"
+      ],
+      "latestObservedAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "VehicleMapPoint-valid",
+    "schema": "VehicleMapPoint",
+    "valid": true,
+    "value": {
+      "vehicleId": "demo-001",
+      "point": {
+        "lat": 11.5564,
+        "lng": 104.9282
+      },
+      "observedAt": "2026-10-24T03:00:00Z",
+      "quality": "fresh",
+      "state": "available",
+      "activeAssignmentIds": [
+        "demo-001"
+      ],
+      "exceptionIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "VehicleMapPoint-invalid",
+    "schema": "VehicleMapPoint",
+    "valid": false,
+    "value": {
+      "point": {
+        "lat": 11.5564,
+        "lng": 104.9282
+      },
+      "observedAt": "2026-10-24T03:00:00Z",
+      "quality": "fresh",
+      "state": "available",
+      "activeAssignmentIds": [
+        "demo-001"
+      ],
+      "exceptionIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "DispatchBoard-valid",
+    "schema": "DispatchBoard",
+    "valid": true,
+    "value": {
+      "asOf": "2026-10-24T03:00:00Z",
+      "orderIds": [
+        "demo-001"
+      ],
+      "vehicles": [
+        {
+          "vehicleId": "demo-001",
+          "point": {
+            "lat": 11.5564,
+            "lng": 104.9282
+          },
+          "observedAt": "2026-10-24T03:00:00Z",
+          "quality": "fresh",
+          "state": "available",
+          "activeAssignmentIds": [
+            "demo-001"
+          ],
+          "exceptionIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "urgentExceptionIds": [
+        "demo-001"
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "DispatchBoard-invalid",
+    "schema": "DispatchBoard",
+    "valid": false,
+    "value": {
+      "orderIds": [
+        "demo-001"
+      ],
+      "vehicles": [
+        {
+          "vehicleId": "demo-001",
+          "point": {
+            "lat": 11.5564,
+            "lng": 104.9282
+          },
+          "observedAt": "2026-10-24T03:00:00Z",
+          "quality": "fresh",
+          "state": "available",
+          "activeAssignmentIds": [
+            "demo-001"
+          ],
+          "exceptionIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "urgentExceptionIds": [
+        "demo-001"
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "NotificationRequest-valid",
+    "schema": "NotificationRequest",
+    "valid": true,
+    "value": {
+      "templateId": "demo-001",
+      "subjectId": "demo-001",
+      "resourceType": "ORDER",
+      "resourceId": "demo-001",
+      "resourceVersion": 1,
+      "channel": "IN_APP",
+      "reason": "example"
+    }
+  },
+  {
+    "id": "NotificationRequest-invalid",
+    "schema": "NotificationRequest",
+    "valid": false,
+    "value": {
+      "subjectId": "demo-001",
+      "resourceType": "ORDER",
+      "resourceId": "demo-001",
+      "resourceVersion": 1,
+      "channel": "IN_APP",
+      "reason": "example"
+    }
+  },
+  {
+    "id": "Notification-valid",
+    "schema": "Notification",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "state": "queued",
+      "resourceId": "demo-001",
+      "readAt": "2026-10-24T03:00:00Z",
+      "failureCode": "example"
+    }
+  },
+  {
+    "id": "Notification-invalid",
+    "schema": "Notification",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "state": "queued",
+      "resourceId": "demo-001",
+      "readAt": "2026-10-24T03:00:00Z",
+      "failureCode": "example"
+    }
+  },
+  {
+    "id": "SnapshotModule-valid",
+    "schema": "SnapshotModule",
+    "valid": true,
+    "value": {
+      "mode": "live",
+      "quality": "fresh",
+      "value": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "unknownReason": "example"
+    }
+  },
+  {
+    "id": "SnapshotModule-invalid",
+    "schema": "SnapshotModule",
+    "valid": false,
+    "value": {
+      "quality": "fresh",
+      "value": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "unknownReason": "example"
+    }
+  },
+  {
+    "id": "OpsSnapshot-valid",
+    "schema": "OpsSnapshot",
+    "valid": true,
+    "value": {
+      "schemaVersion": "1.0.0",
+      "generatedAt": "2026-10-24T03:00:00Z",
+      "orders": {
+        "mode": "live",
+        "quality": "fresh",
+        "value": 1,
+        "observedAt": "2026-10-24T03:00:00Z",
+        "unknownReason": "example"
+      },
+      "vehicles": {
+        "mode": "live",
+        "quality": "fresh",
+        "value": 1,
+        "observedAt": "2026-10-24T03:00:00Z",
+        "unknownReason": "example"
+      },
+      "exceptions": {
+        "mode": "live",
+        "quality": "fresh",
+        "value": 1,
+        "observedAt": "2026-10-24T03:00:00Z",
+        "unknownReason": "example"
+      },
+      "inventory": {
+        "mode": "live",
+        "quality": "fresh",
+        "value": 1,
+        "observedAt": "2026-10-24T03:00:00Z",
+        "unknownReason": "example"
+      }
+    }
+  },
+  {
+    "id": "OpsSnapshot-invalid",
+    "schema": "OpsSnapshot",
+    "valid": false,
+    "value": {
+      "generatedAt": "2026-10-24T03:00:00Z",
+      "orders": {
+        "mode": "live",
+        "quality": "fresh",
+        "value": 1,
+        "observedAt": "2026-10-24T03:00:00Z",
+        "unknownReason": "example"
+      },
+      "vehicles": {
+        "mode": "live",
+        "quality": "fresh",
+        "value": 1,
+        "observedAt": "2026-10-24T03:00:00Z",
+        "unknownReason": "example"
+      },
+      "exceptions": {
+        "mode": "live",
+        "quality": "fresh",
+        "value": 1,
+        "observedAt": "2026-10-24T03:00:00Z",
+        "unknownReason": "example"
+      },
+      "inventory": {
+        "mode": "live",
+        "quality": "fresh",
+        "value": 1,
+        "observedAt": "2026-10-24T03:00:00Z",
+        "unknownReason": "example"
+      }
+    }
+  },
+  {
+    "id": "ServiceAreaDraft-valid",
+    "schema": "ServiceAreaDraft",
+    "valid": true,
+    "value": {
+      "name": "演示金边服务区",
+      "type": "ALLOW",
+      "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              104.9,
+              11.54
+            ],
+            [
+              104.94,
+              11.54
+            ],
+            [
+              104.94,
+              11.58
+            ],
+            [
+              104.9,
+              11.54
+            ]
+          ]
+        ]
+      },
+      "effectiveFrom": "2026-10-24T00:00:00Z"
+    }
+  },
+  {
+    "id": "ServiceAreaDraft-invalid",
+    "schema": "ServiceAreaDraft",
+    "valid": false,
+    "value": {
+      "type": "ALLOW",
+      "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              104.9,
+              11.54
+            ],
+            [
+              104.94,
+              11.54
+            ],
+            [
+              104.94,
+              11.58
+            ],
+            [
+              104.9,
+              11.54
+            ]
+          ]
+        ]
+      },
+      "effectiveFrom": "2026-10-24T00:00:00Z"
+    }
+  },
+  {
+    "id": "ServiceArea-valid",
+    "schema": "ServiceArea",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "state": "draft",
+      "data": {
+        "name": "演示金边服务区",
+        "type": "ALLOW",
+        "polygon": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                104.9,
+                11.54
+              ],
+              [
+                104.94,
+                11.54
+              ],
+              [
+                104.94,
+                11.58
+              ],
+              [
+                104.9,
+                11.54
+              ]
+            ]
+          ]
+        },
+        "effectiveFrom": "2026-10-24T00:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "ServiceArea-invalid",
+    "schema": "ServiceArea",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "state": "draft",
+      "data": {
+        "name": "演示金边服务区",
+        "type": "ALLOW",
+        "polygon": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                104.9,
+                11.54
+              ],
+              [
+                104.94,
+                11.54
+              ],
+              [
+                104.94,
+                11.58
+              ],
+              [
+                104.9,
+                11.54
+              ]
+            ]
+          ]
+        },
+        "effectiveFrom": "2026-10-24T00:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "AccessGrantDraft-valid",
+    "schema": "AccessGrantDraft",
+    "valid": true,
+    "value": {
+      "principalId": "demo-001",
+      "role": "OPS",
+      "warehouseIds": [
+        "demo-001"
+      ],
+      "subjectIds": [
+        "demo-001"
+      ],
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "AccessGrantDraft-invalid",
+    "schema": "AccessGrantDraft",
+    "valid": false,
+    "value": {
+      "role": "OPS",
+      "warehouseIds": [
+        "demo-001"
+      ],
+      "subjectIds": [
+        "demo-001"
+      ],
+      "expiresAt": "2026-10-24T03:00:00Z"
+    }
+  },
+  {
+    "id": "AccessGrant-valid",
+    "schema": "AccessGrant",
+    "valid": true,
+    "value": {
+      "id": "demo-001",
+      "version": 1,
+      "state": "active",
+      "data": {
+        "principalId": "demo-001",
+        "role": "OPS",
+        "warehouseIds": [
+          "demo-001"
+        ],
+        "subjectIds": [
+          "demo-001"
+        ],
+        "expiresAt": "2026-10-24T03:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "AccessGrant-invalid",
+    "schema": "AccessGrant",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "state": "active",
+      "data": {
+        "principalId": "demo-001",
+        "role": "OPS",
+        "warehouseIds": [
+          "demo-001"
+        ],
+        "subjectIds": [
+          "demo-001"
+        ],
+        "expiresAt": "2026-10-24T03:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "PeriodPreview-valid",
+    "schema": "PeriodPreview",
+    "valid": true,
+    "value": {
+      "start": "2026-10-24",
+      "endExclusive": "2026-10-24",
+      "issueDate": "2026-10-24",
+      "dueDate": "2026-10-24"
+    }
+  },
+  {
+    "id": "PeriodPreview-invalid",
+    "schema": "PeriodPreview",
+    "valid": false,
+    "value": {
+      "endExclusive": "2026-10-24",
+      "issueDate": "2026-10-24",
+      "dueDate": "2026-10-24"
+    }
+  },
+  {
+    "id": "ArrivalPayload-valid",
+    "schema": "ArrivalPayload",
+    "valid": true,
+    "value": {
+      "point": {
+        "lat": 11.5564,
+        "lng": 104.9282
+      },
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ArrivalPayload-invalid",
+    "schema": "ArrivalPayload",
+    "valid": false,
+    "value": {
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "HandoverSignature-valid",
+    "schema": "HandoverSignature",
+    "valid": true,
+    "value": {
+      "transferId": "demo-001",
+      "transferVersion": 1,
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "HandoverSignature-invalid",
+    "schema": "HandoverSignature",
+    "valid": false,
+    "value": {
+      "transferVersion": 1,
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "SyncArrived-valid",
+    "schema": "SyncArrived",
+    "valid": true,
+    "value": {
+      "eventId": "demo-001",
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "ARRIVED",
+      "payload": {
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        },
+        "evidenceFileIds": [
+          "demo-001"
+        ]
+      }
+    }
+  },
+  {
+    "id": "SyncArrived-invalid",
+    "schema": "SyncArrived",
+    "valid": false,
+    "value": {
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "ARRIVED",
+      "payload": {
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        },
+        "evidenceFileIds": [
+          "demo-001"
+        ]
+      }
+    }
+  },
+  {
+    "id": "SyncHandoverSigned-valid",
+    "schema": "SyncHandoverSigned",
+    "valid": true,
+    "value": {
+      "eventId": "demo-001",
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "HANDOVER_SIGNED",
+      "payload": {
+        "transferId": "demo-001",
+        "transferVersion": 1,
+        "evidenceFileIds": [
+          "demo-001"
+        ]
+      }
+    }
+  },
+  {
+    "id": "SyncHandoverSigned-invalid",
+    "schema": "SyncHandoverSigned",
+    "valid": false,
+    "value": {
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "HANDOVER_SIGNED",
+      "payload": {
+        "transferId": "demo-001",
+        "transferVersion": 1,
+        "evidenceFileIds": [
+          "demo-001"
+        ]
+      }
+    }
+  },
+  {
+    "id": "SyncDeparted-valid",
+    "schema": "SyncDeparted",
+    "valid": true,
+    "value": {
+      "eventId": "demo-001",
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "DEPARTED",
+      "payload": {
+        "reason": "example"
+      }
+    }
+  },
+  {
+    "id": "SyncDeparted-invalid",
+    "schema": "SyncDeparted",
+    "valid": false,
+    "value": {
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "DEPARTED",
+      "payload": {
+        "reason": "example"
+      }
+    }
+  },
+  {
+    "id": "SyncDeliveryRecorded-valid",
+    "schema": "SyncDeliveryRecorded",
+    "valid": true,
+    "value": {
+      "eventId": "demo-001",
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "DELIVERY_RECORDED",
+      "payload": {
+        "deliveredPackageIds": [
+          "demo-001"
+        ],
+        "remainingPackageIds": [
+          "demo-001"
+        ],
+        "recipientAuthorizationId": "demo-001",
+        "observedAt": "2026-10-24T03:00:00Z",
+        "evidenceFileIds": [
+          "demo-001"
+        ]
+      }
+    }
+  },
+  {
+    "id": "SyncDeliveryRecorded-invalid",
+    "schema": "SyncDeliveryRecorded",
+    "valid": false,
+    "value": {
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "DELIVERY_RECORDED",
+      "payload": {
+        "deliveredPackageIds": [
+          "demo-001"
+        ],
+        "remainingPackageIds": [
+          "demo-001"
+        ],
+        "recipientAuthorizationId": "demo-001",
+        "observedAt": "2026-10-24T03:00:00Z",
+        "evidenceFileIds": [
+          "demo-001"
+        ]
+      }
+    }
+  },
+  {
+    "id": "SyncCashReported-valid",
+    "schema": "SyncCashReported",
+    "valid": true,
+    "value": {
+      "eventId": "demo-001",
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "CASH_REPORTED",
+      "payload": {
+        "orderId": "demo-001",
+        "orderVersion": 1,
+        "deliveryAmountMinor": 1,
+        "insuranceAmountMinor": 1,
+        "codAmountMinor": 1,
+        "currency": "USD",
+        "cashVoucherRef": "example",
+        "evidenceFileIds": [
+          "demo-001"
+        ],
+        "observedAt": "2026-10-24T03:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "SyncCashReported-invalid",
+    "schema": "SyncCashReported",
+    "valid": false,
+    "value": {
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "CASH_REPORTED",
+      "payload": {
+        "orderId": "demo-001",
+        "orderVersion": 1,
+        "deliveryAmountMinor": 1,
+        "insuranceAmountMinor": 1,
+        "codAmountMinor": 1,
+        "currency": "USD",
+        "cashVoucherRef": "example",
+        "evidenceFileIds": [
+          "demo-001"
+        ],
+        "observedAt": "2026-10-24T03:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "SyncExceptionReported-valid",
+    "schema": "SyncExceptionReported",
+    "valid": true,
+    "value": {
+      "eventId": "demo-001",
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "EXCEPTION_REPORTED",
+      "payload": {
+        "orderId": "demo-001",
+        "category": "ACCIDENT",
+        "description": "example",
+        "packageIds": [
+          "demo-001"
+        ],
+        "evidenceFileIds": [
+          "demo-001"
+        ],
+        "observedAt": "2026-10-24T03:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "SyncExceptionReported-invalid",
+    "schema": "SyncExceptionReported",
+    "valid": false,
+    "value": {
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "EXCEPTION_REPORTED",
+      "payload": {
+        "orderId": "demo-001",
+        "category": "ACCIDENT",
+        "description": "example",
+        "packageIds": [
+          "demo-001"
+        ],
+        "evidenceFileIds": [
+          "demo-001"
+        ],
+        "observedAt": "2026-10-24T03:00:00Z"
+      }
+    }
+  },
+  {
+    "id": "OrderSummaryPage-valid",
+    "schema": "OrderSummaryPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "orderNo": "example",
+          "version": 1,
+          "state": "draft",
+          "serviceLevel": "S1",
+          "fulfillmentStage": "none",
+          "customerId": "demo-001",
+          "promiseId": "demo-001",
+          "collectionState": "unpaid",
+          "updatedAt": "2026-10-24T03:00:00Z"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "OrderSummaryPage-invalid",
+    "schema": "OrderSummaryPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "TimelineEventPage-valid",
+    "schema": "TimelineEventPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "type": "example",
+          "occurredAt": "2026-10-24T03:00:00Z",
+          "summary": "example",
+          "evidenceFileIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "TimelineEventPage-invalid",
+    "schema": "TimelineEventPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PromisePage-valid",
+    "schema": "PromisePage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "orderId": "demo-001",
+          "acceptedAt": "2026-10-24T03:00:00Z",
+          "pickupWindow": {
+            "start": "2026-10-24T03:00:00Z",
+            "end": "2026-10-24T04:00:00Z"
+          },
+          "deliveryWindow": {
+            "start": "2026-10-24T03:00:00Z",
+            "end": "2026-10-24T04:00:00Z"
+          },
+          "basis": "APPROVED_MANUAL",
+          "supersedesPromiseId": "demo-001"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PromisePage-invalid",
+    "schema": "PromisePage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "VehiclePage-valid",
+    "schema": "VehiclePage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "label": "example",
+          "kind": "MOTORCYCLE",
+          "specVersionId": "demo-001",
+          "state": "available",
+          "maxPayloadKg": 1,
+          "internalLengthCm": 1,
+          "internalWidthCm": 1,
+          "internalHeightCm": 1,
+          "doorWidthCm": 1,
+          "doorHeightCm": 1
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "VehiclePage-invalid",
+    "schema": "VehiclePage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "CandidatePage-valid",
+    "schema": "CandidatePage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "vehicleId": "demo-001",
+          "driverId": "demo-001",
+          "vehicleVersion": 1,
+          "planVersion": 1,
+          "eligible": true,
+          "reasons": [
+            "example"
+          ],
+          "estimatedCost": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "estimateType": "MANUAL"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "CandidatePage-invalid",
+    "schema": "CandidatePage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PartnerPage-valid",
+    "schema": "PartnerPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "name": "example",
+          "kind": "PARTNER_VEHICLE",
+          "state": "draft",
+          "agreementVersionId": "demo-001"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PartnerPage-invalid",
+    "schema": "PartnerPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "ExceptionPage-valid",
+    "schema": "ExceptionPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "orderId": "demo-001",
+          "state": "open",
+          "category": "example",
+          "ownerId": "demo-001",
+          "dueAt": "2026-10-24T03:00:00Z",
+          "blockingActions": [
+            "example"
+          ]
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "ExceptionPage-invalid",
+    "schema": "ExceptionPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "AssignOwner-valid",
+    "schema": "AssignOwner",
+    "valid": true,
+    "value": {
+      "ownerId": "demo-001",
+      "dueAt": "2026-10-24T03:00:00Z",
+      "reason": "example"
+    }
+  },
+  {
+    "id": "AssignOwner-invalid",
+    "schema": "AssignOwner",
+    "valid": false,
+    "value": {
+      "dueAt": "2026-10-24T03:00:00Z",
+      "reason": "example"
+    }
+  },
+  {
+    "id": "WarehouseRequestPage-valid",
+    "schema": "WarehouseRequestPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "type": "INBOUND_NOTICE",
+          "ownerAccountId": "demo-001",
+          "warehouseId": "demo-001",
+          "state": "draft",
+          "relatedOrderId": "demo-001",
+          "createdAt": "2026-10-24T03:00:00Z",
+          "nextAction": "example"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "WarehouseRequestPage-invalid",
+    "schema": "WarehouseRequestPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "FinanceTaskPage-valid",
+    "schema": "FinanceTaskPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "type": "RECEIPT_REVIEW",
+          "subjectId": "demo-001",
+          "sourceId": "demo-001",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "ownerId": "demo-001",
+          "dueAt": "2026-10-24T03:00:00Z",
+          "state": "open",
+          "readAt": "2026-10-24T03:00:00Z",
+          "nextAction": "example"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "FinanceTaskPage-invalid",
+    "schema": "FinanceTaskPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "LedgerItemPage-valid",
+    "schema": "LedgerItemPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "orderId": "demo-001",
+          "subjectId": "demo-001",
+          "direction": "RECEIVABLE",
+          "purpose": "DELIVERY",
+          "currency": "USD",
+          "originalMinor": 1,
+          "adjustmentMinor": 1,
+          "allocatedMinor": 1,
+          "outstandingMinor": 1,
+          "reservedMinor": 1,
+          "dueDate": "2026-10-24",
+          "sourceType": "example",
+          "sourceId": "demo-001"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "LedgerItemPage-invalid",
+    "schema": "LedgerItemPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "ReceiptPage-valid",
+    "schema": "ReceiptPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "payerSubjectId": "demo-001",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "method": "BANK_TRANSFER",
+          "state": "reported",
+          "custodyType": "DRIVER",
+          "custodianSubjectId": "demo-001",
+          "confirmedAt": "2026-10-24T03:00:00Z",
+          "allocatedMinor": 1,
+          "unallocatedMinor": 1,
+          "refundReservedMinor": 1,
+          "refundedMinor": 1,
+          "evidenceFileIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "ReceiptPage-invalid",
+    "schema": "ReceiptPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "FinanceDocumentPage-valid",
+    "schema": "FinanceDocumentPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "kind": "ALLOCATION",
+          "state": "draft",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "subjectId": "demo-001",
+          "makerPersonId": "demo-001",
+          "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "sourceIds": [
+            "demo-001"
+          ],
+          "accountSnapshot": {
+            "id": "demo-001",
+            "version": 1,
+            "subjectId": "demo-001",
+            "bankCode": "example",
+            "last4": "0000",
+            "holderDisplayName": "example",
+            "state": "pending_review"
+          },
+          "history": [
+            {
+              "personId": "demo-001",
+              "role": "MAKER",
+              "documentVersion": 1,
+              "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+              "at": "2026-10-24T03:00:00Z",
+              "comment": "example"
+            }
+          ],
+          "reason": "example",
+          "details": {
+            "kind": "ALLOCATION",
+            "receiptId": "demo-001",
+            "receiptVersion": 1,
+            "items": [
+              {
+                "ledgerItemId": "demo-001",
+                "ledgerItemVersion": 1,
+                "amountMinor": 1
+              }
+            ],
+            "reason": "example"
+          }
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "FinanceDocumentPage-invalid",
+    "schema": "FinanceDocumentPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "CashHandoverPage-valid",
+    "schema": "CashHandoverPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "driverSubjectId": "demo-001",
+          "declared": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "counted": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "differenceMinor": 1,
+          "differenceDirection": "NONE",
+          "state": "submitted",
+          "reviewDocumentId": "demo-001"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "CashHandoverPage-invalid",
+    "schema": "CashHandoverPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PaymentIntentPage-valid",
+    "schema": "PaymentIntentPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "orderId": "demo-001",
+          "provider": "KESS",
+          "mode": "sandbox",
+          "state": "creating",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "feeItems": [
+            {
+              "id": "demo-001",
+              "purpose": "DELIVERY",
+              "money": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              },
+              "direction": "CHARGE",
+              "basis": "example"
+            }
+          ],
+          "paymentUrl": "https://api.routefit.invalid/example",
+          "expiresAt": "2026-10-24T03:00:00Z",
+          "receiptId": "demo-001",
+          "settlementState": "not_received",
+          "lastCheckedAt": "2026-10-24T03:00:00Z"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PaymentIntentPage-invalid",
+    "schema": "PaymentIntentPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "BankTransactionPage-valid",
+    "schema": "BankTransactionPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "accountId": "demo-001",
+          "externalTransactionId": "example",
+          "direction": "IN",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "matchedMinor": 1,
+          "unmatchedMinor": 1,
+          "bookedAt": "2026-10-24T03:00:00Z"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "BankTransactionPage-invalid",
+    "schema": "BankTransactionPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "SettlementRulePage-valid",
+    "schema": "SettlementRulePage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "state": "draft",
+          "rule": {
+            "subjectId": "demo-001",
+            "direction": "RECEIVABLE",
+            "purpose": "DELIVERY",
+            "currency": "USD",
+            "period": "PER_ORDER",
+            "anchorDate": "2026-10-24",
+            "shortMonthPolicy": "MONTH_END",
+            "issueDelayDays": 1,
+            "dueAfterDays": 1,
+            "remindBeforeDays": 1,
+            "overdueRepeatDays": 1,
+            "effectiveFrom": "2026-10-24",
+            "ownerPersonId": "demo-001"
+          }
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "SettlementRulePage-invalid",
+    "schema": "SettlementRulePage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PeriodPreviewPage-valid",
+    "schema": "PeriodPreviewPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "start": "2026-10-24",
+          "endExclusive": "2026-10-24",
+          "issueDate": "2026-10-24",
+          "dueDate": "2026-10-24"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PeriodPreviewPage-invalid",
+    "schema": "PeriodPreviewPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "StatementPage-valid",
+    "schema": "StatementPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "subjectId": "demo-001",
+          "direction": "RECEIVABLE",
+          "currency": "USD",
+          "periodStart": "2026-10-24",
+          "periodEndExclusive": "2026-10-24",
+          "ruleVersionId": "demo-001",
+          "ledgerItems": [
+            {
+              "id": "demo-001",
+              "version": 1
+            }
+          ],
+          "openingMinor": 1,
+          "chargesMinor": 1,
+          "adjustmentMinor": 1,
+          "allocatedMinor": 1,
+          "closingMinor": 1,
+          "dueDate": "2026-10-24",
+          "internalState": "draft",
+          "customerState": "unseen",
+          "paymentState": "unpaid"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "StatementPage-invalid",
+    "schema": "StatementPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "StatementGenerate-valid",
+    "schema": "StatementGenerate",
+    "valid": true,
+    "value": {
+      "ruleId": "demo-001",
+      "ruleVersion": 1,
+      "periodStart": "2026-10-24",
+      "periodEndExclusive": "2026-10-24"
+    }
+  },
+  {
+    "id": "StatementGenerate-invalid",
+    "schema": "StatementGenerate",
+    "valid": false,
+    "value": {
+      "ruleVersion": 1,
+      "periodStart": "2026-10-24",
+      "periodEndExclusive": "2026-10-24"
+    }
+  },
+  {
+    "id": "ReportRowPage-valid",
+    "schema": "ReportRowPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "sourceId": "demo-001",
+          "orderId": "demo-001",
+          "subjectId": "demo-001",
+          "purpose": "DELIVERY",
+          "direction": "RECEIVABLE",
+          "currency": "USD",
+          "originalMinor": 1,
+          "adjustmentMinor": 1,
+          "allocatedMinor": 1,
+          "outstandingMinor": 1,
+          "dueDate": "2026-10-24"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "ReportRowPage-invalid",
+    "schema": "ReportRowPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "ServiceCasePage-valid",
+    "schema": "ServiceCasePage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "orderId": "demo-001",
+          "type": "example",
+          "state": "submitted",
+          "ownerDisplayName": "example",
+          "nextAction": "example",
+          "relatedQuoteId": "demo-001",
+          "relatedFinanceDocumentId": "demo-001"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "ServiceCasePage-invalid",
+    "schema": "ServiceCasePage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "InventoryRowPage-valid",
+    "schema": "InventoryRowPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "ownerAccountId": "demo-001",
+          "warehouseId": "demo-001",
+          "skuId": "demo-001",
+          "lotRef": "example",
+          "unit": "example",
+          "quantities": {
+            "bookQty": 100,
+            "reservedQty": 20,
+            "quarantineQty": 5,
+            "requestableQty": 75
+          },
+          "source": "ROUTEFIT_WMS",
+          "observedAt": "2026-10-24T03:00:00Z",
+          "quality": "fresh",
+          "unknownReason": "example"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "InventoryRowPage-invalid",
+    "schema": "InventoryRowPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "OwnFinanceRequestPage-valid",
+    "schema": "OwnFinanceRequestPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "kind": "REFUND",
+          "state": "draft",
+          "money": {
+            "amountMinor": 1200,
+            "currency": "USD"
+          },
+          "sourceIds": [
+            "demo-001"
+          ],
+          "nextAction": "example",
+          "updatedAt": "2026-10-24T03:00:00Z"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "OwnFinanceRequestPage-invalid",
+    "schema": "OwnFinanceRequestPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PortalMembershipPage-valid",
+    "schema": "PortalMembershipPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "ownerAccountId": "demo-001",
+          "personId": "demo-001",
+          "state": "invited",
+          "permissions": [
+            "example"
+          ]
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "PortalMembershipPage-invalid",
+    "schema": "PortalMembershipPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "AssignmentPage-valid",
+    "schema": "AssignmentPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "orderId": "demo-001",
+          "vehicleId": "demo-001",
+          "driverId": "demo-001",
+          "state": "offered",
+          "expiresAt": "2026-10-24T03:00:00Z",
+          "planVersion": 1
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "AssignmentPage-invalid",
+    "schema": "AssignmentPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "SyncResultPage-valid",
+    "schema": "SyncResultPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "eventId": "demo-001",
+          "result": "APPLIED",
+          "resourceId": "demo-001",
+          "resourceVersion": 1,
+          "errorCode": "example"
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "SyncResultPage-invalid",
+    "schema": "SyncResultPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "ServiceAreaPage-valid",
+    "schema": "ServiceAreaPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "state": "draft",
+          "data": {
+            "name": "演示金边服务区",
+            "type": "ALLOW",
+            "polygon": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    104.9,
+                    11.54
+                  ],
+                  [
+                    104.94,
+                    11.54
+                  ],
+                  [
+                    104.94,
+                    11.58
+                  ],
+                  [
+                    104.9,
+                    11.54
+                  ]
+                ]
+              ]
+            },
+            "effectiveFrom": "2026-10-24T00:00:00Z"
+          }
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "ServiceAreaPage-invalid",
+    "schema": "ServiceAreaPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "AccessGrantPage-valid",
+    "schema": "AccessGrantPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "state": "active",
+          "data": {
+            "principalId": "demo-001",
+            "role": "OPS",
+            "warehouseIds": [
+              "demo-001"
+            ],
+            "subjectIds": [
+              "demo-001"
+            ],
+            "expiresAt": "2026-10-24T03:00:00Z"
+          }
+        }
+      ],
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "AccessGrantPage-invalid",
+    "schema": "AccessGrantPage",
+    "valid": false,
+    "value": {
+      "nextCursor": "example"
+    }
+  },
+  {
+    "id": "AccountChangeView-valid",
+    "schema": "AccountChangeView",
+    "valid": true,
+    "value": {
+      "kind": "ACCOUNT_CHANGE",
+      "subjectId": "demo-001",
+      "currentAccountVersion": 1,
+      "bankCode": "example",
+      "holderDisplayName": "example",
+      "last4": "0000",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "AccountChangeView-invalid",
+    "schema": "AccountChangeView",
+    "valid": false,
+    "value": {
+      "subjectId": "demo-001",
+      "currentAccountVersion": 1,
+      "bankCode": "example",
+      "holderDisplayName": "example",
+      "last4": "0000",
+      "reason": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "HandoverReviewView-valid",
+    "schema": "HandoverReviewView",
+    "valid": true,
+    "value": {
+      "kind": "CASH_HANDOVER",
+      "handoverId": "demo-001",
+      "handoverVersion": 1,
+      "declared": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "counted": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      }
+    }
+  },
+  {
+    "id": "HandoverReviewView-invalid",
+    "schema": "HandoverReviewView",
+    "valid": false,
+    "value": {
+      "handoverId": "demo-001",
+      "handoverVersion": 1,
+      "declared": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      },
+      "counted": {
+        "amountMinor": 1200,
+        "currency": "USD"
+      }
+    }
+  },
+  {
+    "id": "ChannelReviewView-valid",
+    "schema": "ChannelReviewView",
+    "valid": true,
+    "value": {
+      "kind": "CHANNEL_SETTLEMENT",
+      "settlementId": "demo-001",
+      "settlementVersion": 1,
+      "grossMinor": 1,
+      "feeMinor": 1,
+      "refundMinor": 1,
+      "netMinor": 1,
+      "bankTransaction": {
+        "id": "demo-001",
+        "version": 1
+      },
+      "receiptIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "ChannelReviewView-invalid",
+    "schema": "ChannelReviewView",
+    "valid": false,
+    "value": {
+      "settlementId": "demo-001",
+      "settlementVersion": 1,
+      "grossMinor": 1,
+      "feeMinor": 1,
+      "refundMinor": 1,
+      "netMinor": 1,
+      "bankTransaction": {
+        "id": "demo-001",
+        "version": 1
+      },
+      "receiptIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "FinanceDocumentDetails-valid",
+    "schema": "FinanceDocumentDetails",
+    "valid": true,
+    "value": {
+      "kind": "ALLOCATION",
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "items": [
+        {
+          "ledgerItemId": "demo-001",
+          "ledgerItemVersion": 1,
+          "amountMinor": 1
+        }
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "FinanceDocumentDetails-invalid",
+    "schema": "FinanceDocumentDetails",
+    "valid": false,
+    "value": {
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "items": [
+        {
+          "ledgerItemId": "demo-001",
+          "ledgerItemVersion": 1,
+          "amountMinor": 1
+        }
+      ],
+      "reason": "example"
+    }
+  },
+  {
+    "id": "RecipientServiceRequest-valid",
+    "schema": "RecipientServiceRequest",
+    "valid": true,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "type": "ADDRESS_CHANGE",
+      "description": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "RecipientServiceRequest-invalid",
+    "schema": "RecipientServiceRequest",
+    "valid": false,
+    "value": {
+      "orderVersion": 1,
+      "type": "ADDRESS_CHANGE",
+      "description": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "SyncBatchResult-valid",
+    "schema": "SyncBatchResult",
+    "valid": true,
+    "value": {
+      "results": [
+        {
+          "eventId": "demo-001",
+          "result": "APPLIED",
+          "resourceId": "demo-001",
+          "resourceVersion": 1,
+          "errorCode": "example"
+        }
+      ]
+    }
+  },
+  {
+    "id": "SyncBatchResult-invalid",
+    "schema": "SyncBatchResult",
+    "valid": false,
+    "value": {}
+  },
+  {
+    "id": "money-no-floats",
+    "schema": "Money",
+    "valid": false,
+    "value": {
+      "amountMinor": 12.1,
+      "currency": "USD"
+    }
+  },
+  {
+    "id": "currency-no-implicit-fx",
+    "schema": "Money",
+    "valid": false,
+    "value": {
+      "amountMinor": 100,
+      "currency": "CNY"
+    }
+  },
+  {
+    "id": "money-no-negative-receipt",
+    "schema": "Money",
+    "valid": false,
+    "value": {
+      "amountMinor": -1,
+      "currency": "USD"
+    }
+  },
+  {
+    "id": "client-cannot-set-kess-amount",
+    "schema": "PaymentIntentRequest",
+    "valid": false,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "quoteId": "demo-001",
+      "ledgerItems": [
+        {
+          "id": "demo-001",
+          "version": 1
+        }
+      ],
+      "amountMinor": 1
+    }
+  },
+  {
+    "id": "client-cannot-confirm-payment",
+    "schema": "PaymentIntentRequest",
+    "valid": false,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "quoteId": "demo-001",
+      "ledgerItems": [
+        {
+          "id": "demo-001",
+          "version": 1
+        }
+      ],
+      "paid": true
+    }
+  },
+  {
+    "id": "customer-cannot-switch-company",
+    "schema": "CustomerOrderDraft",
+    "valid": false,
+    "value": {
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "serviceLevel": "S1",
+      "exclusiveVehicle": true,
+      "requestedPickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "requestedDeliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "paymentTerms": "PREPAID",
+      "companyId": "other-company"
+    }
+  },
+  {
+    "id": "customer-cannot-switch-owner",
+    "schema": "CustomerOrderDraft",
+    "valid": false,
+    "value": {
+      "pickup": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "delivery": {
+        "address": "example",
+        "contactName": "example",
+        "phone": "+855000000001",
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        }
+      },
+      "items": [
+        {
+          "clientItemId": "demo-001",
+          "name": "example",
+          "quantity": 1,
+          "lengthCm": 1,
+          "widthCm": 1,
+          "heightCm": 1,
+          "weightKg": 1,
+          "rotationAllowed": true,
+          "stackable": true,
+          "uprightOnly": true,
+          "restrictions": [
+            "FRAGILE"
+          ],
+          "measurementEvidenceIds": [
+            "demo-001"
+          ]
+        }
+      ],
+      "serviceLevel": "S1",
+      "exclusiveVehicle": true,
+      "requestedPickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "requestedDeliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "paymentTerms": "PREPAID",
+      "customerId": "other-owner"
+    }
+  },
+  {
+    "id": "recipient-cannot-raise-payer-money-command",
+    "schema": "RecipientServiceRequest",
+    "valid": false,
+    "value": {
+      "orderId": "demo-001",
+      "orderVersion": 1,
+      "type": "FEE_DISPUTE",
+      "description": "example",
+      "evidenceFileIds": [
+        "demo-001"
+      ]
+    }
+  },
+  {
+    "id": "no-offline-acceptance",
+    "schema": "SyncEvent",
+    "valid": false,
+    "value": {
+      "eventId": "demo-001",
+      "sequence": 1,
+      "assignmentId": "demo-001",
+      "assignmentVersion": 1,
+      "planVersion": 1,
+      "observedAt": "2026-10-24T03:00:00Z",
+      "type": "ACCEPT_ASSIGNMENT",
+      "payload": {
+        "point": {
+          "lat": 11.5564,
+          "lng": 104.9282
+        },
+        "evidenceFileIds": [
+          "demo-001"
+        ]
+      }
+    }
+  },
+  {
+    "id": "client-cannot-self-appoint-approver",
+    "schema": "FinanceDraft",
+    "valid": false,
+    "value": {
+      "kind": "ALLOCATION",
+      "receiptId": "demo-001",
+      "receiptVersion": 1,
+      "items": [
+        {
+          "ledgerItemId": "demo-001",
+          "ledgerItemVersion": 1,
+          "amountMinor": 1
+        }
+      ],
+      "reason": "example",
+      "approverPersonId": "self"
+    }
+  },
+  {
+    "id": "timestamps-require-zone",
+    "schema": "LocationPoint",
+    "valid": false,
+    "value": {
+      "clientPointId": "demo-001",
+      "observedAt": "2026-10-24T03:00:00",
+      "point": {
+        "lat": 11.5564,
+        "lng": 104.9282
+      },
+      "accuracyM": 1,
+      "permission": "ALWAYS",
+      "foreground": true,
+      "batteryRatio": 1
+    }
+  },
+  {
+    "id": "VehiclePromiseCheckRequest-valid",
+    "schema": "VehiclePromiseCheckRequest",
+    "valid": true,
+    "value": {
+      "quoteId": "demo-001",
+      "vehicleId": "demo-001",
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "fulfillmentMode": "VEHICLE"
+    }
+  },
+  {
+    "id": "VehiclePromiseCheckRequest-invalid",
+    "schema": "VehiclePromiseCheckRequest",
+    "valid": false,
+    "value": {
+      "vehicleId": "demo-001",
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "fulfillmentMode": "VEHICLE"
+    }
+  },
+  {
+    "id": "CarrierPromiseCheckRequest-valid",
+    "schema": "CarrierPromiseCheckRequest",
+    "valid": true,
+    "value": {
+      "quoteId": "demo-001",
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "fulfillmentMode": "PARCEL_CARRIER",
+      "partnerId": "partner-demo",
+      "agreementVersionId": "agreement-demo",
+      "serviceEvidenceIds": [
+        "evidence-demo"
+      ]
+    }
+  },
+  {
+    "id": "CarrierPromiseCheckRequest-invalid",
+    "schema": "CarrierPromiseCheckRequest",
+    "valid": false,
+    "value": {
+      "pickupWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "deliveryWindow": {
+        "start": "2026-10-24T03:00:00Z",
+        "end": "2026-10-24T04:00:00Z"
+      },
+      "fulfillmentMode": "PARCEL_CARRIER",
+      "partnerId": "partner-demo",
+      "agreementVersionId": "agreement-demo",
+      "serviceEvidenceIds": [
+        "evidence-demo"
+      ]
+    }
+  },
+  {
+    "id": "OrderItem-valid",
+    "schema": "OrderItem",
+    "valid": true,
+    "value": {
+      "clientItemId": "demo-001",
+      "name": "example",
+      "quantity": 1,
+      "lengthCm": 1,
+      "widthCm": 1,
+      "heightCm": 1,
+      "weightKg": 1,
+      "rotationAllowed": true,
+      "stackable": true,
+      "uprightOnly": true,
+      "restrictions": [
+        "FRAGILE"
+      ],
+      "measurementEvidenceIds": [
+        "demo-001"
+      ],
+      "id": "item-demo",
+      "packageIds": [
+        "package-demo"
+      ]
+    }
+  },
+  {
+    "id": "OrderItem-invalid",
+    "schema": "OrderItem",
+    "valid": false,
+    "value": {
+      "clientItemId": "demo-001",
+      "name": "example",
+      "quantity": 1,
+      "lengthCm": 1,
+      "widthCm": 1,
+      "heightCm": 1,
+      "weightKg": 1,
+      "rotationAllowed": true,
+      "stackable": true,
+      "uprightOnly": true,
+      "restrictions": [
+        "FRAGILE"
+      ],
+      "measurementEvidenceIds": [
+        "demo-001"
+      ],
+      "id": "item-demo"
+    }
+  },
+  {
+    "id": "AccountMaskedPage-valid",
+    "schema": "AccountMaskedPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "demo-001",
+          "version": 1,
+          "subjectId": "demo-001",
+          "bankCode": "example",
+          "last4": "0000",
+          "holderDisplayName": "example",
+          "state": "pending_review"
+        }
+      ],
+      "nextCursor": null
+    }
+  },
+  {
+    "id": "AccountMaskedPage-invalid",
+    "schema": "AccountMaskedPage",
+    "valid": false,
+    "value": null
+  },
+  {
+    "id": "RecipientAuthorization-valid",
+    "schema": "RecipientAuthorization",
+    "valid": true,
+    "value": {
+      "id": "auth-demo",
+      "orderId": "order-demo",
+      "orderVersion": 1,
+      "expiresAt": "2026-10-25T03:00:00Z",
+      "state": "active",
+      "evidenceFileIds": [
+        "evidence-demo"
+      ]
+    }
+  },
+  {
+    "id": "RecipientAuthorization-invalid",
+    "schema": "RecipientAuthorization",
+    "valid": false,
+    "value": null
+  }
+]

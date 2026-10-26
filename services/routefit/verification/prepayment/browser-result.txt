@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "real quote total and independent insurance",
+    "quote read issued",
+    "reported state comes from backend",
+    "approval alone is not paid",
+    "funds remain allocated and excess retained",
+    "paid list no longer claims unpaid",
+    "confirmed order stays readonly",
+    "keyboard tabs usable",
+    "narrow screen no overflow",
+    "area retirement blocks admission and preserves money",
+    "no browser JS errors"
+  ],
+  "errors": [],
+  "scope": "Five synthetic local identities, real PostgreSQL prepayment HTTP calls and order-list UI projection; no finance forms or external payment"
+}

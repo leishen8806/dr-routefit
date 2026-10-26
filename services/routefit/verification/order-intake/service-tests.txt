@@ -1,0 +1,68 @@
+▶ real PostgreSQL intake and coverage lifecycle
+  ✔ unpublished coverage, missing evidence and spoofed records fail closed (192.2655ms)
+  ✔ geometry limits, publication, pagination and tenant scope (55.2437ms)
+  ✔ atomic submission, concurrent version conflict, replay, immutable history (62.4932ms)
+  ✔ new deny on boundary invalidates readiness without changing accepted facts (26.5561ms)
+  ✔ return, edit, re-evidence, resubmit and revoked replay (91.6402ms)
+  ✔ unknown dimensions, missing point, packaging, outside, expiry and future area (128.4662ms)
+  ✔ restart preserves acceptance snapshot and idempotency result (46.3613ms)
+✔ real PostgreSQL intake and coverage lifecycle (1488.1108ms)
+✔ JSON rejects duplicate decoded keys at every object depth (1.1877ms)
+✔ JSON preserves valid values, escapes and keys in separate objects (1.4898ms)
+✔ JSON rejects malformed syntax, BOM and invalid UTF-8 rather than replacing bytes (0.48ms)
+▶ real PostgreSQL order-draft HTTP integration
+  ✔ authorized customers, persistent create, replay and forbidden spoofing (141.2734ms)
+  ✔ company and same-company customer scopes cover reads, writes, RLS and revocation (26.7874ms)
+  ✔ draft edits preserve package identities and reject concurrent stale updates (49.4394ms)
+  ✔ unsupported capabilities and incomplete measurements fail without writes (26.7856ms)
+  ✔ signed cursors, stable ordering, filters and query tampering (12.93ms)
+  ✔ restart retains full drafts and original idempotent response (42.969ms)
+✔ real PostgreSQL order-draft HTTP integration (1482.9982ms)
+✔ implemented order routes match contract, permissions and round-trip input (45.7161ms)
+✔ draft unknown measurements and package bounds fail closed (0.37ms)
+▶ real PostgreSQL policy approval HTTP lifecycle
+  ✔ submit freezes source, scopes permissions, retries and rejects spoofing (54.0943ms)
+  ✔ service enforces distinct preparer reviewer approver and required review (49.3585ms)
+  ✔ published source remains immutable after later draft edits and restart (48.1757ms)
+  ✔ source change after review invalidates publication; fresh submission is required (37.5184ms)
+  ✔ concurrent distinct reviews serialize and old contributors cannot self-review (52.9846ms)
+  ✔ database constraints independently forbid self approval missing review and history overwrite (130.3838ms)
+  ✔ unsupported rules and expired policies are blocked rather than silently priced as zero (376.7793ms)
+✔ real PostgreSQL policy approval HTTP lifecycle (1468.7681ms)
+✔ policy routes require the documented distinct permissions and version owners (1.0249ms)
+✔ publication excludes unsupported bases, blank evidence and expired periods (0.5006ms)
+✔ all contributors and the reviewer are excluded from approval (0.1214ms)
+▶ real PostgreSQL HTTP pricing slice
+  ✔ migration checksum replay and safe runtime role (6.2668ms)
+  ✔ authentication, permission, CSRF, unknown fields and malformed JSON (71.3675ms)
+  ✔ concurrent duplicate creation persists once and replays original (32.1886ms)
+  ✔ ambiguous JSON and invalid UTF-8 cannot create financial configuration (7.3456ms)
+  ✔ optimistic concurrency allows one of two independent edits (17.6422ms)
+  ✔ successful retry replays before stale-version checks and fingerprints If-Match (9.4017ms)
+  ✔ invalid monetary configuration rolls back all writes (7.7425ms)
+  ✔ integer calculation creates a permanent version-bound simulation (40.6334ms)
+  ✔ company isolation is enforced by both HTTP and runtime PostgreSQL RLS (18.8794ms)
+  ✔ database constraints protect excluded shares and append-only evidence (77.5508ms)
+  ✔ pagination, exact routes, and ETag preserve resource version (22.8946ms)
+  ✔ disabled identities cannot replay past successful operations (30.8049ms)
+  ✔ new server and new connection pool read persisted snapshots (48.155ms)
+  ✔ one-use browser activation, same-origin HTTP, CSRF and logout (44.0399ms)
+  ✔ browser activation rejects expired grants and disabled identities; tenant B remains isolated (67.6062ms)
+  ✔ CLI uses RouteFit connection settings instead of another project environment (203.08ms)
+✔ real PostgreSQL HTTP pricing slice (1455.4381ms)
+✔ catalog parity and exact local operation mapping (26.4966ms)
+✔ contract fixtures validate with the actual HTTP validator (79.7826ms)
+✔ fixed + rounded unit + insurance, with a separate distribution base (0.6171ms)
+✔ percentage HALF_UP, KHR integer currency and no COD principal in fees (0.1166ms)
+✔ cross-field restrictions block invalid units, shares and missing basis (0.2299ms)
+✔ overflow, duplicate fees, disabled and unknown fees fail closed (0.2582ms)
+✔ fingerprint normalizes object keys but preserves order, values and version (0.3988ms)
+✔ development auth requires valid identity, exact Origin and CSRF (1.1909ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1631.4715

@@ -1,0 +1,1 @@
+Created draft, saved fee, calculated 200 USD cents, read persisted simulation. No order or payment changed.

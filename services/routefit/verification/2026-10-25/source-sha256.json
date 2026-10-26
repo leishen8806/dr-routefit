@@ -1,0 +1,158 @@
+[
+  {
+    "path": ".gitignore",
+    "sha256": "1ccaf9e5d8f10a58bdf45dbf12f38f8592541e6aa40895455c0a1fd6e14edcaf"
+  },
+  {
+    "path": "contracts/endpoint-catalog.md",
+    "sha256": "c3f730d218a035303a77bd3c1221a59f491b08365a11b93e365a76577afef3a1"
+  },
+  {
+    "path": "contracts/examples/schema-cases.json",
+    "sha256": "baf36c763dca5d3afef8892db97ff95b971fcc42e0cd96e735a168ed520affe9"
+  },
+  {
+    "path": "contracts/fields.md",
+    "sha256": "2f4a409d0b0cbfaeb31265e5f7f3f002c40f7e352838bc0d4ee5a61cf819cccb"
+  },
+  {
+    "path": "contracts/implementation-mapping.md",
+    "sha256": "b93c410606d24aa4a4aa3ec92fc36843f4a06e06508645ba68faf55b18b386b6"
+  },
+  {
+    "path": "contracts/openapi.json",
+    "sha256": "dd8e51afc2255c20cfd230dbbb4193d94988f4a22c637e4feea9f77e0def7c02"
+  },
+  {
+    "path": "contracts/pricing-api.md",
+    "sha256": "bfc21e6e9f5634b129d04bbb73b16683c29d78ac91725299186b5b42109126cd"
+  },
+  {
+    "path": "contracts/pricing-catalog.json",
+    "sha256": "54cdd459b67c2625f60c5951eab61e77d2fb14ce5e0393b0e479e041ef7bbcdd"
+  },
+  {
+    "path": "contracts/README.md",
+    "sha256": "504bd7e6ce235e0e19d166338962c461fada3cdd1843d58efc7a300a6f8019bc"
+  },
+  {
+    "path": "PRD/CHANGELOG.md",
+    "sha256": "07f11b930a6e04cbea7387563a5e2b9e36677d99eed8eb4eace6e50e8c650589"
+  },
+  {
+    "path": "PRD/docs/api-design.md",
+    "sha256": "8774ce124040992d4543fb3f68d7b0ead8d6ddc3c3bbb42aed1b92b0a522b5cb"
+  },
+  {
+    "path": "PRD/docs/database-architecture.md",
+    "sha256": "79c35bf4acc6ea6ad077faa6c538772324a8788dc027ebcbdae6cb6fd87e0d3e"
+  },
+  {
+    "path": "PRD/docs/database-implementation-plan-v0.1.md",
+    "sha256": "5840ca01702ba0c9cce50a587da88ae1b37baa2eb06c51402bde0809ac61b08a"
+  },
+  {
+    "path": "PRD/docs/fee-settings-v0.1.md",
+    "sha256": "8a070e29e1921a37b47fe531c4593ea82c2f1789ca1c935c2399b846736a429a"
+  },
+  {
+    "path": "PRD/docs/pricing-development-map-v0.1.md",
+    "sha256": "34428b0094fa4358d0b294f3cb74796c730362c3495405aa59e74cdafdc6e905"
+  },
+  {
+    "path": "PRD/docs/server-implementation-plan-v0.1.md",
+    "sha256": "9b61ca04f109aabf88c81d547b76b965d40db4221cd9f51cb8120394ccf8fe80"
+  },
+  {
+    "path": "PRD/README.md",
+    "sha256": "8c8c574b33074d3737e6cd6bc7bf432d64f87090ddd95dc00b49fa04fd1cc940"
+  },
+  {
+    "path": "README.md",
+    "sha256": "9e16520afd8b80752805dc0286b03aec22083d77bc218b4368c32ab11dff2840"
+  },
+  {
+    "path": "scripts/render-api-reference.py",
+    "sha256": "e7cbc15dcfdc578e46284b65ef5817d865a3d3412737cb636bcc1a06c03560eb"
+  },
+  {
+    "path": "scripts/validate-api-contract.py",
+    "sha256": "4fe25a95d382033f777bca53c602daeb7ed58d589ce47f99fdc273f42e2359f6"
+  },
+  {
+    "path": "services/routefit/.env.example",
+    "sha256": "221c5706158df8b9eae0456ac282042f403a3b2830efc6515d96116808604000"
+  },
+  {
+    "path": "services/routefit/.nvmrc",
+    "sha256": "d9f318747a126ce2247661af67852b185def7789492eabfad7bba322be087c33"
+  },
+  {
+    "path": "services/routefit/adapters/contract.mjs",
+    "sha256": "0ec011745ab49e2107c6aea8ce4ed4036cd0f5edf79a6c6ec5ebcf5344bcac55"
+  },
+  {
+    "path": "services/routefit/adapters/development-auth.mjs",
+    "sha256": "57c995d0cdc64540555701142ac51f86f78ab1d7c55eb39f56ff470f059d4bf6"
+  },
+  {
+    "path": "services/routefit/adapters/postgres.mjs",
+    "sha256": "d4abf83a416840d8a23c36009d927f481c79490ca3275e367b011d4edb79e50d"
+  },
+  {
+    "path": "services/routefit/application/http.mjs",
+    "sha256": "8d11aab3244204eaf6668cff7fe71c326326b6cad3b9801963563592b9f36e43"
+  },
+  {
+    "path": "services/routefit/db/dev-bootstrap.mjs",
+    "sha256": "18c87233faf7ded987d962a46032e95cea88e805548362645ee2b5daa674c3fe"
+  },
+  {
+    "path": "services/routefit/db/local-fixture.mjs",
+    "sha256": "8084468217dde0c7869bb2ac65d8912dba47bc724b44a25ef9575faae355787d"
+  },
+  {
+    "path": "services/routefit/db/migrate.mjs",
+    "sha256": "d2e809b731bf64b2b0cc031f6bb07379287cbc96b31991f3d9954d8b7c497cac"
+  },
+  {
+    "path": "services/routefit/db/migrations/001_pricing_drafts.sql",
+    "sha256": "29da2f98ae0751df30bdf9c0196eee18255a5fbf5801e0dbb0521b4c555adb19"
+  },
+  {
+    "path": "services/routefit/domain/errors.mjs",
+    "sha256": "778efbc989f125cc103f9fc9eda85757c1313e0df615288e4778a82858db4841"
+  },
+  {
+    "path": "services/routefit/domain/pricing.mjs",
+    "sha256": "5eb00d157ac0fe703e06983de0d1547146facf7523eb8ce1fd7ed7e4bdf23552"
+  },
+  {
+    "path": "services/routefit/main.mjs",
+    "sha256": "1a9edf5b33f93055bb14719d43768a4807b151417e20eb777e6efc6209697e02"
+  },
+  {
+    "path": "services/routefit/package-lock.json",
+    "sha256": "56c0719b956d12985692609ce496e345fca4d37ee168841e6aca4cf31f90abb8"
+  },
+  {
+    "path": "services/routefit/package.json",
+    "sha256": "939ace7aa7174337491a8d3be6bb50debd1709d444f816e0386c3b319bceb326"
+  },
+  {
+    "path": "services/routefit/README.md",
+    "sha256": "decbca78887bfd07639e7353a2eb893960849960b2cfb58b0d5118c6ed2fa8a5"
+  },
+  {
+    "path": "services/routefit/scripts/smoke.mjs",
+    "sha256": "304e2c624a400c31a7f9bfac1142dc2d2e81302e9e3414450e5f305e98337ea4"
+  },
+  {
+    "path": "services/routefit/tests/postgres.integration.mjs",
+    "sha256": "960ef0b4eca84d714c3263b1e0e3e89b478e626477a8e430805b783f8fb9c519"
+  },
+  {
+    "path": "services/routefit/tests/pricing.test.mjs",
+    "sha256": "289d707fb8347d2201c1b0c2edde9006808f3d07c50623e3f4dfe3245c91f16c"
+  }
+]
