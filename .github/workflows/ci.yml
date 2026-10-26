@@ -106,6 +106,11 @@ jobs:
           set -o pipefail
           mkdir -p test-results
           NODE_OPTIONS=--test-reporter=tap npm run test:integration 2>&1 | tee test-results/service-integration.tap
+      - name: Fee API HTTP integration (TAP)
+        shell: bash
+        run: |
+          set -o pipefail
+          node --test --test-reporter=tap ../../prototype/fee-api.integration.mjs 2>&1 | tee test-results/fee-api-integration.tap
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         if: always()
         with:
