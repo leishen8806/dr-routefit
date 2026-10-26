@@ -1,0 +1,73 @@
+# Local pricing API examples, not production requests.
+# Start the API using services/routefit/README.md first.
+# Supply sessionToken/csrfToken privately from .local/client.json in your HTTP tool.
+# Do not save credentials in this tracked file.
+# Copy real response IDs into tariffId/trialId. Replace every sample key for a NEW flow;
+# a retry of the same request must keep its original key, body and If-Match.
+@baseUrl = http://127.0.0.1:4180
+@tariffId = REPLACE_WITH_CREATED_TARIFF_UUID
+@trialId = REPLACE_WITH_CREATED_TRIAL_UUID
+
+### 1. Fee catalog — 200, 19 entries
+GET {{baseUrl}}/api/ops/v1/pricing/catalog
+Cookie: rf_session={{sessionToken}}
+
+### 2. Create draft — 201, version=1; copy response id into tariffId
+POST {{baseUrl}}/api/ops/v1/pricing/tariffs
+Cookie: rf_session={{sessionToken}}
+Origin: {{baseUrl}}
+X-CSRF-Token: {{csrfToken}}
+Idempotency-Key: demo-pricing-create-001
+Content-Type: application/json
+
+{"name":"DEMO 配送与保险","owner":"DR","currency":"USD","scope":"仅用于合成本地试算"}
+
+### 3. Save fixed delivery fee — 200, version=2; 200 USD cents
+POST {{baseUrl}}/api/ops/v1/pricing/tariffs/{{tariffId}}/actions/save-fee
+Cookie: rf_session={{sessionToken}}
+Origin: {{baseUrl}}
+X-CSRF-Token: {{csrfToken}}
+Idempotency-Key: demo-pricing-base-001
+If-Match: "1"
+Content-Type: application/json
+
+{"code":"base","enabled":true,"method":"fixed","amount":200,"unit":null,"includedMilli":0,"stepMilli":1000,"share":true,"scope":"DEMO","evidence":"合成示例，非正式费率"}
+
+### 4. Save insurance — 200, version=3; 125 basis points = 1.25%, excluded from sharing
+POST {{baseUrl}}/api/ops/v1/pricing/tariffs/{{tariffId}}/actions/save-fee
+Cookie: rf_session={{sessionToken}}
+Origin: {{baseUrl}}
+X-CSRF-Token: {{csrfToken}}
+Idempotency-Key: demo-pricing-insurance-001
+If-Match: "2"
+Content-Type: application/json
+
+{"code":"insurance","enabled":true,"method":"percent","amount":125,"unit":null,"includedMilli":0,"stepMilli":1000,"share":false,"scope":"DEMO","evidence":"合成示例，非正式费率"}
+
+### 5. Read draft — 200, ETag "3" if no intervening edits
+GET {{baseUrl}}/api/ops/v1/pricing/tariffs/{{tariffId}}
+Cookie: rf_session={{sessionToken}}
+
+### 6. Simulate — 201; copy response id into trialId; no tariff version increment
+# Goods value 10000 cents; total=325, share=200, separate=125, insurance=125.
+POST {{baseUrl}}/api/ops/v1/pricing/tariffs/{{tariffId}}/trials
+Cookie: rf_session={{sessionToken}}
+Origin: {{baseUrl}}
+X-CSRF-Token: {{csrfToken}}
+Idempotency-Key: demo-pricing-trial-001
+If-Match: "3"
+Content-Type: application/json
+
+{"lines":[{"code":"base","quantityMilli":null,"basisMinor":null},{"code":"insurance","quantityMilli":null,"basisMinor":10000}]}
+
+### 7. Read persisted simulation — 200, no ETag on this GET
+GET {{baseUrl}}/api/ops/v1/pricing/trials/{{trialId}}
+Cookie: rf_session={{sessionToken}}
+
+### 8. Revision history — 200; follow nextAfterVersion using afterVersion query
+GET {{baseUrl}}/api/ops/v1/pricing/tariffs/{{tariffId}}/revisions?limit=50
+Cookie: rf_session={{sessionToken}}
+
+### 9. Tenant draft list — 200; follow nextAfter using after query
+GET {{baseUrl}}/api/ops/v1/pricing/tariffs?limit=50
+Cookie: rf_session={{sessionToken}}

@@ -1,0 +1,46 @@
+# 本机开发；Cookie/CSRF由独立会话注入，不保存凭据。
+@base = http://127.0.0.1:4180/api/ops/v1
+
+### 经办：原核销须POSTED/version4，金额由后端读取
+POST {{base}}/prepayment-allocations/{{allocationId}}/reversals
+Content-Type: application/json
+Idempotency-Key: {{createKey}}
+If-Match: "4"
+X-CSRF-Token: {{csrf}}
+
+{"reason":"DEMO allocation error","reference":"DEMO investigation"}
+
+### 读取撤销申请
+GET {{base}}/allocation-reversals/{{reversalId}}
+
+### 独立复核
+POST {{base}}/allocation-reversals/{{reversalId}}/actions/review
+Content-Type: application/json
+Idempotency-Key: {{reviewKey}}
+If-Match: "1"
+X-CSRF-Token: {{csrf}}
+
+{"approve":true,"reason":"DEMO review"}
+
+### 独立审批
+POST {{base}}/allocation-reversals/{{reversalId}}/actions/approve
+Content-Type: application/json
+Idempotency-Key: {{approveKey}}
+If-Match: "2"
+X-CSRF-Token: {{csrf}}
+
+{"approve":true,"reason":"DEMO approval"}
+
+### 单独入账，仅恢复分配余额
+POST {{base}}/allocation-reversals/{{reversalId}}/actions/post
+Content-Type: application/json
+Idempotency-Key: {{postKey}}
+If-Match: "3"
+X-CSRF-Token: {{csrf}}
+
+{"reason":"DEMO reversal posting"}
+
+### 刷新余额和原件
+GET {{base}}/orders/{{orderId}}/payment-admission
+
+GET {{base}}/prepayment-allocations/{{allocationId}}

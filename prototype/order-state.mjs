@@ -1,0 +1,3 @@
+export const stateNames={draft:'草稿 · 待核验',awaiting_dispatch:'已承诺 · 待派单',offered:'待司机确认',accepted:'待装载复核',ready:'待取货',picked_up:'已取货 · 待出发',in_transit:'配送中',delivered:'已签收',return_open:'退回处理中',closed_exception:'异常已结案',cancelled:'已取消',incident_open:'事故转运中',rescue_waiting:'接驳待接单',rescue_accepted:'接驳待交接'};
+export const stateName=s=>stateNames[s]||'状态待核实';
+export function stateAxes(o){return [['履约',stateName(o.status)],['实物保管',o.custody||'待核实'],['收款',{due:'待收款',reported:'已申报 · 待核验',verified:'已核验',mismatch:'差异待核验'}[o.collection]||'待核实'],['现金交款',o.payment==='transfer'?'不适用 · 转账':({open:'待交款',submitted:'已交款 · 待核对',reconciled:'已结清'}[o.remittance]||'待核实')]];}

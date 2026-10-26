@@ -1,0 +1,31 @@
+import {driverAccess,partnerState} from './r1m-model.mjs';
+export const issueKinds={address:'地址或入口不清',recipient:'联系不上／收货人拒收',vehicle:'车辆故障或事故',damage:'货损／件数不符',delay:'堵车或预计延误',payment:'收款金额或付款异常'};
+const terminal=new Set(['delivered','closed_exception','cancelled']);
+export function driverBucket(o,now=Date.now()){
+ if(o.status==='cancelled')return 'cancelled';if(terminal.has(o.status))return 'completed';
+ const due=o.promise?Date.parse(o.promise.length===16?o.promise+':00+07:00':o.promise):NaN;
+ return Number.isFinite(due)&&due<now?'overdue':'active';
+}
+export function recordDriverTransitions(before,next,action,now=Date.now()){
+ if(before===next)return next;
+ for(const o of next.orders){const old=before.orders.find(x=>x.id===o.id);
+  if(o.vehicle&&(!old||old.vehicle!==o.vehicle))o.driverId=o.fulfillmentMode==='PARTNER_VEHICLE'?'D02':next.vehicleProfiles.find(v=>v.id===o.vehicle)?.driverId||'D01';
+  if(old?.vehicle&&!o.vehicle){const driverId=old.driverId||(old.fulfillmentMode==='PARTNER_VEHICLE'?'D02':before.vehicleProfiles.find(v=>v.id===old.vehicle)?.driverId||'D01');
+   (next.driverHistory??=[]).push({historyId:o.id+'-end-'+o.version,id:o.id,driverId,partnerId:old.partnerId||null,status:'cancelled',customer:old.customer,cargo:old.cargo,qty:old.qty,destination:old.destination,promise:old.promise,endedAt:new Date(now).toISOString(),reason:{reject:'司机拒单，订单回调度',revoke:'调度撤回提案',expire:'接单提案过期',cancel:'交接前订单取消',rescueReject:'接驳拒单',rescueCancel:'接驳撤回'}[action]||'本次任务已结束',detail:o.events.at(-1)?.text||''});
+  }
+ }return next;
+}
+export function driverHistory(db,role,actor){return (db.driverHistory||[]).filter(x=>{if(x.driverId!==actor)return false;if(role==='driver')return !x.partnerId;if(role!=='partnerDriver'||x.partnerId!=='P01')return false;const p=db.partners.find(p=>p.id===x.partnerId);return p&&(partnerState(p)==='available'||p.continueExisting)});}
+export function applyDriverIssue(db,c,now=Date.now()){
+ const o=db.orders.find(x=>x.id===c.id),p=c.payload||{},check=(ok,m)=>{if(!ok)throw Error(m)};
+ check(o,'订单不存在');check(c.action==='driverIssue'?['driver','partnerDriver'].includes(c.role)&&driverAccess(db,o,c.role,c.actorId):c.role==='dispatch','无权限处理司机问题');check(c.key,'缺少幂等键');
+ const fingerprint=JSON.stringify([c.id,c.action,c.role,c.actorId,c.payload]);if(db.requests[c.key]){check(db.requests[c.key].fingerprint===fingerprint,'幂等键冲突');return db}check(o.version===c.version,'订单版本变化，请刷新');
+ const next=structuredClone(db),target=next.orders.find(x=>x.id===o.id);let text;
+ if(c.action==='driverIssue'){check(!terminal.has(o.status)||p.kind==='payment','已结束任务仅可上报收款问题');check(issueKinds[p.kind]&&p.reason?.trim(),'请选择问题类型并填写现场情况');check(!(o.driverIssues||[]).some(x=>x.kind===p.kind&&!x.resolvedAt),'同类问题已上报，等待调度处理');const issue={id:'ISS-'+((target.driverIssues||[]).length+1),kind:p.kind,reason:p.reason.trim(),at:new Date(now).toISOString(),actorId:c.actorId||'D01'};(target.driverIssues??=[]).push(issue);text='司机上报：'+issueKinds[p.kind]+' · '+issue.reason;
+ }else {const issue=target.driverIssues?.find(x=>x.id===p.issueId&&!x.resolvedAt);check(issue&&p.evidence?.trim(),'请选择未处理问题并填写处理结果');issue.resolvedAt=new Date(now).toISOString();issue.resolution=p.evidence.trim();text='调度处理司机问题：'+issueKinds[issue.kind]+' · '+issue.resolution;}
+ target.version++;target.events.push({text,role:c.role,at:new Date(now).toISOString()});next.requests[c.key]={fingerprint,id:o.id};return next;
+}
+export function driverIssueView(o,{e,time}){return (o.driverIssues||[]).length?`<details class="driver-issues" open><summary>问题与调度回复</summary>${o.driverIssues.map(x=>`<article><strong>${e(issueKinds[x.kind])} · ${x.resolvedAt?'已回复':'待调度处理'}</strong><p>${e(x.reason)}</p><small>${time(x.at)}</small>${x.resolution?`<p>调度：${e(x.resolution)}</p>`:''}</article>`).join('')}</details>`:'';}
+export function driverOrdersView(rows,history,h){const {e,time,tag,group,search,page,queue}=h;const all=[...rows,...history],names=[['overdue','已超时'],['active','配送中'],['completed','已完成'],['cancelled','已取消']];const matching=all.filter(x=>driverBucket(x)===group&&`${x.id} ${x.cargo} ${x.destination}`.toLowerCase().includes(search.toLowerCase()));const pages=Math.max(1,Math.ceil(matching.length/8)),current=Math.min(page,pages),shown=matching.slice((current-1)*8,current*8);
+ return `<h2>订单列表</h2><div class="tabs driver-order-tabs">${names.map(([k,t])=>`<button data-driver-group="${k}" class="${group===k?'active':''}" aria-pressed="${group===k}">${t}<small>${all.filter(x=>driverBucket(x)===k).length}</small></button>`).join('')}</div><label class="field"><span>搜索订单、货物或地址</span><input id="driver-order-search" value="${e(search)}" placeholder="输入订单号或地址"></label><button class="btn small" data-action="driver-clear-search" ${search?'':'hidden'}>清空搜索</button><p class="muted small">${{overdue:'原承诺时间已过，任务仍需处理；不自动取消、罚款或改写承诺。',active:'包括待接单、待取货、运输、退回及事故处理中；超时任务移至“已超时”。',completed:'签收或退回点收已闭合；收款核验、交款仍单独处理。',cancelled:'本次司机任务已结束，包含拒单、撤回和接单过期；不代表客户订单全部取消。'}[group]}</p><div class="driver-order-results">${shown.map(o=>o.historyId?`<details class="driver-task"><summary>${e(o.id)} · ${e(o.reason)}</summary><p>${e(o.cargo)} · ${o.qty} 件</p><p>${e(o.destination)}</p><small>${time(o.endedAt)}</small><p>${e(o.detail)}</p><small>历史快照 · 只读</small></details>`:`<button class="driver-task" data-driver-open="${e(o.id)}"><strong>${e(o.id)}</strong> ${tag(o.status)}<p>${e(o.cargo)} · ${o.qty} 件</p><p>${e(o.destination)}</p><small>原承诺 ${time(o.promise)}</small>${queue.some(q=>q.id===o.id)?'<p class="urgent-number">证据待同步 · 尚未生效</p>':''}${(o.driverIssues||[]).some(x=>!x.resolvedAt)?'<p class="urgent-number">问题待调度处理</p>':''}${o.status==='closed_exception'?'<p>退回已点收 · 非全部送达</p>':''}${['delivered','closed_exception'].includes(o.status)&&!o.rescueParent&&(o.collection!=='verified'||o.payment==='cash'&&o.remittance!=='reconciled')?'<p>履约结束 · 账务待处理</p>':''}</button>`).join('')||'<div class="status-panel"><h3>暂无匹配订单</h3><p>切换分类或清空搜索查看其他任务。</p></div>'}</div><div class="driver-list-pagination"><button class="btn small" data-driver-page="${current-1}" ${current===1?'disabled':''}>上一页</button><span>${current} / ${pages} · ${matching.length} 条</span><button class="btn small" data-driver-page="${current+1}" ${current===pages?'disabled':''}>下一页</button></div>`;
+}

@@ -1,0 +1,162 @@
+[
+  {
+    "code": "base",
+    "name": "基础运费／首重",
+    "group": "transport",
+    "units": [
+      "kg"
+    ],
+    "share": true
+  },
+  {
+    "code": "weight",
+    "name": "续重费",
+    "group": "transport",
+    "units": [
+      "kg"
+    ],
+    "share": true
+  },
+  {
+    "code": "distance",
+    "name": "超距费",
+    "group": "transport",
+    "units": [
+      "km"
+    ],
+    "share": true
+  },
+  {
+    "code": "flash",
+    "name": "独享闪送费",
+    "group": "transport",
+    "units": [],
+    "share": true
+  },
+  {
+    "code": "pickup",
+    "name": "上门取件费",
+    "group": "service",
+    "units": [
+      "piece",
+      "stop"
+    ]
+  },
+  {
+    "code": "door",
+    "name": "送货上门费",
+    "group": "service",
+    "units": [
+      "piece",
+      "stop"
+    ]
+  },
+  {
+    "code": "remote",
+    "name": "偏远区域附加费",
+    "group": "service",
+    "units": [
+      "km"
+    ]
+  },
+  {
+    "code": "handling",
+    "name": "搬运费",
+    "group": "service",
+    "units": [
+      "piece"
+    ]
+  },
+  {
+    "code": "stairs",
+    "name": "上楼费",
+    "group": "service",
+    "units": [
+      "floor"
+    ]
+  },
+  {
+    "code": "waiting",
+    "name": "等待费",
+    "group": "service",
+    "units": [
+      "minute"
+    ]
+  },
+  {
+    "code": "redelivery",
+    "name": "二次配送费",
+    "group": "service",
+    "units": [
+      "stop"
+    ]
+  },
+  {
+    "code": "return",
+    "name": "拒收／退回运输费",
+    "group": "service",
+    "units": [
+      "km",
+      "kg"
+    ]
+  },
+  {
+    "code": "cancel",
+    "name": "取消服务费",
+    "group": "service",
+    "units": []
+  },
+  {
+    "code": "cod",
+    "name": "COD 服务费",
+    "group": "funds",
+    "units": [],
+    "basis": "cod",
+    "locked": true
+  },
+  {
+    "code": "insurance",
+    "name": "配送保险费",
+    "group": "funds",
+    "units": [],
+    "basis": "goods",
+    "locked": true
+  },
+  {
+    "code": "storage",
+    "name": "仓储费",
+    "group": "warehouse",
+    "units": [
+      "day",
+      "cbmDay"
+    ],
+    "locked": true
+  },
+  {
+    "code": "inbound",
+    "name": "入库作业费",
+    "group": "warehouse",
+    "units": [
+      "piece"
+    ],
+    "locked": true
+  },
+  {
+    "code": "outbound",
+    "name": "出库作业费",
+    "group": "warehouse",
+    "units": [
+      "piece"
+    ],
+    "locked": true
+  },
+  {
+    "code": "packing",
+    "name": "包装服务费",
+    "group": "warehouse",
+    "units": [
+      "piece"
+    ],
+    "locked": true
+  }
+]

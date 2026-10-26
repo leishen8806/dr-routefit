@@ -1,0 +1,20 @@
+export const driverRoutes=[
+ {method:'GET',pattern:/^\/api\/driver\/v1\/assignments$/,operation:'driverAssignments',schema:'AssignmentPage',kind:'assignments',permission:'driver:tasks:read'},
+ {method:'GET',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)$/,operation:'driverAssignment',schema:'Assignment',kind:'assignment',permission:'driver:tasks:read'},
+ {method:'GET',pattern:/^\/api\/driver\/v1\/orders\/([^/]+)$/,operation:'driverOrder',schema:'CustomerOrderDetail',kind:'order',permission:'driver:tasks:read'},
+ {method:'POST',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)\/actions\/accept$/,operation:'driverAccept',schema:'Assignment',input:'AcceptAssignment',kind:'accept',permission:'driver:tasks:accept',version:true},
+ {method:'POST',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)\/actions\/reject$/,operation:'driverReject',schema:'Assignment',input:'Reason',kind:'reject',permission:'driver:tasks:reject',version:true},
+ {method:'POST',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)\/actions\/depart$/,operation:'driverDepart',schema:'Assignment',input:'EvidenceAction',kind:'depart',permission:'driver:tasks:execute',version:true},
+ {method:'POST',pattern:/^\/api\/driver\/v1\/uploads$/,operation:'driverUpload',schema:'UploadTicket',input:'EvidenceUploadRequest',kind:'evidence-create',permission:'driver:evidence:create'},
+ {method:'POST',pattern:/^\/api\/driver\/v1\/uploads\/([^/]+)\/actions\/complete$/,operation:'driverCompleteUpload',schema:'EvidenceFile',input:'EmptyCommand',kind:'evidence-complete',permission:'driver:evidence:create',version:true},
+ {method:'GET',pattern:/^\/api\/driver\/v1\/evidence-files\/([^/]+)\/download-url$/,operation:'driverEvidenceDownload',schema:'DownloadLink',kind:'evidence-download',permission:'driver:evidence:read'},
+ {method:'POST',pattern:/^\/api\/driver\/v1\/locations$/,operation:'driverLocations',schema:'LocationResult',input:'LocationBatch',kind:'locations',permission:'driver:locations'}
+ ,{method:'POST',pattern:/^\/api\/driver\/v1\/sync\/events$/,operation:'driverSync',schema:'SyncBatchResult',input:'SyncBatch',kind:'sync',permission:'driver:sync'}
+ ,{method:'POST',pattern:/^\/api\/driver\/v1\/cash-receipts$/,operation:'driverCashReport',schema:'Receipt',input:'DriverCashReport',kind:'cash-report',permission:'driver:cash:report'}
+ ,{method:'POST',pattern:/^\/api\/driver\/v1\/cash-handovers$/,operation:'driverHandover',schema:'CashHandover',input:'CashHandoverRequest',kind:'cash-handover',permission:'driver:cash:handover'}
+ ,{method:'GET',pattern:/^\/api\/driver\/v1\/cash-handovers$/,operation:'driverHandovers',schema:'CashHandoverPage',kind:'cash-handovers',permission:'driver:cash:read'}
+ ,{method:'GET',pattern:/^\/api\/driver\/v1\/settlement-accounts$/,operation:'driverSettlementAccounts',schema:'AccountMaskedPage',kind:'settlement-accounts',permission:'driver:accounts:read'}
+ ,{method:'GET',pattern:/^\/api\/driver\/v1\/income-items$/,operation:'driverIncome',schema:'LedgerItemPage',kind:'income',permission:'driver:income:read'}
+ ,{method:'POST',pattern:/^\/api\/driver\/v1\/withdrawal-requests$/,operation:'driverWithdrawal',schema:'OwnFinanceRequest',input:'PaymentDraft',kind:'withdrawal-request',permission:'driver:withdrawal:request'}
+ ,{method:'GET',pattern:/^\/api\/driver\/v1\/withdrawal-requests$/,operation:'driverWithdrawals',schema:'OwnFinanceRequestPage',kind:'withdrawal-requests',permission:'driver:income:read'}
+];
