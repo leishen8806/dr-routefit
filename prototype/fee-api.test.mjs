@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {decimal,display,feeDTO,trialDTO} from './fee-api-model.mjs';
+import {decimal,display,feeDTO,trialDTO,formatTrialInput} from './fee-api-model.mjs';
 test('exact decimal conversion and formatting preserve cents, milliunits and basis points',()=>{
  assert.equal(decimal('2.00',2),200);assert.equal(decimal('1.001',3),1001);assert.equal(decimal('1.25',2),125);assert.equal(display(125,2),'1.25');assert.equal(decimal('90000000000.00',2),9000000000000);
  for(const v of ['', '1e2','-1','NaN','Infinity','2.001','90000000000.01']) assert.throws(()=>decimal(v,2));
@@ -17,6 +17,11 @@ test('trial selection is explicit, rejects duplicate/disabled/unconfigured fees 
  const rules=[{code:'base',enabled:true,method:'fixed'},{code:'insurance',enabled:true,method:'percent'}];
  assert.deepEqual(trialDTO(rules,[{code:'base'},{code:'insurance',value:'100.00'}],'USD'),{lines:[{code:'base',quantityMilli:null,basisMinor:null},{code:'insurance',quantityMilli:null,basisMinor:10000}]});
  for(const inputs of [[],[{code:'base'},{code:'base'}],[{code:'weight'}],[{code:'insurance',value:''}]])assert.throws(()=>trialDTO(rules,inputs,'USD'));
+});
+test('trial input display is readable for fixed, unit and percentage fees',()=>{
+ assert.equal(formatTrialInput({input:{quantityMilli:null,basisMinor:null},rule:{method:'fixed'}},'USD'),'—');
+ assert.equal(formatTrialInput({input:{quantityMilli:1000,basisMinor:null},rule:{method:'unit',unit:'kg'}},'USD'),'1.000 kg');
+ assert.equal(formatTrialInput({input:{quantityMilli:null,basisMinor:10000},rule:{method:'percent',basis:'goods'}},'USD'),'100.00 USD 货值');
 });
 
 const {FeeClient}=await import('./fee-api-client.mjs');
