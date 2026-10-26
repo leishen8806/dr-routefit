@@ -576,7 +576,7 @@ POST /api/driver/v1/locations
 | 既有 return-tasks 增补到达、差异和检验记录 | driver / ops 各自授权 | 复用退回资源；到达与仓库 receive 分离；inspect 才形成库存处置依据 |
 | `/fee-decisions` 的 submit/approve/reject/apply | ops | 引用订单、原因、费用版本、配送/保费独立裁定；审批人不能凭客户端声明取得财务权限 |
 | `/refunds` 的 request/approve/reject/record-result/reconcile | customer 请求；ops 审核核对 | 源收款引用、同币种分项金额、原业务幂等键；结果未知先查询，成功/预留可退额共同防超额 |
-| `/withdrawals` 的 request/cancel/approve/reject/record-payment/reconcile | driver / ops | 原子预留、脱敏收款账户版本、付款凭证；申请主体不能自行核验到账 |
+| `/withdrawals` 的 request/cancel/approve/reject/record-payment/reconcile | driver / ops | 原子预留、脱敏收款账户版本、付款凭证；创建申请时服务端按企业＋币种的 7／14／30 天周期、可提现余额门槛及 `AND`／`OR` 生效规则复验；申请主体不能自行核验到账 |
 | `/incident-transfers` 及逐件分配/交接动作 | ops / driver | 父单关联，件级唯一分配，实际交接才转保管；费用另记 |
 | `/external-orders` 导入/修订/dispatch-request 与结果回传 | customer / warehouse | 企业+来源+外部编号去重，冲突进入修订；客户确认有效报价后仍需调度校验 |
 | 库存预留/释放/点收/检验动作 | ops / warehouse | 明确权威仓库和对象版本，外部回传失败不双重扣减 |
