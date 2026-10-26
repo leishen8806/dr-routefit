@@ -38,3 +38,10 @@ test('412 is definitive; malformed success and 5xx remain unknown, not saved',as
  await assert.rejects(c.mutate('/tariffs/x',{},'"1"'),e=>e.status===412);assert.equal(c.pending,null);
  status=200;await assert.rejects(c.mutate('/tariffs/x',{},'"1"'));assert.ok(c.pending);status=503;await assert.rejects(c.retry());assert.ok(c.pending);
 });
+test('invalid fee amount identifies field for error summary while retaining input',()=>{
+ assert.throws(()=>feeDTO({...form,amount:'1.251'},{code:'insurance',basis:'goods',locked:true},'DR','USD'),e=>e.status===422&&e.fields[0].path==='/amount');
+});
+const {snapshotChanged}=await import('./fee-api-model.mjs');
+test('persisted snapshot flags later changes only for its own tariff',()=>{
+ const snapshot={tariffId:'a',tariffVersion:3};assert.equal(snapshotChanged({id:'a',version:3},snapshot),false);assert.equal(snapshotChanged({id:'a',version:4},snapshot),true);assert.equal(snapshotChanged({id:'b',version:4},snapshot),false);assert.equal(snapshotChanged(null,snapshot),false);
+});
