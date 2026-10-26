@@ -1,0 +1,44 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": [
+    "."
+  ],
+  "locale": "zh-CN",
+  "canonicalMap": "PROTOTYPE-CONTRACT.md",
+  "requiredCapabilities": [
+    "Select/Listbox",
+    "Date",
+    "Form",
+    "Scrollbar",
+    "Toast",
+    "CRUD"
+  ],
+  "ownership": {
+    "Select/Listbox": "native",
+    "Date": "native"
+  },
+  "requiredCommands": [
+    "unit"
+  ],
+  "commands": {
+    "unit": "node --test *.test.mjs"
+  },
+  "evidence": {
+    "crudFullFlow": "browser-flow.js",
+    "failurePaths": "browser-flow.js",
+    "r1mFullFlow": "browser-r1m.js",
+    "incidentFullFlow": "browser-incident.js",
+    "warehousePlatformFullFlow": "browser-warehouse-platform.js",
+    "distanceQuote": "browser-distance-quote.js",
+    "driverOrders": "browser-driver-orders.js",
+    "externalIntegration": "browser-external-integration.js",
+    "multilingual": "browser-multilingual.js",
+    "deliveryAreas": "browser-service-areas.js",
+    "accessControl": "browser-access-control.js",
+    "backNavigation": "browser-back-navigation.js",
+    "driverSlide": "browser-driver-slide.js",
+    "settlement": "browser-settlement.js",
+    "financeClosure": "browser-finance-closure.js",
+    "kessPayment": "browser-kess-review.js"
+  }
+}

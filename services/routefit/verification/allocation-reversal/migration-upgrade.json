@@ -1,0 +1,109 @@
+{
+  "migration": "006 to 007",
+  "nonemptyPriorDatabase": true,
+  "comparison": "All prior columns, including full JSON snapshots; no prior columns excluded",
+  "unchanged": true,
+  "migrations": "7",
+  "tables": {
+    "org.company": {
+      "count": 2,
+      "sha256": "9318f80679695a5a133b2ec3481f297c9139597124d4ece2b0bbfc128710a8da"
+    },
+    "org.principal": {
+      "count": 6,
+      "sha256": "6910d3bea149f703fff2a96ab27e2df89df60cc900c0565c1e299f861aa16d09"
+    },
+    "party.customer": {
+      "count": 2,
+      "sha256": "2ff560cfb6fe2071c1a98d8fef3df895bde0835b9e1be7d8e9fc9e7d11eb4ec2"
+    },
+    "party.customer_access": {
+      "count": 4,
+      "sha256": "bcd2e5b9371e9f2d435786dd45bac4468aaa4434dfd574f1bef1ea9f23d4f7b0"
+    },
+    "orders.draft": {
+      "count": 5,
+      "sha256": "410367a431b31c9f329adc40601f7b92c3322ee4eef12010e7b5413db51f41a1"
+    },
+    "orders.draft_revision": {
+      "count": 15,
+      "sha256": "5c92b4e36cded6f594898f2748ea74e122817ea48f02aff3a3396e22cc76f918"
+    },
+    "pricing.tariff": {
+      "count": 5,
+      "sha256": "6872f34fe184c5e8106d42873dc28d9192a37f4ab092035c30cfd0f41e3d3032"
+    },
+    "pricing.fee_rule": {
+      "count": 9,
+      "sha256": "f980d551445b4168f5a9a3b62c0e134c8c86a4e2522df558f2dc09f2787a6d61"
+    },
+    "pricing.tariff_revision": {
+      "count": 14,
+      "sha256": "fd5dd7be78b88670f5e7155db7280dfafd8bfd1dfae039e7ce43bf02743d3799"
+    },
+    "pricing.trial": {
+      "count": 1,
+      "sha256": "ac2d84f5e9118961fc960d268bdfae5c09595896da50777356c17cd15acaf15b"
+    },
+    "pricing.policy_version": {
+      "count": 4,
+      "sha256": "09fa5011293ac936e79cdcc2b63a65748b05f48d2ba57a4829c12e4825fd3652"
+    },
+    "pricing.policy_review": {
+      "count": 4,
+      "sha256": "a8685bb0a6026d40404f965cd5431cc0a270b6d27e60431ec6374fbdfe8d606e"
+    },
+    "pricing.policy_publication": {
+      "count": 4,
+      "sha256": "f6cf736976674f0f83f51a30ebc495d808d2aec9f012cdf8f28d4bfc4a8cc7ad"
+    },
+    "integration.http_request_result": {
+      "count": 72,
+      "sha256": "a4d359cf8fba32636ba3cc9f058546d8007f641d5f129db5721b219e76ad9fda"
+    },
+    "coverage.area": {
+      "count": 4,
+      "sha256": "b1caba485427972477d08711c516cd613659225a9b6cb8cceef234a49dbb07db"
+    },
+    "coverage.publication": {
+      "count": 8,
+      "sha256": "9b571be7e6a19bd2c1ca6981639abb936fad6f2e9fb342ad5fb078561199b7a3"
+    },
+    "orders.intake_evidence": {
+      "count": 4,
+      "sha256": "cbb320c0babf43260aae2eedd0dde13d98bb1ea19190e49e6ef3dfbe6525f6aa"
+    },
+    "orders.intake_return": {
+      "count": 2,
+      "sha256": "36cf9b4851fd89bd5f4e7f4d679348b8736dfe9ee62788568daa78ccc286e897"
+    },
+    "pricing.order_quote": {
+      "count": 3,
+      "sha256": "cf3f96b94ab2f6b66a5e2363edba19e461fe938e3de459bc0b63b3b561db492a"
+    },
+    "pricing.quote_confirmation": {
+      "count": 2,
+      "sha256": "3ad053398905fb6c3da0b5b2fb2e3e3e641e366ad03be562d35af45d39f4c576"
+    },
+    "finance.receiving_account": {
+      "count": 4,
+      "sha256": "5531c3910c4f46361acd32120ce8b09e10b720b7826d0dbd3a3138fd655880ae"
+    },
+    "finance.prepayment_receipt": {
+      "count": 2,
+      "sha256": "c8ad4fe421b456ed7cfdab631b83b60338d0220d68c7216642eb91fa7f488211"
+    },
+    "finance.receipt_decision": {
+      "count": 2,
+      "sha256": "008be93f36b56b9572129eebdc4993f1baa2a90c50fec0d9d4ed5dff7c9ab8f7"
+    },
+    "finance.prepayment_allocation": {
+      "count": 2,
+      "sha256": "45c86a657d813e3e299d6ce66bed30bc8f90c5f35d8218fae0902adc1f0e08be"
+    },
+    "finance.allocation_event": {
+      "count": 6,
+      "sha256": "b3123f7d7af3f8a5740c23382275acc2552eaed09a4d539d196f0f04f2c41280"
+    }
+  }
+}

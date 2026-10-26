@@ -8,3 +8,10 @@
 node_modules/
 __pycache__/
 *.pyc
+dist/
+
+# Local API credentials, sessions and PostgreSQL connection files.
+services/routefit/.local/
+
+# Generated working-tree handoff snapshots; source remains in its normal paths.
+handoff/

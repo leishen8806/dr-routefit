@@ -1,0 +1,21 @@
+{
+  "PRD/README.md": "ed01681e193a2ad924dfba63bc4c6b6a5b050c886a3d109cecb7cd45fb481a56",
+  "PRD/docs/api-design.md": "1b32247bd75b24698dda86d98a5d0417d6956b4bc1c7ca7d41ac840bfe530ca8",
+  "PRD/docs/database-architecture.md": "7ee8eb62db53ed215d6934b4477974d06a413069dbf5f714159da51e4ad9e533",
+  "PRD/docs/phase1-pages-and-ux.md": "f26e9faeb0ce6c38eeb7b49df248321a3926e0d466f0bdf76b0ec36617fbdb3d",
+  "PRD/docs/core-delivery-implementation-plan-v0.1.md": "a870121c32f21954d0c8121e99fc6783841ef1d2274d27f9ba5a8659b2a987d7",
+  "PRD/docs/platform-first-execution-baseline.md": "946c122a0b0e7a749690d410d21004ff4609114ec41f3de7673cf6c78ae2e675",
+  "PRD/docs/cross-end-finance-and-reports-v0.1.md": "62c4492986d1f695c6e1dba8d3f9ff9474ad5a8890137329fa7a54731e1b287e",
+  "contracts/implementation-mapping.md": "78e006c2222690dc5aed6f32bbc9d58b7eb085dfc3deaca321faaae662d0eda4",
+  "prototype/DELIVERY-DETAILS.md": "12bef79f4b77c2514b4b16367fb6a290544e768980820534a16a8a9be740138d",
+  "prototype/RECORDS.md": "ec35b284e4728ae97ea65edbc6b5fd151905713072db5e4a5b593265ac060318",
+  "PRD/CHANGELOG.md": "a9d34e692c3d70728b284300b65185bd7d8159c9b63851174f2b2ef8ea6f3350",
+  "PRD/docs/delivery-pricing-system-v0.1.md": "53cfdc14ecf990c421e041e72747c6af599d7a2c7781fa71cd625a0948c76bae",
+  "PRD/docs/pricing-development-map-v0.1.md": "c2d267bb06ba4e34fcedbc691f20872d2aecfacb96ae643be7a126e5842dc401",
+  "PRD/docs/research/2026-10-25-delivery-pricing.md": "187b0a38dad9c57ad36841827f3be2cc3fd13170e065551533a2d2219c3029d9",
+  "PRD/docs/research/2026-10-25-pricing-sources.json": "9bb3ab3bc7bef773154bb3bafa00d8e47901845e79f18fce6317cdbc722a471a",
+  "PRD/docs/pricing/calculation-examples.json": "d67e362bfbda15cf3ab5da91d118dbd5214a969f71b50578be114b7b4616db2f",
+  "PRD/docs/pricing/ratecard-template.json": "6139fa66a6d1d0bec5fa00853015c421a14b239f63ddfd861a12f4987c13dacf",
+  "scripts/check-pricing-examples.py": "180b6a40c4435c31175861c508bd6595760f22d43a584d0ff372048e4480729c",
+  "PRD/docs/research/2026-10-25-pricing-verification/README.md": "d3cf7671ad55ed0d23476a9abc28b4d189efa9a682bfc9d1b357f55d152aaed7"
+}

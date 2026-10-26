@@ -1,0 +1,57 @@
+async(page)=>{
+ const ctx=await page.context().browser().newContext({viewport:{width:1440,height:1000}}),p=await ctx.newPage(),checks=[],errors=[],external=[];
+ const dir='E:/Dr.RouteFit/prototype/records/2026-10-25-kess-pages/';
+ const assert=(ok,msg)=>{if(!ok)throw Error(msg)},state=()=>p.evaluate(()=>JSON.parse(sessionStorage.getItem('routefit-r1-prototype-v1')).financeLedger);
+ p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>{if(!r.url().startsWith('http://127.0.0.1:4173/'))external.push(r.url())});
+ const form=async(action,values={})=>{await p.locator(`[data-fin-action=${action}]`).first().click();for(const [name,value]of Object.entries(values))await p.locator(`#fin-form [name=${name}]`).selectOption(value);await p.locator('#fin-form [type=submit]').click();await p.locator('#finance-dialog').waitFor({state:'hidden'});};
+ try{
+  await p.goto('http://127.0.0.1:4173/prototype/finance.html?actor=C01&tab=receipts');
+  assert(await p.getByRole('button',{name:'模拟 KESS 付款',exact:true}).isDisabled(),'empty orders disable simulation');
+  assert((await p.locator('#kess-stage').innerText()).includes('商户尚未开通'),'merchant state');
+  await p.locator('.fin-payment-help summary').focus();await p.keyboard.press('Enter');
+  assert(await p.locator('.fin-payment-help').getAttribute('open')!==null,'keyboard help disclosure');
+  assert((await p.locator('.fin-payment-help').innerText()).includes('当前浏览器标签页'),'help explains storage boundary');
+  checks.push('empty-state disabled action; explicit unopened status; keyboard help');
+  await p.locator('#fin-actor').selectOption('F01');await p.locator('[data-fin-tab=tasks]').click();await form('load');
+  await p.locator('#fin-actor').selectOption('C01');await p.locator('[data-fin-tab=receipts]').click();
+  await p.getByRole('button',{name:'模拟 KESS 付款',exact:true}).focus();await p.keyboard.press('Enter');
+  await p.locator('[name=orderId]').focus();await p.keyboard.press('ArrowDown');await p.keyboard.press('Escape');
+  await p.locator('[name=orderId]').selectOption('FIN-DEMO-002');
+  assert((await p.locator('#fin-form').innerText()).includes('商户尚未开通'),'dialog status');
+  await p.locator('#fin-form [type=submit]').click();await p.locator('#finance-dialog').waitFor({state:'hidden'});
+  assert((await state()).paymentIntents[0].amount===1200,'freight plus insurance');
+  await form('kessQuery',{result:'UNKNOWN'});
+  await p.locator('[data-fin-action=kessCreate]').click();await p.locator('[name=orderId]').selectOption('FIN-DEMO-002');await p.locator('#fin-form [type=submit]').click();
+  assert((await p.locator('#fin-error').innerText()).includes('已有支付'),'duplicate refused');
+  await p.locator('#fin-form [data-close]').first().click();await p.locator('#fin-form [data-close]').first().click();
+  await p.locator('[data-fin-action=kessQuery]').click();await p.locator('[name=result]').selectOption('MISMATCH');await p.locator('#fin-form [type=submit]').click();
+  assert((await p.locator('#fin-error').innerText()).includes('不匹配'),'mismatch refused');
+  await p.locator('[name=result]').selectOption('SUCCESS');await ctx.setOffline(true);await p.locator('#fin-form [type=submit]').click();
+  assert((await p.locator('#fin-error').innerText()).includes('离线'),'offline guard');assert((await state()).receipts.length===0,'no offline receipt');
+  await ctx.setOffline(false);await p.locator('#fin-form [type=submit]').click();await p.locator('#finance-dialog').waitFor({state:'hidden'});
+  assert((await state()).receipts.length===1&&(await state()).allocations.length===0,'one source, no automatic allocation');
+  assert((await p.locator('main').innerText()).includes('等待财务核销；当前没有真实扣款'),'customer next action');
+  await p.reload();assert((await state()).receipts.length===1,'reload no double receipt');
+  checks.push('create/unknown/duplicate/mismatch/offline/recovery/success/reload; no automatic allocation');
+  await p.setViewportSize({width:390,height:844});await p.emulateMedia({reducedMotion:'reduce'});
+  assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile no horizontal overflow');
+  await p.locator('.fin-payment-help summary').click();assert(await p.locator('.fin-payment-help').getAttribute('open')!==null,'mobile help');
+  await p.locator('.fin-payment-help summary').click();
+  await p.screenshot({path:dir+'kess-customer-mobile.png',fullPage:true});await p.screenshot({path:'E:/Dr.RouteFit/prototype/designs/finance-v01/kess-customer.png',fullPage:true});
+  await p.locator('#fin-actor').selectOption('F01');await p.setViewportSize({width:1440,height:1000});
+  assert((await p.locator('#kess-stage').innerText()).includes('商户尚未开通'),'finance same status');
+  await p.locator('.fin-payment-help summary').click();assert((await p.locator('.fin-payment-help').innerText()).includes('接入准备'),'internal preparation');
+  await p.screenshot({path:dir+'kess-finance-help.png',fullPage:true});
+  await p.locator('#fin-actor').selectOption('MG01');await p.locator('[data-fin-tab=reports]').click();
+  assert((await p.locator('main').innerText()).includes('KESS 商户尚未开通 · 模拟数据'),'report status');
+  await p.screenshot({path:dir+'kess-report.png',fullPage:true});await p.screenshot({path:'E:/Dr.RouteFit/prototype/designs/finance-v01/kess-report.png',fullPage:true});
+  await p.locator('#fin-actor').selectOption('D01');await p.locator('[data-fin-tab=receipts]').click();
+  assert(await p.locator('#kess-stage,[data-fin-action=kessCreate],[data-fin-action=kessQuery]').count()===0,'driver no payment affordance');
+  await p.locator('#fin-actor').selectOption('W01');assert(!(await p.locator('main').innerText()).includes('DEMO-KESS'),'warehouse privacy');
+  checks.push('390px/reduced motion/help; internal/customer copy; report; driver/warehouse scope');
+  await p.goto('http://127.0.0.1:4173/prototype/finance-design.html');
+  assert(await p.locator('img').evaluateAll(imgs=>imgs.every(i=>i.complete&&i.naturalWidth>0)),'design assets load');
+  assert(errors.length===0,errors.join(';'));assert(external.length===0,'unexpected external request');
+  return {checks,errors,externalRequests:external,screenshots:['kess-customer-mobile.png','kess-finance-help.png','kess-report.png'],scope:'local browser with synthetic state; no KESS network'};
+ }finally{await ctx.close()}
+}

@@ -1,0 +1,48 @@
+{
+  "openapi": "3.1.0",
+  "paths": 180,
+  "operations": 202,
+  "schemas": 189,
+  "fixturesPassed": 389,
+  "scope": "contract syntax, schema fixtures, route metadata; no backend or KESS network tested",
+  "verifiedAt": "2026-10-24T16:35:20.896966+00:00",
+  "gitHead": "ba9a77ec78cd20a6bf72476e9c3410d7faa9a06e",
+  "localMarkdownLinksChecked": 990,
+  "renderDeterministic": true,
+  "formalBaseline": {
+    "PRD/docs/PRD-V1.4-review.md": "matches HEAD (line endings normalized)",
+    "PRD/docs/PRD-V1.3-final.md": "matches HEAD (line endings normalized)",
+    "PRD/docs/database/routefit-schema-draft.sql": "matches HEAD (line endings normalized)",
+    "PRD/docs/database/geocore-g1-schema-draft.sql": "matches HEAD (line endings normalized)"
+  },
+  "businessAcceptance": "API-CASE-01 through API-CASE-30 are designed, NOT_RUN",
+  "runtimeChangesThisTask": false,
+  "kessNetworkTested": false,
+  "notes": [
+    "Existing unrelated working-tree changes preserved.",
+    "Schema fixtures establish shape only, not transaction, authorization, or financial correctness.",
+    "Real provider, identity and WMS dependencies are listed in implementation-mapping.md."
+  ],
+  "sha256": {
+    "contracts/endpoint-catalog.md": "ac9cc2248d7d53e460455b59f770e8c7fc6402805bb33005c5cfc1c7a5bbf956",
+    "contracts/examples/schema-cases.json": "7c168a110a5675e5abe10e7d9353a2821e705f8a54eb39c5cf3910d7bae1953b",
+    "contracts/fields.md": "10334e47c148b1218e7cd320f055c1d5ad201e5569fbda36312eb8f0d03e73e2",
+    "contracts/flows-and-acceptance.md": "270108eff2a72fdc2ac6aca190e463584ce4d9097492015d680514cb0ed51fda",
+    "contracts/implementation-guide.md": "cbf6d45e0291084b34103fb4c73fe5d1b65a56c66cd14b208d04138f8f2706c0",
+    "contracts/implementation-mapping.md": "42914ab422051377a7ed5825566a5ae8113a94f050ef3dc58a7701bfb8acd8d3",
+    "contracts/openapi.json": "7246db579abe553aa091d88735dcbeb9a39fa368e5afc7cdbc5cdecd1cdd7b9c",
+    "contracts/README.md": "852fbe477d6c317a95be073b8d5f67d57b26635718b9aa0b443d6c369ad8928d",
+    "contracts/requirements-dev.txt": "08f7b4770a73a4ff80dd44ac1044c79dce4e6343684b3f783735ec7240bbfc5c",
+    "PRD/CHANGELOG.md": "fe08b0605da03129d3244528db1b5ee894571bd3c3d1aaf42488e660d8961655",
+    "PRD/docs/api-design.md": "d5ca8371880701caa88e55bfe2f564c81dbe41de1009afc2cc108c2914f3ef1f",
+    "PRD/docs/cross-end-finance-and-reports-v0.1.md": "dc3dad8984a7647af274b9a037ad1d595a0d8523e2c70ecb8c60f5340beb042c",
+    "PRD/docs/customer-portal-scope-v0.1.md": "5af9d1ec30a4db515f6179eadf6a8c26cb81742443bf101e204f01e928bcac62",
+    "PRD/docs/database-architecture.md": "067147528c162d8c4f30e3eed9fbc2972c849b6974950e249c2be6065c84213c",
+    "PRD/docs/development-standards.md": "a5f58d9301b0b334c25f6c2113556bce3554bac109b020987c9931f98af65bb7",
+    "PRD/docs/phase1-pages-and-ux.md": "d58b749e5920be01738ccab4a35acf970491cb0248a85237152a8e1fc38368f1",
+    "PRD/docs/system-boundaries.md": "b99add4034bba4e9c8d1f6899d2ab4d505bbebc58f00d8c27925d9dc62896ae8",
+    "PRD/README.md": "e53925d9d00e084da716e8a75d43fd718249dedb83ca8f1d8280c610213972ac",
+    "scripts/render-api-reference.py": "7b61a4361ce097e07a07b0267ca988c8cf9107553698f37710d0652b2ade07b9",
+    "scripts/validate-api-contract.py": "1a7157e64b91b3f993d7de180be38803d1e30624bbeee3c88adb819878d0799e"
+  }
+}

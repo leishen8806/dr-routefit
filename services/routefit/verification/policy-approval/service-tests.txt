@@ -1,0 +1,59 @@
+✔ JSON rejects duplicate decoded keys at every object depth (1.2563ms)
+✔ JSON preserves valid values, escapes and keys in separate objects (1.3243ms)
+✔ JSON rejects malformed syntax, BOM and invalid UTF-8 rather than replacing bytes (0.264ms)
+▶ real PostgreSQL order-draft HTTP integration
+  ✔ authorized customers, persistent create, replay and forbidden spoofing (121.002ms)
+  ✔ company and same-company customer scopes cover reads, writes, RLS and revocation (24.4312ms)
+  ✔ draft edits preserve package identities and reject concurrent stale updates (41.8849ms)
+  ✔ unsupported capabilities and incomplete measurements fail without writes (24.9787ms)
+  ✔ signed cursors, stable ordering, filters and query tampering (12.5875ms)
+  ✔ restart retains full drafts and original idempotent response (32.4493ms)
+✔ real PostgreSQL order-draft HTTP integration (1198.5633ms)
+✔ implemented order routes match contract, permissions and round-trip input (39.8443ms)
+✔ draft unknown measurements and package bounds fail closed (0.3313ms)
+▶ real PostgreSQL policy approval HTTP lifecycle
+  ✔ submit freezes source, scopes permissions, retries and rejects spoofing (48.021ms)
+  ✔ service enforces distinct preparer reviewer approver and required review (34.9548ms)
+  ✔ published source remains immutable after later draft edits and restart (43.0488ms)
+  ✔ source change after review invalidates publication; fresh submission is required (28.3624ms)
+  ✔ concurrent distinct reviews serialize and old contributors cannot self-review (41.4267ms)
+  ✔ database constraints independently forbid self approval missing review and history overwrite (99.3556ms)
+  ✔ unsupported rules and expired policies are blocked rather than silently priced as zero (371.5944ms)
+✔ real PostgreSQL policy approval HTTP lifecycle (1191.9235ms)
+✔ policy routes require the documented distinct permissions and version owners (1.112ms)
+✔ publication excludes unsupported bases, blank evidence and expired periods (0.5377ms)
+✔ all contributors and the reviewer are excluded from approval (0.1349ms)
+▶ real PostgreSQL HTTP pricing slice
+  ✔ migration checksum replay and safe runtime role (8.0638ms)
+  ✔ authentication, permission, CSRF, unknown fields and malformed JSON (61.2283ms)
+  ✔ concurrent duplicate creation persists once and replays original (31.2162ms)
+  ✔ ambiguous JSON and invalid UTF-8 cannot create financial configuration (6.9515ms)
+  ✔ optimistic concurrency allows one of two independent edits (16.0777ms)
+  ✔ successful retry replays before stale-version checks and fingerprints If-Match (9.5698ms)
+  ✔ invalid monetary configuration rolls back all writes (6.2586ms)
+  ✔ integer calculation creates a permanent version-bound simulation (34.1688ms)
+  ✔ company isolation is enforced by both HTTP and runtime PostgreSQL RLS (15.4978ms)
+  ✔ database constraints protect excluded shares and append-only evidence (54.3338ms)
+  ✔ pagination, exact routes, and ETag preserve resource version (19.5715ms)
+  ✔ disabled identities cannot replay past successful operations (132.7178ms)
+  ✔ new server and new connection pool read persisted snapshots (36.79ms)
+  ✔ one-use browser activation, same-origin HTTP, CSRF and logout (33.1732ms)
+  ✔ browser activation rejects expired grants and disabled identities; tenant B remains isolated (151.9981ms)
+  ✔ CLI uses RouteFit connection settings instead of another project environment (197.0957ms)
+✔ real PostgreSQL HTTP pricing slice (1286.7953ms)
+✔ catalog parity and exact local operation mapping (28.5643ms)
+✔ contract fixtures validate with the actual HTTP validator (74.2537ms)
+✔ fixed + rounded unit + insurance, with a separate distribution base (0.5696ms)
+✔ percentage HALF_UP, KHR integer currency and no COD principal in fees (0.1157ms)
+✔ cross-field restrictions block invalid units, shares and missing basis (0.2196ms)
+✔ overflow, duplicate fees, disabled and unknown fees fail closed (0.2425ms)
+✔ fingerprint normalizes object keys but preserves order, values and version (0.3771ms)
+✔ development auth requires valid identity, exact Origin and CSRF (1.0961ms)
+ℹ tests 48
+ℹ suites 0
+ℹ pass 48
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1455.0767

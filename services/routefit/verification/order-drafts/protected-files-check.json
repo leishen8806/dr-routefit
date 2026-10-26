@@ -1,0 +1,478 @@
+[
+  {
+    "path": "PRD/docs/PRD-V1.3-final.md",
+    "unchanged": true
+  },
+  {
+    "path": "PRD/docs/PRD-V1.4-review.md",
+    "unchanged": true
+  },
+  {
+    "path": "PRD/docs/phase1-acceptance-map.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/ACCESS-CONTROL-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/COVERAGE.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/DELIVERY-AREAS-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/DELIVERY-DETAILS.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/DESIGN.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/DRIVER-ORDERS-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/DRIVER-SLIDE-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/EXTERNAL-INTEGRATION-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/FINANCE-CLOSURE-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/GITHUB-PAGES.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/INCIDENT-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/KESS-USER-GUIDE.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/MULTILINGUAL-DESIGN.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/PROTOTYPE-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/R1M-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/R1M-COVERAGE.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/README.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/RECORDS.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/SETTLEMENT-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/SHOWCASE-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/WAREHOUSE-PLATFORM-CONTRACT.md",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/access-control.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/access-control.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/access-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/app.css",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/app.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-access-control.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-back-navigation.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-closure-update.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-dispatch-map.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-dispatch.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-distance-quote.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-driver-map.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-driver-orders.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-driver-slide.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-entry.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-experience.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-external-integration.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-fee-settings.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-finance-closure.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-flow.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-incident.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-kess-review.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-kess-status.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-multilingual.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-r1m.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-service-areas.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-settlement.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-showcase.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-ui-checks.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/browser-warehouse-platform.js",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/dispatch-map.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/dispatch-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/dispatch-ui.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/distance-quote.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/distance-quote.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/driver-orders.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/driver-orders.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/driver-slide.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/driver-slide.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/entry-main.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/entry-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/entry-ui.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/entry.css",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/entry.html",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/experience.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/experience.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/external-orders.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/external-orders.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/external-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/fee-settings-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/fee-settings.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/fee-settings.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/finance-design.html",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/finance-ledger.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/finance-ledger.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/finance-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/finance.css",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/finance.html",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/incident-model.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/incident-model.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/incident-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/index.html",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/integration-server.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/integration-server.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/kess-payment.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/language-preview.css",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/language-preview.html",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/language-preview.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/locales.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/locales.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/model.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/model.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/order-state.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/platform-model.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/platform-model.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/platform-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/premium-audit.json",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/premium-ui.json",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/r1m-model.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/r1m-model.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/r1m-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/server.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/service-areas-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/service-areas.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/service-areas.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/settlement-model.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/settlement-model.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/settlement-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/showcase-model.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/showcase-model.test.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/showcase.css",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/showcase.html",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/showcase.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/ui-primitives.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "services/routefit/db/migrations/001_pricing_drafts.sql",
+    "unchanged": true
+  }
+]

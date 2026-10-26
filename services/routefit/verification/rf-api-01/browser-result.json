@@ -1,0 +1,24 @@
+{
+  "mode": "real Chromium + local PostgreSQL, direct same-origin fetch from unchanged prototype",
+  "checks": [
+    "prototype assets load on API origin",
+    "anonymous 401",
+    "single-use activation and redirect",
+    "HttpOnly SameSite Strict",
+    "session token hidden from JavaScript",
+    "CSRF rejection",
+    "persistent draft and fee saves",
+    "idempotency replay",
+    "412 stale edit",
+    "insurance excluded",
+    "reload reads snapshot",
+    "logout revoked"
+  ],
+  "tariffId": "691b78cd-2dcb-49c7-8229-4d1e8e2fa1c3",
+  "trialId": "b00ed048-61b2-4860-ac31-63a129d9f6b7",
+  "totalMinor": 325,
+  "shareMinor": 200,
+  "insuranceMinor": 125,
+  "unhandledPageErrors": [],
+  "frontendFeeButtonsConnected": false
+}

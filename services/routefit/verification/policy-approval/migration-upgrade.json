@@ -1,0 +1,43 @@
+{
+  "migration": "002 to 003",
+  "nonemptyPriorDatabase": true,
+  "unchanged": true,
+  "tables": {
+    "pricing.tariff": {
+      "count": 1,
+      "sha256": "9a23c7fb8861b0c2345a39a9426b142b75f8e4ce0b293178d951821450e5f275"
+    },
+    "pricing.fee_rule": {
+      "count": 1,
+      "sha256": "e997ae4e122dc5cd7546b7a7319a80a4f9f83231350fa589ce468fdc524b859b"
+    },
+    "pricing.tariff_revision": {
+      "count": 2,
+      "sha256": "0a811ab96881e686e8ac7ef99787988a77be64fbb4aaa185302cdc076daf1807"
+    },
+    "pricing.trial": {
+      "count": 1,
+      "sha256": "45ff70f52161617fe7e3d0b10f6c83d80044ccff1730e69088a34a3241c5c040"
+    },
+    "integration.http_request_result": {
+      "count": 5,
+      "sha256": "e2a885340a2189d96985dd1dc2527095083dba3933217c315aa17e4fe5f145ba"
+    },
+    "orders.draft": {
+      "count": 1,
+      "sha256": "08cf9169860ab88ed94fa62bd91efc6cc6bf34a6d6b7f5b3201f468c8da8d80c"
+    },
+    "orders.draft_revision": {
+      "count": 2,
+      "sha256": "4ee1e434b24d7b10d74018248591d38f753a246637e4d63664ad64e1f8b93197"
+    },
+    "party.customer": {
+      "count": 2,
+      "sha256": "aa68b630c6c8934f3b581f743172f12f6c67da41ed26ecf62f39f373b377b94e"
+    },
+    "party.customer_access": {
+      "count": 2,
+      "sha256": "e5110e7df8b41c8405e473f2673236f5d3d37c056b313dd73d09af6e7c0f3deb"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+### Result
+{"checks":["real quote total and independent insurance","quote read issued","quoted detail remains readonly","keyboard details remain accessible","narrow view no body overflow","return invalidates quote","exact slogan shown","no browser JS errors"],"errors":[],"scope":"Three distinct local identities; real PostgreSQL quote lifecycle and readonly UI; slogan text; no customer confirmation or payment"}
