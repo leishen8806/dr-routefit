@@ -1,0 +1,54 @@
+[
+  {
+    "path": "contracts/README.md",
+    "sha256": "8c41a2b45162084e03bedf4b930d5f7fbaee8836edece9a6d5c27449dedaa659"
+  },
+  {
+    "path": "contracts/pricing-api.md",
+    "sha256": "7e9e7dc1236747128298eb6ae20ac3fa94b54bba468eed2acebe1e6c61ff205e"
+  },
+  {
+    "path": "contracts/openapi.json",
+    "sha256": "42dc2567ffed4b8c86af0e798ed6b4b9cadcb159de5d25e38fe9750995c1685d"
+  },
+  {
+    "path": "contracts/implementation-guide.md",
+    "sha256": "d4485a53ee7e1fa1bc2bd19bbcb132aa4c6402c73908adc2fbb693bbeef8a833"
+  },
+  {
+    "path": "contracts/flows-and-acceptance.md",
+    "sha256": "391090ea8df2e21faaca6ed4d93ee4511416a28675d80ed5b6bf8b459f5d2459"
+  },
+  {
+    "path": "contracts/implementation-mapping.md",
+    "sha256": "a1aa5f5825e50ee154c5b9db28395a414799da8d359ea142faa243a6d70bb166"
+  },
+  {
+    "path": "contracts/endpoint-catalog.md",
+    "sha256": "c3f730d218a035303a77bd3c1221a59f491b08365a11b93e365a76577afef3a1"
+  },
+  {
+    "path": "contracts/fields.md",
+    "sha256": "00ebcb1fa3c7303de716f07891a90194ee47db1dfe414b9a3604e18e6d7b0371"
+  },
+  {
+    "path": "contracts/examples/pricing.http",
+    "sha256": "9b4950cbf9a22187d5ee14cab1df36b6651cbe33b9c1257ac4a51b9244fa4b16"
+  },
+  {
+    "path": "PRD/docs/api-design.md",
+    "sha256": "d47e7d0433f1e34837ec07ff1cb148561a45a018061e0926d86ca742896cf089"
+  },
+  {
+    "path": "PRD/CHANGELOG.md",
+    "sha256": "c7b5374a8e8bf0828d74c1d7a0004b236d9a47981465af479f0aab08c556c7c5"
+  },
+  {
+    "path": "scripts/validate-api-contract.py",
+    "sha256": "03aa9e4d8efc1f832b90267832128cb3494319c8e7acca30eea23e463abb0608"
+  },
+  {
+    "path": "contracts/verification/2026-10-25-pricing-docs/README.md",
+    "sha256": "3cd9e3d7af30ce059cd7150faae1304ae8d77ac96f97830e2b678dc393f95a9e"
+  }
+]

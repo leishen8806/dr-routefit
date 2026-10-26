@@ -1,5 +1,7 @@
 # DR RouteFit
 
+> Current local API status (2026-10-26): **235 documented operations; runtime callability is unverified because migrations are blocked; none deployed**. The WMS/external service-import slice is documented in [contracts/service-intake-api.md](contracts/service-intake-api.md), customer membership semantics in [contracts/customer-members-api.md](contracts/customer-members-api.md), external-subject settlement boundaries in [contracts/external-subject-settlement-api.md](contracts/external-subject-settlement-api.md), recipient access in [contracts/recipient-api.md](contracts/recipient-api.md), and export controls in [contracts/finance-export-api.md](contracts/finance-export-api.md); the progress table below records verified test baselines.
+
 ![DR RouteFit](brand/logo/routefit-horizontal.svg)
 
 **The right vehicle. The right route. On time**
@@ -10,14 +12,15 @@ DR RouteFit is a warehouse and delivery operations project. This repository cont
 
 ## 当前进度
 
-截至 **2026-10-26**，以 main 基线 `2ac993ec20adb24feeb6b5035fb15a69990b608c` 的 [RF-PM-001 实测报告](https://github.com/leishen8806/dr-routefit/blob/test/RF-PM-001-baseline-report/ops/codex/reports/RF-PM-001-baseline.md)为准；代码入库、文档暴露与运行通过分别说明。
+截至 **2026-10-26**，代码基线为 main `99299bc0451443162018a18030a685718fea5421`。历史环境检查以 main 基线 `2ac993ec20adb24feeb6b5035fb15a69990b608c` 的 [RF-PM-001 实测报告](https://github.com/leishen8806/dr-routefit/blob/test/RF-PM-001-baseline-report/ops/codex/reports/RF-PM-001-baseline.md)为准；代码入库、文档暴露与运行通过分别说明。
 
 | 范围 | 当前状态（数字来源：RF-PM-001） |
 | --- | --- |
 | main 已包含 | PRD评审材料、品牌、Web原型、`contracts/`机器契约与`services/routefit/`后端源码；克隆可取得这些文件 |
 | 契约与文档投影 | 235个操作标记为`LOCAL_IMPLEMENTED_NOT_DEPLOYED`；隔离HTTP文档适配器暴露235个，operationId差异0。正式服务启动被阻塞，实际可调用数尚未验证，不将契约状态当成端到端通过 |
-| 数据库迁移 | 63份迁移文件，最高063；干净库执行在051的`customer_scope`语法处失败，不能宣称迁移全部成功 |
-| Node24 + PostgreSQL16实测 | 依赖安装通过；服务单测101/101、原型65/65通过；集成7个顶层测试均初始化失败；bootstrap失败、7个smoke均因缺少初始化文件失败 |
+| 数据库迁移 | 63份迁移文件，最高063；迁移存在3处已定位的SQL错误（051、057、061），修复卡RF-PM-007（Claude交接任务卡）；不能宣称迁移全部成功 |
+| Node24重测 | main `99299bc`：依赖安装通过、服务单测101/101、原型187/187（21个测试文件），均fail0/skip0；日志见RF-PM-003-R1交接报告 |
+| PostgreSQL16历史验证 | RF-PM-001、基线`2ac993e`：集成7个顶层测试初始化失败；bootstrap及7个smoke失败。不是最新main全量数据库验收 |
 | 尚未验证或交付 | 正式服务全量API闭环、生产身份、真实银行/KESS、真实地图、外部承运商接入、司机移动安装包、Telegram交付与生产部署。财务、调度、仓库已有本地源码，不再笼统列为完全未开发 |
 
 产品入口方向：客户使用 **Telegram Mini App＋Bot**，司机使用 **iOS／Android App**；运营、调度、仓库及财务使用各自工作界面。当前这些方向仍由网页原型和接口规划承载，不表示已交付Bot或移动App。
@@ -49,7 +52,7 @@ node prototype/server.mjs
 
 ## 从 main 启动本地开发
 
-直接克隆 main 即包含服务、契约与原型。**当前干净库bootstrap会在051迁移失败**，以下为标准启动顺序；在另卡修复并重新验证前，不承诺能跑通，不绕过迁移校验。
+直接克隆 main 即包含服务、契约与原型。**迁移存在3处已定位的SQL错误（051、057、061），修复卡RF-PM-007**，以下为标准启动顺序；在RF-PM-007修复并重新验证前，不承诺能跑通，不绕过迁移校验。
 
 ```text
 services/routefit/README.md                  服务启动、身份、数据库和测试
@@ -57,7 +60,9 @@ contracts/pricing-api.md                     8个费用接口
 contracts/orders-api.md                      5个客户／订单接口
 contracts/pricing-policy-api.md              4个固定费策略审核接口
 contracts/prepayment-api.md                  11个客户确认／银行核验／核销／准入接口
+contracts/service-cases-api.md                5个确认订单服务申请／独立受理接口
 contracts/local-development-api.md           本机同源开发会话
+contracts/warehouse-requests-api.md          客户仓储申请与仓库受理接口
 prototype/ORDER-ENTRY-CONTRACT.md             数据库录单页面交互与失败恢复
 PRD/docs/project-delivery-depth-v0.1.md        全项目实施顺序与证据标准
 PRD/docs/development-responsibilities-v0.1.md  双人分工和公共文件边界

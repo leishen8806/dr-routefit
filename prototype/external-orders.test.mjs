@@ -49,9 +49,13 @@ test('a request with only the two addresses and the receiver is accepted and sen
  assert.equal(o.expected,suggestDeliveryTime(now));assert.ok(db.externalIntakes.at(-1).dispatchRequestedAt);
 });
 test('the receiver and addresses are still required, and an explicit delivery time is kept',()=>{
- for(const missing of ['pickupAddress','destination','deliveryContact','deliveryPhone'])assert.throws(()=>validateCustomerRequest({...minimal,[missing]:''},{now}),missing==='deliveryPhone'?/联系电话|收货联系电话/:/请核对/);
- assert.throws(()=>validateCustomerRequest({...minimal,deliveryPhone:'abc'},{now}),/联系电话格式不正确/);
- assert.throws(()=>validateCustomerRequest({...minimal,expected:'not-a-time'},{now}),/有效的期望送达时间/);
+ for(const [missing,label] of [['pickupAddress','取件地址'],['destination','送货地址'],['deliveryContact','收货人'],['deliveryPhone','收货人电话']])assert.throws(()=>validateCustomerRequest({...minimal,[missing]:''},{now}),e=>e.field===missing&&e.message==='请填写'+label);
+ assert.throws(()=>validateCustomerRequest({...minimal,pickupAddress:'x'.repeat(301)},{now}),e=>e.field==='pickupAddress'&&/最多 300 字符/.test(e.message));
+ assert.throws(()=>validateCustomerRequest({...minimal,destination:' 演示取件点  a '},{now}),e=>e.field==='destination'&&/与取件地址相同/.test(e.message));
+ assert.throws(()=>validateCustomerRequest({...minimal,expected:'2026-10-24T08:00'},{now}),e=>e.field==='expected'&&/不能早于当前时间/.test(e.message));
+ assert.equal(validateCustomerRequest({...minimal,expected:'2026-10-24T15:00'},{now}).expected,'2026-10-24T15:00');
+ assert.throws(()=>validateCustomerRequest({...minimal,deliveryPhone:'abc'},{now}),e=>e.field==='deliveryPhone'&&/收货人电话格式不正确/.test(e.message));
+ assert.throws(()=>validateCustomerRequest({...minimal,expected:'not-a-time'},{now}),e=>e.field==='expected'&&/有效的期望送达时间/.test(e.message));
  assert.equal(validateCustomerRequest({...minimal,expected:'2026-10-28T09:30'},{now}).expected,'2026-10-28T09:30');
 });
 test('the profile page shows the sender details the order form no longer asks for',()=>{

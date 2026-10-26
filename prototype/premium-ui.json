@@ -21,13 +21,25 @@
     "unit"
   ],
   "commands": {
-    "unit": "node --test model.test.mjs r1m-model.test.mjs dispatch-ui.test.mjs incident-model.test.mjs platform-model.test.mjs"
+    "unit": "node --test *.test.mjs"
   },
   "evidence": {
     "crudFullFlow": "browser-flow.js",
     "failurePaths": "browser-flow.js",
     "r1mFullFlow": "browser-r1m.js",
     "incidentFullFlow": "browser-incident.js",
-    "warehousePlatformFullFlow": "browser-warehouse-platform.js"
+    "warehousePlatformFullFlow": "browser-warehouse-platform.js",
+    "distanceQuote": "browser-distance-quote.js",
+    "driverOrders": "browser-driver-orders.js",
+    "externalIntegration": "browser-external-integration.js",
+    "multilingual": "browser-multilingual.js",
+    "deliveryAreas": "browser-service-areas.js",
+    "accessControl": "browser-access-control.js",
+    "backNavigation": "browser-back-navigation.js",
+    "driverSlide": "browser-driver-slide.js",
+    "settlement": "browser-settlement.js",
+    "financeClosure": "browser-finance-closure.js",
+    "kessPayment": "browser-kess-review.js",
+    "feeSettings": "browser-fee-settings.js"
   }
 }

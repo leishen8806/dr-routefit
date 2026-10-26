@@ -1,0 +1,90 @@
+{
+  "checkedDate": "2026-10-24",
+  "source": "GitHub REST via connected GitHub fetch; default branch commit and license file inspected",
+  "repositories": [
+    {
+      "repo": "fleetbase/fleetbase",
+      "branch": "main",
+      "license": "AGPL-3.0",
+      "archived": false,
+      "pushed_at": "2026-10-23T06:27:26Z",
+      "sha": "9c5e164e5476b6038d24653f6e557b43aa27959c",
+      "commit_date": "2026-10-22T05:46:03Z",
+      "license_url": "https://github.com/fleetbase/fleetbase/blob/9c5e164e5476b6038d24653f6e557b43aa27959c/LICENSE.md"
+    },
+    {
+      "repo": "fleetbase/fleetops",
+      "branch": "main",
+      "license": "AGPL-3.0",
+      "archived": false,
+      "pushed_at": "2026-10-24T12:08:42Z",
+      "sha": "33032e53ebee5e4a514970ee2379c12348c77c54",
+      "commit_date": "2026-10-19T06:21:11Z",
+      "license_url": "https://github.com/fleetbase/fleetops/blob/33032e53ebee5e4a514970ee2379c12348c77c54/LICENSE.md"
+    },
+    {
+      "repo": "Volodymyr4K/ownfleet",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "pushed_at": "2026-06-12T21:21:07Z",
+      "sha": "98744125c827b6e5bbe2af384c3ef9308c445ec8",
+      "commit_date": "2026-06-12T21:01:50Z",
+      "license_url": "https://github.com/Volodymyr4K/ownfleet/blob/98744125c827b6e5bbe2af384c3ef9308c445ec8/LICENSE"
+    },
+    {
+      "repo": "VROOM-Project/vroom",
+      "branch": "master",
+      "license": "BSD-2-Clause",
+      "archived": false,
+      "pushed_at": "2026-10-08T15:06:43Z",
+      "sha": "07be776fc20b8d6c85d9f78797e38a9f4e44ec44",
+      "commit_date": "2026-03-17T16:43:34Z",
+      "license_url": "https://github.com/VROOM-Project/vroom/blob/07be776fc20b8d6c85d9f78797e38a9f4e44ec44/LICENSE"
+    },
+    {
+      "repo": "google/or-tools",
+      "branch": "stable",
+      "license": "Apache-2.0",
+      "archived": false,
+      "pushed_at": "2026-10-23T21:14:06Z",
+      "sha": "100f66e6242ab8bf8d32feb8f3bf086db66ae2b5",
+      "commit_date": "2026-09-17T13:02:24Z",
+      "license_url": "https://github.com/google/or-tools/blob/100f66e6242ab8bf8d32feb8f3bf086db66ae2b5/LICENSE"
+    },
+    {
+      "repo": "Project-OSRM/osrm-backend",
+      "branch": "master",
+      "license": "BSD-2-Clause",
+      "archived": false,
+      "pushed_at": "2026-10-21T09:35:08Z",
+      "sha": "afd7d061981c8574872bbed5376112e76a8b2bb1",
+      "commit_date": "2026-10-21T09:35:05Z",
+      "license_url": "https://github.com/Project-OSRM/osrm-backend/blob/afd7d061981c8574872bbed5376112e76a8b2bb1/LICENSE.TXT"
+    },
+    {
+      "repo": "graphhopper/jsprit",
+      "branch": "master",
+      "license": "Apache-2.0",
+      "archived": false,
+      "pushed_at": "2026-09-14T13:05:13Z",
+      "sha": "2a4ccbc2f53a39e936ee45d512bd54c8029cf9be",
+      "commit_date": "2026-09-14T12:48:28Z",
+      "license_url": "https://github.com/graphhopper/jsprit/blob/2a4ccbc2f53a39e936ee45d512bd54c8029cf9be/LICENSE.md"
+    },
+    {
+      "repo": "arash-dehghan/Matching-Pricing-Crowdshipping",
+      "branch": "main",
+      "license": null,
+      "archived": false,
+      "pushed_at": "2026-04-03T15:40:54Z",
+      "sha": "1db36a3a26f09afc6a406f9b495c919f0a418a67",
+      "commit_date": "2026-04-03T15:40:53Z"
+    }
+  ],
+  "crowdshipping": {
+    "treeTruncated": false,
+    "licenseFilenameMatches": [],
+    "note": "No license/copying/notice path found; this is not proof of permission to reuse"
+  }
+}

@@ -16,7 +16,7 @@
 | 证据下载 | `GET /api/driver/v1/evidence-files/{fileId}/download-url` | 再次核对文件所属订单仍是司机当前任务；非本人或非订单资源统一不暴露。 |
 | 交付记录 | `POST /api/driver/v1/orders/{orderId}/delivery-records` | 仅当前持有全部件的已接受司机可写入；必须使用当前收货授权、`DELIVERY`用途证据，并完整划分每件为已交付或待退回。全数交付进入 `delivered`；有剩余件进入 `return_open`，不伪称整单送达或财务结清。 |
 | 本人收入 | `GET /api/driver/v1/income-items` | 仅当前有效司机本人名下的 `DRIVER_INCOME`／`PAYABLE` 账项；客户现金和 COD 不会被当作司机收入。 |
-| 申请提现／查看进度 | `POST`／`GET /api/driver/v1/withdrawal-requests` | 只能从本人 `DRIVER_INCOME`／`PAYABLE` 账项申请，并锁定当时已核验的脱敏结算账户版本；同一账项的未处理申请会占用可提现额度。仅创建待复核与审批申请，不会调用 KESS、银行或自动出款。 |
+| 申请提现／查看进度 | `POST`／`GET /api/driver/v1/withdrawal-requests` | 只能从本人 `DRIVER_INCOME`／`PAYABLE` 账项申请，并锁定当时已核验的脱敏结算账户版本；同一账项的未处理申请会占用可提现额度。服务端按企业＋币种的生效资格规则核验：最近一次已付款提现（首次为规则生效）起的 7／14／30 天周期，以及当前可提现余额门槛，依配置 `AND`／`OR` 组合判断。仅创建待复核与审批申请，不会调用 KESS、银行或自动出款。 |
 
 写入仍需要开发会话、精确同源 Origin、CSRF、`Idempotency-Key` 与 `If-Match`。重试同一键返回同一接受结果；不同路线版本、已过期、非本人或已变更状态均不得继续接受。
 

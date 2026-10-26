@@ -1,0 +1,273 @@
+# 货拉拉式调度系统＋顺路拼单配送：GitHub 开源项目调研
+
+初步结论：值得做，而且非常适合 DR 仓配体系。但不建议直接寻找一个“货拉拉克隆版”作为整个系统。
+
+从目前查到的 GitHub 项目看，更可行的方案是把它拆成两个核心能力：
+
+- \*\*智能调度（Dispatch）：\*\*订单进入系统后，选择合适的司机、车辆、配送时间和路线。
+- \*\*顺路拼单（Crowdshipping / Backhaul Matching）：\*\*车辆已有既定行程时，判断能否在不影响原订单的前提下，顺路承接其他包裹。
+
+这两者的底层算法有所重叠，但业务规则不同：调度关注整个运力池，顺路拼单关注现有路线能不能以较小的额外成本插入新订单。
+
+## 一、GitHub 项目初选
+
+以下按适配 DR 仓配业务的价值排序，区分完整平台、调度引擎和算法研究代码。
+
+[GitHub - fleetbase/fleetbase: Modular logistics and supply chain operating system (LSOS) · GitHub](https://images.openai.com/static-rsc-4/l3x7Vn7zwCVtAnmB_LOF6rUHI1DmVKkH0H0YqAMlmdPRJWUTHJVOgXriH58ARgVflFkN0Umj36IMOGHx01vb4Pe8qCO4xKUdic4M_jGS483ri7UmnzcwRl-aBSlYUrb02Lj0TkPa9AE9Mbk-M2i_Zfy7135C9Ppm7L9pr6QMENI?purpose=inline)
+
+1\. Fleetbase
+
+平台首选研究
+
+GitHub：fleetbase/fleetbase · AGPL-3.0
+
+覆盖调度、司机、车队、订单、配送跟踪、仓储与 API，且提供司机移动应用。
+
+\*\*价值：\*\*最接近 DR 想建设的物流业务底座，可重点研究派车、运单状态、签收与调度控制台。
+
+[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
+
+GitHub
+
+
+
+[查看 GitHub 仓库](https://github.com/fleetbase/fleetbase?utm_source=chatgpt.com)
+
+[Best Delivery Tracking Software | Onfleet](https://images.openai.com/static-rsc-4/BcCXxBTZp4EVitJvw-nuJrDxy-JWb_GhkdNdRDkZHuTVprwtWA05nL38c4G_SQuNuz1sA1O-T5b0icIKEjU92bBLy-nDwDGGF_JJMF_H2W4Yoc-JNOjp6_Wz4H3_fkphFAuKNkRoc1E8XO5jVaVzpnl4cWPcVoo2c9UunX7ViLA?purpose=inline)
+
+2\. OwnFleet
+
+GitHub：Volodymyr4K/ownfleet · MIT
+
+NestJS＋Next.js＋React Native＋PostGIS；提供人工、推荐、自动三种派单模式，以及 GPS、ETA、电子签收。
+
+\*\*价值：\*\*特别适合学习“派单推荐—司机接单—执行跟踪”的实现。原场景偏餐饮配送，需扩展货物体积、装卸和多站点约束。
+
+[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
+
+GitHub
+
+
+
+[查看 GitHub 仓库](https://github.com/Volodymyr4K/ownfleet?utm_source=chatgpt.com)
+
+[VROOM - Optimisateur de trajets routiers — Communauté de la Fabrique des Mobilités](https://images.openai.com/static-rsc-4/N1AscpB7MSmYOlCK2XLH2G7TR9cDDMIPvDsXzGDlQay_lE7Pd5EDFJyjFCxXJXAnGRX76OIqqzXVcZh_NqoskOVTpj3lASNb9acmP68Z2TshbzjVTgzwzJ_6qrBPiZ0i2eDD9tFqvo1LDjDD_eVBB8ncm11_2zu56fwMqrFhH3I?purpose=inline)
+
+3\. VROOM
+
+GitHub：VROOM-Project/vroom
+
+支持容量限制、配送时间窗、多仓、多车型、取送货配对及司机工作时段。
+
+\*\*价值：\*\*适合作为智能路线计算引擎，快速评估一批订单如何分配给车辆。但它不是完整订单管理平台。
+
+[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
+
+GitHub
+
+
+
+[查看 GitHub 仓库](https://github.com/VROOM-Project/vroom?utm_source=chatgpt.com)
+
+[Implementing Google OR-Tools to solve a routing problem | Audacia](https://images.openai.com/static-rsc-4/5Ey3O9ASOpdgWkIW2sSkNVYLBub5FNxJeiWQeIyXCO8nDVeZaNvCq4Fn3FEV0_fBBYVf9BxyqR9oPLHvSR6n_N9NB7hKTHSi90eDhk4Lj_acWxrr2NbWgYbdKhZV4URaacMVlB-sFRSajbpD4pylt3bbW5oxnxRK1CcfoZ3fu1M?purpose=inline)
+
+4\. Google OR-Tools
+
+GitHub：google/or-tools · Apache-2.0
+
+支持取货与交货先后约束、同车运输、车辆容量和时间窗等组合优化。
+
+\*\*价值：\*\*用于顺路拼单的复杂约束验证，尤其是多订单插入、司机工作时间、载重和时效要求。
+
+[image](https://www.google.com/s2/favicons?domain=https://developers.google.com\&sz=32)
+
+developers.google.com
+
++1
+
+
+
+[查看 GitHub 仓库](https://github.com/google/or-tools?utm_source=chatgpt.com)
+
+[Inside Glovo’s deliveries optimization | by ema | The Glovo Tech Blog | Medium](https://images.openai.com/static-rsc-4/cu1e0lV-vtDdm4HW7VDXTyO5R5N_u4Xpos7tp-MAKUdekXUNbLS5aB5oikOXSiRHkESHSbqPaBOccVR15WAdKyotirQDtl2p3h8oRaQsY22LmX154mdti83HBgZ73Ye8wnvwSYdDEvm6XAWH1A9SL375bM70VSVvJYJptSfqO60?purpose=inline)
+
+5\. Matching-Pricing-Crowdshipping
+
+GitHub：arash-dehghan/Matching-Pricing-Crowdshipping
+
+研究利用已有行程的消费者承担包裹配送，并联合优化订单匹配和配送报价。
+
+\*\*价值：\*\*与“顺风车带件”最贴近，但它是研究算法，不是可直接运营的货拉拉平台。
+
+[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
+
+GitHub
+
+
+
+[查看 GitHub 仓库](https://github.com/arash-dehghan/Matching-Pricing-Crowdshipping?utm_source=chatgpt.com)
+
+这里需要特别说明：Fleetbase 和 OwnFleet 是业务系统；VROOM、OR-Tools 是优化求解器；Crowdshipping 项目是研究代码。 它们不能简单互相替代。
+
+## 二、补充值得研究的开源项目
+
+前五个项目覆盖了业务平台与核心求解器；以下三个值得进入技术评估。
+
+| 项目                                                                          | 作用                                          | 对 DR 的价值         |
+| --------------------------------------------------------------------------- | ------------------------------------------- | ---------------- |
+| [Fleet-Ops](https://github.com/fleetbase/fleetops?utm_source=chatgpt.com)   | Fleetbase 的调度扩展，包含多站点配送、司机车辆、路径执行、实时地图和签收流程 | 重点研究调度控制台和订单生命周期 |
+| [OSRM](https://github.com/Project-OSRM/osrm-backend?utm_source=chatgpt.com) | 基于 OpenStreetMap 的道路路径、ETA、距离／时间矩阵服务        | 负责计算金边道路上的真实绕行成本 |
+| [jsprit](https://github.com/graphhopper/jsprit?utm_source=chatgpt.com)      | Java 车辆路径优化库，支持取送货、回程货、多车型、时间窗              | 作为顺路配送算法的第二套验证方案 |
+
+Fleet-Ops 明确提供多站点路由、派车、车辆、订单和调度控制台，适合研究完整调度流程；OSRM 提供道路网络时间矩阵；jsprit 可作为复杂回程运输约束的备选求解器。
+
+[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
+
+GitHub
+
++2
+
+
+
+需要特别关注 Fleetbase 的 AGPL-3.0 协议。如果将它修改后作为网络服务提供给用户，可能涉及源代码提供义务。采用其代码前应完成许可证审查；仅借鉴产品流程和架构概念是另一回事。
+
+## 三、项目横向比较
+
+下表的“适配程度”是我针对 DR 需求的初步技术判断，并非已完成源码、安全或部署审计。
+
+| 项目                             | 调度业务      | 顺路拼单算法    | 建议定位          |
+| ------------------------------ | --------- | --------- | ------------- |
+| Fleetbase / Fleet-Ops          | 强         | 需定制       | 完整业务平台对标      |
+| OwnFleet                       | 强         | 需定制       | 轻量派单系统参考      |
+| VROOM                          | 不提供完整业务系统 | 强，需额外匹配规则 | 主路径优化引擎       |
+| OR-Tools                       | 不提供完整业务系统 | 强，可表达复杂约束 | 复杂顺路拼单求解      |
+| jsprit                         | 不提供完整业务系统 | 强，支持回程货   | 第二算法候选        |
+| Matching-Pricing-Crowdshipping | 研究代码      | 研究顺路匹配和定价 | 算法研究，不直接部署    |
+| OSRM                           | 不提供调度业务   | 提供路网成本    | 距离、路线和 ETA 服务 |
+
+目前没有发现一个经过验证、可以直接部署就同时覆盖“货拉拉式货运撮合＋顺路带件＋金边本地配送”的完整成熟开源项目。
+
+最具价值的组合是：Fleetbase 研究业务体系，VROOM／OR-Tools 研究调度优化，OSRM 研究道路时间矩阵。
+
+## 四、“顺风车带快递”的核心不是最近司机，而是最小增量成本
+
+假设一辆货车已经有原始路线：
+
+示意图，非真实地图和路线测算。
+
+系统收到一笔新快递订单，取件点为 P，交付点为 D。
+
+算法应计算：
+
+\\[ \Delta T=T\_{\text{插单后}}-T\_{\text{原路线}} \\]
+
+同时计算新增里程、费用及原有订单的延误风险。
+
+建议将下面这些条件设为硬约束：
+
+| 约束    | 建议规则                            |
+| ----- | ------------------------------- |
+| 先取后送  | P 必须先于 D                        |
+| 载重与体积 | 全程不得超过车辆剩余容量                    |
+| 原订单承诺 | 不得突破已经承诺的送达时间窗                  |
+| 额外绕行  | 初期可测试不超过 15 分钟或原路线时间的 15%，取较严格值 |
+| 新件时效  | 必须在新订单要求的窗口送达                   |
+| 货物适配  | 不相容、易损或需要特殊运输的货物不得错误混装          |
+| 司机确认  | 初期只推荐，不自动强制接单                   |
+| 交付凭证  | 每个包裹独立扫码、签收和异常记录                |
+
+上表的 15 分钟、15% 是建议试验参数，不是货拉拉的公开规则，也不是算法研究证明的最优值。
+
+VROOM 与 OR-Tools 都能够处理取送货和时间窗等基础约束，但“司机愿不愿接”“新增收入是否覆盖成本”“货物是否适合混装”仍需要在 DR 自己的业务规则层判断。
+
+[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
+
+GitHub
+
++1
+
+
+
+## 五、DR 仓配系统如何落地
+
+结合目前的 W1、W2、W3 规划，建议不要把整套开源物流系统直接塞进现有 Three.js 仓配场景。应当区分运营后台、调度计算和三维展示。
+
+DR 调度控制台
+
+订单、车辆、司机、运单、分配、异常与签收
+
+调度服务
+
+Fleet-Ops / OwnFleet 机制对标
+
+顺路拼单服务
+
+插单可行性、报价与收益计算
+
+VROOM / OR-Tools
+
+路径与容量优化
+
+OSRM / 路网服务
+
+ETA 与行驶时间矩阵
+
+DR 三维园区与全景大屏
+
+只读展示 W1/W2/W3 运单流向、车辆、状态与异常
+
+这样能保留现有项目的工程边界：三维场景是可视化层，不直接决定真实派车、签收或运单完成。
+
+### 顺路配送的业务闭环
+
+建议流程为：
+
+`新订单 → 查找已规划路线 → 筛选顺路车辆 → 插入取送货点 → 校验容量与时效 → 计算司机补偿 → 司机确认 → 生成配送任务 → 扫码取货 → 运输跟踪 → 签收`
+
+有几个边界需要优先设计：一笔运单不能被两个司机并发领取；车辆临时改线要重新验证所有原订单的送达窗口；包裹丢失或超时必须有明确责任与异常处理记录。若未来开放社会司机，还需另行核查当地货运经营、保险、承运责任、个人数据和司机资格等要求。
+
+## 六、建议的实施路线
+
+| 阶段          | 工作范围                                                        | 验收目标                  |
+| ----------- | ----------------------------------------------------------- | --------------------- |
+| R0：开源技术尽调   | 深入阅读 Fleetbase、OwnFleet、VROOM、OR-Tools、OSRM 的源码、许可证、依赖和更新状态 | 确定复用与自研边界，不修改现有业务系统   |
+| R1：基础调度 MVP | 订单池、司机车辆、人工派单、推荐派单、轨迹与签收                                    | 能用测试订单完成一条配送闭环        |
+| R2：顺路拼单 MVP | 固定路线中插入新取送点，计算绕行与补偿                                         | 能拒绝超时、超载和不经济的插单       |
+| R3：动态调度     | 行驶中新增订单、司机拒单、异常改派、订单优先级                                     | 原订单 SLA 不因算法调度遭到无提示破坏 |
+| R4：DR 三维联动  | 把已验证的调度摘要展示在 W1/W2/W3 园区与仪表盘                                | 三维状态与业务记录一致，无额外业务写入   |
+
+先在模拟订单和受控车队上验证 R1、R2，比直接开放社会司机接单更合适。
+
+对于顺路拼单，建议首轮实验记录四项结果：匹配成功率、每单增加的绕行时间、原订单准时率、每单平均配送成本。只有这些指标一起改善，才说明算法具备实际商业价值。
+
+## 七、最终开源选型建议
+
+业务平台对标：Fleetbase / Fleet-Ops
+
+功能最完整，尤其适合分析调度、车队、订单执行与司机 App。不过 AGPL 和整体技术栈需要单独评估，不建议直接替换 DR 现有后台。
+
+路线优化主候选：VROOM
+
+先用于批量订单和顺路插单可行性测试；OR-Tools 作为复杂约束求解的备选或对照基线。
+
+地图与路网：OSRM
+
+适合形成自有道路时间矩阵，但需检查金边本地道路数据质量；路线优化不能只靠经纬度直线距离。
+
+顺路匹配算法研究：Crowdshipping 项目
+
+重点参考其匹配与补偿模型，暂不把神经网络动态定价作为 MVP 必需功能。该仓库还依赖 IBM CPLEX，部署和授权成本需要评估。
+
+[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
+
+GitHub
+
+
+
+我最推荐的起步组合是：OwnFleet 的轻量调度模式作为交互参考＋VROOM 处理路线优化＋OSRM 提供路网成本，再用 Fleetbase 对照完整业务能力。
+
+这比直接部署一整套陌生的复杂物流平台更容易控制集成范围。
+
+本轮属于 GitHub 开源项目的初步可行性研究，尚未完成源码逐文件审计、基准测试或金边实际道路数据验证，也没有向 Trae、Codex、harness 发新任务。
+
+下一项值得做的是 R0 深度源码尽调：验证派单并发安全、插单算法、许可约束与和 DR 现有数据模型的兼容性，再确定是否进入开发。

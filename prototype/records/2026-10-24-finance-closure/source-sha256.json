@@ -1,0 +1,422 @@
+[
+  {
+    "file": "PRD/CHANGELOG.md",
+    "sha256": "44d34f597b3222cf9c76a93b22406297908ad24727690d94c76784fed3297ec1"
+  },
+  {
+    "file": "PRD/docs/api-design.md",
+    "sha256": "945d4ecb87ca1ccad55c86b65670150462f46f5b7d68ec795f5afb773a44564d"
+  },
+  {
+    "file": "PRD/docs/closed-loop-requirements-v0.1.md",
+    "sha256": "c86f791a27ddd342ce9cffcfc667cd0b64f852d7348eab0b614663d7a8d918e1"
+  },
+  {
+    "file": "PRD/docs/confirmed-dispatch-loading-baseline.md",
+    "sha256": "0f15de591d43bede7d04ebbb5a27a22d3c0afa3d759cbc33880d54f5bc8bd121"
+  },
+  {
+    "file": "PRD/docs/core-delivery-implementation-plan-v0.1.md",
+    "sha256": "31a53a46c7d4b865d3591161ea710301fb56ef824690d68b1be924d213671923"
+  },
+  {
+    "file": "PRD/docs/cross-end-finance-and-reports-v0.1.md",
+    "sha256": "a1a37143ed031c8c7c5245326aeae1f2fdb8e05351ab3ed44d9031f7d430771d"
+  },
+  {
+    "file": "PRD/docs/database-architecture.md",
+    "sha256": "50f3448ae5c28a990924c733fe1ecf6799fdcaf2751e2f3f9e7f31b37d8dbbd1"
+  },
+  {
+    "file": "PRD/docs/design-standards.md",
+    "sha256": "7bb8bd6746a3b313fe0538faa435e1c74492d95adfb1937db909a739517ed4fc"
+  },
+  {
+    "file": "PRD/docs/development-standards.md",
+    "sha256": "d90ec319ab3710a4fceea5a23dac2d3e38ec522390f7dfab24045694bc0f7699"
+  },
+  {
+    "file": "PRD/docs/financial-closure-design-v0.1.md",
+    "sha256": "c7a20f49a67f88fab935b3c3e15520159e8e4bd04eec9e3c3ec8ec8d4b8799b6"
+  },
+  {
+    "file": "PRD/docs/future-closure-doc-review-2026-10-24.md",
+    "sha256": "6e878c1358457d1a3a706713c18d2fd38b4fdf454320981abcc5766ea3588a14"
+  },
+  {
+    "file": "PRD/docs/future-closure-plan-v0.1.md",
+    "sha256": "4a2eea4ee82b36ef53d9d36ca5d2fcaa4d477c114f6cc9ca6562cb589bcd89d1"
+  },
+  {
+    "file": "PRD/docs/glossary.md",
+    "sha256": "fa791b32bc05c19ea27f9fca831707271ff719beeee8b5f26f8e70ceab28d548"
+  },
+  {
+    "file": "PRD/docs/map-cost-optimization-v0.1.md",
+    "sha256": "5ad84492b52dfbbfd0732f33db62ad145390333e324e34e755239187e075f72e"
+  },
+  {
+    "file": "PRD/docs/order-state-catalog.md",
+    "sha256": "6049b917b492e0f2af2153038d2c0cf4cf387226d0e8a770d08b7abc4ac29ec2"
+  },
+  {
+    "file": "PRD/docs/partner-settlement-and-funds-v0.1.md",
+    "sha256": "8b0e670f28749b659c96f826571ac36b53eb95987ebcecf745dd5732155aae64"
+  },
+  {
+    "file": "PRD/docs/phase1-acceptance-map.md",
+    "sha256": "26c4173cc324b503b4f1d83531a636d2ceec4ada3f91e066280c56f2a815a535"
+  },
+  {
+    "file": "PRD/docs/phase1-pages-and-ux.md",
+    "sha256": "d6fd371b1360d1f0754a9cc090005d9b0d3cac98d0fdeea35185a799d49ac060"
+  },
+  {
+    "file": "PRD/docs/platform-first-execution-baseline.md",
+    "sha256": "007d60cfe31c14bdc0ac49a5a70b9bd1f36f94338ef592d7e482604fbc26d30b"
+  },
+  {
+    "file": "PRD/docs/PRD-V1.3-final.md",
+    "sha256": "8fb88fe03d85082ef125b9f8b5b8964d9423ab0d17f26448846e4506646a29e4"
+  },
+  {
+    "file": "PRD/docs/PRD-V1.4-review.md",
+    "sha256": "83e704a2e470fa1637513d797d9348c23b7c27ac544ca101f8beee09391922de"
+  },
+  {
+    "file": "PRD/docs/requirements-reconciliation-2026-10-24.md",
+    "sha256": "dcd24d16bc954e97f0a6566ce98f865f63bd4b7b2bc3f307969461554121ca3d"
+  },
+  {
+    "file": "PRD/docs/route-planning-design-v0.1.md",
+    "sha256": "aaf601c968130e2f8aa9327a565b8a2d37fd4df559bbf1f95530146699fa99d8"
+  },
+  {
+    "file": "PRD/docs/system-boundaries.md",
+    "sha256": "96e1d043d1fa230f5a629b5f42d3c769c1d532954a49a6dd91a87936692d41af"
+  },
+  {
+    "file": "PRD/docs/web-app-experience-standard.md",
+    "sha256": "0693da8958db711760f47f2d7e0b82fc910fdbb760ca5bad800717f517d14848"
+  },
+  {
+    "file": "PRD/README.md",
+    "sha256": "469b468a98b90d28036c9d3dbd9e99bf18a665ffb7c0315b484acba5ddb7b891"
+  },
+  {
+    "file": "prototype/ACCESS-CONTROL-CONTRACT.md",
+    "sha256": "e2a8f54bb2bf4d01a1731a7fa92425644b515b9ef20e254e430d90e1cdcecebd"
+  },
+  {
+    "file": "prototype/access-control.mjs",
+    "sha256": "b0bbc204a6694617b239c8bb4be16983d776e137cc066e352404621bbbe8ab7c"
+  },
+  {
+    "file": "prototype/access-control.test.mjs",
+    "sha256": "6291dc7299623b22dacc6887c9bfa9a3d70ffc2ee42be517147a3d30bee6d795"
+  },
+  {
+    "file": "prototype/access-ui.mjs",
+    "sha256": "f1481ceb99ca472345c71dc5c53aa809d75a01519b64f136b52d523e861a05a6"
+  },
+  {
+    "file": "prototype/app.css",
+    "sha256": "f319627aae35702885b5d8e9a60cec6f27041c3972a5df313acc2c3bd087cb8e"
+  },
+  {
+    "file": "prototype/app.mjs",
+    "sha256": "e18a75ee3dc1d9b84c71f3f11e0214316ecdf89d3e43336332e807ff187d4440"
+  },
+  {
+    "file": "prototype/browser-finance-closure.js",
+    "sha256": "5bdf08a194389e18cc28ee7e2f10a662736e61e35a476ba5b0b5d6df014fc2b6"
+  },
+  {
+    "file": "prototype/DELIVERY-AREAS-CONTRACT.md",
+    "sha256": "92786675d78cf1f3c955b2356a0320a3325c898e9c68a29345dc6f1ab462bb29"
+  },
+  {
+    "file": "prototype/DESIGN.md",
+    "sha256": "6a51ceafec6be7273f28b0bc82949598e4e79de8576340f7e59cef02b77918fd"
+  },
+  {
+    "file": "prototype/dispatch-map.mjs",
+    "sha256": "be9a9103965cc979433f42f60197aea1ed5bc8598fa6118ab92f64b82ee63bff"
+  },
+  {
+    "file": "prototype/dispatch-ui.mjs",
+    "sha256": "ff4883db37adef56fb7b6b5000d983d406b5191ff48efcb8f58e9a8108749ca5"
+  },
+  {
+    "file": "prototype/dispatch-ui.test.mjs",
+    "sha256": "66ccae8f7a1772f24b4776a3f3134c60e593575e8ecb1e4834bc26fff603836d"
+  },
+  {
+    "file": "prototype/distance-quote.mjs",
+    "sha256": "43a65aeb5f673166f1ab8f958dc44d220aabe1684d148d3210dd2be693262b62"
+  },
+  {
+    "file": "prototype/distance-quote.test.mjs",
+    "sha256": "575b58668aca351f95e0790e3e55d7fcaa7fdaa2331f74753059e7b6576343a5"
+  },
+  {
+    "file": "prototype/DRIVER-ORDERS-CONTRACT.md",
+    "sha256": "dc68ec18f580ec39b059d1183ca7e064d26610a9f7621215b8f25cdb86dca12a"
+  },
+  {
+    "file": "prototype/driver-orders.mjs",
+    "sha256": "f9c95a27945d0a8a0fe011e9154d5a9fb8215367f910e6ab6cdbd759dcd92d14"
+  },
+  {
+    "file": "prototype/driver-orders.test.mjs",
+    "sha256": "ddd10f27bb42963f62bcb16a7e2926bb1ded77c7a909b207119212f59bd1c6af"
+  },
+  {
+    "file": "prototype/DRIVER-SLIDE-CONTRACT.md",
+    "sha256": "fbf757700b0494c34fdac3d3f580e243f77d18abe24d3eddeddce6ad8ddaae55"
+  },
+  {
+    "file": "prototype/driver-slide.mjs",
+    "sha256": "12d70fedefebd9fb02b59e7dd0764815134bca4b9efbb323f49ddd73853379d8"
+  },
+  {
+    "file": "prototype/driver-slide.test.mjs",
+    "sha256": "4409fc12199fe2195b80f2f8079bc151aa85173ac00110a7db0e678e5080c7ad"
+  },
+  {
+    "file": "prototype/entry-main.mjs",
+    "sha256": "052bc8425ea984f4bfb324fce27f36193ca93327a58606d54f969353d89f0c21"
+  },
+  {
+    "file": "prototype/entry-ui.mjs",
+    "sha256": "71adc84ec9d7c2ea46d961c9c20bedf0d30c7a2a154d9972b8aa08e8199e15e7"
+  },
+  {
+    "file": "prototype/entry-ui.test.mjs",
+    "sha256": "8c686bfc05ed65ca4ea2a2acabaaf3c1c49d634daaa99bcd8245160e1eab54a5"
+  },
+  {
+    "file": "prototype/entry.css",
+    "sha256": "8583589de9d2583b7a5374bb197f4872b82431372c5fe9082bf624543056b517"
+  },
+  {
+    "file": "prototype/entry.html",
+    "sha256": "c373224546011a6eb3440fdc57e191a52b5509f41773c81df111601ff7e66e22"
+  },
+  {
+    "file": "prototype/experience.mjs",
+    "sha256": "2ebb37409ebd397424d2fd6277fe87c80d7e645930f4cf59d4da380624d9fd0b"
+  },
+  {
+    "file": "prototype/experience.test.mjs",
+    "sha256": "a076149308811a3fa07ff4d119cad17967e0489fe61a97494de46a093caf9105"
+  },
+  {
+    "file": "prototype/EXTERNAL-INTEGRATION-CONTRACT.md",
+    "sha256": "8b0cbf65b65a6511fdd865c584e8f89be1fb899b40dcfb08f64dcd36a25d4e76"
+  },
+  {
+    "file": "prototype/external-orders.mjs",
+    "sha256": "b562ad89c4ece148084a5c1fd02aef0784a637d3c985097c7b2516007c70dc2a"
+  },
+  {
+    "file": "prototype/external-orders.test.mjs",
+    "sha256": "fe46cca1fa87f19fd5e96e457d22a12cf2853cd027b4934a067a7e2a6f6a4542"
+  },
+  {
+    "file": "prototype/external-ui.mjs",
+    "sha256": "89edcca3042a0493a294c6be9cbfc0d00a894698c831ee6c368243eb21eb1c0b"
+  },
+  {
+    "file": "prototype/FINANCE-CLOSURE-CONTRACT.md",
+    "sha256": "162344335cf35fa84199298b74d83aa00f65b907797ccaf9ea74ea392787af5c"
+  },
+  {
+    "file": "prototype/finance-design.html",
+    "sha256": "4cc5e7eb884779b73bf61aac33ab95aa03b9bb058b6f0ce280f7ca968e109b83"
+  },
+  {
+    "file": "prototype/finance-ledger.mjs",
+    "sha256": "c38eabb36ccab28112150bea08610e3c89709b86f316d26d88ce68594e41aec4"
+  },
+  {
+    "file": "prototype/finance-ledger.test.mjs",
+    "sha256": "f62072068439e1f4b9c5ff8ea66a908fa63d544dc3e0323c42f2e288dab4f46c"
+  },
+  {
+    "file": "prototype/finance-ui.mjs",
+    "sha256": "1896933bc353ce4615a159ee78c67460c01eb3e09dee02b388d7267688c4caa9"
+  },
+  {
+    "file": "prototype/finance.css",
+    "sha256": "d053ca133c8b222c53094238aed9d68d2841c8d4328fc0a839f0cdf4b54ef484"
+  },
+  {
+    "file": "prototype/finance.html",
+    "sha256": "0364c3fdff196c0b24da74334d6a82b20bf8b7bf8df165c3ffa790480e5b500f"
+  },
+  {
+    "file": "prototype/INCIDENT-CONTRACT.md",
+    "sha256": "717cb3db6a24d67a27892792829b35fb2edd62838587038f415d2d7104a25498"
+  },
+  {
+    "file": "prototype/incident-model.mjs",
+    "sha256": "3645c2e4f78bf5f4895d285316ef2269f890fe176884db8a49cf1688f2cefd8b"
+  },
+  {
+    "file": "prototype/incident-model.test.mjs",
+    "sha256": "1a9a97a688f92cccbe6b117725a0ebbdfcdd24745929701ce9ea3e30568e57a4"
+  },
+  {
+    "file": "prototype/incident-ui.mjs",
+    "sha256": "846829dfadc39806c01eadab83480dbb3ab4d82621b9e8b3c6fba6cc63c672d4"
+  },
+  {
+    "file": "prototype/index.html",
+    "sha256": "5e13b2123eed89567dad35e891f8072d8c2ba62483a33742e9839a287dea8bf4"
+  },
+  {
+    "file": "prototype/integration-server.mjs",
+    "sha256": "06ff8bc7f4b97ff22cd4316ab61b8a78b2e8740ceae6d3d11b6043e659e77b89"
+  },
+  {
+    "file": "prototype/integration-server.test.mjs",
+    "sha256": "6bbf75fe34aeb59d43335fd5e9c1a8ba6f87dfe2ba8b3acc3924d1c74b5d1493"
+  },
+  {
+    "file": "prototype/language-preview.css",
+    "sha256": "c1359ad956305fcaee83f1ac7be05b36293587100cbcc0f1d21b92b2797a863c"
+  },
+  {
+    "file": "prototype/language-preview.html",
+    "sha256": "bfb0414df7df0c61bc728fc4bd30cf6d06a59d0f07df7cda98f4f1b3140c69ae"
+  },
+  {
+    "file": "prototype/language-preview.mjs",
+    "sha256": "0dcddb699b224a50e1d6e8ce7e5df0c37ebc3f2998e2262997e4a045db570e37"
+  },
+  {
+    "file": "prototype/locales.mjs",
+    "sha256": "f1e0e46d80efed80d9a3d04693e91cd8d2d67e8054443500a76fc9491071a23e"
+  },
+  {
+    "file": "prototype/locales.test.mjs",
+    "sha256": "9881bf0e385d6c8a1df88dd95d411226a2671a7b07329d63edde51a410ae5b4a"
+  },
+  {
+    "file": "prototype/model.mjs",
+    "sha256": "4509d3a5938b90234234d361e1997c23491997649095d35f63dbc573162fd35a"
+  },
+  {
+    "file": "prototype/model.test.mjs",
+    "sha256": "eca0ca2ba530c60dc56189eafb553d9b72fc2c04cf809b81aa56ce7d909cb11e"
+  },
+  {
+    "file": "prototype/order-state.mjs",
+    "sha256": "0a7d37d1b651dee46ee93c43996a21ffaabffaab2e0d374c31ce07597573f154"
+  },
+  {
+    "file": "prototype/platform-model.mjs",
+    "sha256": "60ae19d9670e96e8dd7acf0a500aa38fc0794e7f6d8e4ec0b7ccd0984b59f6e8"
+  },
+  {
+    "file": "prototype/platform-model.test.mjs",
+    "sha256": "48859084e5821826e470c91eac2dda59c1280315c51853c9ce988f4f5265d6d9"
+  },
+  {
+    "file": "prototype/platform-ui.mjs",
+    "sha256": "d3de53dbf05e604d2d3fa9bba4ee26aa9ddb4d1976896416f16e7b6f6add96b0"
+  },
+  {
+    "file": "prototype/premium-ui.json",
+    "sha256": "8aee8ad6ec91e7798ed2718cc0bcf8a54a9ca2aa8e1c4868b779cd372320f49f"
+  },
+  {
+    "file": "prototype/PROTOTYPE-CONTRACT.md",
+    "sha256": "8f4a18ab60cdba694523eb8898b362ead15c194b3d085c2682a247da61d24be6"
+  },
+  {
+    "file": "prototype/R1M-CONTRACT.md",
+    "sha256": "0dc685f18211da63f94f136de61c2ec9fe6ceebaa73c2f21c99095be388fd87f"
+  },
+  {
+    "file": "prototype/r1m-model.mjs",
+    "sha256": "edbbcd8a3880c29b3b70d33f4bfde48638eccf7b110bd785bc4c71863428d6df"
+  },
+  {
+    "file": "prototype/r1m-model.test.mjs",
+    "sha256": "bc9497350995f6a4895765c33753cfa70318c0204e69ba929103504eb28f5565"
+  },
+  {
+    "file": "prototype/r1m-ui.mjs",
+    "sha256": "836a0ad765a2f42e654c462039e2018e2d8a6a5933e05e90bb992960b1534d3e"
+  },
+  {
+    "file": "prototype/server.mjs",
+    "sha256": "653b14fbcc37494e81747db2b7e8e8171753858919210cac7b5ce8bc63202697"
+  },
+  {
+    "file": "prototype/service-areas-ui.mjs",
+    "sha256": "d434000e7a09f1d76990d7612da7e4e4978e1359e39a6f41f4932c709271c582"
+  },
+  {
+    "file": "prototype/service-areas.mjs",
+    "sha256": "4ac8adee43a54a67f63a68ed61ee24f5c3e9b28969b62a78e3634d4eadd60516"
+  },
+  {
+    "file": "prototype/service-areas.test.mjs",
+    "sha256": "757b8a429addbe52b7e18dd05965557a90bf22cebcfe0d0f47a81d1c0013eac7"
+  },
+  {
+    "file": "prototype/SETTLEMENT-CONTRACT.md",
+    "sha256": "42085b812b57f8968c5d691a37a9d715d563bdf939a0a3c5ac58b2020675eeb0"
+  },
+  {
+    "file": "prototype/settlement-model.mjs",
+    "sha256": "62a75faf0b929dbeaca6c5c2949da79d1a380363694ab64754fab0125f33e57d"
+  },
+  {
+    "file": "prototype/settlement-model.test.mjs",
+    "sha256": "646ade351f83367cc132b1bf6e72b26d1b649b52a69150ead7b9cbf9b8932a74"
+  },
+  {
+    "file": "prototype/settlement-ui.mjs",
+    "sha256": "f9755e2e2cafcb99e820333994444c5d9e189a9600016348951db173f0c1ab2a"
+  },
+  {
+    "file": "prototype/SHOWCASE-CONTRACT.md",
+    "sha256": "ee3f1799b1243d2000adb6c79ed73557fca3fdae69e681dac10a65f857779749"
+  },
+  {
+    "file": "prototype/showcase-model.mjs",
+    "sha256": "92141204cc8a2353b9fd4cabc528ed92789b2a4c28708d23aa800bb2405b575d"
+  },
+  {
+    "file": "prototype/showcase-model.test.mjs",
+    "sha256": "1fae7c568b8e96c811137c46a4b2ab07b29446ca1c5b05e4e683480a95a5286f"
+  },
+  {
+    "file": "prototype/showcase.css",
+    "sha256": "6a129ccfd34ba88ff9a290faa5853cd0eb0aa46593d21c999e9692f61816ed8b"
+  },
+  {
+    "file": "prototype/showcase.html",
+    "sha256": "06b26294a21f7d579fee6aea70efaa3f26b98bb0c7573f5de9204726b5e81a51"
+  },
+  {
+    "file": "prototype/showcase.mjs",
+    "sha256": "fe499e91e4463a3d1a4319ad0356a526638f2780617900c6fd793c5851fe4c52"
+  },
+  {
+    "file": "prototype/ui-primitives.mjs",
+    "sha256": "b8ad7f5b602f95ecd3cc6308039208bc880eb1b7d5e19e778d85e34bb3986482"
+  },
+  {
+    "file": "prototype/WAREHOUSE-PLATFORM-CONTRACT.md",
+    "sha256": "b523e53b16f8a7bb5531ee90053b02a721ad077a37579f4c7ee3ba9d15e1bab5"
+  },
+  {
+    "file": "scripts/build-demo.mjs",
+    "sha256": "5a630947be9362956de4cc68d190cc869f4b1d4dc91113d15143aae01c4b4dc0"
+  }
+]

@@ -1,14 +1,22 @@
 # DR RouteFit · 接口设计
 
+2026-10-25 实施增量：[费用设置API](../../contracts/pricing-api.md)的8个操作已在本地服务实现并接入PostgreSQL；以OpenAPI的LOCAL_IMPLEMENTED_NOT_DEPLOYED标记区分其他待实现接口。页面、真实身份与KESS仍未接入此服务。
+
+2026-10-25：[后台费用配置与试算](fee-settings-v0.1.md)已做本地原型。feeSave／feeTrial为本地动作，不是HTTP接口；生产价表审核发布、自动选价与报价落单接口仍按计价开发对照待补。
+
+2026-10-25 [完整计价体系](delivery-pricing-system-v0.1.md)与[开发差距](pricing-development-map-v0.1.md)新增价表版本、计费原量、费目归属、折扣承担及差额要求。当前 OpenAPI 已新增费用草稿、独立费目、试算及版本查询；完整批准价表、自动选价与订单报价扩展尚未合入；不能仅凭现有 pricingPolicyVersionId 宣称计价系统完整。
+
+2026-10-25 [渠道增补](telegram-and-driver-app-scope-v0.1.md)：客户为 Telegram Mini App＋Bot，司机为 iOS／Android App。复用业务接口；Telegram 认证、webhook、会话及设备接口仍待补齐，不把本接口包视为可直接上线 Bot 的完整协议。
+
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | 草案，待人类集成负责人评审；正式契约在 R0-B 以 `contracts/openapi.yaml` 与 JSON Schema 冻结 |
+| 状态 | v0.1 开发候选；机器契约见 `contracts/openapi.json`，R0-B 仍需评审冻结 |
 | 版本 | v0.1 · 2026-10-24 |
 | 需求依据 | [PRD V1.4 评审稿](PRD-V1.4-review.md) 3、5、6、9、13、15、21；当前基线 [V1.3](PRD-V1.3-final.md) |
 | 覆盖范围 | 首期 R1、R1-M、R1-V；[首期页面](phase1-pages-and-ux.md) W01–W20、D01–D09、C01–C02、V01–V05 |
 | 相关文档 | [数据库架构](database-architecture.md) · [开发标准](development-standards.md) · [系统边界](system-boundaries.md) · [术语表](glossary.md) |
 
-本文是接口的设计说明，不是可调用的接口规范。PRD 明确要求不生成"似乎可用"的空规范冒充完成（附录 D.2），所以这里只定接口的分组、约定、端点清单、关键请求与错误语义；字段的最终定义在 R0-B 的机器契约中完成。与 PRD 冲突时以 PRD 为准。
+当前开发入口为[接口包](../../contracts/README.md)：包含 OpenAPI 3.1、字段字典、逐端点权限/阶段/版本对象、流程与拒绝案例、实现迁移映射和正反样例。其中费用8个操作已本地实现，其余待实现；整体仍是待冻结候选契约，不是已部署服务。下文早期端点清单保留设计沿革；重合路由和字段以接口包为开发对照，不同时启用两套财务写入口。正式 PRD、RULE、AT 不变；新增范围以明确的后续需求及[客户门户分期](customer-portal-scope-v0.1.md)补充，发现未解决冲突应停止相关功能放行。
 
 ---
 
@@ -17,13 +25,13 @@
 | 分组 | 基础路径 | 使用者 | 认证 | 首期 |
 | --- | --- | --- | --- | --- |
 | 运营接口 | `/api/ops/v1` | 运营 Web：调度、仓库、装载复核、财务、管理员 | OIDC 登录 + 服务端会话 | R1／R1-M |
-| 司机接口 | `/api/driver/v1` | 司机 Android：自营司机、合作司机 | OIDC + 设备绑定的刷新令牌 | R1／R1-M |
+| 司机接口 | `/api/driver/v1` | 司机 iOS／Android App：自营司机、合作司机 | OIDC + 设备绑定的刷新令牌 | R1／R1-M |
 | 公开查询 | `/api/public/v1` | 客户与收货人的跟踪链接 | 不透明短期引用 | R1（按 D08／D11 批准启用） |
 | 集成接口 | `/api/integration/v1` | 智序工场中控台的服务端适配器 | 服务对服务凭据 | R1-V |
 | 内部端口 | 进程内或内网 | RouteFit ↔ GeoCore G1、快递、通知 | 服务内部 | 见第 10 章 |
 
 - 四组接口分开部署路由、分开限流、分开审计；一组接口的凭据不能访问另一组。
-- 不提供客户自助下单、合作方独立门户、快递司机端或中控写操作的接口（[系统边界](system-boundaries.md) 8.2）。
+- 客户门户/外部订单和 WMS 接入已由后续用户需求纳入规划，新增契约见本文后续闭环增补；公开跟踪链接与中控凭据不得用于这些写操作。合作方仅提供本人应付与结算申请入口；不提供快递司机端与中控写操作。
 
 ---
 
@@ -41,7 +49,7 @@
 | 请求头 | 要求 |
 | --- | --- |
 | `Authorization` 或会话 Cookie | 必需（公开查询除外） |
-| `Idempotency-Key` | 所有 `POST`／`PATCH` 必需；缺少返回 `428 IDEMPOTENCY_KEY_REQUIRED` |
+| `Idempotency-Key` | 所有业务 `POST`／`PATCH` 必需；收货人验证握手按机器契约的 secret exception 处理；缺少返回 `428 IDEMPOTENCY_KEY_REQUIRED` |
 | `If-Match` | 对已有对象执行动作或 `PATCH` 时必需，值为对象当前 `ETag`（即版本号）；缺少返回 `428 PRECONDITION_REQUIRED` |
 | `Accept-Language` | `km`、`en`、`zh-Hans`；只影响错误的 `message` 文本，不影响数据 |
 | `X-Request-Id` | 可选；不传时服务端生成，响应中回传 |
@@ -257,7 +265,7 @@ GeoPort 透传的 `OUT_OF_COVERAGE`、`LOW_CONFIDENCE` 不作为 HTTP 错误，�
 | 方法与路径 | 用途 | 页面 | 关联 |
 | --- | --- | --- | --- |
 | `GET /finance/collections` | 按币种与受益方分账的收款列表 | W16 | RULE-020 |
-| `POST /collections/{id}/verifications` | 核验到账；同一银行交易号只能核销一次 | W16 | RULE-021、AT-38 |
+| `POST /collections/{id}/verifications` | 历史核验入口；同一银行交易只形成一次资金事实，可分配多笔核销且不得超额 | W16 | RULE-021、AT-38 |
 | `POST /collections/{id}/corrections` | 审批冲正，原记录保留 | W16 | PRD 9.3 |
 | `GET /finance/remittances`、`POST /remittances/{id}/actions/{verify|reconcile}` | 司机交款核对；差额保持开放 | W17 | RULE-022 |
 | `GET /finance/partner-payables` | 合作方应付 | W18 | RULE-046 |
@@ -556,4 +564,72 @@ POST /api/driver/v1/locations
 | 中控台身份映射、可见字段、刷新与过期门槛 | D22 |
 | 快递企业 API 是否启用 | D20 |
 | 幂等记录保留期、限流、上传大小 | 第 2.3、5.10、11 章候选值 |
-| 机器契约（`contracts/openapi.yaml`、JSON Schema、正反样例） | R0-B 交付物 |
+| 机器契约（`contracts/openapi.json`、内嵌 JSON Schema、正反样例） | 已有开发候选包，正式冻结仍属 R0-B |
+
+## 后续闭环接口增补
+
+依据 [F01–F09 规划](future-closure-plan-v0.1.md)。本节是待冻结契约清单，不表示路由已经存在；既有请求头、权限、版本、幂等与错误约定继续适用。客户门户（首期不要求原生 APP）新增候选 `/api/customer/v1`，WMS 新增候选 `/api/warehouse/v1`，分别认证与限流；既有 `/api/integration/v1` 继续只读中控，不兼作外部派单写入口。
+
+| 候选资源与动作 | 责任组 | 核心约束 |
+|---|---|---|
+| `POST /orders/{id}/delivery-records` | driver | 件级实收、剩余、凭证、任务版本；服务端验证收款放货条件，离线仅暂存证据 |
+| 既有 return-tasks 增补到达、差异和检验记录 | driver / ops 各自授权 | 复用退回资源；到达与仓库 receive 分离；inspect 才形成库存处置依据 |
+| `/fee-decisions` 的 submit/approve/reject/apply | ops | 引用订单、原因、费用版本、配送/保费独立裁定；审批人不能凭客户端声明取得财务权限 |
+| `/refunds` 的 request/approve/reject/record-result/reconcile | customer 请求；ops 审核核对 | 源收款引用、同币种分项金额、原业务幂等键；结果未知先查询，成功/预留可退额共同防超额 |
+| `/withdrawals` 的 request/cancel/approve/reject/record-payment/reconcile | driver / ops | 原子预留、脱敏收款账户版本、付款凭证；创建申请时服务端按企业＋币种的 7／14／30 天周期、可提现余额门槛及 `AND`／`OR` 生效规则复验；申请主体不能自行核验到账 |
+| `/incident-transfers` 及逐件分配/交接动作 | ops / driver | 父单关联，件级唯一分配，实际交接才转保管；费用另记 |
+| `/external-orders` 导入/修订/dispatch-request 与结果回传 | customer / warehouse | 企业+来源+外部编号去重，冲突进入修订；客户确认有效报价后仍需调度校验 |
+| 库存预留/释放/点收/检验动作 | ops / warehouse | 明确权威仓库和对象版本，外部回传失败不双重扣减 |
+
+新增事件候选：DeliveryPartiallyRecorded、ReturnReceived、ReturnInspected、FeeDecisionApplied、RefundStatusChanged、WithdrawalStatusChanged、InventoryDispositionRecorded；复用现有事件信封，包含企业、聚合 ID/版本、业务请求 ID、事件 ID、发生时间和模式。事务提交后可靠投递；消费方幂等、乱序校验和重放不能再次退款或交接。
+
+并发/错误语义：版本过期、余额或可退额不足、重复件分配、权限不足、外部结果未知分别返回可识别原因；错误码最终在 OpenAPI 冻结，不用通用成功码隐藏 unknown。审批/执行/核验均由服务端授权，公开跟踪令牌不得提交写动作。正式实现须补异常响应、回调验签和对账恢复，不仅列出成功端点。
+
+## 地图与导航成本控制增补
+
+依据[地图成本专项](map-cost-optimization-v0.1.md)，保持v0.1草案。GeoPort对每次调用记录用途、供应商、SKU、计费单位或矩阵元素数、请求版本、耗时与结果质量；估算费用和供应商实际账单分开。位置上报不触发逐点逆地理编码或全路线重算。
+
+候选道路计算前使用自有业务数据过滤资格、容量、区域和任务冲突；必要时逐步扩大候选。相同进行中请求可合并，持久缓存须遵守数据来源授权。调用预算不足、服务故障、数据未知与确实无可行解分别返回语义；限流/重试有上限，不换幂等键反复请求或伪造成功。
+
+司机导航入口生成当前授权站点的外部导航链接，不输出其他客户地址；打开或返回导航不产生履约写动作。收费服务端凭据不进入静态Demo；浏览器地图凭据按供应商要求限制域名及API。具体供应商、配额和导航能力未冻结。
+
+## 合作方周期结算候选契约
+
+2026-10-24 实现增补：Demo 的 `settlement-model.mjs` 已提供上述交互的本地命令、版本和幂等校验，前端通过统一 `model.apply` 调用；这不是 HTTP API。模拟发送带源账项版本快照，余额变化时拒绝旧确认；部分核验更新原订单，原核验入口不能覆盖已登记的分笔收款。生产接口、调度器与发送渠道仍待实现，见[验证记录](../../prototype/records/2026-10-24-settlement/README.md)。
+
+客户应收与承运应付共同使用按主体配置的结算策略，分方向授权。候选动作包括规则预览／批准生效、账单草稿生成／确认、催收草稿生成／确认发送、任务领取／跟进；外部发送必须在发送时复核权限、版本及未结余额。预付客户配置账期不自动取得月结准入。
+
+后台调度按已生效规则生成内部任务，任务和通知分别记录，已读不代表业务完成。重试／补建按企业、主体、方向、逻辑期间或账单及提醒阶段幂等；已确认账单不得因策略版本变更重复生成。返回出账日、合同到期日、预计收付日、下一提醒时间、未结／争议／待核销金额及责任人。催收引用原账，不重复产生应收；结果失败或未知不能标成已发送或已收款。具体接口仍待实现。
+
+依据[合作结算与资金规划](partner-settlement-and-funds-v0.1.md)，复用既有合作应付、付款核验和提现动作；补充结算策略版本、账单生成/核对/差异、批次批准、付款结果登记/核验以及只读资金日历。具体路径待契约冻结，不宣称已提供这些接口。
+
+写动作沿用幂等键、对象版本、企业及财务权限校验。服务端按同一底层应付校验跨提现/批次的可付额，禁止重复预留或付款；失败、未知、处理中与成功分别返回。调度无付款权限，合作方仅见授权主体账项，中控只读；付款人与结果核验人分离。响应区分合同到期日、预计和实际付款日，客户月结未到账不自动修改合作应付期限。余额与预测按币种、来源、核验时间返回，不输出无依据的“可投资资金池”。
+
+
+## 财务资金事实与核销动作增补（候选）
+
+详见[财务闭环设计 §4–6](financial-closure-design-v0.1.md)。目标动作分开收款申报／核验、银行流水导入／匹配、核销分配／撤销核销、司机交款／点收、付款申请／批准／执行登记／结果查询／独立核验、差异批准、锁期及会计导出。当前不是已发布 HTTP 接口。
+
+一笔资金可关联多个账项，多笔资金可结一项；响应分别返回已确认、已分配、待分配、未结、争议和预留金额。分配批次同事务验证来源与目标，拒绝超配及跨公司／币种／无授权主体；重复请求不重复占用。付款登记不能返回已核销，未知结果先查询同一指令；回调验签、事件去重与资金交易去重分别实施。审批人自批及执行人自核验均由服务端身份约束，不仅按角色隐藏按钮。
+
+原 settlementCollect 本地动作合并核验与分配，部分金额仍标 mismatch；payablePay/withdrawPaid 合并登记与已付。这些当前行为需迁移，不能作为新 API 成功语义。COD 首期启用待确认，未启用拒绝代收／返款动作。
+
+
+## 跨端财务同步更新（2026-10-24）
+
+新增本地 applyFinance 命令、financeProjection 权限裁剪与幂等／版本检查；这不是HTTP服务。生产需从可信会话映射 personId，不能接受客户端自报身份。待办、各端订单账、复核、审批、点收、核销、付款结果、报表／导出契约见专项；网银、回调与后台通知未接。
+
+以[跨端需求与报表 v0.1](cross-end-finance-and-reports-v0.1.md)为最新增补，保持本文草案状态；此前未实现／待确认描述为历史阶段记录，本次实现边界和证据以新专项为准。
+
+
+## KESS 接入与再次复核（2026-10-24）
+
+KESS 为收款渠道。服务端支付意向须从授权订单应收取金额；创建／主动查询走 KESS WebPay V2。客户端不能提交成功状态；回调未接入，不能把返回页当收款确认。服务端适配与未实现接口边界见 [KESS 接入](kess-payment-integration-v0.1.md)。
+
+## 2026-10-25 本地受理实现记录
+
+新增 [订单受理输入切片](order-intake-implementation-v0.1.md)：219契约操作中25个本机实现、194个仅设计；字段与实调示例见 [受理接口](../../contracts/order-intake-api.md)。不修改正式PRD/RULE/AT。
+
+## 005固定费报价实现
+
+[订单报价接口](../../contracts/order-quotes-api.md)新增创建与读取，完整契约220操作、27本机实现、193仅设计。用户确认Slogan见[品牌记录](../../brand/SLOGAN.md)。正式PRD/RULE/AT不变。

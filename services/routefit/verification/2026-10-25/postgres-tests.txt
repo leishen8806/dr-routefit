@@ -1,0 +1,23 @@
+▶ real PostgreSQL HTTP pricing slice
+  ✔ migration checksum replay and safe runtime role (7.412ms)
+  ✔ authentication, permission, CSRF, unknown fields and malformed JSON (77.7115ms)
+  ✔ concurrent duplicate creation persists once and replays original (38.8735ms)
+  ✔ optimistic concurrency allows one of two independent edits (19.2224ms)
+  ✔ successful retry replays before stale-version checks and fingerprints If-Match (11.6015ms)
+  ✔ invalid monetary configuration rolls back all writes (8.1533ms)
+  ✔ integer calculation creates a permanent version-bound simulation (47.8789ms)
+  ✔ company isolation is enforced by both HTTP and runtime PostgreSQL RLS (22.5469ms)
+  ✔ database constraints protect excluded shares and append-only evidence (74.507ms)
+  ✔ pagination, exact routes, and ETag preserve resource version (22.3685ms)
+  ✔ disabled identities cannot replay past successful operations (131.145ms)
+  ✔ new server and new connection pool read persisted snapshots (37.7729ms)
+  ✔ CLI uses RouteFit connection settings instead of another project environment (245.28ms)
+✔ real PostgreSQL HTTP pricing slice (1626.5709ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1788.7164
