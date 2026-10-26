@@ -24,7 +24,7 @@ test('frontend client with real pricing HTTP and PostgreSQL',async t=>{
    const insurance=feeDTO({code:'insurance',enabled:true,method:'percent',amount:'1.25',scope:'DEMO',evidence:'synthetic',share:true},catalog.find(x=>x.code==='insurance'),'DR','USD');
    tariff=(await c.mutate('/tariffs/'+tariff.id+'/actions/save-fee',insurance,'"2"')).data;
    trial=(await c.mutate('/tariffs/'+tariff.id+'/trials',trialDTO(tariff.rules,[{code:'base'},{code:'insurance',value:'100.00'}],'USD'),'"3"')).data;
-   assert.deepEqual([trial.totalMinor,trial.shareMinor,trial.insuranceMinor,trial.separateMinor],[325,200,125,125]);assert.equal(trial.totalMinor,326);assert.equal((await c.get('/tariffs/'+tariff.id)).data.version,3);
+   assert.deepEqual([trial.totalMinor,trial.shareMinor,trial.insuranceMinor,trial.separateMinor],[325,200,125,125]);assert.equal((await c.get('/tariffs/'+tariff.id)).data.version,3);
   });
   await t.test('lost successful response replays same operation once in database',async()=>{
    const r=tariff.rules.find(x=>x.code==='base');a.lost=true;await assert.rejects(c.mutate('/tariffs/'+tariff.id+'/actions/save-fee',{...r,amount:300},'"3"'));assert.ok(c.pending);
