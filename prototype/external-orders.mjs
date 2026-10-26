@@ -17,13 +17,30 @@ export function validateExternal(p){
  check(p.currency==='USD','本原型仅支持 USD，不自动换汇');check(p.insuranceAmount!==undefined&&String(p.insuranceAmount).trim()!=='','请明确填写保险费，无保险填 0');
  if(p.sourceSystem==='DEMO-USER-001')check(typeof p.sourcePlatform==='string'&&p.sourcePlatform.trim()&&p.sourcePlatform.length<=300,'请填写订单来源平台');return Object.fromEntries(['sourceType','sourceSystem','sourcePlatform','externalOrderId',...Object.keys(importFields),'insuranceAmount','currency','payment','reviewed'].map(k=>[k,typeof p[k]==='string'?p[k].trim():p[k]]));
 }
-export function validateCustomerRequest(p){
-  validateContacts(p);
-  check(typeof p.expected==='string'&&Number.isFinite(Date.parse(p.expected+':00+07:00')),'请填写期望送达时间。');
-  return {pickupAddress:p.pickupAddress.trim(),pickupContact:p.pickupContact.trim(),pickupPhone:p.pickupPhone.trim(),destination:p.destination.trim(),deliveryContact:p.deliveryContact.trim(),deliveryPhone:p.deliveryPhone.trim(),cargo:typeof p.cargo==='string'&&p.cargo.trim()?p.cargo.trim():'待调度确认货物',expected:p.expected.trim(),customer:p.pickupContact.trim()};
+// Account facts the system already knows. The customer does not retype them in the request form (synthetic demo data).
+export const customerProfile={name:'演示用户 USER-001',phone:'+855 000 000 001'};
+// The delivery time is a suggestion the form pre-fills (earliest 3 hours ahead, next half hour, Phnom Penh local time); the customer may change it.
+export function suggestDeliveryTime(now=Date.now()){const local=new Date(now+3*3600000+7*3600000),steps=Math.ceil((local.getUTCHours()*60+local.getUTCMinutes()+(local.getUTCSeconds()||local.getUTCMilliseconds()?1:0))/30),minutes=steps*30,day=new Date(Date.UTC(local.getUTCFullYear(),local.getUTCMonth(),local.getUTCDate())+minutes*60000);return day.toISOString().slice(0,16);}
+// A customer request only needs the two addresses and the receiver. Sender identity comes from the profile, never from the form;
+// delivery time falls back to the suggestion when absent; cargo, price, insurance and payment stay with dispatch.
+// Customer-facing labels match the request form, so an error names the field the customer actually sees.
+export const customerRequestLabels={pickupAddress:'取件地址',destination:'送货地址',deliveryContact:'收货人',deliveryPhone:'收货人电话',expected:'希望送达时间',cargo:'货物说明'};
+const fieldCheck=(ok,field,message)=>{if(!ok){const error=Error(message);error.field=field;throw error}};
+const sameAddress=(a,b)=>a.replace(/\s+/g,'').toLowerCase()===b.replace(/\s+/g,'').toLowerCase();
+export function validateCustomerRequest(p,{now=Date.now(),profile=customerProfile}={}){
+  const text=key=>typeof p[key]==='string'?p[key].trim():'';
+  for(const key of ['pickupAddress','destination','deliveryContact','deliveryPhone']){const label=customerRequestLabels[key];fieldCheck(text(key),key,'请填写'+label);fieldCheck(text(key).length<=300,key,label+'最多 300 字符');}
+  fieldCheck(/^\+?[\d ()-]{6,30}$/.test(text('deliveryPhone'))&&text('deliveryPhone').replace(/\D/g,'').length>=6,'deliveryPhone','收货人电话格式不正确，请填写 6 位以上数字，可带国家区号');
+  fieldCheck(!sameAddress(text('pickupAddress'),text('destination')),'destination','送货地址与取件地址相同，请核对');
+  fieldCheck(text('cargo').length<=300,'cargo','货物说明最多 300 字符');
+  const expected=text('expected')||suggestDeliveryTime(now),at=Date.parse(expected+':00+07:00');
+  fieldCheck(Number.isFinite(at),'expected','请填写有效的期望送达时间。');
+  fieldCheck(at>=now,'expected','希望送达时间不能早于当前时间（金边时间）');
+  const request={pickupAddress:text('pickupAddress'),destination:text('destination'),deliveryContact:text('deliveryContact'),deliveryPhone:text('deliveryPhone')};
+  return {...request,pickupContact:profile.name,pickupPhone:profile.phone,cargo:text('cargo')||'待调度确认货物',expected,customer:profile.name};
 }
 export function importExternal(db,c,create,now=Date.now()){
- check(['ops','dispatch','customer'].includes(c.role),'无权限导入订单');check(c.key,'缺少幂等键');const quickCustomerRequest=c.role==='customer'&&(c.payload?.quickRequest===true||c.payload?.quickRequest==='true');const p=quickCustomerRequest?{...validateCustomerRequest(c.payload||{}),sourceType:'customer',sourceSystem:'DEMO-USER-001',sourcePlatform:'DR RouteFit 用户端',externalOrderId:'USER-'+c.key,amount:0,insuranceAmount:0,payment:'pending',quotePending:true}:{...validateExternal(c.role==='customer'?{...c.payload,sourceType:'customer',sourceSystem:'DEMO-USER-001'}:(c.payload||{})),quotePending:false},fingerprint=JSON.stringify(['importExternal',c.role,p]);
+ check(['ops','dispatch','customer'].includes(c.role),'无权限导入订单');check(c.key,'缺少幂等键');const quickCustomerRequest=c.role==='customer'&&(c.payload?.quickRequest===true||c.payload?.quickRequest==='true');const p=quickCustomerRequest?{...validateCustomerRequest(c.payload||{},{now}),sourceType:'customer',sourceSystem:'DEMO-USER-001',sourcePlatform:'DR RouteFit 用户端',externalOrderId:'USER-'+c.key,amount:0,insuranceAmount:0,payment:'pending',quotePending:true}:{...validateExternal(c.role==='customer'?{...c.payload,sourceType:'customer',sourceSystem:'DEMO-USER-001'}:(c.payload||{})),quotePending:false},fingerprint=JSON.stringify(['importExternal',c.role,p]);
  if(db.requests[c.key]){check(db.requests[c.key].fingerprint===fingerprint,'幂等键冲突');return db}
  const prior=(db.externalIntakes||[]).find(x=>x.sourceType===p.sourceType&&x.sourceSystem===p.sourceSystem&&x.externalOrderId===p.externalOrderId&&(x.sourcePlatform||'')===(p.sourcePlatform||''));
  if(prior){check(prior.fingerprint===JSON.stringify(p),'外部订单号已存在且内容不同，请人工核对，禁止覆盖');return db}

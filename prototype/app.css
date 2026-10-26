@@ -78,3 +78,4 @@ svg text[font-size="10"],svg text[font-size="11"]{font-size:12px}.driver-app svg
 @media(max-width:600px){.settlement-detail{padding:16px}.settlement-status,.settlement-tools{padding:12px}.settlement-tools form{width:100%}.settlement-tools input{min-width:0;flex:1}.settlement-detail .actions .btn{min-height:44px}}
 
 .settlement-tools .field{margin:0}.settlement-tools .field input,.settlement-tools .field select{min-height:40px}
+.readonly-field{display:grid;gap:2px;align-content:start;padding:12px 14px;border:1px solid var(--rf-line,#e3e8ef);border-radius:8px;background:var(--rf-bg,#f6f8fb)}.readonly-field span,.app-dialog .readonly-field>span{margin:0;min-height:0;line-height:1.4;font-size:12px;color:var(--rf-slate,#5b6b7f)}.readonly-field strong{font-weight:600}.readonly-field small{color:var(--rf-slate,#5b6b7f)}.request-lead{margin:0 0 14px}
