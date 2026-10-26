@@ -4,7 +4,7 @@ CREATE TABLE finance.payment_intent (
  money_amount_minor bigint NOT NULL CHECK(money_amount_minor BETWEEN 1 AND 9000000000000), money_currency text NOT NULL CHECK(money_currency IN ('USD','KHR')),
  snapshot jsonb NOT NULL CHECK(jsonb_typeof(snapshot)='object'), created_by uuid NOT NULL REFERENCES org.principal(id), created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  UNIQUE(company_id,id), UNIQUE(company_id,trade_no), FOREIGN KEY(company_id,order_id) REFERENCES orders.draft(company_id,id),
- FOREIGN KEY(company_id,quote_id) REFERENCES pricing.order_quote(company_id,id)
+ FOREIGN KEY(company_id,order_id,quote_id) REFERENCES pricing.order_quote(company_id,order_id,id)
 );
 CREATE TABLE finance.payment_intent_item (
  company_id uuid NOT NULL, intent_id uuid NOT NULL, ledger_item_id uuid NOT NULL, ledger_item_version bigint NOT NULL CHECK(ledger_item_version=1),
