@@ -1,5 +1,5 @@
 import {FeeClient} from './fee-api-client.mjs';
-import {display,feeDTO,trialDTO,snapshotChanged} from './fee-api-model.mjs';
+import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput} from './fee-api-model.mjs';
 const $=id=>document.getElementById(id),client=new FeeClient(),form=$('fee-form');
 let catalog=[],tariffs=[],current=null,etag=null,code=null,dirty=false,busy=false,connected=false,sequence=0,nextAfter=null,historyAfter=null,historyId=null,latest=null,pendingApply=null,tab='edit',snapshot=null,createDirty=false;
 const field=name=>form.elements.namedItem(name);
@@ -96,7 +96,7 @@ function resultView(target,t){
  target.replaceChildren(el('h3',`${t.state} · ${t.currency} · 草稿 v${t.tariffVersion}`),el('p',`试算ID ${t.id} · 草稿ID ${t.tariffId}`));
  if(snapshotChanged(current,t))target.append(el('p','当前草稿已变化，此快照仍绑定旧版本。'));
  const table=el('table'),head=el('tr');for(const h of ['费目','数量/基数','计费步数','金额'])head.append(el('th',h));table.append(head);
- for(const line of t.lines){const tr=el('tr');for(const v of [line.code,JSON.stringify(line.input),String(line.units),display(line.amountMinor,t.currency==='USD'?2:0)])tr.append(el('td',v));table.append(tr);}target.append(table);
+ for(const line of t.lines){const tr=el('tr');for(const v of [line.code,formatTrialInput(line,t.currency),String(line.units),display(line.amountMinor,t.currency==='USD'?2:0)])tr.append(el('td',v));table.append(tr);}target.append(table);
  for(const [label,key]of [['费用合计','totalMinor'],['配送分成基数','shareMinor'],['不参与分成费用','separateMinor'],['其中保险独立金额','insuranceMinor']])target.append(el('p',`${label}：${t.currency} ${display(t[key],t.currency==='USD'?2:0)}`));
  target.append(el('p','保险属于不参与分成费用子集，不重复相加。SIMULATION不是正式收费、分成批准或司机收入。'));
 }
