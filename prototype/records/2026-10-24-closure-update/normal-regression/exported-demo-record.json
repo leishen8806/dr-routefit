@@ -1,0 +1,185 @@
+{
+  "mode": "synthetic",
+  "exportedAt": "2026-10-24T12:55:35.295Z",
+  "schema": 1,
+  "version": 24,
+  "routeVersion": 2,
+  "stage": "closed",
+  "input": {
+    "qty": 2,
+    "length": 60,
+    "width": 40,
+    "height": 40,
+    "weight": 15,
+    "deadline": 90,
+    "delivery": 20,
+    "insurance": 2
+  },
+  "plan": {
+    "vehicle": "VAN",
+    "routeVersion": 2,
+    "input": "{\"qty\":2,\"length\":60,\"width\":40,\"height\":40,\"weight\":15,\"deadline\":90,\"delivery\":20,\"insurance\":2}"
+  },
+  "orders": [
+    {
+      "id": "A",
+      "name": "原及时送订单",
+      "qty": 4,
+      "deliveryMinor": 2400,
+      "insuranceMinor": 0,
+      "status": "delivered",
+      "collection": "verified",
+      "proof": "DEMO-POD-A"
+    },
+    {
+      "id": "B",
+      "name": "新增顺路订单",
+      "qty": 2,
+      "deliveryMinor": 2000,
+      "insuranceMinor": 200,
+      "status": "delivered",
+      "collection": "verified",
+      "proof": "DEMO-POD-B"
+    }
+  ],
+  "events": [
+    {
+      "action": "evaluate",
+      "text": "已校验 3 辆候选，0 辆满足本场景约束",
+      "at": "2026-10-24T12:55:32.813Z",
+      "version": 2
+    },
+    {
+      "action": "evaluate",
+      "text": "已校验 3 辆候选，0 辆满足本场景约束",
+      "at": "2026-10-24T12:55:32.849Z",
+      "version": 3
+    },
+    {
+      "action": "evaluate",
+      "text": "已校验 3 辆候选，0 辆满足本场景约束",
+      "at": "2026-10-24T12:55:32.885Z",
+      "version": 4
+    },
+    {
+      "action": "evaluate",
+      "text": "已校验 3 辆候选，2 辆满足本场景约束",
+      "at": "2026-10-24T12:55:32.920Z",
+      "version": 5
+    },
+    {
+      "action": "choose",
+      "text": "选中 小型货车，尚未派单",
+      "at": "2026-10-24T12:55:32.955Z",
+      "version": 6
+    },
+    {
+      "action": "invalidate",
+      "text": "演示原路线版本变化，旧方案不得提交",
+      "at": "2026-10-24T12:55:32.990Z",
+      "version": 7
+    },
+    {
+      "action": "evaluate",
+      "text": "已校验 3 辆候选，2 辆满足本场景约束",
+      "at": "2026-10-24T12:55:33.096Z",
+      "version": 8
+    },
+    {
+      "action": "choose",
+      "text": "选中 小型货车，尚未派单",
+      "at": "2026-10-24T12:55:33.131Z",
+      "version": 9
+    },
+    {
+      "action": "evaluate",
+      "text": "已校验 3 辆候选，2 辆满足本场景约束",
+      "at": "2026-10-24T12:55:33.306Z",
+      "version": 10
+    },
+    {
+      "action": "choose",
+      "text": "选中 小型货车，尚未派单",
+      "at": "2026-10-24T12:55:33.341Z",
+      "version": 11
+    },
+    {
+      "action": "offer",
+      "text": "调度确认提案，等待司机接受",
+      "at": "2026-10-24T12:55:33.554Z",
+      "version": 12
+    },
+    {
+      "action": "reject",
+      "text": "司机拒绝新增方案：DEMO 驾驶员时间不符；原单承诺保持不变",
+      "at": "2026-10-24T12:55:33.625Z",
+      "version": 13
+    },
+    {
+      "action": "choose",
+      "text": "选中 小型货车，尚未派单",
+      "at": "2026-10-24T12:55:33.659Z",
+      "version": 14
+    },
+    {
+      "action": "offer",
+      "text": "调度确认提案，等待司机接受",
+      "at": "2026-10-24T12:55:33.728Z",
+      "version": 15
+    },
+    {
+      "action": "accept",
+      "text": "司机接受方案，等待仓库装载复核",
+      "at": "2026-10-24T12:55:33.798Z",
+      "version": 16
+    },
+    {
+      "action": "release",
+      "text": "仓库复核放行：DEMO-LOAD",
+      "at": "2026-10-24T12:55:33.868Z",
+      "version": 17
+    },
+    {
+      "action": "pickup",
+      "text": "同仓两单货物交接已核对，保管转司机：DEMO-PICKUP",
+      "at": "2026-10-24T12:55:33.940Z",
+      "version": 18
+    },
+    {
+      "action": "depart",
+      "text": "开始执行合成路线，位置及时间均为演示",
+      "at": "2026-10-24T12:55:33.974Z",
+      "version": 19
+    },
+    {
+      "action": "deliver",
+      "text": "A 逐件签收并申报现金，财务尚未核验",
+      "at": "2026-10-24T12:55:34.151Z",
+      "version": 20
+    },
+    {
+      "action": "deliver",
+      "text": "B 逐件签收并申报现金，财务尚未核验",
+      "at": "2026-10-24T12:55:34.274Z",
+      "version": 21
+    },
+    {
+      "action": "verify",
+      "text": "财务核验客户收款，现金交款尚未结清：DEMO-FINANCE",
+      "at": "2026-10-24T12:55:34.343Z",
+      "version": 22
+    },
+    {
+      "action": "remit",
+      "text": "司机交款申报，等待财务核对：DEMO-REMIT",
+      "at": "2026-10-24T12:55:34.413Z",
+      "version": 23
+    },
+    {
+      "action": "reconcile",
+      "text": "现金交款结清；保险独立记账，配送费按演示比例 20% 分成：DEMO-CLOSE",
+      "at": "2026-10-24T12:55:34.536Z",
+      "version": 24
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "head": "ba9a77ec78cd20a6bf72476e9c3410d7faa9a06e",
+  "status": " M .gitignore\n M PRD/CHANGELOG.md\n M PRD/README.md\n M PRD/docs/api-design.md\n M PRD/docs/database-architecture.md\n M PRD/docs/design-standards.md\n M PRD/docs/development-standards.md\n M PRD/docs/glossary.md\n M PRD/docs/phase1-acceptance-map.md\n M PRD/docs/phase1-pages-and-ux.md\n M PRD/docs/system-boundaries.md\n M README.md\n M prototype/COVERAGE.md\n M prototype/DESIGN.md\n M prototype/README.md\n M prototype/RECORDS.md\n M prototype/app.css\n M prototype/app.mjs\n M prototype/dispatch-ui.mjs\n M prototype/model.mjs\n M prototype/platform-model.mjs\n M prototype/platform-ui.mjs\n M prototype/premium-ui.json\n M prototype/r1m-model.mjs\n?? PRD/docs/closed-loop-requirements-v0.1.md\n?? PRD/docs/confirmed-dispatch-loading-baseline.md\n?? PRD/docs/core-delivery-implementation-plan-v0.1.md\n?? PRD/docs/cross-end-finance-and-reports-v0.1.md\n?? PRD/docs/customer-portal-scope-v0.1.md\n?? PRD/docs/database-implementation-plan-v0.1.md\n?? PRD/docs/delivery-agreement-review-v0.1.md\n?? PRD/docs/delivery-pricing-system-v0.1.md\n?? PRD/docs/development-responsibilities-v0.1.md\n?? PRD/docs/fee-settings-v0.1.md\n?? PRD/docs/financial-closure-design-v0.1.md\n?? PRD/docs/future-closure-doc-review-2026-10-24.md\n?? PRD/docs/future-closure-plan-v0.1.md\n?? PRD/docs/kess-payment-integration-v0.1.md\n?? PRD/docs/map-cost-optimization-v0.1.md\n?? PRD/docs/order-state-catalog.md\n?? PRD/docs/partner-settlement-and-funds-v0.1.md\n?? PRD/docs/platform-first-execution-baseline.md\n?? PRD/docs/pricing-development-map-v0.1.md\n?? PRD/docs/pricing/\n?? PRD/docs/requirements-reconciliation-2026-10-24.md\n?? PRD/docs/requirements-review-kess-2026-10-24.md\n?? PRD/docs/research/\n?? PRD/docs/route-planning-design-v0.1.md\n?? PRD/docs/server-implementation-plan-v0.1.md\n?? PRD/docs/tasks/\n?? PRD/docs/telegram-and-driver-app-scope-v0.1.md\n?? PRD/docs/web-app-experience-standard.md\n?? contracts/\n?? integrations/\n?? prototype/ACCESS-CONTROL-CONTRACT.md\n?? prototype/DELIVERY-AREAS-CONTRACT.md\n?? prototype/DELIVERY-DETAILS.md\n?? prototype/DRIVER-ORDERS-CONTRACT.md\n?? prototype/DRIVER-SLIDE-CONTRACT.md\n?? prototype/EXTERNAL-INTEGRATION-CONTRACT.md\n?? prototype/FINANCE-CLOSURE-CONTRACT.md\n?? prototype/GITHUB-PAGES.md\n?? prototype/KESS-USER-GUIDE.md\n?? prototype/MULTILINGUAL-DESIGN.md\n?? prototype/SETTLEMENT-CONTRACT.md\n?? prototype/SHOWCASE-CONTRACT.md\n?? prototype/access-control.mjs\n?? prototype/access-control.test.mjs\n?? prototype/access-ui.mjs\n?? prototype/browser-access-control.js\n?? prototype/browser-back-navigation.js\n?? prototype/browser-closure-update.js\n?? prototype/browser-distance-quote.js\n?? prototype/browser-driver-orders.js\n?? prototype/browser-driver-slide.js\n?? prototype/browser-entry.js\n?? prototype/browser-experience.js\n?? prototype/browser-external-integration.js\n?? prototype/browser-fee-settings.js\n?? prototype/browser-finance-closure.js\n?? prototype/browser-kess-review.js\n?? prototype/browser-kess-status.js\n?? prototype/browser-multilingual.js\n?? prototype/browser-service-areas.js\n?? prototype/browser-settlement.js\n?? prototype/browser-showcase.js\n?? prototype/designs/\n?? prototype/distance-quote.mjs\n?? prototype/distance-quote.test.mjs\n?? prototype/driver-orders.mjs\n?? prototype/driver-orders.test.mjs\n?? prototype/driver-slide.mjs\n?? prototype/driver-slide.test.mjs\n?? prototype/entry-main.mjs\n?? prototype/entry-ui.mjs\n?? prototype/entry-ui.test.mjs\n?? prototype/entry.css\n?? prototype/entry.html\n?? prototype/experience.mjs\n?? prototype/experience.test.mjs\n?? prototype/external-orders.mjs\n?? prototype/external-orders.test.mjs\n?? prototype/external-ui.mjs\n?? prototype/fee-settings-ui.mjs\n?? prototype/fee-settings.mjs\n?? prototype/fee-settings.test.mjs\n?? prototype/finance-design.html\n?? prototype/finance-ledger.mjs\n?? prototype/finance-ledger.test.mjs\n?? prototype/finance-ui.mjs\n?? prototype/finance.css\n?? prototype/finance.html\n?? prototype/integration-server.mjs\n?? prototype/integration-server.test.mjs\n?? prototype/kess-payment.test.mjs\n?? prototype/language-preview.css\n?? prototype/language-preview.html\n?? prototype/language-preview.mjs\n?? prototype/locales.mjs\n?? prototype/locales.test.mjs\n?? prototype/order-state.mjs\n?? prototype/records/2026-10-24-access-control/\n?? prototype/records/2026-10-24-back-navigation/\n?? prototype/records/2026-10-24-closure-update/\n?? prototype/records/2026-10-24-delivery-areas/\n?? prototype/records/2026-10-24-distance-pricing/\n?? prototype/records/2026-10-24-driver-orders/\n?? prototype/records/2026-10-24-driver-slide/\n?? prototype/records/2026-10-24-entry/\n?? prototype/records/2026-10-24-experience/\n?? prototype/records/2026-10-24-external-integration/\n?? prototype/records/2026-10-24-finance-closure/\n?? prototype/records/2026-10-24-insurance-audit/\n?? prototype/records/2026-10-24-kess-review/\n?? prototype/records/2026-10-24-multilingual/\n?? prototype/records/2026-10-24-requirements-audit/\n?? prototype/records/2026-10-24-settlement/\n?? prototype/records/2026-10-24-showcase/\n?? prototype/records/2026-10-25-client-channels/\n?? prototype/records/2026-10-25-fee-settings/\n?? prototype/records/2026-10-25-kess-pages/\n?? prototype/records/2026-10-25-kess-preparation/\n?? prototype/service-areas-ui.mjs\n?? prototype/service-areas.mjs\n?? prototype/service-areas.test.mjs\n?? prototype/settlement-model.mjs\n?? prototype/settlement-model.test.mjs\n?? prototype/settlement-ui.mjs\n?? prototype/showcase-model.mjs\n?? prototype/showcase-model.test.mjs\n?? prototype/showcase.css\n?? prototype/showcase.html\n?? prototype/showcase.mjs\n?? prototype/ui-primitives.mjs\n?? scripts/\n?? services/\n",
+  "protectedFiles": [
+    {
+      "path": "prototype/app.mjs",
+      "sha256": "6db8c585578e64639ba0c000945548b7fcd5a537194e48a51fdc70ab8a445a50"
+    },
+    {
+      "path": "prototype/app.css",
+      "sha256": "f319627aae35702885b5d8e9a60cec6f27041c3972a5df313acc2c3bd087cb8e"
+    },
+    {
+      "path": "prototype/server.mjs",
+      "sha256": "653b14fbcc37494e81747db2b7e8e8171753858919210cac7b5ce8bc63202697"
+    },
+    {
+      "path": "prototype/fee-settings-ui.mjs",
+      "sha256": "5d96245d5e6979d0b39ba7892ef847576dc2a9f7f4e11cd6987b166aef3c11a2"
+    },
+    {
+      "path": "prototype/fee-settings.mjs",
+      "sha256": "beb58605a13a86dcd900d4eed1b73b493a829956cdfd2dffbedcd830f1709fd2"
+    },
+    {
+      "path": "PRD/docs/PRD-V1.3-final.md",
+      "sha256": "8fb88fe03d85082ef125b9f8b5b8964d9423ab0d17f26448846e4506646a29e4"
+    },
+    {
+      "path": "PRD/docs/PRD-V1.4-review.md",
+      "sha256": "83e704a2e470fa1637513d797d9348c23b7c27ac544ca101f8beee09391922de"
+    },
+    {
+      "path": "PRD/docs/phase1-acceptance-map.md",
+      "sha256": "1dd21c5d6dbc96781087519148c90dc092729bbe75c6ceef3ef859e9b1bebb49"
+    }
+  ]
+}

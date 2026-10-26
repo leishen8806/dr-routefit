@@ -1,0 +1,8 @@
+{
+  "openapi": "3.1.0",
+  "paths": 180,
+  "operations": 202,
+  "schemas": 189,
+  "fixturesPassed": 389,
+  "scope": "contract syntax, schema fixtures, route metadata; no backend or KESS network tested"
+}

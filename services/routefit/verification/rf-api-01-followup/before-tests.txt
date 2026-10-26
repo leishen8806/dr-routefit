@@ -1,0 +1,48 @@
+▶ real PostgreSQL HTTP pricing slice
+  ✔ migration checksum replay and safe runtime role (7.6744ms)
+  ✔ authentication, permission, CSRF, unknown fields and malformed JSON (84.1729ms)
+  ✔ concurrent duplicate creation persists once and replays original (39.0782ms)
+  ✖ ambiguous JSON and invalid UTF-8 cannot create financial configuration (11.5461ms)
+  ✔ optimistic concurrency allows one of two independent edits (17.4839ms)
+  ✔ successful retry replays before stale-version checks and fingerprints If-Match (12.5773ms)
+  ✔ invalid monetary configuration rolls back all writes (8.2467ms)
+  ✔ integer calculation creates a permanent version-bound simulation (45.6975ms)
+  ✔ company isolation is enforced by both HTTP and runtime PostgreSQL RLS (20.7176ms)
+  ✔ database constraints protect excluded shares and append-only evidence (71.1198ms)
+  ✔ pagination, exact routes, and ETag preserve resource version (23.49ms)
+  ✔ disabled identities cannot replay past successful operations (30.6268ms)
+  ✔ new server and new connection pool read persisted snapshots (43.5923ms)
+  ✔ one-use browser activation, same-origin HTTP, CSRF and logout (38.0464ms)
+  ✔ browser activation rejects expired grants and disabled identities; tenant B remains isolated (59.6949ms)
+  ✔ CLI uses RouteFit connection settings instead of another project environment (226.5257ms)
+✖ real PostgreSQL HTTP pricing slice (1353.073ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 15
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1500.7277
+
+✖ failing tests:
+
+test at tests\postgres.integration.mjs:69:11
+✖ ambiguous JSON and invalid UTF-8 cannot create financial configuration (11.5461ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  201 !== 400
+  
+      at TestContext.<anonymous> (file:///E:/Dr.RouteFit/services/routefit/tests/postgres.integration.mjs:76:65)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async TestContext.<anonymous> (file:///E:/Dr.RouteFit/services/routefit/tests/postgres.integration.mjs:69:3)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 201,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

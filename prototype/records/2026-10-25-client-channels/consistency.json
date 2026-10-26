@@ -1,0 +1,19 @@
+{
+  "localLinksChecked": 1092,
+  "formalFilesUnchanged": [
+    "PRD/docs/PRD-V1.4-review.md",
+    "PRD/docs/PRD-V1.3-final.md",
+    "PRD/docs/database/geocore-g1-schema-draft.sql",
+    "PRD/docs/database/routefit-schema-draft.sql"
+  ],
+  "openApiChanges": [
+    "/components/schemas/CustomerOrderDraft/description",
+    "/paths//api/customer/v1/orders/post/description",
+    "/paths//api/customer/v1/orders/post/x-stage",
+    "/paths//api/customer/v1/orders/{orderId}/actions/submit/post/x-stage",
+    "/x-source-documents",
+    "/x-stage-policy/C1-ORDER",
+    "/x-stage-policy/C3"
+  ],
+  "scope": "No backend or mobile device validation"
+}

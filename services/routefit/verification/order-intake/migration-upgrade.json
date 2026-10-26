@@ -1,0 +1,65 @@
+{
+  "migration": "003 to 004",
+  "nonemptyPriorDatabase": true,
+  "comparison": "All prior columns, including full JSON snapshots; new nullable intake columns excluded",
+  "unchanged": true,
+  "migrations": "4",
+  "tables": {
+    "org.company": {
+      "count": 2,
+      "sha256": "10a581b1f04d88384f4b0df38fc96aa068231faf0059bdead80944e623c1e2d4"
+    },
+    "org.principal": {
+      "count": 4,
+      "sha256": "5e39ee349d57b70384f87829c33ec3a09b1b3420cc7a54f0971733420a1c70d8"
+    },
+    "party.customer": {
+      "count": 2,
+      "sha256": "88746bbc3205cd5e071d9e8acb2408eacb92d2560cb914a11dbccb679574c52e"
+    },
+    "party.customer_access": {
+      "count": 2,
+      "sha256": "1b4e1862e1d4a243f3b465aa42e1a506ee6f1792d9bad4363f62f944590bcbec"
+    },
+    "orders.draft": {
+      "count": 1,
+      "sha256": "65ff735b0aa005d75c8ea578c754964259ad3ff3bc6e0969eff07b3a3b07e2ab"
+    },
+    "orders.draft_revision": {
+      "count": 2,
+      "sha256": "7b03da5da18681ed2a93c550d7fdd535e4a061903f5771bd4578fed223411d88"
+    },
+    "pricing.tariff": {
+      "count": 2,
+      "sha256": "7a597d6803294e437437f8396695bb33686c0c9a293121180e06c2d51dfa4d2a"
+    },
+    "pricing.fee_rule": {
+      "count": 3,
+      "sha256": "654f3f0efef831a3040c36ff8ef47b61ef3335ac99f0936a04855913d245bec6"
+    },
+    "pricing.tariff_revision": {
+      "count": 5,
+      "sha256": "e4dbcf4e00ded9d25b45ecf059bb77bd6e4b05294f3f397d5a868271ad244cdc"
+    },
+    "pricing.trial": {
+      "count": 1,
+      "sha256": "55d664ce31dc9c38bdaf89e45d730fbc0ef5861514bc3c8490f1196b76dfaf14"
+    },
+    "pricing.policy_version": {
+      "count": 1,
+      "sha256": "906c300e9c121fb03f6a1c68066aec1ca8addd2b3d9bb4e0e7e7e4d85c508480"
+    },
+    "pricing.policy_review": {
+      "count": 1,
+      "sha256": "a1ac69a3ab967dc4cea93bb7a75fe930537409b0f5ca9de64fcf794e1486d27a"
+    },
+    "pricing.policy_publication": {
+      "count": 1,
+      "sha256": "f7f15a02cd03f11fb966f2dc066c916f8e07a4dc21ec194147ed898aab626351"
+    },
+    "integration.http_request_result": {
+      "count": 11,
+      "sha256": "9b36b6940c7ad60c198610d2e81b5f531fd9f1edf37a743dcaff66d7f9b987ab"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "cargo": {
+    "qty": 1,
+    "weight": 10,
+    "length": 80,
+    "width": 150,
+    "height": 150
+  },
+  "vehicle": {
+    "capacity": 1000,
+    "size": [
+      200,
+      100,
+      100
+    ],
+    "door": [
+      200,
+      200
+    ]
+  },
+  "actual": null,
+  "expected": "Reject inconsistent vehicle dimensions and cargo exceeding interior width/height",
+  "scope": "Read-only reproduction; no persisted business state changed"
+}

@@ -1,12 +1,14 @@
 # DR RouteFit · 设计标准
 
+2026-10-25 渠道适用补充：客户采用 Telegram Mini App＋Bot，司机采用 iOS／Android App，详见[渠道范围](telegram-and-driver-app-scope-v0.1.md)。既有品牌与移动规范复用；安全区、返回、系统权限和应用图标须按两平台验证。下文 Android 专项资产不自动等于 iOS 发布资产。保持 v0.1 草案。
+
 | 项目 | 内容 |
 | --- | --- |
 | 状态 | 草案，待产品负责人评审 |
 | 版本 | v0.1 · 2026-10-24 |
 | 需求依据 | [PRD V1.4 评审稿](PRD-V1.4-review.md) 0.2、8、8.1、11、17、21.6；当前基线 [V1.3](PRD-V1.3-final.md) |
 | 品牌资产 | [`brand/logo/`](../../brand/logo/preview.html)（R 版 Logo 草图） |
-| 适用范围 | 调度台（Web）、司机端（Android）、客户通知、智序工场中控台中的 RouteFit 模块、对外材料 |
+| 适用范围 | 调度台（Web）、司机端（iOS／Android）、Telegram 客户入口及通知、智序工场中控台中的 RouteFit 模块、对外材料 |
 | 相关文档 | [开发标准](development-standards.md) · [系统边界](system-boundaries.md) · [术语表](glossary.md) |
 
 本标准规定"界面和品牌长什么样、怎么表达数据"。与 PRD 冲突时以 PRD 为准；V1.4 冻结后按冻结版本复核本文件。
@@ -35,7 +37,7 @@
 | 中文说明 | DR 智能调度与顺路配送平台 |
 | 上下文已明确时的简称 | RouteFit |
 | 地图基座 | **Daen GeoCore**，简称 GeoCore |
-| Slogan | The right vehicle. The right route. On time. ／ 配对车辆，规划路线，准时送达。 |
+| Slogan | The right vehicle. The right route. On time ／ 配对车辆，规划路线，准时送达。 |
 
 - DR 大写、不加点号。不使用 `Dr. RouteFit`、`Dr.RouteFit`（易读成 Doctor）、`RouterFit`（易读成网络路由器）。
 - DR RouteFit 与 Daen GeoCore 各自保留前缀，不写成 "Daen RouteFit" 或 "DR GeoCore"。
@@ -385,3 +387,21 @@
 | 图标库选型及许可证 | 第 5 章 |
 | 中控台受众、可见字段与过期阈值 | PRD D22 |
 | 深色模式是否在试点启用 | 3.4 |
+# 本轮 Web / APP 补充入口
+
+本文件仍为 v0.1 草案。字号、通知、图片及全端页面细则见 [Web / APP 体验规范](web-app-experience-standard.md)；订单分轴状态和原型兼容映射见 [订单状态目录](order-state-catalog.md)。两份补充同样以 V1.4 PRD 为准，不改变 PRD 规则与验收编号。
+
+## 后续闭环交互补充
+
+依据 [F01–F09 规划](future-closure-plan-v0.1.md)，仍为 v0.1。订单详情同时呈现履约、件级保管、收款、退款/交款、司机收入，不将其中一轴“完成”渲染为全部完成。
+
+退款/提现确认页显示原金额、已执行金额、本次金额、币种、受益人脱敏信息、执行后余额与不可逆后果；部分签收显示实收与剩余件。未知支付结果用持续“待核实”及查询入口，不显示失败后立即再付。差异输入保留，返回保持任务上下文。成功 Toast 只说明本动作成功，不宣布整单结清。
+
+司机关键动作沿用任务页底部菜单上方的右滑确认和可访问替代操作；安全停车后操作。事故、返仓、退款采用独立动作及后果确认，不通过左右切换 TAB 推进状态。高棉文/英语/中文共享枚举和金额规则，金额、证据和姓名长文本须在窄屏实测，不能只检查中文截图。
+
+
+## 跨端财务同步更新（2026-10-24）
+
+财务新增两种同源视图：管理者业务语言与财务专业明细；三个审核阶段、资金事实和核销分开显示。手机表格转卡片、状态文字、各端导航与截图见专项。继续沿用现有Logo、色板、字体与原生表单，不引入第二套品牌规范。
+
+以[跨端需求与报表 v0.1](cross-end-finance-and-reports-v0.1.md)为最新增补，保持本文草案状态；此前未实现／待确认描述为历史阶段记录，本次实现边界和证据以新专项为准。

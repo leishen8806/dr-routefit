@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "syntheticArithmeticCases": 20,
+  "invalidNumberChecks": 7,
+  "caseIds": [
+    "DIST-INCLUDED",
+    "DIST-3400M",
+    "DIST-CEIL-1M",
+    "DIST-HALF-CENT",
+    "DIST-KHR",
+    "PARCEL-VOLUME",
+    "PARCEL-EACH-ROUND",
+    "PARCEL-SHIPMENT-ROUND",
+    "PARCEL-SUM-MAX",
+    "PARCEL-TOTAL-MAX",
+    "DIST-MARGINAL",
+    "WAIT-2-UNITS",
+    "SPLIT-INSURANCE-COD",
+    "PLATFORM-FUNDED",
+    "SPLIT-REMAINDER",
+    "REPRICE-UP",
+    "REPRICE-DOWN",
+    "REPRICE-PARTIAL",
+    "WMS-VOLUME-DAYS",
+    "SYNTHETIC-TAX"
+  ],
+  "scope": "Documentation arithmetic only; not the runtime quote engine or business acceptance"
+}

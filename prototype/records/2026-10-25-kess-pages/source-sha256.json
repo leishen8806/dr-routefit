@@ -1,0 +1,14 @@
+{
+  "prototype/finance-ui.mjs": "943add4aae3074fe837bb34fee1191ddd27e004c6809a2d62481eda43bb5e0e3",
+  "prototype/finance.css": "39845813f916c468a0884dcbe6e61426b4404bcf8070b98206292cddbafcf1d6",
+  "prototype/finance-design.html": "d5d2e380af801e1af324d28e35156267f20532ff7f1fc6d2359d011566e64e0b",
+  "prototype/KESS-USER-GUIDE.md": "1436ef65a5bdeea2d40bab896d224c99ef792838b06f51cb0a3a3e4e1b641bf7",
+  "prototype/DESIGN.md": "ec8a7546e77d901c14e392890c99b8d6aeeda1140da864cb3da0e1bd390e2a0d",
+  "prototype/FINANCE-CLOSURE-CONTRACT.md": "4852e98c2847cf694a154d10b4d6ac5905250f2a682491a324f7c3932520a27c",
+  "prototype/README.md": "f773c294b37e4b9dc76008bfa98c1a421c6eaf2c3f0ba256e7f97f4f44a77f4b",
+  "prototype/COVERAGE.md": "0b9b4cc766e96d4aa7f7fda7961525a2ccc3f6ab2eb1cbc39cb9b5ffe044977b",
+  "prototype/RECORDS.md": "9706680221e7c8d82d4b2ad6e348d1d3b58e31b2ad3ccd8f801abe8b06e4185b",
+  "prototype/browser-kess-status.js": "b0d4b2b0b0ebd23d7af6a30d37e627749b90607829ad8655afa3c9b05ec2d13a",
+  "PRD/docs/kess-payment-integration-v0.1.md": "8810a380e9e7745599b68f8b5a30812560d682f0a65703af2be4c3bee173bf15",
+  "PRD/CHANGELOG.md": "a36fa25ecbcc22ab4b615d2468c35828efc807d64c82d3fefd8217d022cdbe95"
+}

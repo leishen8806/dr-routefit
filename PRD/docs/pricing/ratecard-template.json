@@ -1,0 +1,233 @@
+{
+  "status": "DRAFT_NOT_FOR_PRODUCTION",
+  "enabled": false,
+  "schemaStatus": "CONCEPTUAL_TEMPLATE_NOT_API_CONTRACT",
+  "note": "所有 null 表示待运营／财务填写和审批，不等于零。无实际客户、费率或密钥。本模板不能由现有 Demo 或 API 直接导入。",
+  "policyId": null,
+  "tenantId": null,
+  "version": null,
+  "currency": null,
+  "validFrom": null,
+  "validUntil": null,
+  "quoteTtlSeconds": null,
+  "applicability": {
+    "customerContractId": null,
+    "customerGroupId": null,
+    "originZoneVersionId": null,
+    "destinationZoneVersionId": null,
+    "warehouseId": null,
+    "vehicleClass": null,
+    "serviceLevels": [],
+    "priority": null
+  },
+  "pricingProduct": null,
+  "chargeRounding": {
+    "moneyMethod": "HALF_UP",
+    "amountUnit": "currency_minor_unit",
+    "level": "PER_LINE",
+    "measurementMethod": null
+  },
+  "parcel": {
+    "ratingMethod": null,
+    "volumetricDivisor": null,
+    "aggregation": null,
+    "weightStepKg": null,
+    "firstWeightKg": null,
+    "firstWeightMinor": null,
+    "additionalWeightKg": null,
+    "additionalWeightMinor": null,
+    "boxType": null,
+    "boxPriceMinor": null,
+    "maxWeightKg": null,
+    "maxLengthCm": null,
+    "maxGirthCm": null
+  },
+  "vehicle": {
+    "baseMinor": null,
+    "includedMeters": null,
+    "maximumMeters": null,
+    "distanceMode": null,
+    "distanceUnitMeters": null,
+    "rateMinor": null,
+    "includedStopCount": null,
+    "exclusiveIncluded": null,
+    "includedServices": [],
+    "distanceBands": []
+  },
+  "shared": {
+    "billingUnit": null,
+    "rateMinor": null,
+    "minimumMinor": null,
+    "fallbackPolicyId": null
+  },
+  "warehouse": {
+    "billingUnit": null,
+    "rateMinor": null,
+    "freeAllowance": null,
+    "timeMeasurementMode": null,
+    "cutoffTimezone": "Asia/Phnom_Penh",
+    "includedServices": []
+  },
+  "surcharges": [
+    {
+      "feeCode": "EXTRA_STOP",
+      "enabled": false,
+      "basisFeeCodes": [],
+      "unit": null,
+      "unitPriceMinor": null,
+      "rateBps": null,
+      "freeAllowance": null,
+      "maximumMinor": null,
+      "stackingGroup": null,
+      "chargeTrigger": null,
+      "beneficiary": null,
+      "approvalEvidence": null
+    },
+    {
+      "feeCode": "REMOTE",
+      "enabled": false,
+      "basisFeeCodes": [],
+      "unit": null,
+      "unitPriceMinor": null,
+      "rateBps": null,
+      "freeAllowance": null,
+      "maximumMinor": null,
+      "stackingGroup": null,
+      "chargeTrigger": null,
+      "beneficiary": null,
+      "approvalEvidence": null
+    },
+    {
+      "feeCode": "WAITING",
+      "enabled": false,
+      "basisFeeCodes": [],
+      "unit": null,
+      "unitPriceMinor": null,
+      "rateBps": null,
+      "freeAllowance": null,
+      "maximumMinor": null,
+      "stackingGroup": null,
+      "chargeTrigger": null,
+      "beneficiary": null,
+      "approvalEvidence": null
+    },
+    {
+      "feeCode": "HANDLING",
+      "enabled": false,
+      "basisFeeCodes": [],
+      "unit": null,
+      "unitPriceMinor": null,
+      "rateBps": null,
+      "freeAllowance": null,
+      "maximumMinor": null,
+      "stackingGroup": null,
+      "chargeTrigger": null,
+      "beneficiary": null,
+      "approvalEvidence": null
+    },
+    {
+      "feeCode": "FLOOR",
+      "enabled": false,
+      "basisFeeCodes": [],
+      "unit": null,
+      "unitPriceMinor": null,
+      "rateBps": null,
+      "freeAllowance": null,
+      "maximumMinor": null,
+      "stackingGroup": null,
+      "chargeTrigger": null,
+      "beneficiary": null,
+      "approvalEvidence": null
+    },
+    {
+      "feeCode": "RETURN",
+      "enabled": false,
+      "basisFeeCodes": [],
+      "unit": null,
+      "unitPriceMinor": null,
+      "rateBps": null,
+      "freeAllowance": null,
+      "maximumMinor": null,
+      "stackingGroup": null,
+      "chargeTrigger": null,
+      "beneficiary": null,
+      "approvalEvidence": null
+    },
+    {
+      "feeCode": "REDELIVERY",
+      "enabled": false,
+      "basisFeeCodes": [],
+      "unit": null,
+      "unitPriceMinor": null,
+      "rateBps": null,
+      "freeAllowance": null,
+      "maximumMinor": null,
+      "stackingGroup": null,
+      "chargeTrigger": null,
+      "beneficiary": null,
+      "approvalEvidence": null
+    },
+    {
+      "feeCode": "COD_SERVICE",
+      "enabled": false,
+      "basisFeeCodes": [],
+      "unit": null,
+      "unitPriceMinor": null,
+      "rateBps": null,
+      "freeAllowance": null,
+      "maximumMinor": null,
+      "stackingGroup": null,
+      "chargeTrigger": null,
+      "beneficiary": null,
+      "approvalEvidence": null
+    },
+    {
+      "feeCode": "INSURANCE_PREMIUM",
+      "enabled": false,
+      "basisFeeCodes": [],
+      "unit": null,
+      "unitPriceMinor": null,
+      "rateBps": null,
+      "freeAllowance": null,
+      "maximumMinor": null,
+      "stackingGroup": null,
+      "chargeTrigger": null,
+      "beneficiary": null,
+      "approvalEvidence": null
+    }
+  ],
+  "discount": {
+    "eligibleFeeCodes": [],
+    "fundingParty": null,
+    "maximumMinor": null,
+    "budgetId": null
+  },
+  "settlement": {
+    "platformBps": null,
+    "eligibleFeeCodes": [],
+    "reimbursementFeeCodes": [],
+    "providerAgreementVersionId": null,
+    "platformFundedDiscountChangesDriverPay": false
+  },
+  "tax": {
+    "status": "UNVERIFIED",
+    "mode": null,
+    "feeClassifications": [],
+    "approvalEvidence": null
+  },
+  "approval": {
+    "makerPersonId": null,
+    "reviewerPersonId": null,
+    "approverPersonId": null,
+    "approvedAt": null,
+    "evidenceIds": []
+  },
+  "productionBlockers": [
+    "正式费率和包含范围未填写",
+    "适用地区／货类／车型／能力未批准",
+    "税务口径未确认",
+    "费用归属和分成白名单未批准",
+    "价表尚未经过审核发布",
+    "本模板不是运行时配置"
+  ]
+}

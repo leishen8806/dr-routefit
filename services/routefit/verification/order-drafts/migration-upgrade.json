@@ -1,0 +1,28 @@
+{
+  "from": 1,
+  "to": 2,
+  "syntheticDatabaseOnly": true,
+  "existingDataUnchanged": true,
+  "tables": {
+    "pricing.tariff": {
+      "rows": 1,
+      "sha256": "eeb50ac0351d909f809a02c8b8109b2cbcc6e5394e519f1a2164c6f9cd6ba4f2"
+    },
+    "pricing.fee_rule": {
+      "rows": 1,
+      "sha256": "667e02253951d028a118be078d124da23ad1ec5c1bb54602c5a6e84679b6d709"
+    },
+    "pricing.tariff_revision": {
+      "rows": 2,
+      "sha256": "3a38bba2fe416e49a78785f026443ac097c508425e137b69ccf298eb87dfcde3"
+    },
+    "pricing.trial": {
+      "rows": 1,
+      "sha256": "12bede48672cb853215736ac95884bc4ccf87b35290eac807c8add22a3846832"
+    },
+    "integration.http_request_result": {
+      "rows": 3,
+      "sha256": "c690a6abc09550ed05d5470fd96222a97b0a483ed3db1e4006af96944637c3e9"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "migration": "005 to 006",
+  "nonemptyPriorDatabase": true,
+  "comparison": "All prior columns, including full JSON snapshots; new person_id column excluded",
+  "unchanged": true,
+  "migrations": "6",
+  "tables": {
+    "org.company": {
+      "count": 2,
+      "sha256": "3ecab7014a6f8e3b340cdd97c2d7eda169ee7c33b19e7fa2b8a2c5c7fbb56bea"
+    },
+    "org.principal": {
+      "count": 4,
+      "sha256": "1324ab316708752f11c332fafedcd290f563d4c96857bf7ef89cb2ced3d79a3e"
+    },
+    "party.customer": {
+      "count": 2,
+      "sha256": "92f89bb8720dc2c57270a7316d8c5dcc81b7cbbfc2117e867b4a105687c39a13"
+    },
+    "party.customer_access": {
+      "count": 2,
+      "sha256": "875a7c33de6c08aa1aa9ac0e073588f243e8c875dc9a6d7f57293a2421df5985"
+    },
+    "orders.draft": {
+      "count": 3,
+      "sha256": "d24ae694a8042f0d25e66954e425979ca2f911ddce3f8b5a7b9072a3a1d1afce"
+    },
+    "orders.draft_revision": {
+      "count": 9,
+      "sha256": "dedc04297a093d6f7f96b0f2f17251db4a60b947c035eac515784e2129f8c0be"
+    },
+    "pricing.tariff": {
+      "count": 3,
+      "sha256": "b1563c771c663a5e3861ee2f2d2e5cf1ed9d4cde505b2709eef668dc5d935683"
+    },
+    "pricing.fee_rule": {
+      "count": 5,
+      "sha256": "3ea8ed528183760962818858a764c166f6cb53e94fabfe71810f99a20fd52e6b"
+    },
+    "pricing.tariff_revision": {
+      "count": 8,
+      "sha256": "0e06cfe7708e4acaead10e3c6135135e44538ca43bd82e94ed1e21c20b510479"
+    },
+    "pricing.trial": {
+      "count": 1,
+      "sha256": "3c15a704bc74bbaeb7cf8a653e2372d156d27f6d1709c77daa4d2d8b06f01dd3"
+    },
+    "pricing.policy_version": {
+      "count": 2,
+      "sha256": "6851c92a710a1596e56483f0f1533f0a004a58042bc3cedd44d1156e54544f20"
+    },
+    "pricing.policy_review": {
+      "count": 2,
+      "sha256": "2d8198d6ee9849eeaa492584a95b52494c33e9386f5be877b5a1e5fc18feb180"
+    },
+    "pricing.policy_publication": {
+      "count": 2,
+      "sha256": "95dc465d8716c9054cf7e1f720ea61c8120dcc892b62904ad2f483f8fd5161d6"
+    },
+    "integration.http_request_result": {
+      "count": 32,
+      "sha256": "ecad48472f98f3c5c878f69e180cd3dd02ba2009aafa00ec1bb229b389fd44a4"
+    },
+    "coverage.area": {
+      "count": 2,
+      "sha256": "7cda820037bd08acbf0c562fae4a00328073705491de460d28ab53570fb031b9"
+    },
+    "coverage.publication": {
+      "count": 4,
+      "sha256": "c7e2ecd74ee6a59fff30f625e342e4c9e856a8d667dbebb4d2e1e7205f973c16"
+    },
+    "orders.intake_evidence": {
+      "count": 2,
+      "sha256": "2ff70ea98da116aa4459246631453070154652cec67be403fa6a807e25165194"
+    },
+    "orders.intake_return": {
+      "count": 2,
+      "sha256": "13f906755d44f2a3f18726fe8d0d10eb326a76c77692d52e77cc1250b6071c75"
+    },
+    "pricing.order_quote": {
+      "count": 1,
+      "sha256": "30d56f11cb02303c0cb539d862de85f77a5d661a30db42fc04ce84ffadb0d172"
+    }
+  }
+}
