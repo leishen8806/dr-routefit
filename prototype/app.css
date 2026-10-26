@@ -65,3 +65,16 @@ svg text[font-size="10"],svg text[font-size="11"]{font-size:12px}.driver-app svg
 .entry-links{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px}.loading-feedback{max-width:680px;margin:24px auto;padding:32px;text-align:center;background:white;border:1px solid var(--rf-line);border-radius:12px}.loading-feedback p{color:var(--rf-slate);margin:12px 0}.load-orbit{width:40px;height:40px;margin:0 auto 20px;border:4px solid #e3e8ef;border-top-color:var(--rf-success);border-radius:50%;animation:spin 1s linear infinite}.skeletons{display:grid;gap:12px;margin:24px 0}.skeletons i{height:42px;border-radius:8px;background:#edf1f6;animation:skeleton-breathe 1.4s ease-in-out infinite alternate}.skeletons i:nth-child(2){width:80%;animation-delay:.15s}.skeletons i:nth-child(3){width:60%;animation-delay:.3s}.loading-return{text-align:center}.message-dialog{width:min(480px,calc(100vw - 32px));font-size:16px}.message-dialog header{padding:24px 24px 16px;border-bottom:1px solid var(--rf-line)}.message-dialog h2{font-size:22px;margin-top:8px}.message-dialog .notice-kind{font-size:14px;color:var(--rf-slate)}.message-dialog.strong-notice{border-top:5px solid var(--rf-danger)}.strong-notice .notice-kind{color:var(--rf-danger);font-weight:600}.message-body{padding:24px}.message-body p+p{margin-top:16px;font-size:14px}.message-dialog footer{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end;padding:16px 24px;background:var(--rf-bg);position:sticky;bottom:0}.message-dialog .btn{min-height:48px;font-size:16px}.topright>a.btn{display:inline-flex;align-items:center;text-decoration:none}
 @keyframes skeleton-breathe{from{opacity:.5}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.load-orbit,.skeletons i{animation:none}.load-orbit{border-color:var(--rf-success)}}
+/* Settlement uses the existing finance surface and shared form/dialog tokens. */
+.settlement-status,.settlement-tools{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--rf-line)}
+.settlement-status{margin-bottom:20px;background:var(--rf-surface);border-radius:8px;font-size:14px}
+.settlement-tools form{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.settlement-tools input{min-width:180px;max-width:100%}
+.settlement-tools select{max-width:100%}
+.settlement-detail{padding:24px;overflow-wrap:anywhere}
+.settlement-detail .actions{margin:20px 0;flex-wrap:wrap}
+.settlement-detail .table-wrap{margin:20px 0}
+#settlement-preview{min-height:160px}
+@media(max-width:600px){.settlement-detail{padding:16px}.settlement-status,.settlement-tools{padding:12px}.settlement-tools form{width:100%}.settlement-tools input{min-width:0;flex:1}.settlement-detail .actions .btn{min-height:44px}}
+
+.settlement-tools .field{margin:0}.settlement-tools .field input,.settlement-tools .field select{min-height:40px}

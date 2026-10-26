@@ -5,13 +5,14 @@ export const permissions={
  'master.read':'查看运营资料','master.write':'维护货品、车辆与司机','partners.write':'合作方准入与委托','areas.write':'管理并发布配送区域','integrations.write':'导入外部订单与申请派单'
 };
 const groups={
+ 'finance.read':['feeTrial','settlementRead'],
  'orders.write':['create','edit','promise','commissionSet','areaPoint'],
  'dispatch.assign':['offer','revoke','cancel','partnerOffer'],
  'delivery.exception':['authorizeReturn','resolveDriverIssue','incidentOpen','rescueAssign','rescueCancel','rescueReturnApprove'],
  'warehouse.write':['prepare','receiveReturn','rescueReturnReceive','stockReceive','stockInspect','bookingHandover','bookingReturnReceive'],
- 'finance.verify':['verify','reconcile','earningPost','bankReview','payableVerify','payableDispute'],
+ 'finance.verify':['settlementRule','settlementCheck','settlementClock','settlementDemo','settlementConfirm','settlementSend','settlementDunning','settlementCollect','settlementHold','verify','reconcile','earningPost','bankReview','payableVerify','payableDispute'],
  'finance.pay':['withdrawApprove','withdrawReject','withdrawPaid','payablePay','payableReverse'],
- 'master.write':['goodsSave','vehicleSave','driverSave','driverReview','bankSave','warehouseSave'],
+ 'master.write':['feeSave','goodsSave','vehicleSave','driverSave','driverReview','bankSave','warehouseSave'],
  'partners.write':['partnerRegister','partnerEdit','partnerApprove','partnerReview','partnerPause','partnerResume','partnerExit','bookingDraft','bookingContact','bookingConfirm','bookingReady','bookingEvent','bookingVerify','bookingCancel','bookingCancelConfirm','bookingException','bookingReturnConfirm','bookingReturnArrived'],
  'areas.write':['areaSave','areaPublish'],
  'integrations.write':['importExternal','requestExternalDispatch']
@@ -35,15 +36,15 @@ export const isAdmin=(db,a)=>a.roleIds.includes('administrator');
 export const accountRoles=(db,a)=>db.access.roles.filter(r=>a.roleIds.includes(r.id));
 export const grants=(db,a)=>new Set(accountRoles(db,a).flatMap(r=>r.permissions));
 export function inScope(a,o){if(a.scope.mode==='all')return true;return a.scope.warehouseIds.includes(o.warehouseId||'WH01')&&(!(o.rescueVehicle||o.vehicle)||a.scope.vehicleIds===null||a.scope.vehicleIds.includes(o.rescueVehicle||o.vehicle));}
-const globalViews=new Set(['operations','goods','vehicles','drivers','partners','pricing','withdrawals','payables','areas','integrations','bookings']);
-const viewPermissions={dispatch:'orders.read',orders:'orders.read',exceptions:'orders.read',warehouse:'warehouse.read',inventory:'warehouse.read',finance:'finance.read',operations:'master.read',goods:'master.read',vehicles:'master.read',drivers:'master.read',partners:'master.read',bookings:'partners.write',pricing:'finance.read',withdrawals:'finance.read',payables:'finance.read',areas:'areas.write',integrations:'integrations.write'};
-export function canView(db,session,view){try{if(['prototype','customer','driver'].includes(view))return false;const a=identity(db,session);if(view==='access')return isAdmin(db,a);if(a.scope.mode!=='all'&&globalViews.has(view))return false;return isAdmin(db,a)||grants(db,a).has(viewPermissions[view]);}catch{return false}}
+const globalViews=new Set(['settlements','operations','goods','vehicles','drivers','partners','pricing','withdrawals','payables','areas','integrations','bookings']);
+const viewPermissions={settlements:'finance.read',dispatch:'orders.read',orders:'orders.read',exceptions:'orders.read',warehouse:'warehouse.read',inventory:'warehouse.read',finance:'finance.read',operations:'master.read',goods:'master.read',vehicles:'master.read',drivers:'master.read',partners:'master.read',bookings:'partners.write',pricing:'finance.read',withdrawals:'finance.read',payables:'finance.read',areas:'areas.write',integrations:'integrations.write'};
+export function canView(db,session,view){try{if(['prototype','customer','driver'].includes(view))return false;const a=identity(db,session);if(view==='access')return isAdmin(db,a);if(a.scope.mode!=='all'&&globalViews.has(view))return false;return isAdmin(db,a)||grants(db,a).has(viewPermissions[view])||(view==='pricing'&&grants(db,a).has('master.write'));}catch{return false}}
 export function previewRoles(db,session){try{const a=identity(db,session);return isAdmin(db,a)?['ops','dispatch','warehouse','finance']:Array.from(new Set(accountRoles(db,a).map(r=>r.base)))}catch{return []}}
 const scopedActions=new Set(['create','edit','promise','commissionSet','areaPoint','offer','revoke','cancel','authorizeReturn','resolveDriverIssue','prepare','receiveReturn','verify','reconcile','earningPost','stockReceive','stockInspect']);
-export function canOperate(db,session,role,action){try{const a=identity(db,session);return previewRoles(db,session).includes(role)&&(isAdmin(db,a)||grants(db,a).has(actionPermission[action]))&&(a.scope.mode==='all'||scopedActions.has(action));}catch{return false}}
+export function canOperate(db,session,role,action){try{const a=identity(db,session);return previewRoles(db,session).includes(role)&&(isAdmin(db,a)||(grants(db,a).has(actionPermission[action])||(action==='feeTrial'&&grants(db,a).has('master.write'))))&&(a.scope.mode==='all'||scopedActions.has(action));}catch{return false}}
 export function authorize(db,session,c){
  const a=identity(db,session);check(previewRoles(db,session).includes(c.role),'账号未获授权使用该工作席');
- check(isAdmin(db,a)||grants(db,a).has(actionPermission[c.action]),'没有此操作权限');
+ check(isAdmin(db,a)||grants(db,a).has(actionPermission[c.action])||(c.action==='feeTrial'&&grants(db,a).has('master.write')),'没有此操作权限');
  if(a.scope.mode==='all')return a;
  check(scopedActions.has(c.action),'此操作涉及全局资料，限定范围账号不能执行');const p=c.payload||{};
  if(!['create','stockReceive','stockInspect'].includes(c.action)){const o=db.orders.find(x=>x.id===c.id);check(o&&inScope(a,o),'对象不存在或不在操作范围');}
@@ -51,12 +52,14 @@ export function authorize(db,session,c){
  if(p.vehicle)check(a.scope.vehicleIds===null||a.scope.vehicleIds.includes(p.vehicle),'车辆不在操作范围');return a;
 }
 export function executeAsAccount(db,session,c,execute,now=Date.now()){
- check(typeof c.key==='string'&&c.key,'缺少幂等键');const a=authorize(db,session,c);const scoped={...c,key:`account:${a.id}:${c.key}`};const next=execute(db,scoped,now);if(next===db)return db;
+ check(typeof c.key==='string'&&c.key,'缺少幂等键');const a=authorize(db,session,c);const scoped={...c,accountId:a.id,key:`account:${a.id}:${c.key}`};const next=execute(db,scoped,now);if(next===db)return db;
  (next.access.audit??=[]).push({at:new Date(now).toISOString(),actorId:a.id,action:c.action,target:c.id||'new',kind:'business',summary:'账号权限及操作范围校验通过'});return next;
 }
 export function projectAccount(db,session){
  const a=identity(db,session),p=grants(db,a),next=structuredClone(db),all=isAdmin(db,a);
  next.orders=(all||p.has('orders.read')||p.has('warehouse.read')||p.has('finance.read'))?next.orders.filter(o=>inScope(a,o)):[];
+ if(!all&&(!p.has('finance.read')||a.scope.mode!=='all')){delete next.settlement;delete next.financeLedger;}
+ if(!all&&(a.scope.mode!=='all'||!p.has('finance.read')&&!p.has('master.write')))delete next.feeSettings;
  const ids=new Set(next.orders.map(o=>o.id));
  if(a.scope.mode!=='all'){
   next.warehouses=next.warehouses.filter(w=>a.scope.warehouseIds.includes(w.id));next.vehicleProfiles=next.vehicleProfiles.filter(v=>a.scope.vehicleIds===null||a.scope.vehicleIds.includes(v.id));next.partners=[];

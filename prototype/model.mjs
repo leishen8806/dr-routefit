@@ -1,3 +1,6 @@
+import {initFees,feeActions,applyFees} from './fee-settings.mjs';
+import {initFinance,guardLegacyFinance} from './finance-ledger.mjs';
+import {initSettlement,settlementActions,applySettlement} from './settlement-model.mjs';
 import {areaActions,applyArea,finalizeAreas} from './service-areas.mjs';
 import {importExternal,requestExternalDispatch} from './external-orders.mjs';
 import {recordDriverTransitions,applyDriverIssue} from './driver-orders.mjs';
@@ -13,12 +16,17 @@ const stamp = (now=Date.now())=>new Date(now).toISOString();
 const event=(o,text,role,now)=>o.events.push({text,role:roles[role]||role,at:stamp(now)});
 export function validateInput(p) {
   for(const f of ['customer','destination','cargo','expected']) check(typeof p[f]==='string'&&p[f].trim().length>0,'请填写客户、收货地址、货物名称和期望时间。');
+  const quotePending=p.quotePending===true||p.quotePending==='true';
+  if(quotePending){
+    check(Number.isFinite(Date.parse(p.expected+':00+07:00')),'请填写有效的期望日期与时间。');
+    return {customer:p.customer.trim(),destination:p.destination.trim(),cargo:p.cargo.trim(),expected:p.expected.trim(),payment:'pending',qty:0,weight:null,length:null,width:null,height:null,amount:0,quotePending:true};
+  }
   check(Number.isInteger(+p.qty)&&+p.qty>0&&+p.qty<=100,'件数必须是 1–100 的整数。');
   for(const f of ['weight','length','width','height','amount']) check(Number.isFinite(+p[f])&&+p[f]>0, '重量、尺寸及运费必须是大于 0 的数字。');
   check(['cash','transfer'].includes(p.payment),'原型仅支持演示现金与转账。');
   check(Number.isFinite(Date.parse(p.expected+':00+07:00')),'请填写有效的期望日期与时间。');
   check(Math.abs(+p.amount*100-Math.round(+p.amount*100))<1e-7,'USD 运费最多保留两位小数。');
-  return Object.fromEntries(['customer','destination','cargo','expected','payment','qty','weight','length','width','height','amount'].map(k=>[k,['qty','weight','length','width','height','amount'].includes(k)?+p[k]:p[k].trim()]));
+  return {...Object.fromEntries(['customer','destination','cargo','expected','payment','qty','weight','length','width','height','amount'].map(k=>[k,['qty','weight','length','width','height','amount'].includes(k)?+p[k]:p[k].trim()])),quotePending:false};
 }
 function base(id,p,now) {return {id,...p,amountMinor:Math.round(p.amount*100),status:'draft',version:1,vehicle:null,promise:null,basis:null,offerUntil:null,custody:'金边演示仓',collection:'due',reportedMinor:0,collectionProof:'',remittance:'open',received:0,returnAuthorized:false,returnAtWarehouse:false,events:[{text:'创建订单草稿',role:'调度',at:stamp(now)}]};}
 export function seed(now=Date.now()) {
@@ -38,8 +46,8 @@ export function loadCheck(o,v) {
   return null;
 }
 export const getVehicles=db=>db.vehicleProfiles||vehicles;
-export function initialize(db,now=Date.now()){return initPlatform(upgrade(db,now),vehicles,now);}
-export function apply(db,c,now=Date.now()){if(areaActions.has(c.action))return applyArea(db,c,now);if(c.action==='importExternal')return importExternal(db,c,apply,now);if(c.action==='requestExternalDispatch')return requestExternalDispatch(db,c,now);if(['driverIssue','resolveDriverIssue'].includes(c.action))return applyDriverIssue(db,c,now);if(platformActions.has(c.action))return applyPlatform(db,c,now);return recordDriverTransitions(db,finalizeAreas(db,finalizePlatform(db,applyCore(db,c,now),c,now),c,now),c.action,now);}
+export function initialize(db,now=Date.now()){return initFees(initFinance(initSettlement(initPlatform(upgrade(db,now),vehicles,now))));}
+export function apply(db,c,now=Date.now()){guardLegacyFinance(db,c);if(feeActions.has(c.action))return applyFees(db,c,now);if(settlementActions.has(c.action))return applySettlement(db,c,now);if(areaActions.has(c.action))return applyArea(db,c,now);if(c.action==='importExternal')return importExternal(db,c,apply,now);if(c.action==='requestExternalDispatch')return requestExternalDispatch(db,c,now);if(['driverIssue','resolveDriverIssue'].includes(c.action))return applyDriverIssue(db,c,now);if(platformActions.has(c.action))return applyPlatform(db,c,now);return recordDriverTransitions(db,finalizeAreas(db,finalizePlatform(db,applyCore(db,c,now),c,now),c,now),c.action,now);}
 function applyCore(db,c,now=Date.now()) {
   if(incidentActions.has(c.action))return applyIncident(db,c,now);
   if(r1mActions.has(c.action))return applyR1M(db,c,now);
@@ -58,7 +66,7 @@ function applyCore(db,c,now=Date.now()) {
     const at=(...states)=>check(states.includes(o.status),'当前状态不允许此操作，请刷新确认。');
     switch(c.action) {
       case 'edit': at('draft'); Object.assign(o,validateInput(p));o.amountMinor=Math.round(o.amount*100);break;
-      case 'promise': at('draft'); check(p.confirmed&&p.address&&p.measured,'请确认地址、仓库实测和客户同意。');check(p.promise&&Number.isFinite(Date.parse(p.promise+':00+07:00'))&&p.basis?.trim(),'请填写有效承诺时间和人工核验依据。');o.promise=p.promise;o.basis=p.basis;o.status='awaiting_dispatch';break;
+      case 'promise': at('draft'); check(!o.quotePending,'货物参数、报价和付款方式待核验，不能建立服务承诺。');check(p.confirmed&&p.address&&p.measured,'请确认地址、仓库实测和客户同意。');check(p.promise&&Number.isFinite(Date.parse(p.promise+':00+07:00'))&&p.basis?.trim(),'请填写有效承诺时间和人工核验依据。');o.promise=p.promise;o.basis=p.basis;o.status='awaiting_dispatch';break;
       case 'offer': {at('awaiting_dispatch');check(!activeBooking(o),'取消未确认，禁止派车或重复委托。');const v=getVehicles(next).find(x=>x.id===p.vehicle);check(v,'请选择有效车辆。');check(!ownVehicleReason(next,v,now),ownVehicleReason(next,v,now));check(!next.vehicleBlocks?.[v.id],'事故车辆停用，不能派单');check(!loadCheck(o,v),loadCheck(o,v));check(!next.orders.some(x=>x.id!==o.id&&x.vehicle===v.id&&['offered','accepted','ready','picked_up','in_transit','return_open','incident_open','rescue_waiting','rescue_accepted'].includes(x.status)),'该车已有有效任务，请选择其他车辆。');o.fulfillmentMode='OWN_FLEET';o.partnerId=null;o.vehicle=v.id;o.status='offered';o.offerUntil=now+120000;break;}
       case 'revoke': at('offered');o.status='awaiting_dispatch';o.vehicle=null;break;
       case 'cancel': at('draft','awaiting_dispatch','offered','accepted','ready');check(p.reason?.trim(),'请填写取消依据。');o.status='cancelled';o.vehicle=null;break;
@@ -67,9 +75,9 @@ function applyCore(db,c,now=Date.now()) {
       case 'prepare': {at('accepted');const v=o.fulfillmentMode==='PARTNER_VEHICLE'?partnerVehicle(next.partners.find(x=>x.id===o.partnerId)):getVehicles(next).find(x=>x.id===o.vehicle);check(!loadCheck(o,v),loadCheck(o,v));check(p.dimension&&p.pattern&&p.packaging&&p.evidence?.trim(),'请逐项核对装载、件数包装，并记录放行依据。');o.status='ready';o.release=p.evidence;break;}
       case 'pickup': at('ready');check(+p.count===o.qty&&p.evidence?.trim(),'实收件数必须一致，并填写交接凭证。');o.status='picked_up';o.custody=o.fulfillmentMode==='PARTNER_VEHICLE'?'合作司机 Dara':'演示司机 Sokha';break;
       case 'depart': at('picked_up');o.status='in_transit';break;
-      case 'report': at('picked_up','in_transit','delivered','return_open','closed_exception','incident_open');check(o.collection==='due'||o.collection==='mismatch','已有有效申报，不可重复提交。');check(Number.isFinite(+p.amount)&&+p.amount>0&&p.proof?.trim(),'填写有效金额和收款凭证。');o.reportedMinor=Math.round(+p.amount*100);o.collectionProof=p.proof.trim();o.collection='reported';break;
+      case 'report': check(!o.settlementReceipts?.length,'已有账期收款，请在结算账单核验剩余金额');at('picked_up','in_transit','delivered','return_open','closed_exception','incident_open');check(o.collection==='due'||o.collection==='mismatch','已有有效申报，不可重复提交。');check(Number.isFinite(+p.amount)&&+p.amount>0&&p.proof?.trim(),'填写有效金额和收款凭证。');o.reportedMinor=Math.round(+p.amount*100);o.collectionProof=p.proof.trim();o.collection='reported';break;
       case 'deliver': at('in_transit');check(Number.isInteger(+p.count)&&+p.count>=0&&+p.count<=o.qty,'签收件数必须在订单件数范围内。');check(p.receiver?.trim()&&p.evidence?.trim(),'请填写收货人和签收凭证。');if(+p.count>0)check(o.payment==='cash'?['reported','verified'].includes(o.collection):o.collection==='verified','放货条件未满足：现金须现场申报，转账须财务核验。');o.received=+p.count;o.status=o.received===o.qty?'delivered':'return_open';o.custody=o.received===o.qty?p.receiver:`司机持有 ${o.qty-o.received} 件；收货人已收 ${o.received} 件`;o.pod=p.evidence;break;
-      case 'verify': check(o.collection==='reported','没有待核验申报。');check(p.evidence?.trim(),'请填写财务核对依据。');check(Number.isFinite(+p.amount)&&+p.amount>=0,'请填写有效实核金额。');if(o.payment==='transfer')check(!next.orders.some(x=>x.id!==o.id&&x.collection==='verified'&&x.financeEvidence===p.evidence.trim()),'交易凭证已被其他订单核销。');o.collection=(Math.round(+p.amount*100)===o.amountMinor&&o.reportedMinor===o.amountMinor)?'verified':'mismatch';o.financeEvidence=p.evidence.trim();break;
+      case 'verify': check(!o.settlementReceipts?.length,'已有账期收款，请在结算账单核验剩余金额');check(o.collection==='reported','没有待核验申报。');check(p.evidence?.trim(),'请填写财务核对依据。');check(Number.isFinite(+p.amount)&&+p.amount>=0,'请填写有效实核金额。');if(o.payment==='transfer')check(!next.orders.some(x=>x.id!==o.id&&(x.collection==='verified'&&x.financeEvidence===p.evidence.trim()||(x.settlementReceipts||[]).some(r=>r.proof===p.evidence.trim()))),'交易凭证已被其他订单核销。');o.collection=(Math.round(+p.amount*100)===o.amountMinor&&o.reportedMinor===o.amountMinor)?'verified':'mismatch';o.financeEvidence=p.evidence.trim();break;
       case 'remit': check(o.payment==='cash'&&o.collection==='verified'&&o.remittance==='open','先完成现金核验，再提交交款。');check(p.evidence?.trim(),'请填写交款凭证。');o.remittance='submitted';o.remitProof=p.evidence;break;
       case 'reconcile': check(o.remittance==='submitted','尚无司机交款申报。');check(+p.amount*100===o.amountMinor&&p.evidence?.trim(),'交款差额未解决，不能结清；请核对实交金额和凭证。');o.remittance='reconciled';break;
       case 'authorizeReturn': at('return_open');check(!o.returnAuthorized,'已授权退回。');check(p.reason?.trim(),'请记录退回目的地与人工容量／时间复核依据。');o.returnAuthorized=true;break;

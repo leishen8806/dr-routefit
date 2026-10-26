@@ -17,14 +17,19 @@ export function validateExternal(p){
  check(p.currency==='USD','本原型仅支持 USD，不自动换汇');check(p.insuranceAmount!==undefined&&String(p.insuranceAmount).trim()!=='','请明确填写保险费，无保险填 0');
  if(p.sourceSystem==='DEMO-USER-001')check(typeof p.sourcePlatform==='string'&&p.sourcePlatform.trim()&&p.sourcePlatform.length<=300,'请填写订单来源平台');return Object.fromEntries(['sourceType','sourceSystem','sourcePlatform','externalOrderId',...Object.keys(importFields),'insuranceAmount','currency','payment','reviewed'].map(k=>[k,typeof p[k]==='string'?p[k].trim():p[k]]));
 }
+export function validateCustomerRequest(p){
+  validateContacts(p);
+  check(typeof p.expected==='string'&&Number.isFinite(Date.parse(p.expected+':00+07:00')),'请填写期望送达时间。');
+  return {pickupAddress:p.pickupAddress.trim(),pickupContact:p.pickupContact.trim(),pickupPhone:p.pickupPhone.trim(),destination:p.destination.trim(),deliveryContact:p.deliveryContact.trim(),deliveryPhone:p.deliveryPhone.trim(),cargo:typeof p.cargo==='string'&&p.cargo.trim()?p.cargo.trim():'待调度确认货物',expected:p.expected.trim(),customer:p.pickupContact.trim()};
+}
 export function importExternal(db,c,create,now=Date.now()){
- check(['ops','dispatch','customer'].includes(c.role),'无权限导入订单');check(c.key,'缺少幂等键');const p=validateExternal(c.role==='customer'?{...c.payload,sourceType:'customer',sourceSystem:'DEMO-USER-001'}:(c.payload||{})),fingerprint=JSON.stringify(['importExternal',c.role,p]);
+ check(['ops','dispatch','customer'].includes(c.role),'无权限导入订单');check(c.key,'缺少幂等键');const quickCustomerRequest=c.role==='customer'&&(c.payload?.quickRequest===true||c.payload?.quickRequest==='true');const p=quickCustomerRequest?{...validateCustomerRequest(c.payload||{}),sourceType:'customer',sourceSystem:'DEMO-USER-001',sourcePlatform:'DR RouteFit 用户端',externalOrderId:'USER-'+c.key,amount:0,insuranceAmount:0,payment:'pending',quotePending:true}:{...validateExternal(c.role==='customer'?{...c.payload,sourceType:'customer',sourceSystem:'DEMO-USER-001'}:(c.payload||{})),quotePending:false},fingerprint=JSON.stringify(['importExternal',c.role,p]);
  if(db.requests[c.key]){check(db.requests[c.key].fingerprint===fingerprint,'幂等键冲突');return db}
  const prior=(db.externalIntakes||[]).find(x=>x.sourceType===p.sourceType&&x.sourceSystem===p.sourceSystem&&x.externalOrderId===p.externalOrderId&&(x.sourcePlatform||'')===(p.sourcePlatform||''));
  if(prior){check(prior.fingerprint===JSON.stringify(p),'外部订单号已存在且内容不同，请人工核对，禁止覆盖');return db}
  const next=create(db,{...c,role:c.role==='customer'?'ops':c.role,action:'create',payload:{...p,customer:p.customer||p.pickupContact,quoteMode:'manual'}},now),o=next.orders[0];
- const intake={id:'EXT-'+String((next.externalIntakes||[]).length+1).padStart(3,'0'),sourceType:p.sourceType,sourceSystem:p.sourceSystem,sourcePlatform:p.sourcePlatform||null,externalOrderId:p.externalOrderId,orderId:o.id,version:1,fingerprint:JSON.stringify(p),createdAt:new Date(now).toISOString(),dispatchRequestedAt:null};
- (next.externalIntakes??=[]).push(intake);if(c.role==='customer')o.events[0].role='customer';o.externalSource={sourceType:p.sourceType,sourceSystem:p.sourceSystem,sourcePlatform:p.sourcePlatform||null,externalOrderId:p.externalOrderId,intakeId:intake.id};o.events.push({text:'外部订单人工校对后导入；仅建立草稿，不代表已派单',role:c.role,at:new Date(now).toISOString()});next.requests[c.key]={fingerprint,id:o.id};return next;
+ const intake={id:'EXT-'+String((next.externalIntakes||[]).length+1).padStart(3,'0'),sourceType:p.sourceType,sourceSystem:p.sourceSystem,sourcePlatform:p.sourcePlatform||null,externalOrderId:p.externalOrderId,orderId:o.id,version:1,fingerprint:JSON.stringify(p),createdAt:new Date(now).toISOString(),dispatchRequestedAt:quickCustomerRequest?new Date(now).toISOString():null};
+ (next.externalIntakes??=[]).push(intake);if(c.role==='customer')o.events[0].role='customer';o.externalSource={sourceType:p.sourceType,sourceSystem:p.sourceSystem,sourcePlatform:p.sourcePlatform||null,externalOrderId:p.externalOrderId,intakeId:intake.id};o.events.push({text:quickCustomerRequest?'用户提交配送需求，等待调度核验货物、报价与服务区域；尚未派车':'外部订单人工校对后导入；仅建立草稿，不代表已派单',role:c.role,at:new Date(now).toISOString()});next.requests[c.key]={fingerprint,id:o.id};return next;
 }
 export function requestExternalDispatch(db,c,now=Date.now()){
  check(['ops','dispatch','customer'].includes(c.role),'无权限申请派单');check(c.key,'缺少幂等键');const fingerprint=JSON.stringify([c.action,c.id,c.role,c.payload||{}]);if(db.requests[c.key]){check(db.requests[c.key].fingerprint===fingerprint,'幂等键冲突');return db}
