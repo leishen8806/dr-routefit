@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX settlement_account_subject_version_unique ON finance.settlement_account(company_id,subject_id,version);

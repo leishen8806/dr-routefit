@@ -1,0 +1,20 @@
+{
+  "pickup": {
+    "method": "PHONE",
+    "reference": "DEMO phone confirmation",
+    "entrance": "DEMO entrance"
+  },
+  "delivery": {
+    "method": "MESSAGE",
+    "reference": "DEMO message confirmation",
+    "entrance": "DEMO entrance"
+  },
+  "measurements": [
+    {
+      "clientItemId": "box-1",
+      "source": "CUSTOMER_DECLARED",
+      "reference": "DEMO packed dimensions supplied by sender",
+      "packagingConfirmed": true
+    }
+  ]
+}

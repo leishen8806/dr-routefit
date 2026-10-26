@@ -1,0 +1,43 @@
+{
+  "customerId": "00000000-0000-4000-8000-000000000101",
+  "pickup": {
+    "address": "DEMO warehouse entrance",
+    "contactName": "DEMO sender",
+    "phone": "+855000000001",
+    "point": null
+  },
+  "delivery": {
+    "address": "DEMO delivery entrance",
+    "contactName": "DEMO recipient",
+    "phone": "+855000000002",
+    "point": null
+  },
+  "items": [
+    {
+      "clientItemId": "box-1",
+      "name": "DEMO package",
+      "quantity": 1,
+      "lengthCm": 20,
+      "widthCm": 20,
+      "heightCm": 20,
+      "weightKg": 2,
+      "rotationAllowed": true,
+      "stackable": true,
+      "uprightOnly": false,
+      "restrictions": [],
+      "measurementEvidenceIds": []
+    }
+  ],
+  "serviceLevel": "S2",
+  "exclusiveVehicle": false,
+  "requestedPickupWindow": {
+    "start": "2026-10-26T02:00:00Z",
+    "end": "2026-10-26T03:00:00Z"
+  },
+  "requestedDeliveryWindow": {
+    "start": "2026-10-26T03:00:00Z",
+    "end": "2026-10-26T05:00:00Z"
+  },
+  "paymentTerms": "PREPAID",
+  "notes": "Synthetic data only"
+}

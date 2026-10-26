@@ -1,0 +1,70 @@
+### LOCAL ONLY: first activate a one-use development session on this same origin.
+@origin = http://127.0.0.1:4180
+@orderId = REPLACE_WITH_AUTHORIZED_ORDER_UUID
+@areaId = REPLACE_WITH_AREA_UUID
+@csrf = REPLACE_IN_LOCAL_TOOL_ONLY
+@requestKey = REPLACE_WITH_NEW_16_TO_128_CHARACTER_KEY
+@orderVersion = 1
+
+### Read current evidence, source snapshot and blockers; no state change
+GET {{origin}}/api/ops/v1/orders/{{orderId}}/intake-check
+
+### Register manual evidence using the actual current item IDs
+POST {{origin}}/api/ops/v1/orders/{{orderId}}/intake-evidence
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+Idempotency-Key: {{requestKey}}
+If-Match: "{{orderVersion}}"
+
+{
+  "pickup": {"method":"PHONE","reference":"DEMO confirmation","entrance":"DEMO warehouse entrance"},
+  "delivery": {"method":"MESSAGE","reference":"DEMO confirmation","entrance":"DEMO recipient entrance"},
+  "measurements": [{"clientItemId":"box-1","source":"CUSTOMER_DECLARED","reference":"DEMO packed dimensions","packagingConfirmed":true}]
+}
+
+### Submit: new key per distinct command; exact same key/body/version only for retry
+POST {{origin}}/api/ops/v1/orders/{{orderId}}/actions/submit
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+Idempotency-Key: {{requestKey}}
+If-Match: "{{orderVersion}}"
+
+{}
+
+### Return requires current validating version; previous evidence will not carry forward
+POST {{origin}}/api/ops/v1/orders/{{orderId}}/actions/return-to-draft
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+Idempotency-Key: {{requestKey}}
+If-Match: "{{orderVersion}}"
+
+{"reason":"DEMO address correction requires re-verification"}
+
+### Coverage geometry is [longitude, latitude], closed single ring
+POST {{origin}}/api/ops/v1/service-areas
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+Idempotency-Key: {{requestKey}}
+
+{"name":"DEMO city test","type":"ALLOW","polygon":{"type":"Polygon","coordinates":[[[104.8,11.4],[105,11.4],[105,11.6],[104.8,11.6],[104.8,11.4]]]},"effectiveFrom":"2026-10-25T00:00:00Z"}
+
+### Publish draft v1; not a real operational boundary
+POST {{origin}}/api/ops/v1/service-areas/{{areaId}}/actions/publish
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+Idempotency-Key: {{requestKey}}
+If-Match: "1"
+
+{"reason":"DEMO controlled local test"}
+
+### List all current projections, including retired regions
+GET {{origin}}/api/ops/v1/service-areas?limit=50
+
+### Retire active v2; allow coverage may now close
+POST {{origin}}/api/ops/v1/service-areas/{{areaId}}/actions/retire
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+Idempotency-Key: {{requestKey}}
+If-Match: "2"
+
+{"reason":"DEMO test completed"}

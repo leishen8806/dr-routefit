@@ -1,0 +1,52 @@
+import {createHmac,randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
+import {ensure} from '../domain/errors.mjs';
+import {currentCustomer} from './orders.mjs';
+
+const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const cursorKey=randomBytes(32),sign=value=>createHmac('sha256',cursorKey).update(value).digest('base64url');
+const stockView=row=>({id:row.id,version:Number(row.version),ownerAccountId:row.owner_account_id,warehouseId:row.warehouse_id,skuId:row.sku_id,lotRef:row.lot_ref,unit:row.unit,quantities:{bookQty:Number(row.book_qty),reservedQty:Number(row.reserved_qty),quarantineQty:Number(row.quarantine_qty),requestableQty:Number(row.book_qty)-Number(row.reserved_qty)-Number(row.quarantine_qty)},source:row.source,observedAt:new Date(row.observed_at).toISOString(),quality:'fresh',unknownReason:null});
+const reservationView=row=>({id:row.id,version:Number(row.version),state:row.state,warehouseRequestId:row.warehouse_request_id,lines:row.snapshot.lines,authority:row.authority});
+
+export function inventoryQuery(url,principal){
+ for(const key of url.searchParams.keys())ensure(['limit','cursor','warehouseId','skuId'].includes(key)&&url.searchParams.getAll(key).length===1,422,'INVALID_QUERY','查询参数不支持或重复');
+ const limit=Number(url.searchParams.get('limit')??50);ensure(Number.isInteger(limit)&&limit>=1&&limit<=100,422,'INVALID_LIMIT','limit须为1到100');
+ const warehouseId=url.searchParams.get('warehouseId')??null,skuId=url.searchParams.get('skuId')??null;for(const id of [warehouseId,skuId])if(id!==null)ensure(uuid.test(id),422,'INVALID_QUERY','筛选标识无效');
+ const binding=JSON.stringify(['inventory',principal.companyId,principal.principalId,warehouseId,skuId,limit]),token=url.searchParams.get('cursor');let after=null;
+ if(token!==null){try{const [payload,signature,...rest]=token.split('.');ensure(token.length<=2048&&signature&&rest.length===0&&signature.length===43&&timingSafeEqual(Buffer.from(signature),Buffer.from(sign(payload))),422,'INVALID_CURSOR','游标无效或已失效');const decoded=JSON.parse(Buffer.from(payload,'base64url').toString('utf8'));ensure(decoded.binding===binding&&uuid.test(decoded.after)&&decoded.expiresAt>Date.now(),422,'INVALID_CURSOR','游标无效或已失效');after=decoded.after;}catch{ensure(false,422,'INVALID_CURSOR','游标无效或已失效');}}
+ return {limit,after,warehouseId,skuId,cursor:id=>{const payload=Buffer.from(JSON.stringify({binding,after:id,expiresAt:Date.now()+3600000})).toString('base64url');return payload+'.'+sign(payload)}};
+}
+async function person(client,principal){const row=(await client.query("SELECT person_id FROM org.principal WHERE company_id=$1 AND id=$2 AND status='ACTIVE'",[principal.companyId,principal.principalId])).rows[0];ensure(row?.person_id,401,'SESSION_REVOKED','当前人员身份无效');return row.person_id;}
+async function request(client,principal,id,lock=false){ensure(uuid.test(id),404,'NOT_FOUND','资源不存在');const row=(await client.query('SELECT * FROM warehouse.request WHERE company_id=$1 AND id=$2'+(lock?' FOR UPDATE':''),[principal.companyId,id])).rows[0];ensure(row,404,'NOT_FOUND','资源不存在');return row;}
+function requestLines(row,lines){
+ ensure(row.type==='OUTBOUND_DELIVERY'&&row.state==='accepted',409,'REQUEST_NOT_RESERVABLE','仅已受理出库申请可预留');
+ ensure(new Set(lines.map(line=>line.inventoryId)).size===lines.length,422,'DUPLICATE_INVENTORY','同一预留不得重复库存行');
+ for(const line of lines)ensure(uuid.test(line.inventoryId??'')&&Number.isInteger(line.inventoryVersion),422,'INVENTORY_VERSION_REQUIRED','预留必须指定库存行及版本');
+ const wanted=new Map();for(const line of row.snapshot.request.lines)wanted.set(line.skuId,(wanted.get(line.skuId)??0)+line.quantity);
+ const supplied=new Map();for(const line of lines)supplied.set(line.skuId,(supplied.get(line.skuId)??0)+line.quantity);
+ ensure(wanted.size===supplied.size&&[...wanted].every(([sku,quantity])=>supplied.get(sku)===quantity),422,'RESERVATION_LINES_MISMATCH','预留行必须精确对应出库申请');
+}
+async function requestEvidence(client,principal,requestId,ids){ensure(new Set(ids).size===ids.length,422,'DUPLICATE_EVIDENCE','证据不得重复');const count=(await client.query("SELECT count(*)::integer AS count FROM evidence.file WHERE company_id=$1 AND id=ANY($2::uuid[]) AND resource_type='WAREHOUSE_REQUEST' AND resource_id=$3 AND state='available'",[principal.companyId,ids,requestId])).rows[0].count;ensure(count===ids.length,422,'EVIDENCE_UNAVAILABLE','证据不存在、未完成或不属于本仓储申请');}
+async function event(client,principal,row,action,detail={}){const who=await person(client,principal),snapshot={reservationId:row.id,version:Number(row.version),action,principalId:principal.principalId,personId:who,recordedAt:new Date().toISOString(),...detail};await client.query('INSERT INTO warehouse.stock_reservation_event(company_id,reservation_id,version,action,principal_id,person_id,snapshot) VALUES($1,$2,$3,$4,$5,$6,$7)',[principal.companyId,row.id,row.version,action,principal.principalId,who,snapshot]);}
+
+export async function readCustomerInventory(client,principal,query){
+ const customerId=await currentCustomer(client,principal);
+ const rows=(await client.query('SELECT * FROM warehouse.inventory_snapshot WHERE company_id=$1 AND owner_account_id=$2 AND ($3::uuid IS NULL OR warehouse_id=$3) AND ($4::uuid IS NULL OR sku_id=$4) AND ($5::uuid IS NULL OR id>$5) ORDER BY id LIMIT $6',[principal.companyId,customerId,query.warehouseId,query.skuId,query.after,query.limit+1])).rows,selected=rows.slice(0,query.limit);
+ return {items:selected.map(stockView),nextCursor:rows.length>query.limit?query.cursor(selected.at(-1).id):null};
+}
+
+export async function createStockReservation(client,principal,input){
+ const warehouseRequest=await request(client,principal,input.warehouseRequestId,true);ensure(Number(warehouseRequest.version)===input.warehouseRequestVersion,412,'VERSION_CONFLICT','仓储申请已变化');requestLines(warehouseRequest,input.lines);
+ const inventoryIds=input.lines.map(line=>line.inventoryId),stocks=(await client.query('SELECT * FROM warehouse.inventory_snapshot WHERE company_id=$1 AND id=ANY($2::uuid[]) ORDER BY id FOR UPDATE',[principal.companyId,inventoryIds])).rows;ensure(stocks.length===input.lines.length,409,'INVENTORY_UNAVAILABLE','库存不存在或已变化');
+ const byId=new Map(stocks.map(row=>[row.id,row]));for(const line of input.lines){const stock=byId.get(line.inventoryId);ensure(stock.owner_account_id===warehouseRequest.owner_account_id&&stock.warehouse_id===warehouseRequest.warehouse_id&&stock.sku_id===line.skuId&&Number(stock.version)===line.inventoryVersion,409,'INVENTORY_VERSION_CONFLICT','库存行已变化');ensure(Number(stock.book_qty)-Number(stock.reserved_qty)-Number(stock.quarantine_qty)>=line.quantity,409,'INSUFFICIENT_STOCK','可用库存不足');}
+ const id=randomUUID(),snapshot={id,version:1,state:'confirmed',warehouseRequestId:warehouseRequest.id,lines:input.lines,authority:'ROUTEFIT_WMS'};
+ await client.query('INSERT INTO warehouse.stock_reservation(id,company_id,warehouse_request_id,owner_account_id,warehouse_id,state,authority,version,snapshot,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[id,principal.companyId,warehouseRequest.id,warehouseRequest.owner_account_id,warehouseRequest.warehouse_id,'confirmed','ROUTEFIT_WMS',1,snapshot,principal.principalId]);
+ for(const line of input.lines){await client.query('UPDATE warehouse.inventory_snapshot SET reserved_qty=reserved_qty+$3,version=version+1,updated_at=clock_timestamp() WHERE company_id=$1 AND id=$2',[principal.companyId,line.inventoryId,line.quantity]);await client.query('INSERT INTO warehouse.stock_reservation_line(company_id,reservation_id,inventory_id,inventory_version,sku_id,quantity) VALUES($1,$2,$3,$4,$5,$6)',[principal.companyId,id,line.inventoryId,line.inventoryVersion,line.skuId,line.quantity]);}
+ const row={id,version:1};await event(client,principal,row,'CONFIRMED',{warehouseRequestId:warehouseRequest.id,lines:input.lines});return reservationView({id,version:1,state:'confirmed',warehouse_request_id:warehouseRequest.id,authority:'ROUTEFIT_WMS',snapshot});
+}
+
+export async function writeStockReservation(client,principal,kind,id,input,version){
+ ensure(uuid.test(id),404,'NOT_FOUND','资源不存在');const reservation=(await client.query('SELECT * FROM warehouse.stock_reservation WHERE company_id=$1 AND id=$2 FOR UPDATE',[principal.companyId,id])).rows[0];ensure(reservation,404,'NOT_FOUND','资源不存在');ensure(Number(reservation.version)===version,412,'VERSION_CONFLICT','库存预留已变化');ensure(reservation.state==='confirmed',409,'RESERVATION_NOT_ACTIONABLE','仅已确认预留可释放或消耗');ensure(reservation.authority==='ROUTEFIT_WMS',409,'EXTERNAL_WMS_PENDING','外部WMS预留必须等待权威回执');await requestEvidence(client,principal,reservation.warehouse_request_id,input.evidenceFileIds);
+ const lines=(await client.query('SELECT * FROM warehouse.stock_reservation_line WHERE company_id=$1 AND reservation_id=$2 ORDER BY inventory_id',[principal.companyId,id])).rows,stocks=(await client.query('SELECT * FROM warehouse.inventory_snapshot WHERE company_id=$1 AND id=ANY($2::uuid[]) ORDER BY id FOR UPDATE',[principal.companyId,lines.map(line=>line.inventory_id)])).rows;ensure(stocks.length===lines.length,409,'INVENTORY_UNAVAILABLE','库存不存在或已变化');const byId=new Map(stocks.map(row=>[row.id,row]));
+ for(const line of lines){const stock=byId.get(line.inventory_id);ensure(Number(stock.reserved_qty)>=Number(line.quantity)&&(kind==='release'||Number(stock.book_qty)>=Number(line.quantity)),409,'INVENTORY_UNAVAILABLE','库存预留已变化');const sql=kind==='release'?'UPDATE warehouse.inventory_snapshot SET reserved_qty=reserved_qty-$3,version=version+1,updated_at=clock_timestamp() WHERE company_id=$1 AND id=$2':'UPDATE warehouse.inventory_snapshot SET book_qty=book_qty-$3,reserved_qty=reserved_qty-$3,version=version+1,updated_at=clock_timestamp() WHERE company_id=$1 AND id=$2';await client.query(sql,[principal.companyId,line.inventory_id,line.quantity]);}
+ const state=kind==='release'?'released':'consumed',next={...reservation.snapshot,version:Number(reservation.version)+1,state,reason:input.reason.trim(),evidenceFileIds:input.evidenceFileIds};await client.query('UPDATE warehouse.stock_reservation SET state=$3,version=$4,snapshot=$5,updated_at=clock_timestamp() WHERE company_id=$1 AND id=$2',[principal.companyId,id,state,next.version,next]);const row={...reservation,state,version:next.version};await event(client,principal,row,state.toUpperCase(),{reason:input.reason.trim(),evidenceFileIds:input.evidenceFileIds});return reservationView({...row,snapshot:next});
+}

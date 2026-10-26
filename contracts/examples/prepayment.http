@@ -1,0 +1,73 @@
+# 仅本机示例。先用独立浏览器会话或安全工具注入 Cookie/CSRF，勿写入仓库。
+@base = http://127.0.0.1:4180/api/ops/v1
+# quoteId/orderId/receiptId/allocationId/accountId/feeId 均取当前响应。
+# 每个请求用自己的幂等键，重试原样保留；审核更换独立身份。
+
+### 经办：记录客户同意
+POST {{base}}/quotes/{{quoteId}}/actions/record-customer-confirmation
+Content-Type: application/json
+Idempotency-Key: {{confirmationKey}}
+If-Match: "1"
+X-CSRF-Token: {{csrf}}
+
+{"customerContact":"DEMO sender","method":"MESSAGE","reference":"DEMO acceptance","confirmedAt":"{{confirmedAt}}"}
+
+### 可用收款账户
+GET {{base}}/finance/receiving-accounts
+
+### 经办：申报（订单版本取当前 GET）
+POST {{base}}/orders/{{orderId}}/prepayment-receipts
+Content-Type: application/json
+Idempotency-Key: {{receiptKey}}
+If-Match: "{{orderVersion}}"
+X-CSRF-Token: {{csrf}}
+
+{"receivingAccountId":"{{accountId}}","money":{"amountMinor":300,"currency":"USD"},"bankReference":"{{bankReference}}","reference":"DEMO bank evidence","observedAt":"{{observedAt}}"}
+
+### 财务核验
+POST {{base}}/prepayment-receipts/{{receiptId}}/actions/verify
+Content-Type: application/json
+Idempotency-Key: {{verifyKey}}
+If-Match: "1"
+X-CSRF-Token: {{csrf}}
+
+{"approve":true,"reason":"DEMO independent bank check"}
+
+### 经办：部分核销
+POST {{base}}/orders/{{orderId}}/prepayment-allocations
+Content-Type: application/json
+Idempotency-Key: {{allocationKey}}
+If-Match: "{{orderVersion}}"
+X-CSRF-Token: {{csrf}}
+
+{"receiptId":"{{receiptId}}","lines":[{"feeId":"{{feeId}}","amountMinor":100}],"reason":"DEMO allocation"}
+
+### 复核（非经办）
+POST {{base}}/prepayment-allocations/{{allocationId}}/actions/review
+Content-Type: application/json
+Idempotency-Key: {{reviewKey}}
+If-Match: "1"
+X-CSRF-Token: {{csrf}}
+
+{"approve":true,"reason":"DEMO review"}
+
+### 审批（非经办、非复核）
+POST {{base}}/prepayment-allocations/{{allocationId}}/actions/approve
+Content-Type: application/json
+Idempotency-Key: {{approveKey}}
+If-Match: "2"
+X-CSRF-Token: {{csrf}}
+
+{"approve":true,"reason":"DEMO approval"}
+
+### 账务入账，不对外划款
+POST {{base}}/prepayment-allocations/{{allocationId}}/actions/post
+Content-Type: application/json
+Idempotency-Key: {{postKey}}
+If-Match: "3"
+X-CSRF-Token: {{csrf}}
+
+{"reason":"DEMO posting"}
+
+### 准入只读检查，不等于派单
+GET {{base}}/orders/{{orderId}}/payment-admission

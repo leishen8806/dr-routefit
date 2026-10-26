@@ -1,0 +1,33 @@
+### Private request-tool variables: baseUrl=http://127.0.0.1:4180, sessionToken, csrfToken.
+### Never save credentials here. Obtain authorized customerId before replacing order-draft.json's placeholder.
+GET {{baseUrl}}/api/ops/v1/customers
+Cookie: rf_session={{sessionToken}}
+
+### Set createKey once per new action; reuse the original key and body for an unknown-result retry.
+POST {{baseUrl}}/api/ops/v1/orders
+Cookie: rf_session={{sessionToken}}
+Origin: {{baseUrl}}
+X-CSRF-Token: {{csrfToken}}
+Idempotency-Key: {{createKey}}
+Content-Type: application/json
+
+< ./order-draft.json
+
+### Use returned order.id. Response order.version is the ETag version.
+GET {{baseUrl}}/api/ops/v1/orders/{{orderId}}
+Cookie: rf_session={{sessionToken}}
+
+### Full OrderDraft replacement, NOT a partial JSON patch. editKey belongs to this edit only.
+PATCH {{baseUrl}}/api/ops/v1/orders/{{orderId}}
+Cookie: rf_session={{sessionToken}}
+Origin: {{baseUrl}}
+X-CSRF-Token: {{csrfToken}}
+Idempotency-Key: {{editKey}}
+If-Match: "{{orderVersion}}"
+Content-Type: application/json
+
+< ./order-draft.json
+
+### Refresh list; pass returned nextCursor unchanged when requesting another page.
+GET {{baseUrl}}/api/ops/v1/orders?limit=20&state=draft
+Cookie: rf_session={{sessionToken}}

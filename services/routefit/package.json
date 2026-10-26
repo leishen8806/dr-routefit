@@ -1,0 +1,30 @@
+{
+  "name": "@routefit/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "start": "node main.mjs",
+    "start:dev": "node --env-file=.local/dev.env main.mjs",
+    "dev:bootstrap": "node db/dev-bootstrap.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "smoke:orders": "node scripts/orders-smoke.mjs",
+    "smoke:policy": "node --env-file=.local/dev.env scripts/policy-smoke.mjs",
+    "session:link": "node --env-file=.local/dev.env scripts/browser-session.mjs",
+    "migrate": "node db/migrate.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:integration": "node --test tests/*.integration.mjs",
+    "smoke:intake": "node scripts/intake-smoke.mjs",
+    "smoke:quotes": "node --env-file=.local/dev.env scripts/policy-smoke.mjs --quotes",
+    "smoke:prepayment": "node --env-file=.local/dev.env scripts/policy-smoke.mjs --prepayment",
+    "smoke:reversals": "node --env-file=.local/dev.env scripts/policy-smoke.mjs --reversal"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "pg": "8.23.1"
+  }
+}

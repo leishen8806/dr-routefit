@@ -1,0 +1,46 @@
+# Synthetic request template. Set private session/CSRF variables in your HTTP tool; never commit credentials.
+# tariffId/tariffVersion come from the existing pricing API; only fixed base/flash/insurance are supported here.
+@origin = http://127.0.0.1:4180
+@tariffId = REPLACE_WITH_CREATED_TARIFF_ID
+@tariffVersion = 3
+@policyId = REPLACE_WITH_POLICY_RESPONSE_ID
+@validFrom = REPLACE_WITH_RFC3339_START
+@validUntil = REPLACE_WITH_FUTURE_RFC3339_END
+
+### Submit as preparer; keep this key for an exact retry, change it for a new intent.
+POST {{origin}}/api/ops/v1/pricing/tariffs/{{tariffId}}/policy-versions
+Cookie: rf_session={{preparerSession}}
+Origin: {{origin}}
+X-CSRF-Token: {{preparerCsrf}}
+Idempotency-Key: REPLACE_WITH_SUBMIT_OPERATION_KEY
+If-Match: "{{tariffVersion}}"
+Content-Type: application/json
+
+{"validFrom":"{{validFrom}}","validUntil":"{{validUntil}}","quoteValiditySeconds":600,"serviceLevels":["S2"],"reason":"DEMO fixed-price scope only"}
+
+### Review with a different principal, not a tariff contributor.
+POST {{origin}}/api/ops/v1/pricing/policy-versions/{{policyId}}/actions/review
+Cookie: rf_session={{reviewerSession}}
+Origin: {{origin}}
+X-CSRF-Token: {{reviewerCsrf}}
+Idempotency-Key: REPLACE_WITH_REVIEW_OPERATION_KEY
+If-Match: "1"
+Content-Type: application/json
+
+{"reason":"DEMO independently checked frozen amounts, insurance exclusion and validity"}
+
+### Approve with a third principal.
+POST {{origin}}/api/ops/v1/pricing/policy-versions/{{policyId}}/actions/publish
+Cookie: rf_session={{approverSession}}
+Origin: {{origin}}
+X-CSRF-Token: {{approverCsrf}}
+Idempotency-Key: REPLACE_WITH_PUBLISH_OPERATION_KEY
+If-Match: "2"
+Content-Type: application/json
+
+{"reason":"DEMO approve the reviewed immutable version"}
+
+### Read current state; published is not equivalent to a valid order quote or payment.
+GET {{origin}}/api/ops/v1/pricing/policy-versions/{{policyId}}
+Cookie: rf_session={{preparerSession}}
+Origin: {{origin}}

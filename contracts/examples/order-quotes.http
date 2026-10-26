@@ -1,0 +1,20 @@
+@origin = http://127.0.0.1:4180
+@orderId = REPLACE_WITH_AUTHORIZED_ORDER_UUID
+@policyId = REPLACE_WITH_PUBLISHED_POLICY_UUID
+@quoteId = REPLACE_WITH_RESPONSE_QUOTE_UUID
+@orderVersion = 2
+@csrf = REPLACE_LOCALLY_ONLY
+@key = REPLACE_WITH_16_TO_128_CHARACTER_KEY
+
+### Activate same-origin development session first. The body cannot contain a price.
+POST {{origin}}/api/ops/v1/orders/{{orderId}}/quotes
+Content-Type: application/json
+X-CSRF-Token: {{csrf}}
+Idempotency-Key: {{key}}
+If-Match: "{{orderVersion}}"
+
+{"pricingPolicyVersionId":"{{policyId}}","insuranceRequested":true}
+
+### Use response orderVersion for the next ORDER action, not Quote ETag.
+### Replays return the original response; read this projection before showing validity.
+GET {{origin}}/api/ops/v1/quotes/{{quoteId}}

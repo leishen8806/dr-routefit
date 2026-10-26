@@ -1,0 +1,14 @@
+export const prepaymentRoutes=[
+ {method:'POST',pattern:/^\/api\/ops\/v1\/prepayment-allocations\/([^/]+)\/reversals$/,operation:'createAllocationReversal',kind:'reversal-create',schema:'AllocationReversal',input:'AllocationReversalInput',permission:'prepayment:correct',version:true},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/allocation-reversals\/([^/]+)$/,operation:'getAllocationReversal',kind:'reversal',schema:'AllocationReversal',permission:'prepayment:read'},
+ ...['review','approve','post'].map(action=>({method:'POST',pattern:new RegExp('^/api/ops/v1/allocation-reversals/([^/]+)/actions/'+action+'$'),operation:action+'AllocationReversal',kind:'reversal-'+action,schema:'AllocationReversal',input:action==='post'?'IntakeReason':'PrepaymentDecision',permission:'prepayment:'+action,version:true})),
+ {method:'POST',pattern:/^\/api\/ops\/v1\/quotes\/([^/]+)\/actions\/record-customer-confirmation$/,operation:'confirmQuote',kind:'confirm',schema:'Quote',input:'ManualQuoteConfirmation',permission:'quotes:confirm',version:true},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/finance\/receiving-accounts$/,operation:'prepaymentAccounts',kind:'accounts',schema:'PrepaymentAccounts',permission:'prepayment:read'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/orders\/([^/]+)\/prepayment-receipts$/,operation:'reportPrepaymentReceipt',kind:'receipt-create',schema:'PrepaymentReceipt',input:'PrepaymentReceiptInput',permission:'prepayment:write',version:true},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/prepayment-receipts\/([^/]+)$/,operation:'getPrepaymentReceipt',kind:'receipt',schema:'PrepaymentReceipt',permission:'prepayment:read'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/prepayment-receipts\/([^/]+)\/actions\/verify$/,operation:'verifyPrepaymentReceipt',kind:'receipt-verify',schema:'PrepaymentReceipt',input:'PrepaymentDecision',permission:'prepayment:verify',version:true},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/orders\/([^/]+)\/prepayment-allocations$/,operation:'createPrepaymentAllocation',kind:'allocation-create',schema:'PrepaymentAllocation',input:'PrepaymentAllocationInput',permission:'prepayment:write',version:true},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/prepayment-allocations\/([^/]+)$/,operation:'getPrepaymentAllocation',kind:'allocation',schema:'PrepaymentAllocation',permission:'prepayment:read'},
+ ...['review','approve','post'].map(action=>({method:'POST',pattern:new RegExp('^/api/ops/v1/prepayment-allocations/([^/]+)/actions/'+action+'$'),operation:action+'PrepaymentAllocation',kind:'allocation-'+action,schema:'PrepaymentAllocation',input:action==='post'?'IntakeReason':'PrepaymentDecision',permission:'prepayment:'+action,version:true})),
+ {method:'GET',pattern:/^\/api\/ops\/v1\/orders\/([^/]+)\/payment-admission$/,operation:'orderPaymentAdmission',kind:'admission',schema:'PaymentAdmission',permission:'prepayment:read'}
+];
