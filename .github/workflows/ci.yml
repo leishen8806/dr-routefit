@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# NOT_RUN: prototype/browser-*.js require an interactive Playwright MCP session.
+# NOT_RUN: real-device GPS/offline behavior, real maps/banks/KESS need separate approval and evidence.
+# RF-PM-001 / RF-PM-007: migration SQL issues located in 051, 057 and 061.
+# Keep failures visible; do not skip tests or mark continue-on-error.
+# Seven integration files run concurrently; each applies 63 migrations in one transaction.
+# Human local observation: PostgreSQL max_connections=40 caused all seven to fail
+# with "out of shared memory" (53200); max_connections=100 initialized normally.
+# postgres:16 defaults to 100. This observation has not been verified on Actions.
+# If CI hits 53200, consider --test-concurrency=1 (not silently enabled here).
+jobs:
+  prototype:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Prototype tests (TAP)
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          node --test --test-reporter=tap prototype/*.test.mjs 2>&1 | tee test-results/prototype.tap
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: prototype-tap
+          path: test-results/*.tap
+          if-no-files-found: error
+
+  service-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: services/routefit
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: services/routefit/package-lock.json
+      - run: npm ci
+      - name: Service unit tests (TAP)
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          NODE_OPTIONS=--test-reporter=tap npm test 2>&1 | tee test-results/service-unit.tap
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: service-unit-tap
+          path: services/routefit/test-results/*.tap
+          if-no-files-found: error
+
+  service-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: services/routefit
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: routefit_ci
+          POSTGRES_PASSWORD: routefit_ci_disposable
+          POSTGRES_DB: routefit_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U routefit_ci -d routefit_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      ROUTEFIT_TEST_DATABASE_URL: postgresql://routefit_ci:routefit_ci_disposable@127.0.0.1:5432/routefit_ci
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: services/routefit/package-lock.json
+      - run: npm ci
+      # Every integration test calls localFixture(), which creates its own random
+      # synthetic database, applies all migrations, uses an RLS runtime role and cleans up.
+      # No separate migration against the administrative template database is needed.
+      - name: Migrate fixtures and run service integration tests (TAP)
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          NODE_OPTIONS=--test-reporter=tap npm run test:integration 2>&1 | tee test-results/service-integration.tap
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: service-integration-tap
+          path: services/routefit/test-results/*.tap
+          if-no-files-found: error
