@@ -10,8 +10,13 @@ permissions:
 
 # NOT_RUN: prototype/browser-*.js require an interactive Playwright MCP session.
 # NOT_RUN: real-device GPS/offline behavior, real maps/banks/KESS need separate approval and evidence.
-# RF-PM-001: integration currently fails in migration 051 (customer_scope SQL syntax).
-# Keep this failure visible; do not skip tests or mark continue-on-error.
+# RF-PM-001 / RF-PM-007: migration SQL issues located in 051, 057 and 061.
+# Keep failures visible; do not skip tests or mark continue-on-error.
+# Seven integration files run concurrently; each applies 63 migrations in one transaction.
+# Human local observation: PostgreSQL max_connections=40 caused all seven to fail
+# with "out of shared memory" (53200); max_connections=100 initialized normally.
+# postgres:16 defaults to 100. This observation has not been verified on Actions.
+# If CI hits 53200, consider --test-concurrency=1 (not silently enabled here).
 jobs:
   prototype:
     runs-on: ubuntu-latest
