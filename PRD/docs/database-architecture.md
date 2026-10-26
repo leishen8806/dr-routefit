@@ -295,7 +295,7 @@ erDiagram
 
 | 表 | 关键列 |
 | --- | --- |
-| `vehicle` | `ownership`（`OWN_FLEET`／`PARTNER_VEHICLE`）、`carrier_partner_id`（合作车必填）、车牌、`status`、`current_spec_version_id` |
+| `vehicle` | `ownership`（`OWN_FLEET`／`PARTNER_VEHICLE`）、车牌、`status`、`current_spec_version_id`；自营车关联已核验司机与责任人，社会车辆关联合作方档案与指定联系人 |
 | `vehicle_spec_version` | 只追加；车厢内长宽高、门洞宽高、有效载重、轮拱与固定空间、测量人与时间 |
 | `driver` | `carrier_partner_id`（合作司机）、`principal_id`、允许车型、`status` |
 | `driver_qualification` | 资格类型、有效期、核验状态与核验人；证件文件放受控存储，不进公开仓库 |
@@ -538,7 +538,7 @@ GeoCore G1 不保存订单、承诺或运单状态（[系统边界](system-bound
 | 件级履约/退回 | 已交付/持货/退回差异、检验及处置记录 | 每件唯一当前保管；已确认交接只追加；部分件转移不覆盖整单；差异显式保留 |
 | 费用 | fee_decision、charge_adjustment | 引用原费用/策略/批准版本；配送、COD、保险分项和受益方，不删除原报价与收款 |
 | 退款 | refund、refund_attempt、来源核销/预留 | 源已核验收款的成功退款+未终结退款预留不得超额；并发锁定同一来源余额，不用跨行 CHECK 假装可保证 |
-| 司机收入/提现 | earning_entry、balance_hold、withdrawal、payment_attempt | 唯一业务来源+调整版本，按司机和币种的余额投影；申请和冻结同事务；unknown 不释放 |
+| 司机收入/提现 | earning_entry、balance_hold、withdrawal、payment_attempt、withdrawal_policy_version | 唯一业务来源+调整版本，按司机和币种的余额投影；申请和冻结同事务；unknown 不释放；规则版本保存 7／14／30 天、余额门槛、`AND`／`OR`、生效时刻和币种 |
 | 事故 | 接驳子任务与件级分配/交接引用 | 父单客户收费不重复生成；同件有效分配互斥，实际交接才变保管 |
 | 库存 | 预留/实物移动/检验处置记录 | 每仓配置唯一权威；预留是可用性的占用，不额外扣实物总量；每来源动作唯一 |
 | 集成 | external_order_link、投递 outbox、消费 inbox | 企业+来源+外部订单号唯一；事件 ID 去重，修订保留版本；业务提交与 outbox 同事务 |
