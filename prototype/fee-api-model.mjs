@@ -8,6 +8,15 @@ export function decimal(value,digits,max=MAX){
 export function display(value,digits){
  const text=String(value);if(!digits)return text;return text.padStart(digits+1,'0').slice(0,-digits)+'.'+text.padStart(digits+1,'0').slice(-digits);
 }
+export function formatTrialInput(line,currency){
+ const input=line?.input||{};
+ const rule=line?.rule||{};
+ if(rule.method==='unit'&&input.quantityMilli!==null&&input.quantityMilli!==undefined)
+  return `${display(input.quantityMilli,3)} ${rule.unit||''}`.trim();
+ if(rule.method==='percent'&&input.basisMinor!==null&&input.basisMinor!==undefined)
+  return `${display(input.basisMinor,currency==='USD'?2:0)} ${currency} ${rule.basis==='goods'?'货值':'COD本金'}`;
+ return '—';
+}
 function input(name,work){try{return work();}catch(e){throw Object.assign(e,{status:422,code:'VALIDATION_FAILED',fields:[{path:'/'+name,code:'INVALID_VALUE',message:e.message}]});}}
 export function feeDTO(form,item,owner,currency){
  if(!item||form.code!==item.code)throw Error('请选择目录费目');
