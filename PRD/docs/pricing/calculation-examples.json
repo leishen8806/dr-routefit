@@ -1,0 +1,30 @@
+{
+  "status": "SYNTHETIC_NOT_FOR_PRODUCTION",
+  "note": "仅验证文档公式；全部单价、体积系数、分成和免费额度是假设，不是市场价或已批准费率。未建模的税费不代表免税。",
+  "distance": [
+    {"id":"DIST-INCLUDED","currency":"USD","baseMinor":500,"meters":5000,"includedMeters":5000,"mode":"ACTUAL_METERS","rateMinorPerKm":100,"expectedExtraMinor":0,"expectedTotalMinor":500},
+    {"id":"DIST-3400M","currency":"USD","baseMinor":500,"meters":8400,"includedMeters":5000,"mode":"ACTUAL_METERS","rateMinorPerKm":100,"expectedExtraMinor":340,"expectedTotalMinor":840},
+    {"id":"DIST-CEIL-1M","currency":"USD","baseMinor":500,"meters":5001,"includedMeters":5000,"mode":"CEIL_UNIT","unitMeters":1000,"rateMinorPerUnit":100,"expectedExtraMinor":100,"expectedTotalMinor":600},
+    {"id":"DIST-HALF-CENT","currency":"USD","baseMinor":500,"meters":5005,"includedMeters":5000,"mode":"ACTUAL_METERS","rateMinorPerKm":100,"expectedExtraMinor":1,"expectedTotalMinor":501},
+    {"id":"DIST-KHR","currency":"KHR","baseMinor":2000,"meters":6010,"includedMeters":5000,"mode":"ACTUAL_METERS","rateMinorPerKm":150,"expectedExtraMinor":152,"expectedTotalMinor":2152}
+  ],
+  "parcel": [
+    {"id":"PARCEL-VOLUME","divisor":"6000","stepKg":"0.5","aggregation":"PER_PIECE","pieces":[{"lengthCm":"60","widthCm":"40","heightCm":"40","weightKg":"10","quantity":1}],"firstKg":"1","firstMinor":300,"additionalKg":"1","additionalMinor":80,"expectedBillableKg":"16","expectedTotalMinor":1500},
+    {"id":"PARCEL-EACH-ROUND","divisor":"6000","stepKg":"1","aggregation":"PER_PIECE","pieces":[{"lengthCm":"10","widthCm":"10","heightCm":"10","weightKg":"2.1","quantity":2}],"firstKg":"1","firstMinor":300,"additionalKg":"1","additionalMinor":100,"expectedBillableKg":"6","expectedTotalMinor":800},
+    {"id":"PARCEL-SHIPMENT-ROUND","divisor":"6000","stepKg":"1","aggregation":"PER_SHIPMENT","pieces":[{"lengthCm":"10","widthCm":"10","heightCm":"10","weightKg":"2.1","quantity":2}],"firstKg":"1","firstMinor":300,"additionalKg":"1","additionalMinor":100,"expectedBillableKg":"5","expectedTotalMinor":700},
+    {"id":"PARCEL-SUM-MAX","divisor":"6000","stepKg":"1","aggregation":"PER_SHIPMENT","pieces":[{"lengthCm":"10","widthCm":"10","heightCm":"10","weightKg":"10","quantity":1},{"lengthCm":"60","widthCm":"40","heightCm":"40","weightKg":"1","quantity":1}],"firstKg":"1","firstMinor":300,"additionalKg":"1","additionalMinor":100,"expectedBillableKg":"26","expectedTotalMinor":2800},
+    {"id":"PARCEL-TOTAL-MAX","divisor":"6000","stepKg":"1","aggregation":"TOTAL_MAX","pieces":[{"lengthCm":"10","widthCm":"10","heightCm":"10","weightKg":"10","quantity":1},{"lengthCm":"60","widthCm":"40","heightCm":"40","weightKg":"1","quantity":1}],"firstKg":"1","firstMinor":300,"additionalKg":"1","additionalMinor":100,"expectedBillableKg":"17","expectedTotalMinor":1900}
+  ],
+  "bands": {"id":"DIST-MARGINAL","baseMinor":500,"extraMeters":4500,"bands":[{"fromMeters":0,"toMeters":3000,"rateMinorPerKm":100},{"fromMeters":3000,"toMeters":10000,"rateMinorPerKm":80}],"expectedExtraMinor":420,"expectedTotalMinor":920},
+  "waiting": {"id":"WAIT-2-UNITS","verifiedSeconds":1600,"freeSeconds":600,"unitSeconds":600,"unitMinor":100,"expectedMinor":200},
+  "split": {"id":"SPLIT-INSURANCE-COD","currency":"USD","transportMinor":1040,"transportDiscountMinor":100,"driverHandlingMinor":300,"driverReimbursementMinor":100,"insuranceMinor":200,"codPrincipalMinor":20000,"platformBps":2000,"expectedCustomerServiceMinor":1540,"expectedBasisMinor":940,"expectedPlatformMinor":188,"expectedDriverMinor":1152},
+  "promotion": {"id":"PLATFORM-FUNDED","agreedSplitBasisMinor":1000,"platformBps":2000,"platformFundedDiscountMinor":100,"expectedCustomerMinor":900,"expectedDriverMinor":800,"expectedPlatformAfterDiscountMinor":100},
+  "splitRounding": {"id":"SPLIT-REMAINDER","basisMinor":1001,"platformBps":3333,"expectedPlatformMinor":334,"expectedDriverMinor":667},
+  "adjustments": [
+    {"id":"REPRICE-UP","oldQuoteMinor":1200,"newApprovedQuoteMinor":1450,"netAllocatedMinor":1200,"expectedAdditionalDueMinor":250,"expectedRefundReviewMinor":0},
+    {"id":"REPRICE-DOWN","oldQuoteMinor":1200,"newApprovedQuoteMinor":1000,"netAllocatedMinor":1200,"expectedAdditionalDueMinor":0,"expectedRefundReviewMinor":200},
+    {"id":"REPRICE-PARTIAL","oldQuoteMinor":1000,"newApprovedQuoteMinor":800,"netAllocatedMinor":400,"expectedAdditionalDueMinor":400,"expectedRefundReviewMinor":0}
+  ],
+  "storage": {"id":"WMS-VOLUME-DAYS","volumeM3":"1.5","days":5,"freeDays":2,"rateMinorPerM3Day":40,"expectedMinor":180},
+  "taxIllustration": {"id":"SYNTHETIC-TAX","netMinor":1000,"syntheticRateBps":700,"expectedTaxMinor":70,"expectedGrossMinor":1070,"note":"纯算术示例，不代表柬埔寨适用税率或本项目已确定税务口径"}
+}

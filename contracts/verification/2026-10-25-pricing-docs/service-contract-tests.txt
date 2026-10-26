@@ -1,0 +1,16 @@
+✔ catalog parity and exact local operation mapping (24.672ms)
+✔ contract fixtures validate with the actual HTTP validator (45.2876ms)
+✔ fixed + rounded unit + insurance, with a separate distribution base (0.5258ms)
+✔ percentage HALF_UP, KHR integer currency and no COD principal in fees (0.1102ms)
+✔ cross-field restrictions block invalid units, shares and missing basis (0.2415ms)
+✔ overflow, duplicate fees, disabled and unknown fees fail closed (0.2416ms)
+✔ fingerprint normalizes object keys but preserves order, values and version (0.3822ms)
+✔ development auth requires valid identity, exact Origin and CSRF (1.0882ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 189.5717

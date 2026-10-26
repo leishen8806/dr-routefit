@@ -1,0 +1,33 @@
+{
+  "checks": [
+    "unauthenticated page blocks create",
+    "loading state is observable",
+    "injected empty list has a create path",
+    "validation focuses first invalid field",
+    "create committed with two cargo lines",
+    "reload reads persistent cargo",
+    "Cambodia time round trip",
+    "Escape keeps unsaved edits",
+    "second writer commits",
+    "412 retains local input",
+    "conflict exposes latest source",
+    "explicit discard loads version 2",
+    "edit commits version 3",
+    "unchanged time preserves source seconds",
+    "lost response freezes inputs",
+    "retry reuses committed order",
+    "retry has identical key and payload",
+    "expired session keeps form",
+    "same identity reauthentication completes original write",
+    "offline list is not an empty success",
+    "real cursor advances page",
+    "previous cursor restores page",
+    "mobile body has no horizontal overflow",
+    "identity switch clears previous form",
+    "other company cannot see previous order",
+    "no browser JavaScript errors"
+  ],
+  "errors": [],
+  "ordersCreated": 3,
+  "orderId": "236254ec-2d4d-4172-a420-dbb4316bbb6b"
+}

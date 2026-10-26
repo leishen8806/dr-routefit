@@ -1,0 +1,75 @@
+{
+  "baselineSnapshot": "6bcb1788bcfe76f6",
+  "files": [
+    {
+      "path": "prototype/app.mjs",
+      "unchanged": true,
+      "sha256": "6db8c585578e64639ba0c000945548b7fcd5a537194e48a51fdc70ab8a445a50"
+    },
+    {
+      "path": "prototype/app.css",
+      "unchanged": true,
+      "sha256": "f319627aae35702885b5d8e9a60cec6f27041c3972a5df313acc2c3bd087cb8e"
+    },
+    {
+      "path": "prototype/fee-settings-ui.mjs",
+      "unchanged": true,
+      "sha256": "5d96245d5e6979d0b39ba7892ef847576dc2a9f7f4e11cd6987b166aef3c11a2"
+    },
+    {
+      "path": "prototype/fee-settings.mjs",
+      "unchanged": true,
+      "sha256": "beb58605a13a86dcd900d4eed1b73b493a829956cdfd2dffbedcd830f1709fd2"
+    },
+    {
+      "path": "prototype/orders.mjs",
+      "unchanged": true,
+      "sha256": "4b3961339ada83b6fe70c28f42a030a1685ba5833d6f216f3b1ac2675a89c29c"
+    },
+    {
+      "path": "prototype/orders.html",
+      "unchanged": true,
+      "sha256": "73ed479337a650b32636f608159b507289646217d9b3a9b3881028733f727778"
+    },
+    {
+      "path": "PRD/docs/PRD-V1.4-review.md",
+      "unchanged": true,
+      "sha256": "83e704a2e470fa1637513d797d9348c23b7c27ac544ca101f8beee09391922de"
+    },
+    {
+      "path": "PRD/docs/phase1-acceptance-map.md",
+      "unchanged": true,
+      "sha256": "1dd21c5d6dbc96781087519148c90dc092729bbe75c6ceef3ef859e9b1bebb49"
+    },
+    {
+      "path": "services/routefit/db/migrations/001_pricing_drafts.sql",
+      "unchanged": true,
+      "sha256": "29da2f98ae0751df30bdf9c0196eee18255a5fbf5801e0dbb0521b4c555adb19"
+    },
+    {
+      "path": "services/routefit/db/migrations/002_order_drafts.sql",
+      "unchanged": true,
+      "sha256": "127abb64091516e790dd1414baa5b06cc6d4b2f958174e0ccbcdacb040ff3432"
+    },
+    {
+      "path": "services/routefit/db/migrations/003_pricing_policy_versions.sql",
+      "unchanged": true,
+      "sha256": "e44980c2d683171643d751e61c7de051304d04303a9b768e5845ac5e5cc24544"
+    },
+    {
+      "path": "services/routefit/db/migrations/004_order_intake.sql",
+      "unchanged": true,
+      "sha256": "d3e0e82ba15e73b3c431043b8453d2f9f2961fd26f3ac6e6e73a4487645cff0e"
+    },
+    {
+      "path": "services/routefit/db/migrations/005_order_quotes.sql",
+      "unchanged": true,
+      "sha256": "3d07355c4be6898a5a9f91222d8b8f2db183f21cf36e6e579546995742fa7182"
+    },
+    {
+      "path": "services/routefit/db/migrations/006_prepayment.sql",
+      "unchanged": true,
+      "sha256": "fc71254c8fe82338e329d47ca1f8ce93ed2c33fe1674b69bbfe907379e17ea20"
+    }
+  ]
+}

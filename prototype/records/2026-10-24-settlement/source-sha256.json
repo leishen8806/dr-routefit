@@ -1,0 +1,12 @@
+{
+  "prototype/settlement-model.mjs": "e4fb8c500924c2ccaf014e9f92918dabf5761dddca11afb6cfe20767208bab93",
+  "prototype/settlement-ui.mjs": "f9755e2e2cafcb99e820333994444c5d9e189a9600016348951db173f0c1ab2a",
+  "prototype/settlement-model.test.mjs": "646ade351f83367cc132b1bf6e72b26d1b649b52a69150ead7b9cbf9b8932a74",
+  "prototype/browser-settlement.js": "247c74a50014eeb48feec9a09b7d515cfa7111448c3c0d7bd2eb8c99f390b618",
+  "prototype/app.mjs": "303c3f4ef9c11a0e05be879006d2a9ba948efe4a84decabccb15869620de8ea9",
+  "prototype/app.css": "f319627aae35702885b5d8e9a60cec6f27041c3972a5df313acc2c3bd087cb8e",
+  "prototype/model.mjs": "a2b0b2f8163422e70c052065df141df491a6c9b2e97309734dccfc9c12e378d4",
+  "prototype/access-control.mjs": "eb6af5c9e3685c68e5ff168e2e7843c6d731ae3c91c98ee1dd7b35bee1a6d3ca",
+  "prototype/experience.mjs": "2ebb37409ebd397424d2fd6277fe87c80d7e645930f4cf59d4da380624d9fd0b",
+  "prototype/SETTLEMENT-CONTRACT.md": "f86eac66fc8a1f63ab37acc52c35f53833c3611ad8b6db1798060c4b7d566136"
+}

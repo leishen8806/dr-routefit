@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {stateAxes,stateName,customerOrders,imageError} from './experience.mjs';
+test('签收和异常结案不隐含财务结清，未知状态不冒充成功',()=>{const o={status:'delivered',collection:'reported',remittance:'open',payment:'cash'};const copy=structuredClone(o);assert.deepEqual(stateAxes(o).map(x=>x[1]),['已签收','待核实','已申报 · 待核验','待交款']);assert.equal(stateName('closed_exception'),'异常已结案');assert.equal(stateName('unexpected'),'状态待核实');assert.equal(stateAxes({...o,payment:'transfer'})[3][1],'不适用 · 转账');assert.deepEqual(o,copy);});
+test('用户列表不暴露其他用户或仓库订单',()=>{const db={orders:[{id:'a'},{id:'b'},{id:'c'}],externalIntakes:[{orderId:'a',sourceType:'customer',sourceSystem:'DEMO-USER-001'},{orderId:'b',sourceType:'customer',sourceSystem:'OTHER'},{orderId:'c',sourceType:'warehouse',sourceSystem:'DEMO-USER-001'}]};assert.deepEqual(customerOrders(db).map(x=>x.order.id),['a']);});
+test('图片大小数量及类型边界',()=>{const f={size:5*1024*1024,type:'image/png'};assert.equal(imageError(f,5),'');assert.ok(imageError(f,6));assert.ok(imageError({...f,size:0},0));assert.ok(imageError({...f,size:f.size+1},0));assert.ok(imageError({...f,type:'image/svg+xml'},0));});

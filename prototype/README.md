@@ -1,5 +1,11 @@
 # DR RouteFit 配送交互原型 · R1 / R1-M
 
+2026-10-25：打开 `#pricing` → 费用设置，可分项设置DR对客及VET／中通／CE／极兔采购费用；费用试算与配置记录独立页签。详见[需求](../PRD/docs/fee-settings-v0.1.md)及[验证](records/2026-10-25-fee-settings/README.md)。仅会话内演示，不自动改变订单报价。
+
+2026-10-25 产品入口：[Telegram Mini App＋Bot 下单／司机 iOS＋Android](../PRD/docs/telegram-and-driver-app-scope-v0.1.md)。entry.html 及原型导航已同步名称，仍为本地 DEMO 口令的网页预览，不连接 Telegram、不代表已交付安装包。
+
+2026-10-25：KESS 付款与报表页面同步“商户尚未开通、真实付款未开放”，保留完整模拟流程。客户在付款页展开“付款演示说明”，完整步骤见 [用户说明](KESS-USER-GUIDE.md)。只用合成资料，不输入真实支付信息。
+
 v0.1 · 本地高保真功能原型。沿用现有 Logo 与设计标准，使用合成数据，不连接生产系统。独立原型实现不代表 D24 正式技术选型。
 
 ## 启动与打开
@@ -13,6 +19,8 @@ node E:/Dr.RouteFit/prototype/server.mjs
 浏览器打开 [本地原型](http://127.0.0.1:4173/prototype/)。服务仅监听本机；无需安装依赖。使用 HTTP 启动，不直接双击 index.html。端口已运行时直接打开链接，不重复启动。
 
 ## 推荐走查顺序
+
+新增[财务结算与提醒](http://127.0.0.1:4173/prototype/#settlements)：加载结算演示样例 → 按主体设置规则并预览日期 → 确认账单 → 模拟发送／催收 → 部分到账或暂缓 → 结清。合作应付从详情跳原付款核验，返回后待办同步。可推进演示日期测试月结；仅页面打开时检查，没有真实后台定时或对外消息。范围和验证见 [SETTLEMENT-CONTRACT.md](SETTLEMENT-CONTRACT.md) 与[本轮记录](records/2026-10-24-settlement/README.md)。
 
 1. 调度：新建订单并保存草稿；可先尝试空表单验证。填写合成客户、地址、货物、尺寸、重量、件数、时间、USD 运费和现金方式。
 2. 调度：确认报价与人工承诺，填写核验依据并勾选地址、实测、客户确认；选择车辆发送提案。
@@ -81,3 +89,63 @@ browser-flow.js、browser-ui-checks.js 与 browser-r1m.js 是 Playwright MCP 可
 新增模块 platform-model.mjs / platform-ui.mjs 复用现有动作接口与本地状态。52 项模型测试通过；browser-warehouse-platform.js 验证 7 组新流程，原有 R1/R1-M/事故/地图回归保留。详见 [本轮记录](records/2026-10-24-warehouse-platform/README.md)。
 
 这是扩展交互原型，不修改 PRD V1.4、规则/验收编号、四份 v0.1 草案或既有 Logo。生产数据库/API 尚未补充本轮库存、身份、分成和提现契约；原型不含真实银行、GPS、实名认证、商城、采购、库位波次或自动计价。合作费用与事故多车费用仍走独立核对，不重复进入普通司机钱包。
+
+## 配送地址与超距计费
+
+新建/编辑订单选择“基础运费＋超距费用”，展开地址/里程规则，逐单填写包含里程、道路里程、超距单价、取整、最远距离、区域核验、入口、依据与报价有效期。客户确认后总额进入收款、财务与分成。没有默认正式费率或真实地图测距。
+
+[配送细节与缺口清单](DELIVERY-DETAILS.md) 区分本轮落地和待补项，包含上楼搬运、等待、改址加点、取消退款、返程二配、费用项分成、提现失败等；不将这些清单项描述为已完成。
+
+## 司机订单列表
+
+司机底部“同步与消息”已改为“订单列表”：已超时、配送中、已完成、已取消。支持计数、搜索与分页；取消任务保存只读历史，完成任务仍提示账务未结事项。顶部“待同步 · 查看记录”保留离线证据重试。
+
+任务详情新增“上报配送问题”：地址/入口、收货人、车辆、货损、延误、收款。调度从异常待办进入订单，处理上报后司机能查看结果；回复不代替改派、退回、实物交接和财务操作。详见 [司机端优化契约](DRIVER-ORDERS-CONTRACT.md)。
+
+## 外部接入与三语设计（2026-10-24）
+
+- [仓库/用户接入契约](EXTERNAL-INTEGRATION-CONTRACT.md)：复制导入、申请派单、独立 HTTP 联调服务和保险独立记账。
+- [高棉语 / English / 中文交互预览](language-preview.html) · [多语言设计规范 v0.1](MULTILINGUAL-DESIGN.md)。当前是独立三语设计预览，完整业务原型仍待逐页迁移。
+- 4173 浏览器会话和 4174 接口演示数据独立，不自动同步；未连接真实平台。
+
+## 配送区域
+
+运营中心 → 配送区域（`#areas`）：地图画可送/禁送区、草稿与发布、取送地址落点检测及派单阻断。见 [配送区域契约](DELIVERY-AREAS-CONTRACT.md)。当前为示意地图，未接真实街道与地址解析。
+
+## 后台账号与权限
+
+运营中心 → 账号与权限（`#access`）：后台账号、角色、功能权限、仓库/自营车辆范围、停用与模拟会话撤销、授权记录。可模拟登录验证真实原型业务的菜单/数据/动作范围。见 [账号权限契约](ACCESS-CONTROL-CONTRACT.md)。此功能不提供真实认证，浏览器仍持有完整合成数据。
+
+司机任务页主操作已移到菜单栏上方的固定右滑操作区；完整滑动进入既有确认/凭证流程，不跳过业务校验。见 [右滑操作约定](DRIVER-SLIDE-CONTRACT.md)。
+## Web / APP 统一体验
+
+- 规范：[`web-app-experience-standard.md`](../PRD/docs/web-app-experience-standard.md)、[`order-state-catalog.md`](../PRD/docs/order-state-catalog.md)，均为 v0.1 草案。
+- `#customer` 为用户移动 APP 原型，包含寄件、订单、消息、我的；不是已发布原生应用。
+- 本轮增加共享字号、菜单排序、分轴订单状态、操作核对、可关闭 Toast、消息中心与可选声音，以及凭证本地图片预览。
+- 校验：`node --test prototype/experience.test.mjs`；浏览器 `browser-experience.js`，完整记录见 `records/2026-10-24-experience/README.md`。
+
+## 登录与启动预览
+
+打开 `http://127.0.0.1:4173/prototype/entry.html`，选择 Web、司机 APP 或用户 APP，输入演示口令 `DEMO`。页面中的“设计评审”可预览网络失败、超时、启动动画、加载、首页公告和强通知。业务页顶部及原型检查页也有入口。仅本地登录样式与账号范围预览，不是真实认证。
+
+验证与截图：[`records/2026-10-24-entry/README.md`](records/2026-10-24-entry/README.md)。
+
+## 核心闭环展示页
+
+打开 [闭环演示](http://127.0.0.1:4173/prototype/showcase.html)。同仓录单 → 车辆/装载/时窗评估 → 派单 → 司机接单 → 仓库复核与点收 → 两单分别签收 → 财务核验 → 交款结清。提供超载、尺寸、时窗、过期方案和金额不一致反例；五个工作席 TAB、独立会话进度、只读中控及 JSON 记录下载。保险独立记账，不参与配送费分成。
+
+这是固定合成时距与限定摆放格演示，不是通用优化/装箱引擎。事故及退回仍在原有工作台使用其独立数据。契约见 [SHOWCASE-CONTRACT.md](SHOWCASE-CONTRACT.md)，[测试及截图记录](records/2026-10-24-showcase/README.md)。
+
+### 同单异常增补
+
+展示页新增“异常与退回”“功能规划”页签。B 未收款未投保场景可恢复配送或授权全部返仓，仓库准确点收后进入待检，财务登记人工批准的费用减免后再结清 A 现金。正常签收与异常退回分别显示；不是通用退款/保险政策。需求：[闭环增补](../PRD/docs/closed-loop-requirements-v0.1.md)，证据：[本轮记录](records/2026-10-24-closure-update/README.md)。
+
+
+## 跨端财务闭环（2026-10-24）
+
+入口 [finance.html](finance.html)，[设计图](finance-design.html)，[契约](FINANCE-CLOSURE-CONTRACT.md)，[验证记录](records/2026-10-24-finance-closure/README.md)。COD、独立资金事实与核销、三人审核、出款未知、差额及各端报表在新版合成切片实现。旧版提醒/付款逻辑保留供历史样例，已纳入订单禁止旧入口写入。非生产资金、认证、审计或SQL迁移证据。
+
+
+## KESS 接入与再次复核（2026-10-24）
+
+用户与财务收款页增加KESS演示入口；服务端沙箱适配位于 ../integrations/，不进入静态发布。真实商户尚未联调。详见 [KESS 需求](../PRD/docs/kess-payment-integration-v0.1.md) 和 [验证记录](records/2026-10-24-kess-review/README.md)。

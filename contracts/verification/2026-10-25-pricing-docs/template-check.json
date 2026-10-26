@@ -1,0 +1,6 @@
+{
+  "httpTemplateRequests": 9,
+  "operationsCovered": 8,
+  "requestBodiesMatchValidatedExamples": 4,
+  "unchangedServiceFiles": 16
+}

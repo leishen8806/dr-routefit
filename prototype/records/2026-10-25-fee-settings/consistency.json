@@ -1,0 +1,14 @@
+{
+  "paths_saved": 18,
+  "relative_links_checked": 152,
+  "broken_links": [],
+  "formal_files_equal_HEAD": {
+    "PRD/docs/PRD-V1.3-final.md": true,
+    "PRD/docs/PRD-V1.4-review.md": true,
+    "PRD/docs/database/geocore-g1-schema-draft.sql": true,
+    "PRD/docs/database/routefit-schema-draft.sql": true,
+    "PRD/docs/database/verify-constraints.sql": true,
+    "PRD/docs/database/verify-geocore-g1.sql": true
+  },
+  "git_head": "ba9a77ec78cd20a6bf72476e9c3410d7faa9a06e"
+}

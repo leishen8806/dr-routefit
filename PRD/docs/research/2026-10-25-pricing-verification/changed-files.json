@@ -1,0 +1,21 @@
+[
+  "PRD/README.md",
+  "PRD/docs/api-design.md",
+  "PRD/docs/database-architecture.md",
+  "PRD/docs/phase1-pages-and-ux.md",
+  "PRD/docs/core-delivery-implementation-plan-v0.1.md",
+  "PRD/docs/platform-first-execution-baseline.md",
+  "PRD/docs/cross-end-finance-and-reports-v0.1.md",
+  "contracts/implementation-mapping.md",
+  "prototype/DELIVERY-DETAILS.md",
+  "prototype/RECORDS.md",
+  "PRD/CHANGELOG.md",
+  "PRD/docs/delivery-pricing-system-v0.1.md",
+  "PRD/docs/pricing-development-map-v0.1.md",
+  "PRD/docs/research/2026-10-25-delivery-pricing.md",
+  "PRD/docs/research/2026-10-25-pricing-sources.json",
+  "PRD/docs/pricing/calculation-examples.json",
+  "PRD/docs/pricing/ratecard-template.json",
+  "scripts/check-pricing-examples.py",
+  "PRD/docs/research/2026-10-25-pricing-verification/README.md"
+]

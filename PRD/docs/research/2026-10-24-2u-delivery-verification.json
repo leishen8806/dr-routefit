@@ -1,0 +1,28 @@
+{
+  "verifiedAt": "2026-10-24T16:40:22.010326+00:00",
+  "status": "DOCUMENT_REVIEW_ONLY",
+  "localLinksChecked": 26,
+  "schemaStatus": "UNCHANGED; no new contract tests necessary",
+  "businessScenarios": "DRV-01 through DRV-12 NOT_RUN",
+  "remoteHeadChecked": false,
+  "competitorAppTested": false,
+  "formalBaseline": {
+    "PRD/docs/PRD-V1.4-review.md": "unchanged from HEAD",
+    "PRD/docs/PRD-V1.3-final.md": "unchanged from HEAD",
+    "PRD/docs/database/routefit-schema-draft.sql": "unchanged from HEAD",
+    "PRD/docs/database/geocore-g1-schema-draft.sql": "unchanged from HEAD"
+  },
+  "unchangedContractSha256": {
+    "contracts/openapi.json": "7246db579abe553aa091d88735dcbeb9a39fa368e5afc7cdbc5cdecd1cdd7b9c",
+    "contracts/examples/schema-cases.json": "7c168a110a5675e5abe10e7d9353a2821e705f8a54eb39c5cf3910d7bae1953b",
+    "contracts/implementation-guide.md": "cbf6d45e0291084b34103fb4c73fe5d1b65a56c66cd14b208d04138f8f2706c0",
+    "contracts/endpoint-catalog.md": "ac9cc2248d7d53e460455b59f770e8c7fc6402805bb33005c5cfc1c7a5bbf956",
+    "contracts/fields.md": "10334e47c148b1218e7cd320f055c1d5ad201e5569fbda36312eb8f0d03e73e2"
+  },
+  "documentSha256": {
+    "PRD/docs/delivery-agreement-review-v0.1.md": "90cbc3209693708d084fe817893ac128ac9bb3305734843c330476a1f99d1190",
+    "PRD/docs/research/2026-10-24-2u-delivery-review.md": "2921160bfddbba151aa6d174577181e0eff436a2f9a327bba00c377d9c5647dc",
+    "PRD/README.md": "9a6b9f24108ea05080dd897ed3812e33bc6fa7d64e6eb5173e0e0125bf102f5a",
+    "PRD/CHANGELOG.md": "1ce9f098c5b94c16a35c3e250392998b6391f4c45eae132416d7c3c0fba2dc61"
+  }
+}

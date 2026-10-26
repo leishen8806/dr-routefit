@@ -1,0 +1,263 @@
+{
+  "status": "PASS",
+  "results": [
+    {
+      "route": "access",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "areas",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "customer",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "dispatch",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "orders",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "exceptions",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "warehouse",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "finance",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "driver",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "prototype",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "partners",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "bookings",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "payables",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "integrations",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "operations",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "goods",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "inventory",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "vehicles",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "drivers",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "pricing",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "withdrawals",
+      "width": 1440,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "access",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "areas",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "customer",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "dispatch",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "orders",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "exceptions",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "warehouse",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "finance",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "driver",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "prototype",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "partners",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "bookings",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "payables",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "integrations",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "operations",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "goods",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "inventory",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "vehicles",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "drivers",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "pricing",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    },
+    {
+      "route": "withdrawals",
+      "width": 390,
+      "overflow": false,
+      "small": []
+    }
+  ],
+  "checks": [
+    "21 路由 × 1440 / 390 宽度：无全页横向溢出，正文及地图标签至少 12px",
+    "声音默认关闭，试听有反馈，消息已读不改业务数据",
+    "损坏图片拒绝；本地预览、放大、移除、未保存保护；不改业务状态"
+  ],
+  "pageErrors": []
+}
