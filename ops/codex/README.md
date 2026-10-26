@@ -22,10 +22,12 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 
 | 编号 | 标题 | 类型 | 风险 | 依赖 | 状态 |
 | --- | --- | --- | --- | --- | --- |
+| [RF-PM-000](tasks/RF-PM-000-push-claude-branches.md) | 推送 Claude 准备的两个分支并开 PR | chore | 低 | 无 | TODO |
 | [RF-PM-001](tasks/RF-PM-001-baseline-test-report.md) | Node 24 + PostgreSQL 16 全量测试基线报告 | test | 低 | 无 | TODO |
-| [RF-PM-002](tasks/RF-PM-002-customer-form-validation.md) | 应用客户下单表单校验修复 | fix | 低 | 无 | TODO |
+| [RF-PM-002](tasks/RF-PM-002-customer-form-validation.md) | 应用客户下单表单校验修复 | fix | 低 | 000 | TODO |
 | [RF-PM-003](tasks/RF-PM-003-readme-status-sync.md) | README 进度与 main 实际状态对齐 | docs | 低 | 001 | TODO |
 | [RF-PM-004](tasks/RF-PM-004-missing-docs.md) | 补齐 10 份被引用但缺失的 PRD 文档 | docs | 低 | 无 | TODO |
 | [RF-PM-005](tasks/RF-PM-005-ci-pipeline.md) | GitHub Actions 持续集成 | chore | 中 | 001 | TODO |
 
 Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、钱包/分成/提现、Telegram/iOS 端、库存归属），供人类负责人拍板后再派发 PRD V1.5 同步任务。
+

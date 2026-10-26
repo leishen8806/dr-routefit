@@ -17,7 +17,7 @@ Claude 已写好修复：`ops/codex/patches/0001-fix-customer-field-level-valida
 
 ## 要做
 
-1. `git am ops/codex/patches/0001-fix-customer-field-level-validation-and-clearer-feed.patch`，提交信息首行改为 `RF-PM-002: 客户下单表单字段级校验与反馈`。
+1. 若 RF-PM-000 已推送 `fix/customer-request-validation` 并开 PR，直接在该 PR 上完成以下验证，不再重复应用补丁；否则 `git am` 补丁（`claude-bridge/patches/` 或 `ops/codex/patches/`），提交信息首行改为 `RF-PM-002: 客户下单表单字段级校验与反馈`。
 2. 跑 `node --test prototype/*.test.mjs`，应为 65/65。
 3. 浏览器走查：空提交、只填取件地址、只填两地址、电话 `abc`、电话 `1`、过去时间、取送同址，逐项确认报错文案、焦点字段、`aria-invalid`；再走一遍成功提交，确认落在“订单”页且提示正确。
 4. 切到 财务 / 运营 / 司机 / 仓库 角色，确认“订单账款与报表”入口仍在（只对客户隐藏）。
