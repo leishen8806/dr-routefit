@@ -1,4 +1,6 @@
-# RF-PM-008 · 诊断交付（修复与既有PR#11重叠，尚未重复实现）
+> 最终状态更新：诊断期间他方PR#11已经合并到main `bf9cd4a4c6e0f6f72be9e3cb1e34670804b3355f`。本分支已merge该main并独立复验：服务101/101、集成66/66、原型187/187全部通过，fail0/skip0。下面保留48a7f61上的失败诊断过程，其中“等待PR#11/未复验”为当时状态，已被本段及末尾最终复验替代。
+
+# RF-PM-008 · 根因诊断与独立复验
 
 基线main `48a7f61a456da2840cfb5e90fae39498f1c23e41`，2026-10-26 Asia/Phnom_Penh，Node24.22.1、PG16.15一次性本机合成库。
 
@@ -21,3 +23,13 @@
 - 修复RLS后可能露出delivery的只读事务FOR UPDATE、完成指派后丢失司机RLS可见性等后续问题，PR#11已有相应改动，需要独立复验，不提前声称已解决。
 - 最新main CI run40275720748 attempt2中另有并发建全局role的`pg_authid_rolname_index`重复键错误，两文件初始化失败；该次55tests/50pass/5fail，与本机66/61/5不同，不混用。属于并发初始化，另卡处理，禁止静默串行掩盖。
 - NOT_RUN：共享/生产库迁移、真实身份/地图/银行/KESS、后端修复和修复后CI（等待重叠工作协调）。没有合并或部署。
+
+## 最终复验与修复归属
+
+PR#11已由他方合并，无需本卡重复实现。本分支只新增本诊断报告，相对main没有业务/测试/README/迁移更改；既有051变更来自main的PR#11，不能作为本卡获得修改旧迁移或上线授权。后端改动与测试改动均沿用该已合并PR，未重写其提交。
+
+已复验Node24.22.1、PG16.15 max_connections100，一次性合成库：npm ci PASS；服务101/101，333.0875ms；集成66/66，9621.989583ms；原型187/187，317.958209ms。日志final-*.log。最新main已由PR#11明确将test:integration改为--test-concurrency=1，避免全局role并发创建竞态；本卡未另改并发。司机可读offered/accepted、可写accepted，测试保留offered禁止更新反例；delivery去除只读读取的锁并在指派完成前更新订单，重放仍拒绝。
+
+仍NOT_RUN：共享/生产迁移、真实身份/设备/地图/银行/KESS；旧库checksum影响按PR#10/#11由库owner处理，本轮未访问。PR#12仅报告复验，不宣称本卡重复交付修复。
+
+最新main远端CI：[run40276431264](https://github.com/leishen8806/dr-routefit/actions/runs/40276431264)，head bf9cd4a4c6e0f6f72be9e3cb1e34670804b3355f，prototype/service-unit/service-integration三个job均SUCCESS；187/187、101/101、66/66。原始日志已保存本机RF-PM-008-evidence/final-ci.log。
