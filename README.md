@@ -23,6 +23,8 @@ DR RouteFit is a warehouse and delivery operations project. This repository cont
 | PostgreSQL16历史验证 | RF-PM-001、基线`2ac993e`：集成7个顶层测试初始化失败；bootstrap及7个smoke失败。不是最新main全量数据库验收 |
 | 尚未验证或交付 | 正式服务全量API闭环、生产身份、真实银行/KESS、真实地图、外部承运商接入、司机移动安装包、Telegram交付与生产部署。财务、调度、仓库已有本地源码，不再笼统列为完全未开发 |
 
+链接复核（RF-PM-003-R1，main `99299bc`）：RF-PM-004/006已分别随PR #4/#9合并；扫描3499处本地引用，当前文档和源码缺失0处，855处缺失均位于历史records/before/verification快照，逐项清单保存在本轮交接证据中，不改写历史原件。
+
 产品入口方向：客户使用 **Telegram Mini App＋Bot**，司机使用 **iOS／Android App**；运营、调度、仓库及财务使用各自工作界面。当前这些方向仍由网页原型和接口规划承载，不表示已交付Bot或移动App。
 
 ## 体验已发布的Web原型
