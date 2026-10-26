@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {nextDriverAction,completedSlide} from './driver-slide.mjs';
+const item=(action,style='primary')=>({action,style,text:action,disabled:false});
+test('driver primary follows state and keeps rejection secondary',()=>{assert.equal(nextDriverAction([item('accept'),item('reject','')],{status:'offered'}).action,'accept');assert.equal(nextDriverAction([item('depart'),item('report','')],{status:'picked_up'}).action,'depart');assert.equal(nextDriverAction([],{status:'accepted'}),null);assert.equal(nextDriverAction([item('rescuePickup')],{rescueParent:'P'}).action,'rescuePickup')});
+test('collect before delivery; transfer delivery waits for financial verification',()=>{assert.equal(nextDriverAction([item('report',''),item('deliver')],{status:'in_transit',payment:'cash',collection:'due'}).action,'report');assert.equal(nextDriverAction([item('deliver')],{status:'in_transit',payment:'transfer',collection:'reported'}).disabled,true);assert.equal(nextDriverAction([item('deliver')],{status:'in_transit',payment:'cash',collection:'reported'}).disabled,false)});
+test('slide threshold rejects tap, reverse, partial and too-small tracks',()=>{assert.equal(completedSlide(0,200),false);assert.equal(completedSlide(-100,200),false);assert.equal(completedSlide(179,200),false);assert.equal(completedSlide(180,200),true);assert.equal(completedSlide(30,30),false);assert.equal(completedSlide(Infinity,200),false)});

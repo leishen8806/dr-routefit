@@ -1,0 +1,20 @@
+{
+  "prototype/fee-settings.mjs": "beb58605a13a86dcd900d4eed1b73b493a829956cdfd2dffbedcd830f1709fd2",
+  "prototype/fee-settings-ui.mjs": "5d96245d5e6979d0b39ba7892ef847576dc2a9f7f4e11cd6987b166aef3c11a2",
+  "prototype/fee-settings.test.mjs": "93badd7e6484d4d97d0281eb74470054e25bf7d47b800e1beb5b9b1ecbeb3515",
+  "prototype/browser-fee-settings.js": "1f3f4e96f4dc88b98eae467fb791d4017113d29350b33c7cc48b19e267d9e841",
+  "prototype/app.mjs": "6db8c585578e64639ba0c000945548b7fcd5a537194e48a51fdc70ab8a445a50",
+  "prototype/model.mjs": "5543fb8833d8dcb34bf1293577a87a59042e02314932477889a5ace58fba2a3d",
+  "prototype/platform-ui.mjs": "93851d343ffbb141fe5f27717d0367e3510596184eb62581dd3319382a925a03",
+  "prototype/access-control.mjs": "5c64536191f42857095129866ab4746ae6c2a7916c7bc1593e50da85497a701a",
+  "prototype/DESIGN.md": "e4a4dd6256701d6b4efb978e032b71b8749c2ce2bf703ac0917314cd6f09f2fa",
+  "prototype/premium-ui.json": "56588af58e0ab13b9b8dc445a7c2288144e432ec5bb708b489aa3c89feebf14f",
+  "prototype/README.md": "a22e5eb0b30fcfd18c5eb804851005e1d78c78c8bc6155ab294812b2cc057868",
+  "prototype/RECORDS.md": "1c92d82b7357a5966d98e4221a6ce37b4cefd2fc68c868e35535f1d1ff89cd2f",
+  "PRD/docs/fee-settings-v0.1.md": "becdc4b2c5d2632c82593a92f41916e22b410dcd3bb45b32f432a082ed5d4080",
+  "PRD/docs/delivery-pricing-system-v0.1.md": "812c9269617762c0a64226869bd0d081d1f7531784ba26bb89f685369191a0af",
+  "PRD/docs/pricing-development-map-v0.1.md": "91bb48830b93b11704df53857aff344b788db9c1a2e506b88d89af97801cef2b",
+  "PRD/docs/api-design.md": "cd43cdf644fddb2def21fc5d0cd27a042e502bdbde1ecef76d30e9812ae17bdb",
+  "PRD/README.md": "cf5f67a3a45def1f43f59e1ab7c06e14816fbc285feae655816f9d0a62651aff",
+  "PRD/CHANGELOG.md": "ea5bf510f47e0717d8eba0648768a1a0a0341441333299d61036bdac21673cf4"
+}

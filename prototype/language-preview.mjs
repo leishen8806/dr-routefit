@@ -1,0 +1,13 @@
+import {resolveLocale,t,money,date} from './locales.mjs';
+let locale='km-KH';try{locale=resolveLocale(localStorage.getItem('routefit-language')||'km-KH')}catch{}
+const selector=document.querySelector('#locale');let statusKey='';
+function translate(){document.documentElement.lang=locale;document.title=`DR RouteFit · ${t(locale,'title')}`;selector.value=locale;document.querySelectorAll('[data-copy]').forEach(el=>el.textContent=t(locale,el.dataset.copy));document.querySelectorAll('[data-money]').forEach(el=>el.textContent=money(locale,Number(el.dataset.money)));document.querySelectorAll('[data-date]').forEach(el=>el.textContent=date(locale,el.dataset.date));document.querySelector('#form-status').textContent=statusKey?t(locale,statusKey):'';}
+selector.addEventListener('change',()=>{locale=resolveLocale(selector.value);try{localStorage.setItem('routefit-language',locale)}catch{}translate()});
+function show(view){document.querySelectorAll('[data-view]').forEach(button=>{const active=button.dataset.view===view;button.setAttribute('aria-pressed',String(active));document.getElementById(button.dataset.view).hidden=!active;});}
+document.querySelector('#preview-views').addEventListener('submit',event=>{event.preventDefault();show(event.submitter.dataset.view)});
+document.querySelector('#preview-review').addEventListener('submit',event=>{event.preventDefault();show('driver');document.querySelector('[data-view=driver]').focus()});
+document.querySelector('#preview-groups').addEventListener('submit',event=>{event.preventDefault();const button=event.submitter;document.querySelectorAll('[data-group]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));document.querySelector('#driver-order').hidden=button.dataset.group!=='transit';document.querySelector('#empty-orders').hidden=button.dataset.group==='transit'});
+const form=document.querySelector('#language-form');
+try{const draft=JSON.parse(sessionStorage.getItem('routefit-language-draft')||'null');if(draft)for(const input of form.querySelectorAll('input'))if(typeof draft[input.name]==='string')input.value=draft[input.name]}catch{}
+form.addEventListener('submit',event=>{event.preventDefault();const data=Object.fromEntries(new FormData(form));const invalid=[...form.querySelectorAll('input')].filter(input=>!input.value.trim());for(const input of form.querySelectorAll('input'))input.setAttribute('aria-invalid',String(invalid.includes(input)));if(invalid.length){statusKey='required';invalid[0].focus()}else{try{sessionStorage.setItem('routefit-language-draft',JSON.stringify(data));statusKey='saved'}catch{statusKey='storageError'}}translate()});
+translate();

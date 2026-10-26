@@ -1,0 +1,84 @@
+{
+  "checkedAt": "2026-10-25",
+  "researchScope": "公开机制调研；非市场验证或合同报价",
+  "sources": [
+    {
+      "id": "KH-POST",
+      "url": "https://cambodiapost.com.kh/send-within",
+      "type": "官方国内产品页",
+      "status": "READ",
+      "limitations": "PostPack规格、限重与KHR价格；未列完整上门／COD条件或生效日"
+    },
+    {
+      "id": "KH-VET",
+      "url": "https://www.vireakbuntham.com/product-service",
+      "type": "官方产品页",
+      "status": "BROWSER_READ",
+      "limitations": "JS页面只读；COD与保险营销说明已见，完整合同／运价未取得"
+    },
+    {
+      "id": "KH-CE-SERVICE",
+      "url": "https://www.cambodianexpress.com/products/express/same-day-service/",
+      "type": "官方服务页",
+      "status": "READ",
+      "limitations": "可核服务描述与截单要求，不可核完整计价"
+    },
+    {
+      "id": "KH-CE-PORTAL",
+      "url": "https://cp.cambodianexpress.com/",
+      "type": "公开客户表单",
+      "status": "READ_ONLY_NO_SUBMIT",
+      "limitations": "取送／重量／COD表单可见，未创建订单或获取价格"
+    },
+    {
+      "id": "DHL-DIM",
+      "url": "https://www.dhl.com/discover/en-kh/logistics-advice/import-export-advice/how-to-ship-heavy-items-cambodia",
+      "type": "官方海外运输指南",
+      "status": "READ",
+      "limitations": "5000体积系数仅该产品语境，非国内通用规则"
+    },
+    {
+      "id": "DHL-EXTRAS",
+      "url": "https://www.dhl.com/discover/en-kh/ship-with-dhl/services/optional-services",
+      "type": "官方服务说明",
+      "status": "READ",
+      "limitations": "基础运费之外的服务／附加费机制"
+    },
+    {
+      "id": "SG-LALA",
+      "url": "https://www.lalamove.com/en-sg/all-vehicle-pricing-detail",
+      "type": "官方新加坡价目说明",
+      "status": "READ_WITH_CONFLICT",
+      "limitations": "两处10ft多点费用冲突；只借鉴结构，不转成DR价格"
+    },
+    {
+      "id": "LALA-API",
+      "url": "https://developers.lalamove.com/",
+      "type": "官方开发文档",
+      "status": "READ",
+      "limitations": "报价ID／有效期／费用拆分参考，不代表柬埔寨可用"
+    },
+    {
+      "id": "JT-GROUP",
+      "url": "https://www.jtexpress.com/en/contactUs",
+      "type": "集团联系页",
+      "status": "READ",
+      "limitations": "见Cambodia国家项，未取得国内费率"
+    },
+    {
+      "id": "JT-KH-CANDIDATE",
+      "url": "https://www.jtexpresskh.com/",
+      "type": "搜索所得柬埔寨候选站",
+      "status": "EMPTY_BODY",
+      "limitations": "未核得运价，不以越南价表替代"
+    },
+    {
+      "id": "HLH",
+      "url": "https://www.hlhexpress.com/services/",
+      "type": "候选服务页",
+      "status": "FETCH_404",
+      "limitations": "排除为本轮计价依据"
+    }
+  ],
+  "externalActions": "No login, shipment submission, payment or supplier messages"
+}

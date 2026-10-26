@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "relativeFileLinksChecked": 189,
+  "unchangedSinceBaseline": [
+    "contracts/openapi.json",
+    "prototype/distance-quote.mjs",
+    "prototype/platform-model.mjs",
+    "prototype/external-orders.mjs",
+    "prototype/finance-ledger.mjs",
+    "PRD/docs/database/routefit-schema-draft.sql",
+    "PRD/docs/database/geocore-g1-schema-draft.sql"
+  ],
+  "formalFilesEqualToHEAD": [
+    "PRD/docs/PRD-V1.4-review.md",
+    "PRD/docs/PRD-V1.3-final.md",
+    "PRD/docs/database/routefit-schema-draft.sql",
+    "PRD/docs/database/geocore-g1-schema-draft.sql"
+  ],
+  "templateDisabled": true,
+  "candidateAcceptanceCasesNotRun": 28,
+  "sourceRecords": 11
+}

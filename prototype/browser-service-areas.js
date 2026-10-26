@@ -1,0 +1,32 @@
+async(page)=>{
+ const base='E:/Dr.RouteFit/prototype/records/2026-10-24-delivery-areas/',checks=[],errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const assert=(ok,msg)=>{if(!ok)throw Error(msg)};
+ const state=()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('routefit-r1-prototype-v1')));
+ const area=action=>page.locator(`[data-area=${action}]`).click();
+ const point=async(lng,lat)=>{await page.locator('[name=lng]').fill(String(lng));await page.locator('[name=lat]').fill(String(lat));await page.locator('#area-coordinate-form [type=submit]').click()};
+ const close=async()=>{await page.locator('[data-close]').first().click();if(await page.locator('#dialog').isVisible())await page.locator('[data-close]').first().click()};
+ await page.goto('http://127.0.0.1:4173/prototype/');await page.reload();await page.setViewportSize({width:1440,height:1000});
+ await page.locator('[data-role=dispatch]').first().click();await page.locator('[data-action=qa]').first().click();await page.locator('[data-action=reset]').click();await page.locator('#action-form [type=submit]').click();await page.locator('#dialog').waitFor({state:'hidden'});
+ await page.locator('[data-role=ops]').first().click();await page.locator('[data-nav=areas]').first().click();
+ await page.locator('#area-name').fill('市区开放配送');
+ for(const [lng,lat]of [[104.84,11.50],[104.98,11.50],[104.98,11.66],[104.84,11.66]]){const box=await page.locator('#area-map').boundingBox();await page.mouse.click(box.x+(lng-104.82)/.2*box.width,box.y+(11.68-lat)/.2*box.height)}
+ await area('save');assert((await state()).serviceAreas.draft.length===1,'draw save failed');assert((await state()).serviceAreas.published===null,'draft became active');
+ await page.locator('#area-name').fill('临时禁送区');await page.locator('#area-kind').selectOption('deny');
+ for(const p of [[104.90,11.55],[104.94,11.55],[104.94,11.59],[104.90,11.59]])await point(...p);
+ await area('undo');await point(104.90,11.59);await area('save');
+ checks.push('地图点击画可送区、坐标键盘画禁送区、撤销顶点并保存草稿，草稿不自动生效');
+ await page.locator('[data-area-tab=publish]').click();await area('publish');assert((await page.locator('#area-message').innerText()).includes('确认'),'publication needs confirmation');await page.locator('#area-publish-confirm').check();await area('publish');assert((await state()).serviceAreas.revision===1,'publish failed');
+ await page.locator('[data-area-tab=map]').click();await area('test');await point(104.91,11.57);assert((await page.locator('.area-controls').first().innerText()).includes('禁送区：临时禁送区'),'deny did not win');
+ await page.locator('#area-order').selectOption('RF-1024-001');await page.locator('#area-point-confirm').check();await area('point');
+ await page.locator('[data-role=dispatch]').first().click();await page.locator('[data-dispatch-tab=orders]').click();await page.locator('[data-action=offer]').first().click();await page.locator('[name=vehicle][value=V01]').check();await page.locator('#action-form [type=submit]').click();await page.waitForFunction(()=>document.querySelector('#form-error')?.textContent.includes('禁送'));await close();
+ checks.push('发布须确认；禁送覆盖可送；真实派单按钮被禁送地址拦截');
+ await page.locator('[data-action=areaLocate]').first().click();await point(104.86,11.54);await page.locator('#area-point-confirm').check();await area('point');assert((await page.locator('.area-controls').first().innerText()).includes('取送地址通过'),'valid pin not applied');
+ await page.locator('[data-nav=dispatch]').click();await page.locator('[data-dispatch-tab=orders]').click();await page.locator('[data-action=offer]').first().click();await page.locator('[name=vehicle][value=V01]').check();await page.locator('#action-form [type=submit]').click();await page.locator('#dialog').waitFor({state:'hidden'});assert((await state()).orders.find(o=>o.id==='RF-1024-001').status==='offered','valid order not dispatched');
+ checks.push('调度只能核验落点，不能发布区域；可送地址通过实际派车流程');
+ await page.locator('[data-role=ops]').first().click();await page.locator('[data-nav=areas]').first().click();await area('draw');
+ await page.locator('[data-area-edit]').first().click();await page.locator('#area-name').fill('市区开放配送 · 修订');await area('save');await page.locator('[data-area-toggle]').last().click();assert((await state()).serviceAreas.published[1].enabled===true,'draft toggle changed live rule');
+ await page.reload();assert((await page.locator('.area-list').innerText()).includes('修订'),'draft not persisted');await area('test');await point(105.01,11.67);assert((await page.locator('.area-controls').first().innerText()).includes('不在已开放'),'outside accepted');
+ await page.screenshot({path:base+'areas-desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile overflow');await page.screenshot({path:base+'areas-mobile.png',fullPage:true});
+ checks.push('边界编辑、停用草稿不影响已发布规则；刷新保留；区外拒单；390px无整页横向溢出');assert(!errors.length,errors.join('\n'));return {status:'PASS',checks,pageErrors:errors};
+}

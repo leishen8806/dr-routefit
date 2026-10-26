@@ -1,0 +1,2 @@
+### Result
+{"checks":["real API submit enters validating","list identifies readonly state","detail identifies validating","fields cannot edit","save and sample disabled","readonly reason shown","keyboard can inspect cargo","narrow screen has no body overflow","return remains usable","server return restores draft editing","no JavaScript errors"],"errors":[],"scope":"Real local HTTP/DB submit and return; readonly UI keyboard and 390px viewport; no real maps or payments"}

@@ -1,0 +1,9 @@
+{
+  "prototype/kess-payment.test.mjs": "c9cdc13974bc845cbd15d58bed8a07e8d92c6f3f63a5e0378b16b6cabcbd756d",
+  "prototype/finance-ledger.test.mjs": "f62072068439e1f4b9c5ff8ea66a908fa63d544dc3e0323c42f2e288dab4f46c",
+  "prototype/finance-ledger.mjs": "04c687ef6435fe85aa5dae0e729c67e5b873bace296a4c3308ab47b28f08c1e7",
+  "integrations/kess-pay.test.mjs": "37edf4fd7a281f75e0cc80d94d7e9495ebba4551e217e17acff1f1305b64e85f",
+  "integrations/kess-pay.mjs": "326f493f170fd0498c50fc226ff8ca6814f4153b312bb602914834e26e54cbaa",
+  "integrations/kess-sandbox.mjs": "0e1ef11e8593f04bb45d3ff927f820017dd27ad69fe2089dcae5b3f22c32f47c",
+  "integrations/.env.example": "4a00ffb016ff4fa30893935bd877dc7e4b60cc692c7433a832a23b029e3ff0d0"
+}

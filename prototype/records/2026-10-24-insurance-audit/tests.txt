@@ -1,0 +1,31 @@
+✔ labeled clipboard parses separate contacts and money; ambiguous price and duplicates warn (0.7442ms)
+✔ import requires both contact pairs and explicit reviewed price currency (2.6345ms)
+✔ source order uniqueness and request idempotency cannot duplicate or overwrite (0.4682ms)
+✔ dispatch request remains draft, no vehicle reservation, and cannot bypass insurance confirmation (0.5428ms)
+✔ delivery plus insurance collects 22; 20 percent split applies only to delivery 20 (1.7348ms)
+✔ customer intake identity is server-owned and cannot request another platform order (0.5214ms)
+✔ commission confirmation labels delivery basis, separate insurance and total distinctly (0.5438ms)
+✔ warehouse intake and customer intake have separate scopes and identity-owned fields (32.7838ms)
+✔ idempotent replay, external reference collision and stale dispatch version (12.6971ms)
+✔ external callers cannot choose driver, operations can promise then offer exactly once (7.3148ms)
+✔ warehouse release cannot bypass driver acceptance or custody checks (5.5431ms)
+✔ concurrent distinct imports and duplicate source ids do not overwrite state (6.5618ms)
+✔ HTTP money keeps insurance separate from delivery and preserves customer total (3.7729ms)
+✔ catalog reserve, issue, return quarantine and inspection keep quantities conserved (5.5898ms)
+✔ overreservation fails atomically; cancel releases held stock (0.8501ms)
+✔ paid flash requires extra fee, explicit confirmation, and forbids parcel outsourcing (1.3252ms)
+✔ income only after delivery and finance; snapshot cannot be posted or changed twice (1.9669ms)
+✔ withdrawal reserves funds, forbids overdraw and changing bank, then manual review/payment (1.8275ms)
+✔ reject restores available income; foreign actor and finance impersonation blocked (1.0802ms)
+✔ bank only last four, receipts are positive, money precision and ratios validated (0.3779ms)
+✔ new driver stays pending and blocks offer; active vehicle edits cannot bypass existing task (0.7738ms)
+✔ financial idempotency returns same state and changed payload conflicts (0.9103ms)
+✔ accident transfer does not issue twice; rescue return enters original SKU quarantine (1.9781ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 142.8072

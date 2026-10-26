@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "viewports": [
+    360,
+    390,
+    1440
+  ],
+  "checks": [
+    "entry labels and logos",
+    "no horizontal overflow",
+    "DEMO credential validation",
+    "keyboard submit",
+    "network failure preserves input",
+    "retry enters original customer and driver workspaces",
+    "reduced motion"
+  ],
+  "pageErrors": [],
+  "externalRequests": []
+}

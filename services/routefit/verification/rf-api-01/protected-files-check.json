@@ -1,0 +1,34 @@
+[
+  {
+    "path": "prototype/app.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/app.css",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/server.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/fee-settings-ui.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "prototype/fee-settings.mjs",
+    "unchanged": true
+  },
+  {
+    "path": "PRD/docs/PRD-V1.3-final.md",
+    "unchanged": true
+  },
+  {
+    "path": "PRD/docs/PRD-V1.4-review.md",
+    "unchanged": true
+  },
+  {
+    "path": "PRD/docs/phase1-acceptance-map.md",
+    "unchanged": true
+  }
+]

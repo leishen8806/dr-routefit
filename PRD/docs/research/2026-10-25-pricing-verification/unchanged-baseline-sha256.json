@@ -1,0 +1,9 @@
+{
+  "contracts/openapi.json": "487a9239de8027883b69230b5819243701ca50cda9adc13a580bbe4437ef1a6b",
+  "prototype/distance-quote.mjs": "43a65aeb5f673166f1ab8f958dc44d220aabe1684d148d3210dd2be693262b62",
+  "prototype/platform-model.mjs": "60ae19d9670e96e8dd7acf0a500aa38fc0794e7f6d8e4ec0b7ccd0984b59f6e8",
+  "prototype/external-orders.mjs": "b562ad89c4ece148084a5c1fd02aef0784a637d3c985097c7b2516007c70dc2a",
+  "prototype/finance-ledger.mjs": "04c687ef6435fe85aa5dae0e729c67e5b873bace296a4c3308ab47b28f08c1e7",
+  "PRD/docs/database/routefit-schema-draft.sql": "75a4083dc93acc4ea4f4561a34d627d5c6f48183c1246224145bcf7f59f43722",
+  "PRD/docs/database/geocore-g1-schema-draft.sql": "15c3f66b45858eec130f8e96eb980a3603a1eaffb4e1b444a36c314373af56cd"
+}

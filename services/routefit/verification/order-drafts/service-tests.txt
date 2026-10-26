@@ -1,0 +1,47 @@
+✔ JSON rejects duplicate decoded keys at every object depth (1.9384ms)
+✔ JSON preserves valid values, escapes and keys in separate objects (1.4758ms)
+✔ JSON rejects malformed syntax, BOM and invalid UTF-8 rather than replacing bytes (0.3016ms)
+▶ real PostgreSQL order-draft HTTP integration
+  ✔ authorized customers, persistent create, replay and forbidden spoofing (131.5967ms)
+  ✔ company and same-company customer scopes cover reads, writes, RLS and revocation (24.8357ms)
+  ✔ draft edits preserve package identities and reject concurrent stale updates (45.6365ms)
+  ✔ unsupported capabilities and incomplete measurements fail without writes (24.0095ms)
+  ✔ signed cursors, stable ordering, filters and query tampering (11.4435ms)
+  ✔ restart retains full drafts and original idempotent response (35.3576ms)
+✔ real PostgreSQL order-draft HTTP integration (1001.5554ms)
+✔ implemented order routes match contract, permissions and round-trip input (41.7969ms)
+✔ draft unknown measurements and package bounds fail closed (0.331ms)
+▶ real PostgreSQL HTTP pricing slice
+  ✔ migration checksum replay and safe runtime role (5.1949ms)
+  ✔ authentication, permission, CSRF, unknown fields and malformed JSON (72.0323ms)
+  ✔ concurrent duplicate creation persists once and replays original (31.4649ms)
+  ✔ ambiguous JSON and invalid UTF-8 cannot create financial configuration (6.5083ms)
+  ✔ optimistic concurrency allows one of two independent edits (15.8264ms)
+  ✔ successful retry replays before stale-version checks and fingerprints If-Match (9.4854ms)
+  ✔ invalid monetary configuration rolls back all writes (6.4915ms)
+  ✔ integer calculation creates a permanent version-bound simulation (37.5434ms)
+  ✔ company isolation is enforced by both HTTP and runtime PostgreSQL RLS (15.8811ms)
+  ✔ database constraints protect excluded shares and append-only evidence (54.4871ms)
+  ✔ pagination, exact routes, and ETag preserve resource version (17.2066ms)
+  ✔ disabled identities cannot replay past successful operations (22.1174ms)
+  ✔ new server and new connection pool read persisted snapshots (36.2893ms)
+  ✔ one-use browser activation, same-origin HTTP, CSRF and logout (32.9894ms)
+  ✔ browser activation rejects expired grants and disabled identities; tenant B remains isolated (45.5003ms)
+  ✔ CLI uses RouteFit connection settings instead of another project environment (197.0449ms)
+✔ real PostgreSQL HTTP pricing slice (1069.6575ms)
+✔ catalog parity and exact local operation mapping (25.4172ms)
+✔ contract fixtures validate with the actual HTTP validator (46.8309ms)
+✔ fixed + rounded unit + insurance, with a separate distribution base (0.5338ms)
+✔ percentage HALF_UP, KHR integer currency and no COD principal in fees (0.1077ms)
+✔ cross-field restrictions block invalid units, shares and missing basis (0.2572ms)
+✔ overflow, duplicate fees, disabled and unknown fees fail closed (0.2453ms)
+✔ fingerprint normalizes object keys but preserves order, values and version (0.3911ms)
+✔ development auth requires valid identity, exact Origin and CSRF (1.6698ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1234.4771

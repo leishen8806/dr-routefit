@@ -1,0 +1,37 @@
+✔ JSON rejects duplicate decoded keys at every object depth (1.2181ms)
+✔ JSON preserves valid values, escapes and keys in separate objects (0.9674ms)
+✔ JSON rejects malformed syntax, BOM and invalid UTF-8 rather than replacing bytes (0.252ms)
+▶ real PostgreSQL HTTP pricing slice
+  ✔ migration checksum replay and safe runtime role (4.6744ms)
+  ✔ authentication, permission, CSRF, unknown fields and malformed JSON (57.8303ms)
+  ✔ concurrent duplicate creation persists once and replays original (26.0413ms)
+  ✔ ambiguous JSON and invalid UTF-8 cannot create financial configuration (5.7813ms)
+  ✔ optimistic concurrency allows one of two independent edits (14.5126ms)
+  ✔ successful retry replays before stale-version checks and fingerprints If-Match (7.5972ms)
+  ✔ invalid monetary configuration rolls back all writes (3.9251ms)
+  ✔ integer calculation creates a permanent version-bound simulation (30.2657ms)
+  ✔ company isolation is enforced by both HTTP and runtime PostgreSQL RLS (12.3299ms)
+  ✔ database constraints protect excluded shares and append-only evidence (52.2574ms)
+  ✔ pagination, exact routes, and ETag preserve resource version (17.3807ms)
+  ✔ disabled identities cannot replay past successful operations (21.9037ms)
+  ✔ new server and new connection pool read persisted snapshots (144.2099ms)
+  ✔ one-use browser activation, same-origin HTTP, CSRF and logout (25.7463ms)
+  ✔ browser activation rejects expired grants and disabled identities; tenant B remains isolated (48.6427ms)
+  ✔ CLI uses RouteFit connection settings instead of another project environment (178.4426ms)
+✔ real PostgreSQL HTTP pricing slice (959.169ms)
+✔ catalog parity and exact local operation mapping (25.6005ms)
+✔ contract fixtures validate with the actual HTTP validator (45.2241ms)
+✔ fixed + rounded unit + insurance, with a separate distribution base (0.5385ms)
+✔ percentage HALF_UP, KHR integer currency and no COD principal in fees (0.1086ms)
+✔ cross-field restrictions block invalid units, shares and missing basis (0.2312ms)
+✔ overflow, duplicate fees, disabled and unknown fees fail closed (0.2544ms)
+✔ fingerprint normalizes object keys but preserves order, values and version (0.3726ms)
+✔ development auth requires valid identity, exact Origin and CSRF (1.0861ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1088.0999

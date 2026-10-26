@@ -1,0 +1,33 @@
+▶ real PostgreSQL HTTP pricing slice
+  ✔ migration checksum replay and safe runtime role (4.6808ms)
+  ✔ authentication, permission, CSRF, unknown fields and malformed JSON (58.3672ms)
+  ✔ concurrent duplicate creation persists once and replays original (26.7343ms)
+  ✔ optimistic concurrency allows one of two independent edits (14.3595ms)
+  ✔ successful retry replays before stale-version checks and fingerprints If-Match (7.6465ms)
+  ✔ invalid monetary configuration rolls back all writes (5.5123ms)
+  ✔ integer calculation creates a permanent version-bound simulation (34.2629ms)
+  ✔ company isolation is enforced by both HTTP and runtime PostgreSQL RLS (13.5202ms)
+  ✔ database constraints protect excluded shares and append-only evidence (49.8369ms)
+  ✔ pagination, exact routes, and ETag preserve resource version (16.3738ms)
+  ✔ disabled identities cannot replay past successful operations (21.864ms)
+  ✔ new server and new connection pool read persisted snapshots (32.3163ms)
+  ✔ one-use browser activation, same-origin HTTP, CSRF and logout (26.6722ms)
+  ✔ browser activation rejects expired grants and disabled identities; tenant B remains isolated (43.8743ms)
+  ✔ CLI uses RouteFit connection settings instead of another project environment (180.9822ms)
+✔ real PostgreSQL HTTP pricing slice (856.4032ms)
+✔ catalog parity and exact local operation mapping (35.02ms)
+✔ contract fixtures validate with the actual HTTP validator (47.6129ms)
+✔ fixed + rounded unit + insurance, with a separate distribution base (0.5109ms)
+✔ percentage HALF_UP, KHR integer currency and no COD principal in fees (0.1045ms)
+✔ cross-field restrictions block invalid units, shares and missing basis (0.2318ms)
+✔ overflow, duplicate fees, disabled and unknown fees fail closed (0.2386ms)
+✔ fingerprint normalizes object keys but preserves order, values and version (0.3841ms)
+✔ development auth requires valid identity, exact Origin and CSRF (1.0619ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 985.2147

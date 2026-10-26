@@ -1,0 +1,81 @@
+{
+  "migration": "004 to 005",
+  "nonemptyPriorDatabase": true,
+  "comparison": "All prior columns, including full JSON snapshots; newly added quote_id column excluded",
+  "unchanged": true,
+  "migrations": "5",
+  "tables": {
+    "org.company": {
+      "count": 2,
+      "sha256": "8211250ae490cf0ba4c8eccc85000379d6dfbd1c403914a6e1ba0cdfd0eaf21b"
+    },
+    "org.principal": {
+      "count": 4,
+      "sha256": "48590209ede0f4c447f8657b304d9b8796f0cd220817c030b5cc11a7ceb3abb1"
+    },
+    "party.customer": {
+      "count": 2,
+      "sha256": "d785c00bd889ff6d849d438db131a362ad6eb25b6b546a9b4ece9108fedfa88d"
+    },
+    "party.customer_access": {
+      "count": 2,
+      "sha256": "576e5929a12dca4dbd5274e7e4770c0063dd948157332fe4ed47ba26523c304c"
+    },
+    "orders.draft": {
+      "count": 4,
+      "sha256": "7e87cad84a85b1601f2cc8ea61b33247c9eeb29c5da0dec33b76de9a4ed7d5a2"
+    },
+    "orders.draft_revision": {
+      "count": 10,
+      "sha256": "f43de0aa87a012ceee05342c370cc997ac58459131efae5a291064ef7c30f639"
+    },
+    "pricing.tariff": {
+      "count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pricing.fee_rule": {
+      "count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pricing.tariff_revision": {
+      "count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pricing.trial": {
+      "count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pricing.policy_version": {
+      "count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pricing.policy_review": {
+      "count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pricing.policy_publication": {
+      "count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "integration.http_request_result": {
+      "count": 24,
+      "sha256": "62191bfa92bb8ef067bbf5453538dbf9c0862e83366c6f424895ef5fd19d7499"
+    },
+    "coverage.area": {
+      "count": 4,
+      "sha256": "3c2b08ce81b218eec6f3ba73d898109e5acfb062e7dd0d7100a237cbc794ac71"
+    },
+    "coverage.publication": {
+      "count": 6,
+      "sha256": "b0f8b1fe097d07866fae5b69500567c12b99fad95beba5541d6df0df1f97dbe1"
+    },
+    "orders.intake_evidence": {
+      "count": 4,
+      "sha256": "d33c7b6964b514b09928c98f43101bb5103ce802ce6aad24a42ab37e65e92d00"
+    },
+    "orders.intake_return": {
+      "count": 2,
+      "sha256": "d5233f98666a05443861f113665383452c1242a305fa6e2ec72d566332f620fb"
+    }
+  }
+}

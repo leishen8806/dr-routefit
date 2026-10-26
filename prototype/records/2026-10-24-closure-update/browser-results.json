@@ -1,0 +1,176 @@
+{
+  "status": "PASS",
+  "checks": [
+    "同单异常→恢复→再拒收→授权返仓→点收→费用减免→现金结清",
+    "点收差异、旧金额交款阻断；刷新恢复",
+    "原报价保留、保险调整独立、退回待检不伪装签收",
+    "五个相关页签390/1440无溢出，规划页区分已实现与待做"
+  ],
+  "pageErrors": [],
+  "finalState": {
+    "schema": 1,
+    "version": 19,
+    "routeVersion": 1,
+    "stage": "closed",
+    "input": {
+      "qty": 2,
+      "length": 60,
+      "width": 40,
+      "height": 40,
+      "weight": 15,
+      "deadline": 90,
+      "delivery": 20,
+      "insurance": 2
+    },
+    "plan": {
+      "vehicle": "VAN",
+      "routeVersion": 1,
+      "input": "{\"qty\":2,\"length\":60,\"width\":40,\"height\":40,\"weight\":15,\"deadline\":90,\"delivery\":20,\"insurance\":2}"
+    },
+    "orders": [
+      {
+        "id": "A",
+        "name": "原及时送订单",
+        "qty": 4,
+        "deliveryMinor": 2400,
+        "insuranceMinor": 0,
+        "status": "delivered",
+        "collection": "verified",
+        "proof": "POD-A"
+      },
+      {
+        "id": "B",
+        "name": "新增顺路订单",
+        "qty": 2,
+        "deliveryMinor": 2000,
+        "insuranceMinor": 200,
+        "status": "returned",
+        "collection": "waived",
+        "proof": "RETURN-RECEIPT",
+        "adjustment": {
+          "deliveryMinor": -2000,
+          "insuranceMinor": -200,
+          "evidence": "CUSTOMER-OPS-APPROVAL"
+        }
+      }
+    ],
+    "events": [
+      {
+        "action": "evaluate",
+        "text": "已校验 3 辆候选，2 辆满足本场景约束",
+        "at": "2026-10-24T12:56:15.471Z",
+        "version": 2
+      },
+      {
+        "action": "choose",
+        "text": "选中 小型货车，尚未派单",
+        "at": "2026-10-24T12:56:15.506Z",
+        "version": 3
+      },
+      {
+        "action": "offer",
+        "text": "调度确认提案，等待司机接受",
+        "at": "2026-10-24T12:56:15.789Z",
+        "version": 4
+      },
+      {
+        "action": "accept",
+        "text": "司机接受方案，等待仓库装载复核",
+        "at": "2026-10-24T12:56:15.861Z",
+        "version": 5
+      },
+      {
+        "action": "release",
+        "text": "仓库复核放行：LOAD",
+        "at": "2026-10-24T12:56:15.930Z",
+        "version": 6
+      },
+      {
+        "action": "pickup",
+        "text": "同仓两单货物交接已核对，保管转司机：PICKUP",
+        "at": "2026-10-24T12:56:15.968Z",
+        "version": 7
+      },
+      {
+        "action": "depart",
+        "text": "开始执行合成路线，位置及时间均为演示",
+        "at": "2026-10-24T12:56:16.002Z",
+        "version": 8
+      },
+      {
+        "action": "deliver",
+        "text": "A 逐件签收并申报现金，财务尚未核验",
+        "at": "2026-10-24T12:56:16.056Z",
+        "version": 9
+      },
+      {
+        "action": "issue",
+        "text": "B 未交付且未收款，货物仍由司机保管：CALL-NO-ANSWER",
+        "at": "2026-10-24T12:56:16.125Z",
+        "version": 10
+      },
+      {
+        "action": "retry",
+        "text": "调度确认恢复 B 配送，不修改原承诺：CUSTOMER-CONFIRMED",
+        "at": "2026-10-24T12:56:16.211Z",
+        "version": 11
+      },
+      {
+        "action": "issue",
+        "text": "B 未交付且未收款，货物仍由司机保管：REFUSED",
+        "at": "2026-10-24T12:56:16.264Z",
+        "version": 12
+      },
+      {
+        "action": "authorizeReturn",
+        "text": "调度授权 B 全部退回演示原仓，司机继续保管：RETURN-AUTH",
+        "at": "2026-10-24T12:56:16.404Z",
+        "version": 13
+      },
+      {
+        "action": "arriveReturn",
+        "text": "司机已返仓，尚未转移货物保管：ARRIVED",
+        "at": "2026-10-24T12:56:16.440Z",
+        "version": 14
+      },
+      {
+        "action": "receiveReturn",
+        "text": "仓库点收 B 全部退货进入待检区，不自动恢复可售库存：RETURN-RECEIPT",
+        "at": "2026-10-24T12:56:16.601Z",
+        "version": 15
+      },
+      {
+        "action": "waive",
+        "text": "财务人工裁定 B 配送费及未投保保费全免；原报价保留，减免独立记录：CUSTOMER-OPS-APPROVAL",
+        "at": "2026-10-24T12:56:16.759Z",
+        "version": 16
+      },
+      {
+        "action": "verify",
+        "text": "财务核验客户收款，现金交款尚未结清：VERIFY-A",
+        "at": "2026-10-24T12:56:16.863Z",
+        "version": 17
+      },
+      {
+        "action": "remit",
+        "text": "司机交款申报，等待财务核对：REMIT-A",
+        "at": "2026-10-24T12:56:16.954Z",
+        "version": 18
+      },
+      {
+        "action": "reconcile",
+        "text": "现金交款结清；保险独立记账，配送费按演示比例 20% 分成：CLOSED",
+        "at": "2026-10-24T12:56:17.042Z",
+        "version": 19
+      }
+    ],
+    "issue": {
+      "order": "B",
+      "reason": "refused",
+      "status": "closed",
+      "evidence": "REFUSED",
+      "custody": "仓库待检区",
+      "qty": 2
+    }
+  }
+}
