@@ -9,7 +9,7 @@
 | 分支 | `fix/RF-PM-028-p01-acceptance-gaps`，PR 目标 `develop` |
 | 依赖 | RF-PM-022、RF-PM-023、RF-PM-024（均已合并） |
 | 需人类批准 | 否 |
-| 状态 | TODO |
+| 状态 | IN_PROGRESS · Codex（2026-10-27） |
 
 ## 背景
 
