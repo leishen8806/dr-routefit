@@ -2,7 +2,7 @@ import {createOrderClient,OrderApiError} from './order-client.mjs';
 import {escapeHtml as esc,formField as field,showToast} from './ui-primitives.mjs';
 
 const $=s=>document.querySelector(s),api=createOrderClient(),form=$('#order-form');
-let customers=[],customerCursor=null,current=null,latest=null,dirty=false,busy=false,connected=false,page=0,cursors=[null],nextCursor=null,intakeReport=null;
+let customers=[],customerCursor=null,current=null,latest=null,dirty=false,busy=false,connected=false,page=0,cursors=[null],nextCursor=null,intakeReport=null,quote=null,quoteEtag=null;
 const serviceNames={S1:'及时送',S2:'当日送',S3:'预约送'};
 const stateNames={draft:'草稿',validating:'核验中',quoted:'已生成报价'};
 const blankItem=()=>({clientItemId:crypto.randomUUID(),name:'',quantity:1,lengthCm:null,widthCm:null,heightCm:null,weightKg:null,rotationAllowed:false,stackable:false,uprightOnly:false,restrictions:[],measurementEvidenceIds:[]});
@@ -27,12 +27,16 @@ function controls(){
  $('#check-intake').disabled=busy||api.pending||!intakeReady||!api.session?.permissions.includes('orders:read');
  $('#submit-intake').disabled=busy||api.pending||!intakeReady||current?.order.state!=='draft'||!api.session?.permissions.includes('orders:submit')||!intakeReport?.ready;
  $('#return-to-draft').disabled=busy||api.pending||!intakeReady||!['validating','quoted'].includes(current?.order.state)||!api.session?.permissions.includes('orders:edit');
+ $('#quote-panel').hidden=!current;
+ $('#load-quote').disabled=busy||api.pending||!current||!api.session?.permissions.includes('quotes:read')||!current.order.quoteId;
+ $('#generate-quote').disabled=busy||api.pending||!current||!['validating','quoted'].includes(current.order.state)||!api.session?.permissions.includes('quotes:create')||!!quote&&quote.state==='issued';
+ $('#confirm-quote').disabled=busy||api.pending||!quote||quote.state!=='issued'||!api.session?.permissions.includes('quotes:confirm');
  $('#back-list').disabled=busy||api.pending;$('#compare-latest').disabled=busy;$('#use-latest').disabled=busy;
  $('#previous-page').disabled=busy||!connected||page===0;$('#next-page').disabled=busy||!connected||!nextCursor;
  form.setAttribute('aria-busy',String(busy));
 }
 function failure(error){
- const messages={RESULT_UNKNOWN:'尚未确认保存结果。输入已保留并锁定；恢复连接后重试原请求，避免重复建单。',UNAUTHENTICATED:'开发会话已过期。请在终端生成一次性链接，在另一个标签页激活同一身份，再点“重新连接”。',FORBIDDEN:'当前身份没有此操作权限。请使用获授权的开发身份。',VERSION_CONFLICT:'订单版本已变化，不能覆盖其他人的修改。',CAPABILITY_DISABLED:'所提交的能力尚未接通，请检查当前切片支持范围。',INVALID_TIME_WINDOW:'请检查时间窗：开始须早于结束，送货不能完全早于取货。',MEASUREMENT_REASON_REQUIRED:'尺寸或重量未知时，请填写未知原因。',NOT_FOUND:'记录不存在或当前身份无权访问。'};
+ const messages={RESULT_UNKNOWN:'尚未确认保存结果。输入已保留并锁定；恢复连接后重试原请求，避免重复建单。',UNAUTHENTICATED:'开发会话已过期。请在终端生成一次性链接，在另一个标签页激活同一身份，再点“重新连接”。',FORBIDDEN:'当前身份没有此操作权限。请使用获授权的开发身份。',VERSION_CONFLICT:'订单或报价版本已变化，请重新读取后再决定。',CAPABILITY_DISABLED:'所提交的能力尚未接通，请检查当前切片支持范围。',POLICY_NOT_PUBLISHED:'只能选择已独立复核批准的策略。',POLICY_NOT_EFFECTIVE:'策略当前不在有效期内。',SERVICE_NOT_SUPPORTED:'策略不支持本单服务等级。',FEE_NOT_ENABLED:'策略缺少已启用费目，请先完成费率审核。',INTAKE_BLOCKED:'受理依据或配送区域已失效，请退回草稿重新核验。',INVALID_STATE:'当前订单状态不允许生成报价。',QUOTE_NOT_USABLE:'报价已过期或被替代，不能确认。',INVALID_TIME_WINDOW:'请检查时间窗：开始须早于结束，送货不能完全早于取货。',MEASUREMENT_REASON_REQUIRED:'尺寸或重量未知时，请填写未知原因。',NOT_FOUND:'记录不存在或当前身份无权访问。'};
  if(error.status===401){connected=false;$('#connection').textContent='会话不可用 · 输入暂留本页';}
  if(error.status===412){$('#conflict').hidden=false;latest=null;$('#use-latest').hidden=true;$('#latest-summary').textContent='';}
  notice((error.status===0||error.status>=500)?(api.pending?messages.RESULT_UNKNOWN:'暂时无法读取服务端，请恢复连接后重试。'):messages[error.code]||(error.status===401?messages.UNAUTHENTICATED:error.status===412?messages.VERSION_CONFLICT:`操作未完成（${error.code||'ERROR'}）。请核对字段或重新连接。`));
@@ -61,14 +65,19 @@ async function connect(){await work(async()=>{
  });}
 function renderCargo(items){$('#cargo-items').innerHTML=items.map((item,i)=>`<fieldset class="orders-cargo" data-item="${esc(item.clientItemId)}"><legend>货物 ${i+1}</legend><div class="form-grid">${field(`items.${i}.name`,'货物名称',item.name)}${field(`items.${i}.quantity`,'数量（件）',item.quantity,'number')}${['lengthCm','widthCm','heightCm','weightKg'].map((k,j)=>field(`items.${i}.${k}`,['长（cm）','宽（cm）','高（cm）','单件重量（kg）'][j],item[k]??'','number')).join('')}${field(`items.${i}.unknownReason`,'未知尺寸 / 重量的原因',item.unknownReason||'','text',true)}${field(`items.${i}.restrictions`,'运输限制（逗号分隔）',item.restrictions.join(', '),'text',true)}</div><div>${check(`items.${i}.rotationAllowed`,'允许旋转',item.rotationAllowed)}${check(`items.${i}.stackable`,'允许堆叠',item.stackable)}${check(`items.${i}.uprightOnly`,'必须直立',item.uprightOnly)}</div><button class="btn" type="button" data-remove="${i}" ${items.length===1?'disabled':''}>移除货物 ${i+1}</button></fieldset>`).join('');}
 function render(draft,detail=null){
- current=detail;latest=null;dirty=false;intakeReport=null;notice('');$('#conflict').hidden=true;$('#use-latest').hidden=true;$('#latest-summary').textContent='';
+ current=detail;latest=null;dirty=false;intakeReport=null;quote=null;quoteEtag=null;notice('');$('#conflict').hidden=true;$('#use-latest').hidden=true;$('#latest-summary').textContent='';
  customerOptions(draft.customerId);
  $('#contacts-fields').innerHTML=['pickup','delivery'].map((side,i)=>`<h3>${i?'送货':'取货'}信息</h3><div class="form-grid">${field(`${side}.address`,'详细地址',draft[side].address,'text',true)}${field(`${side}.contactName`,'联系人',draft[side].contactName)}${field(`${side}.phone`,'联系电话',draft[side].phone,'tel')}${field(`${side}.landmark`,'地标 / 交接点',draft[side].landmark||'','text',true)}${field(`${side}.lng`,'经度（可选）',draft[side].point?.lng??'','number',true)}${field(`${side}.lat`,'纬度（可选）',draft[side].point?.lat??'','number',true)}</div>`).join('');
  renderCargo(draft.items);
  $('#service-fields').innerHTML=`<div class="form-grid"><label class="field"><span>服务要求（尚未承诺）</span><select name="serviceLevel">${Object.entries(serviceNames).map(([v,n])=>`<option value="${v}" ${v===draft.serviceLevel?'selected':''}>${n}</option>`).join('')}</select></label><div class="field">${check('exclusiveVehicle','申请独享车辆',draft.exclusiveVehicle)}</div></div><p class="muted">以下均为金边时间（UTC+07），填写期望时间，不构成配送承诺。</p><div class="form-grid">${['requestedPickupWindow','requestedDeliveryWindow'].map((k,i)=>['start','end'].map((part,j)=>field(`${k}.${part}`,`${i?'送货':'取货'}${j?'结束':'开始'}`,localTime(draft[k][part]),'datetime-local')).join('')).join('')}${field('notes','备注',draft.notes||'','text',true)}</div>`;
- $('#orders-list').hidden=true;$('#order-editor').hidden=false;$('#edit-state').textContent=detail?`${stateNames[detail.order.state]||detail.order.state}${detail.order.state==='draft'?'':' · 只读'} ${detail.order.orderNo} · 版本 ${detail.order.version}`:'新草稿 · 尚未保存';$('#save-state').textContent=detail?'已从服务端读取':'尚未保存';renderIntakeFields();step('contacts');controls();
+ $('#orders-list').hidden=true;$('#order-editor').hidden=false;$('#edit-state').textContent=detail?`${stateNames[detail.order.state]||detail.order.state}${detail.order.state==='draft'?'':' · 只读'} ${detail.order.orderNo} · 版本 ${detail.order.version}`:'新草稿 · 尚未保存';$('#save-state').textContent=detail?'已从服务端读取':'尚未保存';renderIntakeFields();renderQuote();step('contacts');controls();
  if(detail&&detail.order.state!=='draft')notice('本单只读查看。未确认报价的订单可经受理接口有原因退回；已确认报价须走后续受控变更。报价有效性与付款结果请读取对应接口。');else $('#customer').focus();
 }
+function renderQuote(){
+ $('#quote-state').textContent=quote?`${quote.state} · ${quote.id} · v${quote.version}`:(current?.order.quoteId?'当前订单已有报价，点击读取':'尚未读取报价');const box=$('#quote-detail');if(!quote){box.hidden=true;$('#quote-confirm').hidden=true;return;}box.hidden=false;box.innerHTML=`<strong>${esc(quote.state)} · ${esc(quote.total.currency)} ${esc(String(quote.total.amountMinor))} 最小货币单位</strong><pre>${esc(JSON.stringify({fees:quote.fees,total:quote.total,createdAt:quote.createdAt,expiresAt:quote.expiresAt,pricingPolicyVersionId:quote.pricingPolicyVersionId,calculation:quote.calculation,unusableReasons:quote.unusableReasons},null,2))}</pre>`;$('#quote-confirm').hidden=quote.state!=='issued';controls();
+}
+async function loadQuote(){if(!current?.order.quoteId)return;const data=await api.read('/api/ops/v1/quotes/'+current.order.quoteId);quote=data;quoteEtag=String(data.version);renderQuote();}
+const localIso=id=>{const value=$(id).value;return value?new Date(value+(value.length===16?':00':'')+'+07:00').toISOString():new Date().toISOString();};
 function renderIntakeFields(){
  if(!current){$('#intake-evidence-fields').replaceChildren();return;}
  const existing=intakeReport?.evidence?.data||{};
@@ -126,7 +135,7 @@ $('#demo-link').onclick=e=>{e.preventDefault();const href=e.currentTarget.href;d
 $('#refresh-list').onclick=refresh;$('#reconnect').onclick=connect;$('#retry-save').onclick=()=>save(true);
 $('#previous-page').onclick=()=>{page--;refresh();};$('#next-page').onclick=()=>{page++;cursors[page]=nextCursor;refresh();};
 $('#more-customers').onclick=()=>work(()=>loadCustomers());
-$('#order-rows').onclick=e=>{const id=e.target.closest('[data-open]')?.dataset.open;if(id)work(async()=>{const detail=await api.read('/api/ops/v1/orders/'+id);if(!customers.some(c=>c.id===detail.order.customerId))customers.push({id:detail.order.customerId,name:'当前订单客户（授权记录）'});render(detail.draft,detail);await loadIntakeCheck();});};
+$('#order-rows').onclick=e=>{const id=e.target.closest('[data-open]')?.dataset.open;if(id)work(async()=>{const detail=await api.read('/api/ops/v1/orders/'+id);if(!customers.some(c=>c.id===detail.order.customerId))customers.push({id:detail.order.customerId,name:'当前订单客户（授权记录）'});render(detail.draft,detail);await loadIntakeCheck();await loadQuote();});};
 $('#add-item').onclick=()=>{renderCargo([...cargo(),blankItem()]);dirty=true;$('#cargo-items fieldset:last-child input').focus();};
 $('#cargo-items').onclick=e=>{const button=e.target.closest('[data-remove]');if(button){const items=cargo();items.splice(Number(button.dataset.remove),1);renderCargo(items);dirty=true;$('#add-item').focus();}};
 $('#fill-sample').onclick=()=>discard(()=>work(async()=>{const spec=await api.read('/dev/openapi.json');const draft=structuredClone(spec.paths['/api/ops/v1/orders'].post.requestBody.content['application/json'].examples.synthetic.value);draft.customerId=current?.draft.customerId||customers[0]?.id||'';render(draft,current);dirty=true;$('#save-state').textContent='合成样例 · 尚未保存';}));
@@ -136,6 +145,9 @@ $('#save-intake-evidence').onclick=()=>work(async()=>{if(!current)return;const r
 $('#check-intake').onclick=()=>work(loadIntakeCheck);
 $('#submit-intake').onclick=()=>work(async()=>{const result=await api.command('/api/ops/v1/orders/'+current.order.id+'/actions/submit',{},current.order.version);current=result;render(result.draft,result);await loadIntakeCheck();notice('受理已提交，订单进入核验中；当前页面只读。');});
 $('#return-to-draft').onclick=()=>work(async()=>{const reason=$('#return-reason').value.trim();if(!reason){$('#return-reason').setAttribute('aria-invalid','true');notice('退回原因必填。');$('#return-reason').focus();return;}const result=await api.command('/api/ops/v1/orders/'+current.order.id+'/actions/return-to-draft',{reason},current.order.version);current=result;$('#return-reason').value='';render(result.draft,result);await loadIntakeCheck();notice('订单已退回草稿，请修改后重新登记受理依据。');});
+$('#load-quote').onclick=()=>work(loadQuote);
+$('#generate-quote').onclick=()=>work(async()=>{const policyId=$('#quote-policy-id').value.trim();if(!policyId){notice('请填写已发布费率策略 ID。');return;}const result=await api.command('/api/ops/v1/orders/'+current.order.id+'/quotes',{pricingPolicyVersionId:policyId,insuranceRequested:$('#quote-insurance').checked},current.order.version);const detail=await api.read('/api/ops/v1/orders/'+current.order.id);render(detail.draft,detail);quote=result;quoteEtag=String(result.version);renderQuote();await loadIntakeCheck();notice('报价已生成；金额与有效期以服务端报价为准。');});
+$('#confirm-quote').onclick=()=>work(async()=>{if(!quote)return;const reference=$('#quote-confirm-reference').value.trim(),body={customerContact:$('#quote-customer-contact').value.trim(),method:$('#quote-confirm-method').value,reference,confirmedAt:localIso('#quote-confirmed-at')};if(!body.customerContact||!reference){notice('请填写客户联系人和确认依据。');return;}const confirmed=await api.command('/api/ops/v1/quotes/'+quote.id+'/actions/record-customer-confirmation',body,quote.version);const detail=await api.read('/api/ops/v1/orders/'+current.order.id);render(detail.draft,detail);quote=confirmed;quoteEtag=String(confirmed.version);renderQuote();await loadIntakeCheck();notice('客户确认已记录；后续付款与派单仍需独立流程。');});
 window.addEventListener('beforeunload',e=>{if(dirty||api.pending){e.preventDefault();e.returnValue='';}});
 document.querySelectorAll('#reconnect,#back-list,[data-step],#more-customers,#add-item,#compare-latest,#use-latest,#fill-sample,#stay,#leave').forEach(n=>n.disabled=false);
 connect();
