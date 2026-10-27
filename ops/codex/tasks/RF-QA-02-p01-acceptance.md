@@ -5,8 +5,8 @@
 | 类型 / 风险 | test / 低 |
 | 版本 | v0.3.0 |
 | 执行人 | 项目负责人（非页面实现方）；Claude 做技术复核 |
-| 基线 SHA | RF-PM-022–025 全部合并后的 `develop` |
-| 依赖 | RF-PM-022、RF-PM-023、RF-PM-024、RF-PM-025 |
+| 基线 SHA | RF-PM-022–025 与 RF-PM-028 全部合并后的 `develop` |
+| 依赖 | RF-PM-022、RF-PM-023、RF-PM-024、RF-PM-025、RF-PM-028 |
 | 需人类批准 | 否 |
 | 状态 | TODO |
 
