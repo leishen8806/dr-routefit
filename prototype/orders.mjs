@@ -1,7 +1,8 @@
 import {createOrderClient,OrderApiError} from './order-client.mjs';
 import {escapeHtml as esc,formField as field,showToast} from './ui-primitives.mjs';
 import {quoteDetailHtml} from './quote-view.mjs';
-import {intakeFieldForPath,retainedPoint,intakeEvidenceRequest,quoteErrorMessage} from './orders-ui-rules.mjs';
+import {intakeInputFromValues} from './order-intake-view.mjs';
+import {intakeFieldForPath,retainedPoint} from './orders-ui-rules.mjs';
 
 const $=s=>document.querySelector(s),api=createOrderClient(),form=$('#order-form');
 let customers=[],customerCursor=null,current=null,latest=null,dirty=false,busy=false,connected=false,page=0,cursors=[null],nextCursor=null,intakeReport=null,quote=null,quoteEtag=null;
@@ -41,9 +42,7 @@ function failure(error){
  const messages={RESULT_UNKNOWN:'尚未确认保存结果。输入已保留并锁定；恢复连接后重试原请求，避免重复建单。',UNAUTHENTICATED:'开发会话已过期。请在终端生成一次性链接，在另一个标签页激活同一身份，再点“重新连接”。',FORBIDDEN:'当前身份没有此操作权限。请使用获授权的开发身份。',VERSION_CONFLICT:'订单或报价版本已变化，请重新读取后再决定。',CAPABILITY_DISABLED:'所提交的能力尚未接通，请检查当前切片支持范围。',POLICY_NOT_PUBLISHED:'只能选择已独立复核批准的策略。',POLICY_NOT_EFFECTIVE:'策略当前不在有效期内。',SERVICE_NOT_SUPPORTED:'策略不支持本单服务等级。',FEE_NOT_ENABLED:'策略缺少已启用费目，请先完成费率审核。',INTAKE_BLOCKED:'受理依据或配送区域已失效，请退回草稿重新核验。',INVALID_STATE:'当前订单状态不允许生成报价。',QUOTE_NOT_USABLE:'报价已过期或被替代，不能确认。',INVALID_TIME_WINDOW:'请检查时间窗：开始须早于结束，送货不能完全早于取货。',MEASUREMENT_REASON_REQUIRED:'尺寸或重量未知时，请填写未知原因。',NOT_FOUND:'记录不存在或当前身份无权访问。'};
  if(error.status===401){connected=false;$('#connection').textContent='会话不可用 · 输入暂留本页';}
  if(error.status===412){$('#conflict').hidden=false;latest=null;$('#use-latest').hidden=true;$('#latest-summary').textContent='';}
- const quoteCodes=new Set(['VERSION_CONFLICT','INVALID_STATE','POLICY_NOT_PUBLISHED','QUOTE_NOT_USABLE','INTAKE_BLOCKED','POLICY_NOT_EFFECTIVE','SERVICE_NOT_SUPPORTED','FEE_NOT_ENABLED']);
- const mapped=quoteCodes.has(error.code)?quoteErrorMessage(error.code):messages[error.code];
- notice((error.status===0||error.status>=500)?(api.pending?messages.RESULT_UNKNOWN:'暂时无法读取服务端，请恢复连接后重试。'):mapped||(error.status===401?messages.UNAUTHENTICATED:error.status===412?messages.VERSION_CONFLICT:`操作未完成（${error.code||'ERROR'}）。请核对字段或重新连接。`));
+ notice((error.status===0||error.status>=500)?(api.pending?messages.RESULT_UNKNOWN:'暂时无法读取服务端，请恢复连接后重试。'):messages[error.code]||(error.status===401?messages.UNAUTHENTICATED:error.status===412?messages.VERSION_CONFLICT:`操作未完成（${error.code||'ERROR'}）。请核对字段或重新连接。`));
  for(const e of error.fields||[]){const name=e.path.replace(/^\//,'').replaceAll('/','.');mark(name,'请检查此项的格式或范围');}
  focusFirstError();controls();
 }
@@ -91,7 +90,7 @@ function renderIntakeFields(){
  if(existing.pickup)$('#intake-evidence-fields [name="intake.pickup.method"]').value=existing.pickup.method||'PHONE';if(existing.delivery)$('#intake-evidence-fields [name="intake.delivery.method"]').value=existing.delivery.method||'PHONE';
  $('#return-intake').hidden=!['validating','quoted'].includes(current.order.state);$('#intake-state').textContent=current.order.state==='draft'?'草稿 · 可登记依据':`${stateNames[current.order.state]||current.order.state} · 只读`;
 }
-function intakeInput(){const get=name=>document.querySelector(`[name="${name}"]`)?.value.trim()||'';const checked=name=>!!document.querySelector(`[name="${name}"]`)?.checked;return intakeEvidenceRequest(get,checked,current.draft.items);}
+function intakeInput(){const get=name=>document.querySelector(`[name="${name}"]`)?.value.trim()||'';const checked=name=>!!document.querySelector(`[name="${name}"]`)?.checked;return intakeInputFromValues(get,checked,current.draft.items);}
 function showIntakeCheck(report){intakeReport=report;$('#intake-check').hidden=false;$('#intake-state').textContent=report.ready?'检查通过 · 可提交受理':'存在阻断项 · 请修正后重新检查';$('#intake-check').innerHTML=report.ready?'<strong>PASS</strong>：当前依据、配送区域与订单资料满足提交条件。':'<strong>阻断项</strong><ul>'+report.blockers.map(x=>`<li><code>${esc(x.code)}</code> · ${esc(x.message)}</li>`).join('')+'</ul>';for(const blocker of report.blockers||[]){const path=intakeFieldForPath(blocker.path);if(path)mark(path,blocker.message||'请修正此项');}renderIntakeFields();controls();if(!report.ready)focusFirstError();}
 async function loadIntakeCheck(){if(!current)return;const report=await api.read('/api/ops/v1/orders/'+current.order.id+'/intake-check');showIntakeCheck(report);}
 const value=name=>form.elements.namedItem(name)?.value.trim()||'';
