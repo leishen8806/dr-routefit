@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {intakeFieldForPath,retainedPoint,selectableServiceLevels} from './orders-ui-rules.mjs';
+test('PILOT-0 offers S2 and S3 only',()=>assert.deepEqual(Object.keys(selectableServiceLevels),['S2','S3']));
+test('intake blockers map to an editable field when one exists',()=>{assert.equal(intakeFieldForPath('/delivery/point'),'delivery.lng');assert.equal(intakeFieldForPath('/items/2'),'items.2.unknownReason');assert.equal(intakeFieldForPath('/coverage'),null);});
+test('address or landmark change clears retained coordinates',()=>{const prior={address:'旧地址',landmark:'旧地标'},point={lng:104.9,lat:11.5};assert.equal(retainedPoint(prior,'新地址','旧地标',point),null);assert.equal(retainedPoint(prior,'旧地址','新地标',point),null);assert.deepEqual(retainedPoint(prior,'旧地址','旧地标',point),point);});
