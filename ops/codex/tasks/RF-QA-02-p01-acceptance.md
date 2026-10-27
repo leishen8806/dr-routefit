@@ -5,8 +5,8 @@
 | 类型 / 风险 | test / 低 |
 | 版本 | v0.3.0 |
 | 执行人 | 项目负责人（非页面实现方）；Claude 做技术复核 |
-| 基线 SHA | RF-PM-022–025、RF-PM-028 与 RF-PM-028-R1 全部合并后的 `develop` |
-| 依赖 | RF-PM-022、RF-PM-023、RF-PM-024、RF-PM-025、RF-PM-028、RF-PM-028-R1 |
+| 基线 SHA | RF-PM-022–025、RF-PM-028、RF-PM-028-R1 与 RF-PM-033 全部合并后的 `develop` |
+| 依赖 | RF-PM-022、RF-PM-023、RF-PM-024、RF-PM-025、RF-PM-028、RF-PM-028-R1、RF-PM-033 |
 | 需人类批准 | 否 |
 | 状态 | TODO |
 
@@ -26,7 +26,7 @@ P01 页面由大旺实现，按分工由另一方验收。参照 [RF-QA-01 费�
 6. 若 RF-DEC-02 已签批：用 §1.4 的区域、货类和营业时间核对页面选项；未签批时记为 NOT_RUN 并说明。
 7. **实跑 P01 浏览器脚本**（2026-10-27 从 RF-PM-028 并入；PR #45 中这些脚本全部 NOT_RUN）。在本机合成 PostgreSQL 与真实 Chromium 上依次执行，记录每个脚本的输出 JSON（`checks`、`allPass`）和截图：
    - `prototype/browser-order-intake-acceptance.mjs`：区域外订单被阻断、阻断项标到送货坐标并能跳转（`00-outside-area-blocker.png`）；登记依据 → 检查通过 → 提交 → validating 只读 → 退回草稿；390px 无横向溢出。
-   - `prototype/browser-policy-approval-acceptance.mjs`：本人不能复核、复核人不能发布、说明为空不发请求；提交 → 复核 → 发布到 v3。
+   - `prototype/browser-policy-approval-acceptance.mjs`：本人不能复核、复核人不能发布（页面按钮禁用，加服务端 403）、说明为空不发请求；提交 → 复核 → 发布到 v3。这几项检查在 #40 合并时丢了一部分，由 RF-PM-033 补回；执行前先核对脚本里共有 9 项检查。
    - `prototype/browser-order-quote-acceptance.mjs`：确认时间必填；过期报价、被替代报价都不能经页面确认；生成报价 → 明细 → 客户确认。
    - 执行前设置 `CHROME_BIN`（脚本默认是 macOS 路径；Windows／Linux 须显式指定），`ROUTEFIT_EVIDENCE_DIRECTORY` 指向本次验收的证据目录。脚本失败按 FAIL 记录，附错误输出，不改脚本凑通过。
 8. **固定费等价场景**（从 RF-PM-028 并入）：服务端目前只能发布固定费，用基础 $15＋独享 $3 发布策略，生成投保报价，核对页面显示配送报价 $18.00、保费 $2.00（单列，标明不计入配送分成）、总应收 $20.00，与 `GET /quotes/{id}` 逐项一致。超距费 $5 的核对见 [RF-PM-032](RF-PM-032-distance-pricing-and-change-requote.md)，本卡记 NOT_RUN 并注明原因。
