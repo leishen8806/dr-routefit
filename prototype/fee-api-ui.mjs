@@ -88,7 +88,7 @@ function renderPolicy(){
  if(!policy){box.textContent='当前草稿尚未在本页面提交策略申请';snapshotBox.hidden=true;sync();return;}
  box.textContent=`策略 ${policy.state} · v${policy.version} · ${policy.id}`;
  snapshotBox.hidden=false;snapshotBox.replaceChildren();
- const table=el('table');const head=el('tr');head.append(el('th','字段'),el('th','值'));table.append(head);for(const [label,value] of policySnapshotRows(policy,x=>new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Phnom_Penh',dateStyle:'short',timeStyle:'short'}).format(new Date(x)))){const row=el('tr');row.append(el('th',label),el('td',String(value)));table.append(row);}snapshotBox.append(el('h3','冻结快照与审核事实'),table);
+ const table=el('table');const head=el('tr');head.append(el('th','字段'),el('th','值'));table.append(head);for(const [label,value] of policySnapshotRows(policy,x=>new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Phnom_Penh',dateStyle:'short',timeStyle:'short'}).format(new Date(x)))){const row=el('tr'),cell=el('td');if(value&&typeof value==='object'){cell.textContent=value.text;if(value.title)cell.title=value.title;}else cell.textContent=String(value);row.append(el('th',label),cell);table.append(row);}snapshotBox.append(el('h3','冻结快照与审核事实'),table);
  sync();
 }
 async function loadPolicy(){const id=$('policy-id')?.value.trim();if(!id)throw Error('请填写策略 ID');const r=await client.get('/policy-versions/'+encodeURIComponent(id));policy=r.data;policyEtag=r.etag;renderPolicy();message(`策略已读取 · ${policy.state}`);}
