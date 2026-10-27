@@ -9,7 +9,7 @@
 | 分支 | `feat/RF-PM-024-pricing-policy-page`，PR 目标 `develop` |
 | 依赖 | 无（与 RF-PM-022 可并行） |
 | 需人类批准 | 否 |
-| 状态 | TODO |
+| 状态 | 已合并（PR #36）· 事后审查 CHANGES_REQUESTED，缺口转 RF-PM-028 |
 
 ## 背景
 
@@ -42,4 +42,12 @@ PR 描述写明 PASS／FAIL／NOT_RUN 和“发现但未处理”。
 
 ## 审查记录
 
-（Claude 填写）
+**2026-10-27 · Claude · 事后审查 · CHANGES_REQUESTED**（PR #36，提交 `6601afb`，合并于 `01bd562`；合并前未经审查）
+
+已做到：在费用页提交、按 ID 读取、复核、发布策略，均带 If-Match；复用 `FeeClient` 的会话、CSRF、幂等与身份变更处理；按会话权限禁用按钮，服务端拒绝时有可读提示；三身份浏览器脚本覆盖提交 → 复核 → 发布。
+
+未满足验收，转 [RF-PM-028](RF-PM-028-p01-acceptance-gaps.md)：
+
+1. 复核、发布说明用 `window.prompt` 采集，且默认值写死为 `Synthetic independent policy decision`。测试用字符串进了产品界面，操作人不改就会提交假说明；应改为页面内必填文本框，不给默认值。
+2. 单元测试只覆盖了客户端权限路由，缺版本冲突（412）与职责分离被拒（INDEPENDENT_REVIEW_REQUIRED）时的界面提示。
+3. 浏览器脚本中“同一人复核被拒”是绕过页面直接 fetch 验证的；缺“复核人发布被拒”。两项都应通过页面操作验证并截图。

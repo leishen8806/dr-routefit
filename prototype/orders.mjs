@@ -1,5 +1,6 @@
 import {createOrderClient,OrderApiError} from './order-client.mjs';
 import {escapeHtml as esc,formField as field,showToast} from './ui-primitives.mjs';
+import {quoteDetailHtml} from './quote-view.mjs';
 import {intakeInputFromValues,blockerFieldPath,normalizePoint} from './order-intake-view.mjs';
 
 const $=s=>document.querySelector(s),api=createOrderClient(),form=$('#order-form');
@@ -75,7 +76,7 @@ function render(draft,detail=null){
  if(detail&&detail.order.state!=='draft')notice('本单只读查看。未确认报价的订单可经受理接口有原因退回；已确认报价须走后续受控变更。报价有效性与付款结果请读取对应接口。');else $('#customer').focus();
 }
 function renderQuote(){
- $('#quote-state').textContent=quote?`${quote.state} · ${quote.id} · v${quote.version}`:(current?.order.quoteId?'当前订单已有报价，点击读取':'尚未读取报价');const box=$('#quote-detail');if(!quote){box.hidden=true;$('#quote-confirm').hidden=true;return;}box.hidden=false;box.innerHTML=`<strong>${esc(quote.state)} · ${esc(quote.total.currency)} ${esc(String(quote.total.amountMinor))} 最小货币单位</strong><pre>${esc(JSON.stringify({fees:quote.fees,total:quote.total,createdAt:quote.createdAt,expiresAt:quote.expiresAt,pricingPolicyVersionId:quote.pricingPolicyVersionId,calculation:quote.calculation,unusableReasons:quote.unusableReasons},null,2))}</pre>`;$('#quote-confirm').hidden=quote.state!=='issued';controls();
+ $('#quote-state').textContent=quote?`${quote.state} · ${quote.id} · v${quote.version}`:(current?.order.quoteId?'当前订单已有报价，点击读取':'尚未读取报价');const box=$('#quote-detail');if(!quote){box.hidden=true;$('#quote-confirm').hidden=true;return;}box.hidden=false;box.innerHTML=quoteDetailHtml(quote,esc,displayTime);$('#quote-confirm').hidden=false;controls();
 }
 async function loadQuote(){if(!current?.order.quoteId)return;const data=await api.read('/api/ops/v1/quotes/'+current.order.quoteId);quote=data;quoteEtag=String(data.version);renderQuote();}
 const localIso=id=>{const value=$(id).value;return value?new Date(value+(value.length===16?':00':'')+'+07:00').toISOString():new Date().toISOString();};
