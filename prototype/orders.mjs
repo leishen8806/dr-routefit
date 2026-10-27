@@ -1,7 +1,8 @@
 import {createOrderClient,OrderApiError} from './order-client.mjs';
 import {escapeHtml as esc,formField as field,showToast} from './ui-primitives.mjs';
 import {quoteDetailHtml} from './quote-view.mjs';
-import {intakeInputFromValues,blockerFieldPath,normalizePoint} from './order-intake-view.mjs';
+import {intakeInputFromValues} from './order-intake-view.mjs';
+import {intakeFieldForPath,retainedPoint} from './orders-ui-rules.mjs';
 
 const $=s=>document.querySelector(s),api=createOrderClient(),form=$('#order-form');
 let customers=[],customerCursor=null,current=null,latest=null,dirty=false,busy=false,connected=false,page=0,cursors=[null],nextCursor=null,intakeReport=null,quote=null,quoteEtag=null;
@@ -90,7 +91,7 @@ function renderIntakeFields(){
  $('#return-intake').hidden=!['validating','quoted'].includes(current.order.state);$('#intake-state').textContent=current.order.state==='draft'?'草稿 · 可登记依据':`${stateNames[current.order.state]||current.order.state} · 只读`;
 }
 function intakeInput(){const get=name=>document.querySelector(`[name="${name}"]`)?.value.trim()||'';const checked=name=>!!document.querySelector(`[name="${name}"]`)?.checked;return intakeInputFromValues(get,checked,current.draft.items);}
-function showIntakeCheck(report){intakeReport=report;$('#intake-check').hidden=false;$('#intake-state').textContent=report.ready?'检查通过 · 可提交受理':'存在阻断项 · 请修正后重新检查';$('#intake-check').innerHTML=report.ready?'<strong>PASS</strong>：当前依据、配送区域与订单资料满足提交条件。':'<strong>阻断项</strong><ul>'+report.blockers.map(x=>`<li><code>${esc(x.code)}</code> · ${esc(x.message)}</li>`).join('')+'</ul>';for(const blocker of report.blockers||[]){const path=blockerFieldPath(blocker);if(path)mark(path,blocker.message||'请修正此项');}renderIntakeFields();controls();if(!report.ready)focusFirstError();}
+function showIntakeCheck(report){intakeReport=report;$('#intake-check').hidden=false;$('#intake-state').textContent=report.ready?'检查通过 · 可提交受理':'存在阻断项 · 请修正后重新检查';$('#intake-check').innerHTML=report.ready?'<strong>PASS</strong>：当前依据、配送区域与订单资料满足提交条件。':'<strong>阻断项</strong><ul>'+report.blockers.map(x=>`<li><code>${esc(x.code)}</code> · ${esc(x.message)}</li>`).join('')+'</ul>';for(const blocker of report.blockers||[]){const path=intakeFieldForPath(blocker.path);if(path)mark(path,blocker.message||'请修正此项');}renderIntakeFields();controls();if(!report.ready)focusFirstError();}
 async function loadIntakeCheck(){if(!current)return;const report=await api.read('/api/ops/v1/orders/'+current.order.id+'/intake-check');showIntakeCheck(report);}
 const value=name=>form.elements.namedItem(name)?.value.trim()||'';
 function cargo(){return [...document.querySelectorAll('[data-item]')].map((node,i)=>{
@@ -101,7 +102,7 @@ function cargo(){return [...document.querySelectorAll('[data-item]')].map((node,
  });}
 function readDraft(){
  const draft={customerId:value('customerId'),serviceLevel:value('serviceLevel'),exclusiveVehicle:form.elements.exclusiveVehicle.checked,paymentTerms:'PREPAID',items:cargo(),notes:value('notes')};
- for(const k of ['pickup','delivery']){const lng=value(k+'.lng'),lat=value(k+'.lat');draft[k]={address:value(k+'.address'),contactName:value(k+'.contactName'),phone:value(k+'.phone'),point:normalizePoint(lng,lat)};if(value(k+'.landmark'))draft[k].landmark=value(k+'.landmark');}
+ for(const k of ['pickup','delivery']){const lng=value(k+'.lng'),lat=value(k+'.lat'),address=value(k+'.address'),landmark=value(k+'.landmark'),prior=current?.draft[k],point=lng&&lat?{lng:Number(lng),lat:Number(lat)}:null;draft[k]={address,contactName:value(k+'.contactName'),phone:value(k+'.phone'),point:retainedPoint(prior,address,landmark,point)};if(landmark)draft[k].landmark=landmark;}
  for(const k of ['requestedPickupWindow','requestedDeliveryWindow'])draft[k]=Object.fromEntries(['start','end'].map(part=>{const entered=value(k+'.'+part),old=current?.draft[k][part];return [part,old&&entered===localTime(old)?old:entered?new Date(entered+':00+07:00').toISOString():''];}));return draft;
 }
 function mark(name,message){const input=form.elements.namedItem(name),error=document.getElementById('err-'+name);if(input){input.setAttribute('aria-invalid','true');if(error)error.textContent=message;}}
