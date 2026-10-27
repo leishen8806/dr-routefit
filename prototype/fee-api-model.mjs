@@ -13,8 +13,11 @@ export function formatTrialInput(line,currency){
  const rule=line?.rule||{};
  if(rule.method==='unit'&&input.quantityMilli!==null&&input.quantityMilli!==undefined)
   return `${display(input.quantityMilli,3)} ${rule.unit||''}`.trim();
- if(rule.method==='percent'&&input.basisMinor!==null&&input.basisMinor!==undefined)
-  return `${display(input.basisMinor,currency==='USD'?2:0)} ${currency} ${rule.basis==='goods'?'货值':'COD本金'}`;
+ if(rule.method==='percent'&&input.basisMinor!==null&&input.basisMinor!==undefined){
+  const code=line?.code||rule.code;
+  const basis=code==='insurance'?'货值':'COD本金';
+  return `${display(input.basisMinor,currency==='USD'?2:0)} ${currency} ${basis}`;
+ }
  return '—';
 }
 function input(name,work){try{return work();}catch(e){throw Object.assign(e,{status:422,code:'VALIDATION_FAILED',fields:[{path:'/'+name,code:'INVALID_VALUE',message:e.message}]});}}

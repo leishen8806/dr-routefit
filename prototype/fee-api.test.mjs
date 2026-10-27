@@ -21,7 +21,9 @@ test('trial selection is explicit, rejects duplicate/disabled/unconfigured fees 
 test('trial input display is readable for fixed, unit and percentage fees',()=>{
  assert.equal(formatTrialInput({input:{quantityMilli:null,basisMinor:null},rule:{method:'fixed'}},'USD'),'—');
  assert.equal(formatTrialInput({input:{quantityMilli:1000,basisMinor:null},rule:{method:'unit',unit:'kg'}},'USD'),'1.000 kg');
- assert.equal(formatTrialInput({input:{quantityMilli:null,basisMinor:10000},rule:{method:'percent',basis:'goods'}},'USD'),'100.00 USD 货值');
+ assert.equal(formatTrialInput({code:'insurance',input:{quantityMilli:null,basisMinor:10000},rule:{method:'percent'}},'USD'),'100.00 USD 货值');
+ assert.equal(formatTrialInput({code:'cod',input:{quantityMilli:null,basisMinor:10000},rule:{method:'percent'}},'USD'),'100.00 USD COD本金');
+ assert.equal(formatTrialInput({code:'insurance',input:{quantityMilli:null,basisMinor:10000},rule:{method:'percent',basis:'cod'}},'USD'),'100.00 USD 货值');
 });
 
 const {FeeClient}=await import('./fee-api-client.mjs');
