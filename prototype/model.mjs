@@ -30,11 +30,12 @@ export function validateInput(p) {
 }
 function base(id,p,now) {return {id,...p,amountMinor:Math.round(p.amount*100),status:'draft',version:1,vehicle:null,promise:null,basis:null,offerUntil:null,custody:'金边演示仓',collection:'due',reportedMinor:0,collectionProof:'',remittance:'open',received:0,returnAuthorized:false,returnAtWarehouse:false,events:[{text:'创建订单草稿',role:'调度',at:stamp(now)}]};}
 export function seed(now=Date.now()) {
-  const one=base('RF-1024-001',{customer:'湄公河办公用品 · 演示',destination:'金边 · 桑园区演示收货点 A',cargo:'办公收纳柜',qty:4,weight:32,length:80,width:45,height:90,expected:'2026-10-24T16:30',amount:24,payment:'cash'},now-2400000);
-  one.status='awaiting_dispatch';one.promise='2026-10-24T17:00';one.basis='人工核对车辆班次与收货窗口';event(one,'客户已确认报价与人工服务承诺','dispatch',now-1800000);
-  const two=base('RF-1024-002',{customer:'河畔生活馆 · 演示',destination:'金边 · 森速区演示收货点 B',cargo:'纸箱包装灯具',qty:6,weight:8,length:45,width:35,height:30,expected:'2026-10-24T18:00',amount:18,payment:'transfer'},now-1600000);
-  const three=base('RF-1024-003',{customer:'城南材料店 · 演示',destination:'金边 · 棉芷区演示收货点 C',cargo:'工具收纳箱',qty:2,weight:20,length:60,width:40,height:35,expected:'2026-10-24T15:30',amount:16,payment:'cash'},now-3600000);
-  three.status='delivered';three.promise='2026-10-24T16:00';three.received=2;three.custody='演示收货人';three.collection='reported';three.reportedMinor=1600;three.collectionProof='DEMO-CASH-003';event(three,'演示初始化：逐件签收完成，现金待核验','driver',now-600000);
+  const demoTime=minutes=>new Date(now+minutes*60000+7*3600000).toISOString().slice(0,16);
+  const one=base('RF-1024-001',{customer:'湄公河办公用品 · 演示',destination:'金边 · 桑园区演示收货点 A',cargo:'办公收纳柜',qty:4,weight:32,length:80,width:45,height:90,expected:demoTime(-30),amount:24,payment:'cash'},now-2400000);
+  one.status='awaiting_dispatch';one.promise=demoTime(-18);one.basis='人工核对车辆班次与收货窗口';event(one,'客户已确认报价与人工服务承诺','dispatch',now-1800000);
+  const two=base('RF-1024-002',{customer:'河畔生活馆 · 演示',destination:'金边 · 森速区演示收货点 B',cargo:'纸箱包装灯具',qty:6,weight:8,length:45,width:35,height:30,expected:demoTime(22),amount:18,payment:'transfer'},now-1600000);
+  const three=base('RF-1024-003',{customer:'城南材料店 · 演示',destination:'金边 · 棉芷区演示收货点 C',cargo:'工具收纳箱',qty:2,weight:20,length:60,width:40,height:35,expected:demoTime(-60),amount:16,payment:'cash'},now-3600000);
+  three.status='delivered';three.promise=demoTime(-45);three.received=2;three.custody='演示收货人';three.collection='reported';three.reportedMinor=1600;three.collectionProof='DEMO-CASH-003';event(three,'演示初始化：逐件签收完成，现金待核验','driver',now-600000);
   return initialize({schema:1,next:4,orders:[one,two,three],requests:{},queue:[]},now);
 }
 export function loadCheck(o,v) {
