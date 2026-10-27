@@ -1,3 +1,3 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {policyErrorMessage,requiredReason} from './fee-api-model.mjs';
+import test from 'node:test';import assert from 'node:assert/strict';import {policyErrorMessage} from './fee-api-model.mjs';import {requiredReason} from './orders-ui-rules.mjs';
 test('policy error mapping distinguishes version and independent review failures',()=>{assert.match(policyErrorMessage('VERSION_CONFLICT'),/版本/);assert.match(policyErrorMessage('INDEPENDENT_REVIEW_REQUIRED'),/职责分离/);assert.match(policyErrorMessage('OTHER'),/未完成/);});
 test('policy reason guard rejects blank review and publish notes',()=>{assert.equal(requiredReason(''),false);assert.equal(requiredReason('  '),false);assert.equal(requiredReason('发布说明'),true);});
