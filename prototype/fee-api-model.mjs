@@ -36,3 +36,4 @@ export function trialDTO(rules,inputs,currency){
 }
 
 export function snapshotChanged(current,snapshot){return !!current&&snapshot.tariffId===current.id&&snapshot.tariffVersion!==current.version;}
+export function policyErrorMessage(code){return {VERSION_CONFLICT:'策略版本已变化，请重新读取。',INDEPENDENT_REVIEW_REQUIRED:'职责分离校验未通过，请使用独立复核或发布会话。'}[code]||'策略操作未完成，请核对输入或重新连接。';}

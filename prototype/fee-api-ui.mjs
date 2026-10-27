@@ -1,5 +1,6 @@
 import {FeeClient} from './fee-api-client.mjs';
-import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput} from './fee-api-model.mjs';
+import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput,policyErrorMessage} from './fee-api-model.mjs';
+import {requiredReason} from './orders-ui-rules.mjs';
 import {policySnapshotRows} from './policy-view.mjs';
 const controlsStylesheet=document.createElement('link');controlsStylesheet.rel='stylesheet';controlsStylesheet.href='controls.css';document.head.append(controlsStylesheet);
 const $=id=>document.getElementById(id),client=new FeeClient(),form=$('fee-form');
@@ -12,7 +13,7 @@ const canRead=()=>connected&&client.identity?.permissions.includes('pricing:read
 function errorsClear(){ $('errors').hidden=true;$('error-list').replaceChildren();form.querySelectorAll('[aria-invalid]').forEach(x=>{x.removeAttribute('aria-invalid');x.removeAttribute('aria-describedby');});document.title='费用设置 · DR RouteFit'; }
 const messages={VERSION_CONFLICT:'服务端版本已变化。你的输入已保留，请读取最新版本并比较。',RESULT_UNKNOWN:'连接失败或结果未知。若为保存请求，请保留输入并按原请求重试，勿重新创建。',IDENTITY_CHANGED:'开发身份已变化。已清除旧身份资源与待处理请求，请重新读取当前企业草稿。',FORBIDDEN:'无此操作权限，请联系负责人。',INDEPENDENT_REVIEW_REQUIRED:'职责分离校验未通过，请使用独立的复核或发布会话。',INVALID_STATE:'策略状态不允许此操作，请先读取当前策略。',SOURCE_VERSION_CHANGED:'来源费率草稿已变化，请重新提交策略。',CAPABILITY_DISABLED:'当前费目能力未接通，不能发布策略。',BASE_FEE_REQUIRED:'发布策略前必须显式配置基础费。',INVALID_POLICY_WINDOW:'请检查策略有效期、报价有效期和服务等级。',NOT_FOUND:'对象不可用或已无访问权限。',PENDING_OPERATION:'有一笔操作尚未确认，请先按原请求重试。',INVALID_RESPONSE:'响应无法确认，尚未显示保存成功。'};
 function showError(error){
- const text=messages[error.code]||(error.status===401?'会话已失效，请重新建立本机开发会话。':error.status===403?'无此操作权限或会话校验失败，请重新连接或联系负责人。':error.status===404?'对象不可用或已无访问权限。':error.status===422?'字段或费用规则不正确，请检查输入。':error.status===429?'请求过于频繁，请稍后按原请求重试。':error.status>=500?'服务暂不可用，保存结果尚未确认。':error.message||'操作失败');
+ const text=(error.code==='VERSION_CONFLICT'||error.code==='INDEPENDENT_REVIEW_REQUIRED')?policyErrorMessage(error.code):messages[error.code]||(error.status===401?'会话已失效，请重新建立本机开发会话。':error.status===403?'无此操作权限或会话校验失败，请重新连接或联系负责人。':error.status===404?'对象不可用或已无访问权限。':error.status===422?'字段或费用规则不正确，请检查输入。':error.status===429?'请求过于频繁，请稍后按原请求重试。':error.status>=500?'服务暂不可用，保存结果尚未确认。':error.message||'操作失败');
  $('errors').hidden=false;$('error-list').replaceChildren(el('p',text));
  for(const f of error.fields||[]){const name=String(f.path||'').replace(/^\//,'').split('/').at(-1);const input=field(name);if(!input)continue;input.id||='fee-'+name;input.setAttribute('aria-invalid','true');const p=el('p',f.message||f.code||'请检查此字段');p.id='error-'+name;input.setAttribute('aria-describedby',p.id);const a=el('a',`${({amount:'金额或比例',step:'计费步长',included:'包含数量',scope:'适用范围',evidence:'配置依据',unit:'单位'})[name]||'输入'}：${f.message||f.code||'请检查输入'}`);a.href='#'+input.id;$('error-list').append(a,p);}
  if(error.requestId){const d=el('details'),s=el('summary','诊断信息');d.append(s,el('p',`${error.code} · ${error.requestId}`));$('error-list').append(d);}
@@ -97,7 +98,7 @@ function policySubmitValue(){return {validFrom:isoInput($('policy-valid-from').v
 async function applyPolicy(r){policy=r.data;policyEtag=r.etag;renderPolicy();message(`策略已更新 · ${policy.state}`);}
 async function policyAction(kind){
  const reason=$(`policy-${kind}-reason`).value.trim();
- if(!reason){$(`policy-${kind}-reason`).setAttribute('aria-invalid','true');message(kind==='review'?'请填写复核说明。':'请填写发布说明。');$(`policy-${kind}-reason`).focus();return;}
+ if(!requiredReason(reason)){$(`policy-${kind}-reason`).setAttribute('aria-invalid','true');message(kind==='review'?'请填写复核说明。':'请填写发布说明。');$(`policy-${kind}-reason`).focus();return;}
  $(`policy-${kind}-reason`).removeAttribute('aria-invalid');
  const permission=kind==='review'?'pricing:review':'pricing:publish';
  await mutate(`/policy-versions/${policy.id}/actions/${kind}`,{reason:reason.trim()},policyEtag,applyPolicy,permission);
