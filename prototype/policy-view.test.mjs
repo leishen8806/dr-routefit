@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {policySnapshotModel,policySnapshotRows} from './policy-view.mjs';
+const p={state:'PUBLISHED',version:3,tariffVersion:7,validFrom:'2026-10-27T00:00:00Z',validUntil:'2026-11-01T00:00:00Z',quoteValiditySeconds:600,serviceLevels:['S2'],preparedBy:'maker',review:{by:'reviewer',at:'2026-10-27T01:00:00Z'},publication:{by:'publisher',at:'2026-10-27T02:00:00Z'}};
+test('policy snapshot model exposes readable approval facts',()=>{const m=policySnapshotModel(p);assert.equal(m.state,'PUBLISHED');assert.equal(m.reviewer,'reviewer');assert.equal(m.publisher,'publisher');assert.match(policySnapshotRows(p,x=>x).find(x=>x[0]==='生效期')[1],/2026-10-27/);});
