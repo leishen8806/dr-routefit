@@ -2,7 +2,7 @@ import {createOrderClient,OrderApiError} from './order-client.mjs';
 import {escapeHtml as esc,formField as field,showToast} from './ui-primitives.mjs';
 
 const $=s=>document.querySelector(s),api=createOrderClient(),form=$('#order-form');
-let customers=[],customerCursor=null,current=null,latest=null,dirty=false,busy=false,connected=false,page=0,cursors=[null],nextCursor=null;
+let customers=[],customerCursor=null,current=null,latest=null,dirty=false,busy=false,connected=false,page=0,cursors=[null],nextCursor=null,intakeReport=null;
 const serviceNames={S1:'及时送',S2:'当日送',S3:'预约送'};
 const stateNames={draft:'草稿',validating:'核验中',quoted:'已生成报价'};
 const blankItem=()=>({clientItemId:crypto.randomUUID(),name:'',quantity:1,lengthCm:null,widthCm:null,heightCm:null,weightKg:null,rotationAllowed:false,stackable:false,uprightOnly:false,restrictions:[],measurementEvidenceIds:[]});
@@ -21,6 +21,12 @@ function controls(){
  $('#fill-sample').disabled=busy||api.pending||!connected||readonly;
  $('#save-order').disabled=busy||api.pending||!connected||readonly||!api.session?.permissions.includes(current?'orders:edit':'orders:create');
  $('#retry-save').hidden=!api.pending;$('#retry-save').disabled=busy||!connected;
+ const intakeReady=!!current&&connected;
+ $('#intake-panel').hidden=!current;
+ $('#save-intake-evidence').disabled=busy||api.pending||!intakeReady||current?.order.state!=='draft'||!api.session?.permissions.includes('orders:verify');
+ $('#check-intake').disabled=busy||api.pending||!intakeReady||!api.session?.permissions.includes('orders:read');
+ $('#submit-intake').disabled=busy||api.pending||!intakeReady||current?.order.state!=='draft'||!api.session?.permissions.includes('orders:submit')||!intakeReport?.ready;
+ $('#return-to-draft').disabled=busy||api.pending||!intakeReady||!['validating','quoted'].includes(current?.order.state)||!api.session?.permissions.includes('orders:edit');
  $('#back-list').disabled=busy||api.pending;$('#compare-latest').disabled=busy;$('#use-latest').disabled=busy;
  $('#previous-page').disabled=busy||!connected||page===0;$('#next-page').disabled=busy||!connected||!nextCursor;
  form.setAttribute('aria-busy',String(busy));
@@ -55,14 +61,29 @@ async function connect(){await work(async()=>{
  });}
 function renderCargo(items){$('#cargo-items').innerHTML=items.map((item,i)=>`<fieldset class="orders-cargo" data-item="${esc(item.clientItemId)}"><legend>货物 ${i+1}</legend><div class="form-grid">${field(`items.${i}.name`,'货物名称',item.name)}${field(`items.${i}.quantity`,'数量（件）',item.quantity,'number')}${['lengthCm','widthCm','heightCm','weightKg'].map((k,j)=>field(`items.${i}.${k}`,['长（cm）','宽（cm）','高（cm）','单件重量（kg）'][j],item[k]??'','number')).join('')}${field(`items.${i}.unknownReason`,'未知尺寸 / 重量的原因',item.unknownReason||'','text',true)}${field(`items.${i}.restrictions`,'运输限制（逗号分隔）',item.restrictions.join(', '),'text',true)}</div><div>${check(`items.${i}.rotationAllowed`,'允许旋转',item.rotationAllowed)}${check(`items.${i}.stackable`,'允许堆叠',item.stackable)}${check(`items.${i}.uprightOnly`,'必须直立',item.uprightOnly)}</div><button class="btn" type="button" data-remove="${i}" ${items.length===1?'disabled':''}>移除货物 ${i+1}</button></fieldset>`).join('');}
 function render(draft,detail=null){
- current=detail;latest=null;dirty=false;notice('');$('#conflict').hidden=true;$('#use-latest').hidden=true;$('#latest-summary').textContent='';
+ current=detail;latest=null;dirty=false;intakeReport=null;notice('');$('#conflict').hidden=true;$('#use-latest').hidden=true;$('#latest-summary').textContent='';
  customerOptions(draft.customerId);
- $('#contacts-fields').innerHTML=['pickup','delivery'].map((side,i)=>`<h3>${i?'送货':'取货'}信息</h3><div class="form-grid">${field(`${side}.address`,'详细地址',draft[side].address,'text',true)}${field(`${side}.contactName`,'联系人',draft[side].contactName)}${field(`${side}.phone`,'联系电话',draft[side].phone,'tel')}${field(`${side}.landmark`,'地标 / 交接点',draft[side].landmark||'','text',true)}</div>`).join('');
+ $('#contacts-fields').innerHTML=['pickup','delivery'].map((side,i)=>`<h3>${i?'送货':'取货'}信息</h3><div class="form-grid">${field(`${side}.address`,'详细地址',draft[side].address,'text',true)}${field(`${side}.contactName`,'联系人',draft[side].contactName)}${field(`${side}.phone`,'联系电话',draft[side].phone,'tel')}${field(`${side}.landmark`,'地标 / 交接点',draft[side].landmark||'','text',true)}${field(`${side}.lng`,'经度（可选）',draft[side].point?.lng??'','number',true)}${field(`${side}.lat`,'纬度（可选）',draft[side].point?.lat??'','number',true)}</div>`).join('');
  renderCargo(draft.items);
  $('#service-fields').innerHTML=`<div class="form-grid"><label class="field"><span>服务要求（尚未承诺）</span><select name="serviceLevel">${Object.entries(serviceNames).map(([v,n])=>`<option value="${v}" ${v===draft.serviceLevel?'selected':''}>${n}</option>`).join('')}</select></label><div class="field">${check('exclusiveVehicle','申请独享车辆',draft.exclusiveVehicle)}</div></div><p class="muted">以下均为金边时间（UTC+07），填写期望时间，不构成配送承诺。</p><div class="form-grid">${['requestedPickupWindow','requestedDeliveryWindow'].map((k,i)=>['start','end'].map((part,j)=>field(`${k}.${part}`,`${i?'送货':'取货'}${j?'结束':'开始'}`,localTime(draft[k][part]),'datetime-local')).join('')).join('')}${field('notes','备注',draft.notes||'','text',true)}</div>`;
- $('#orders-list').hidden=true;$('#order-editor').hidden=false;$('#edit-state').textContent=detail?`${stateNames[detail.order.state]||detail.order.state}${detail.order.state==='draft'?'':' · 只读'} ${detail.order.orderNo} · 版本 ${detail.order.version}`:'新草稿 · 尚未保存';$('#save-state').textContent=detail?'已从服务端读取':'尚未保存';step('contacts');controls();
+ $('#orders-list').hidden=true;$('#order-editor').hidden=false;$('#edit-state').textContent=detail?`${stateNames[detail.order.state]||detail.order.state}${detail.order.state==='draft'?'':' · 只读'} ${detail.order.orderNo} · 版本 ${detail.order.version}`:'新草稿 · 尚未保存';$('#save-state').textContent=detail?'已从服务端读取':'尚未保存';renderIntakeFields();step('contacts');controls();
  if(detail&&detail.order.state!=='draft')notice('本单只读查看。未确认报价的订单可经受理接口有原因退回；已确认报价须走后续受控变更。报价有效性与付款结果请读取对应接口。');else $('#customer').focus();
 }
+function renderIntakeFields(){
+ if(!current){$('#intake-evidence-fields').replaceChildren();return;}
+ const existing=intakeReport?.evidence?.data||{};
+ const side=(name,label)=>`<fieldset class="orders-intake-side"><legend>${label}确认</legend><div class="form-grid"><label class="field"><span>确认渠道</span><select name="intake.${name}.method"><option value="PHONE">电话 PHONE</option><option value="IN_PERSON">现场 IN_PERSON</option><option value="MESSAGE">消息 MESSAGE</option></select></label><label class="field"><span>依据 reference</span><input name="intake.${name}.reference" value="${esc(existing[name]?.reference||'')}" required></label><label class="field full"><span>具体入口 entrance</span><input name="intake.${name}.entrance" value="${esc(existing[name]?.entrance||'')}" required></label></div></fieldset>`;
+ const measurements=current.draft.items.map((item,i)=>{const found=existing.measurements?.find(x=>x.clientItemId===item.clientItemId)||{};return `<fieldset class="orders-intake-measurement"><legend>货物 ${i+1} · ${esc(item.name||'未命名')}</legend><div class="form-grid"><label class="field"><span>来源</span><select name="intake.measurements.${i}.source"><option value="CUSTOMER_DECLARED">客户申报</option><option value="WAREHOUSE_MEASURED">仓库实测</option></select></label><label class="field"><span>来源说明</span><input name="intake.measurements.${i}.reference" value="${esc(found.reference||'')}" required></label></div><label class="checks"><input type="checkbox" name="intake.measurements.${i}.packagingConfirmed" ${found.packagingConfirmed?'checked':''}> 已确认对应实际包装</label></fieldset>`;}).join('');
+ $('#intake-evidence-fields').innerHTML=side('pickup','取货')+side('delivery','送货')+`<h3>每行货物来源</h3>${measurements}`;
+ if(existing.pickup)$('#intake-evidence-fields [name="intake.pickup.method"]').value=existing.pickup.method||'PHONE';if(existing.delivery)$('#intake-evidence-fields [name="intake.delivery.method"]').value=existing.delivery.method||'PHONE';
+ $('#return-intake').hidden=!['validating','quoted'].includes(current.order.state);$('#intake-state').textContent=current.order.state==='draft'?'草稿 · 可登记依据':`${stateNames[current.order.state]||current.order.state} · 只读`;
+}
+function intakeInput(){
+ const get=name=>document.querySelector(`[name="${name}"]`)?.value.trim()||'';const checked=name=>!!document.querySelector(`[name="${name}"]`)?.checked;
+ return {pickup:{method:get('intake.pickup.method'),reference:get('intake.pickup.reference'),entrance:get('intake.pickup.entrance')},delivery:{method:get('intake.delivery.method'),reference:get('intake.delivery.reference'),entrance:get('intake.delivery.entrance')},measurements:current.draft.items.map((item,i)=>({clientItemId:item.clientItemId,source:get(`intake.measurements.${i}.source`),reference:get(`intake.measurements.${i}.reference`),packagingConfirmed:checked(`intake.measurements.${i}.packagingConfirmed`)}))};
+}
+function showIntakeCheck(report){intakeReport=report;$('#intake-check').hidden=false;$('#intake-state').textContent=report.ready?'检查通过 · 可提交受理':'存在阻断项 · 请修正后重新检查';$('#intake-check').innerHTML=report.ready?'<strong>PASS</strong>：当前依据、配送区域与订单资料满足提交条件。':'<strong>阻断项</strong><ul>'+report.blockers.map(x=>`<li><code>${esc(x.code)}</code> · ${esc(x.message)}</li>`).join('')+'</ul>';renderIntakeFields();controls();}
+async function loadIntakeCheck(){if(!current)return;const report=await api.read('/api/ops/v1/orders/'+current.order.id+'/intake-check');showIntakeCheck(report);}
 const value=name=>form.elements.namedItem(name)?.value.trim()||'';
 function cargo(){return [...document.querySelectorAll('[data-item]')].map((node,i)=>{
  const item={clientItemId:node.dataset.item,name:value(`items.${i}.name`),quantity:Number(value(`items.${i}.quantity`)),restrictions:value(`items.${i}.restrictions`).split(/[,，]/).map(v=>v.trim()).filter(Boolean),measurementEvidenceIds:[]};
@@ -72,7 +93,7 @@ function cargo(){return [...document.querySelectorAll('[data-item]')].map((node,
  });}
 function readDraft(){
  const draft={customerId:value('customerId'),serviceLevel:value('serviceLevel'),exclusiveVehicle:form.elements.exclusiveVehicle.checked,paymentTerms:'PREPAID',items:cargo(),notes:value('notes')};
- for(const k of ['pickup','delivery']){draft[k]={address:value(k+'.address'),contactName:value(k+'.contactName'),phone:value(k+'.phone'),point:null};if(value(k+'.landmark'))draft[k].landmark=value(k+'.landmark');if(current&&draft[k].address===current.draft[k].address&&draft[k].landmark==current.draft[k].landmark)draft[k].point=current.draft[k].point;}
+ for(const k of ['pickup','delivery']){const lng=value(k+'.lng'),lat=value(k+'.lat');draft[k]={address:value(k+'.address'),contactName:value(k+'.contactName'),phone:value(k+'.phone'),point:lng&&lat?{lng:Number(lng),lat:Number(lat)}:null};if(value(k+'.landmark'))draft[k].landmark=value(k+'.landmark');}
  for(const k of ['requestedPickupWindow','requestedDeliveryWindow'])draft[k]=Object.fromEntries(['start','end'].map(part=>{const entered=value(k+'.'+part),old=current?.draft[k][part];return [part,old&&entered===localTime(old)?old:entered?new Date(entered+':00+07:00').toISOString():''];}));return draft;
 }
 function mark(name,message){const input=form.elements.namedItem(name),error=document.getElementById('err-'+name);if(input){input.setAttribute('aria-invalid','true');if(error)error.textContent=message;}}
@@ -105,12 +126,16 @@ $('#demo-link').onclick=e=>{e.preventDefault();const href=e.currentTarget.href;d
 $('#refresh-list').onclick=refresh;$('#reconnect').onclick=connect;$('#retry-save').onclick=()=>save(true);
 $('#previous-page').onclick=()=>{page--;refresh();};$('#next-page').onclick=()=>{page++;cursors[page]=nextCursor;refresh();};
 $('#more-customers').onclick=()=>work(()=>loadCustomers());
-$('#order-rows').onclick=e=>{const id=e.target.closest('[data-open]')?.dataset.open;if(id)work(async()=>{const detail=await api.read('/api/ops/v1/orders/'+id);if(!customers.some(c=>c.id===detail.order.customerId))customers.push({id:detail.order.customerId,name:'当前订单客户（授权记录）'});render(detail.draft,detail);});};
+$('#order-rows').onclick=e=>{const id=e.target.closest('[data-open]')?.dataset.open;if(id)work(async()=>{const detail=await api.read('/api/ops/v1/orders/'+id);if(!customers.some(c=>c.id===detail.order.customerId))customers.push({id:detail.order.customerId,name:'当前订单客户（授权记录）'});render(detail.draft,detail);await loadIntakeCheck();});};
 $('#add-item').onclick=()=>{renderCargo([...cargo(),blankItem()]);dirty=true;$('#cargo-items fieldset:last-child input').focus();};
 $('#cargo-items').onclick=e=>{const button=e.target.closest('[data-remove]');if(button){const items=cargo();items.splice(Number(button.dataset.remove),1);renderCargo(items);dirty=true;$('#add-item').focus();}};
 $('#fill-sample').onclick=()=>discard(()=>work(async()=>{const spec=await api.read('/dev/openapi.json');const draft=structuredClone(spec.paths['/api/ops/v1/orders'].post.requestBody.content['application/json'].examples.synthetic.value);draft.customerId=current?.draft.customerId||customers[0]?.id||'';render(draft,current);dirty=true;$('#save-state').textContent='合成样例 · 尚未保存';}));
 $('#compare-latest').onclick=()=>work(async()=>{latest=await api.read('/api/ops/v1/orders/'+current.order.id);$('#latest-summary').textContent=`服务端版本 ${latest.order.version}\n`+JSON.stringify(latest.draft,null,2);$('#use-latest').hidden=false;});
 $('#use-latest').onclick=()=>discard(()=>render(latest.draft,latest));
+$('#save-intake-evidence').onclick=()=>work(async()=>{if(!current)return;const result=await api.command('/api/ops/v1/orders/'+current.order.id+'/intake-evidence',intakeInput(),current.order.version);intakeReport=null;$('#intake-check').hidden=true;showToast('受理依据已登记，请重新检查条件。');await loadIntakeCheck();});
+$('#check-intake').onclick=()=>work(loadIntakeCheck);
+$('#submit-intake').onclick=()=>work(async()=>{const result=await api.command('/api/ops/v1/orders/'+current.order.id+'/actions/submit',{},current.order.version);current=result;render(result.draft,result);await loadIntakeCheck();notice('受理已提交，订单进入核验中；当前页面只读。');});
+$('#return-to-draft').onclick=()=>work(async()=>{const reason=$('#return-reason').value.trim();if(!reason){$('#return-reason').setAttribute('aria-invalid','true');notice('退回原因必填。');$('#return-reason').focus();return;}const result=await api.command('/api/ops/v1/orders/'+current.order.id+'/actions/return-to-draft',{reason},current.order.version);current=result;$('#return-reason').value='';render(result.draft,result);await loadIntakeCheck();notice('订单已退回草稿，请修改后重新登记受理依据。');});
 window.addEventListener('beforeunload',e=>{if(dirty||api.pending){e.preventDefault();e.returnValue='';}});
 document.querySelectorAll('#reconnect,#back-list,[data-step],#more-customers,#add-item,#compare-latest,#use-latest,#fill-sample,#stay,#leave').forEach(n=>n.disabled=false);
 connect();
