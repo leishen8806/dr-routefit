@@ -1,5 +1,6 @@
 import {FeeClient} from './fee-api-client.mjs';
-import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput} from './fee-api-model.mjs';
+import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput,requiredReason} from './fee-api-model.mjs';
+import {policySnapshotRows} from './policy-view.mjs';
 const controlsStylesheet=document.createElement('link');controlsStylesheet.rel='stylesheet';controlsStylesheet.href='controls.css';document.head.append(controlsStylesheet);
 const $=id=>document.getElementById(id),client=new FeeClient(),form=$('fee-form');
 let catalog=[],tariffs=[],current=null,etag=null,code=null,dirty=false,busy=false,connected=false,sequence=0,nextAfter=null,historyAfter=null,historyId=null,latest=null,pendingApply=null,tab='edit',snapshot=null,createDirty=false,policy=null,policyEtag=null;
@@ -96,7 +97,7 @@ function policySubmitValue(){return {validFrom:isoInput($('policy-valid-from').v
 async function applyPolicy(r){policy=r.data;policyEtag=r.etag;renderPolicy();message(`策略已更新 · ${policy.state}`);}
 async function policyAction(kind){
  const reason=$(`policy-${kind}-reason`).value.trim();
- if(!reason){$(`policy-${kind}-reason`).setAttribute('aria-invalid','true');message(kind==='review'?'请填写复核说明。':'请填写发布说明。');$(`policy-${kind}-reason`).focus();return;}
+ if(!requiredReason(reason)){$(`policy-${kind}-reason`).setAttribute('aria-invalid','true');message(kind==='review'?'请填写复核说明。':'请填写发布说明。');$(`policy-${kind}-reason`).focus();return;}
  $(`policy-${kind}-reason`).removeAttribute('aria-invalid');
  const permission=kind==='review'?'pricing:review':'pricing:publish';
  await mutate(`/policy-versions/${policy.id}/actions/${kind}`,{reason:reason.trim()},policyEtag,applyPolicy,permission);
