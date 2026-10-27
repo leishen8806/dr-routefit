@@ -9,6 +9,7 @@ const origin=process.env.ROUTEFIT_ALLOWED_ORIGIN||'http://127.0.0.1:4180';
 const sessionsFile=resolve(process.env.ROUTEFIT_SESSION_FILE||'services/routefit/.local/sessions.json');
 const evidenceDirectory=resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY||'.local/evidence/rf-pm-018');
 const executablePath=process.env.CHROME_BIN||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const mobileWidth=Number(process.env.ROUTEFIT_MOBILE_WIDTH||390);
 const feesUrl=`${origin}/prototype/fees.html`,indexUrl=`${origin}/prototype/`;
 await mkdir(evidenceDirectory,{recursive:true});
 
@@ -58,9 +59,9 @@ try{
   const tariffId=await seed(owner.page);
   await owner.page.reload({waitUntil:'domcontentloaded'});await owner.page.locator('#source').waitFor({state:'visible'});
   await choose(owner.page,tariffId);
-  evidence.push({name:'mobile-navigation',status:'PASS',detail:'390px viewport shows the 费用设置（数据库） navigation entry and opens fees.html',screenshot:await (async()=>{
+    evidence.push({name:'mobile-navigation',status:'PASS',detail:`${mobileWidth}px viewport shows the 费用设置（数据库） navigation entry and opens fees.html`,screenshot:await (async()=>{
     await owner.context.close();
-    const mobile=await session(0,{width:390,height:844});
+    const mobile=await session(0,{width:mobileWidth,height:844});
     await mobile.page.goto(`${indexUrl}#operations`,{waitUntil:'domcontentloaded'});await mobile.page.locator('#mobile-nav').waitFor({state:'visible',timeout:15000});
     const entry=mobile.page.locator('#mobile-nav');
     if(!(await entry.isVisible())||!(await mobile.page.locator('#mobile-nav option[value="fees-api"]').count()))fail('fees navigation entry is not available at 390px');
@@ -69,8 +70,8 @@ try{
     await choose(mobile.page,tariffId);await fillBaseUser(mobile.page);
     const dimensions=await mobile.page.evaluate(()=>({clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth}));
     const saveBox=await mobile.page.locator('#save').boundingBox();
-    if(dimensions.scrollWidth>dimensions.clientWidth||!saveBox||saveBox.x<0||saveBox.x+saveBox.width>390)fail(`390px fee page overflow or clipped save button: ${JSON.stringify({dimensions,saveBox})}`);
-    evidence.push({name:'mobile-fees-page',status:'PASS',detail:'390px fee page has no horizontal overflow and save button stays within viewport',screenshot:await snap(mobile.page,'02-mobile-fees-page.png')});
+    if(dimensions.scrollWidth>dimensions.clientWidth||!saveBox||saveBox.x<0||saveBox.x+saveBox.width>mobileWidth)fail(`${mobileWidth}px fee page overflow or clipped save button: ${JSON.stringify({dimensions,saveBox})}`);
+    evidence.push({name:'mobile-fees-page',status:'PASS',detail:`${mobileWidth}px fee page has no horizontal overflow and save button stays within viewport`,screenshot:await snap(mobile.page,'02-mobile-fees-page.png')});
     await mobile.context.close();return path;
   })()});
 
@@ -108,5 +109,5 @@ try{
   const after=await readTariff(offline.page,tariffId);if(after.status!==200||after.body.version!==before.body.version+1)fail(`retry changed tariff more than once: before=${before.body.version} after=${after.body?.version}`);
   evidence.push({name:'offline-result-unknown',status:'PASS',detail:`Response cut after server commit; retry shows saved and tariff version changed exactly once (${before.body.version}→${after.body.version})`,screenshot:await snap(offline.page,'06-offline-result-unknown.png')});await offline.context.close();
 
-  console.log(JSON.stringify({task:'RF-PM-018-R1',origin,testDatabase:databaseLabel(testDatabaseUrl),viewport:{width:390,height:844},tariffId,checks:evidence,allPass:evidence.every(x=>x.status==='PASS')},null,2));
+  console.log(JSON.stringify({task:'RF-PM-018-R1',origin,testDatabase:databaseLabel(testDatabaseUrl),viewport:{width:mobileWidth,height:844},tariffId,checks:evidence,allPass:evidence.every(x=>x.status==='PASS')},null,2));
 }finally{await browser.close();}
