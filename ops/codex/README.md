@@ -28,6 +28,13 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-003](tasks/RF-PM-003-readme-status-sync.md) | README 进度与 main 实际状态对齐 | docs | 低 | 001 | TODO |
 | [RF-PM-004](tasks/RF-PM-004-missing-docs.md) | 补齐 10 份被引用但缺失的 PRD 文档 | docs | 低 | 无 | TODO |
 | [RF-PM-005](tasks/RF-PM-005-ci-pipeline.md) | GitHub Actions 持续集成 | chore | 中 | 001 | TODO |
+| [RF-PM-022](tasks/RF-PM-022-p01-order-intake-page.md) | P01-A 订单受理页接线（大旺＋Codex） | feat | 中 | 无 | TODO |
+| [RF-PM-023](tasks/RF-PM-023-p01-quote-page.md) | P01-B 报价生成、明细与客户确认（大旺＋Codex） | feat | 中 | 022 | TODO |
+| [RF-PM-024](tasks/RF-PM-024-p01-pricing-policy-page.md) | P01-C 费率策略审核与发布页（大旺＋Codex） | feat | 中 | 无 | TODO |
+| [RF-PM-025](tasks/RF-PM-025-p01-requote-consistency.md) | P01-D 改单重核价与跨端金额一致（项目负责人＋Codex） | feat | 中 | 023 | TODO |
+| [RF-QA-02](tasks/RF-QA-02-p01-acceptance.md) | P01 独立浏览器验收（项目负责人） | test | 低 | 022–025 | TODO |
+
+2026-10-27 需求会后的完整拆解（含不经 Codex 的决策落盘任务 RF-DEC-01–06 与执行人）见 [需求会后任务拆解](../../PRD/docs/tasks/post-meeting-task-breakdown-v0.1.md)。上表 RF-PM-000–005 的状态未随实际合并更新，以 GitHub PR 为准。
 
 Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、钱包/分成/提现、Telegram/iOS 端、库存归属），供人类负责人拍板后再派发 PRD V1.5 同步任务。
 
@@ -45,9 +52,9 @@ Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、�
 
 | 版本 | 范围 | 状态 |
 | --- | --- | --- |
-| v0.1.0 | 截至 main `6cf5f0c` 的基线、CI、迁移修复、费用页设计与真实接线 | 已在 main |
-| v0.2.0 | RF-PM-012、RF-PM-013、RF-PM-014 费用页闭环与 RF-QA-01 独立验收 | 进行中 |
-| v0.3.0 | P01 订单与报价页面：受理、报价表单与明细、策略审核与正式报价 | 待拆卡 |
+| v0.1.0 | 截至 main `6cf5f0c` 的基线、CI、迁移修复、费用页设计与真实接线 | 标签待人类负责人补打 |
+| v0.2.0 | RF-PM-012–016、PR #22、RF-PM-019（PR #23） | 已合入 main，待打标签 |
+| v0.3.0 | RF-PM-018 浏览器验收遗留项、RF-PM-020 仓库版本计划同步；P01 订单与报价页面：受理、报价表单与明细、策略审核与正式报价（RF-PM-022–025、RF-QA-02） | 进行中 |
 | v0.4.0 | P02 付款准入页面：预付财务表单、核销撤销入口、公共入口改接数据库 | 待拆卡 |
 
 大版本完成标准：版本内所有任务卡已合进 `develop`，`develop` CI 全绿，发布 PR 写明变更、PASS/FAIL/NOT_RUN 与已知限制，跨端验收按分工文档由另一方完成。
