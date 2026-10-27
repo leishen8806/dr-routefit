@@ -1,0 +1,28 @@
+import {mkdir,readFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {chromium} from '../services/routefit/node_modules/playwright-core/index.mjs';
+import {createBrowserGrant} from '../services/routefit/adapters/local-browser.mjs';
+
+const origin=process.env.ROUTEFIT_ALLOWED_ORIGIN||'http://127.0.0.1:4180';
+const sessionsFile=resolve(process.env.ROUTEFIT_SESSION_FILE||'services/routefit/.local/sessions.json');
+const evidenceDirectory=resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY||'services/routefit/verification/policy-approval');
+await mkdir(evidenceDirectory,{recursive:true});
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_BIN||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
+const checks=[];const check=(name,ok)=>{if(!ok)throw Error(name);checks.push(name);};
+async function context(actor){const context=await browser.newContext({viewport:{width:1440,height:1000},locale:'zh-CN'});const page=await context.newPage();page.on('dialog',dialog=>dialog.accept('Synthetic independent policy decision'));const grant=await createBrowserGrant({sessionsFile,actor,origin});await page.goto(grant.url);await page.goto(`${origin}/prototype/fees.html`);await page.locator('#refresh').waitFor({state:'visible'});await page.waitForFunction(()=>document.querySelector('#tariff')?.disabled===false);return {context,page};}
+async function request(page,path,body=null,version=null){const session=await page.evaluate(async()=>{const r=await fetch('/dev/session');return r.json();});const headers={'Content-Type':'application/json','X-CSRF-Token':session.csrfToken,'Idempotency-Key':crypto.randomUUID()};if(version)headers['If-Match']=`"${version}"`;const r=await page.evaluate(async({path,body,headers})=>{const res=await fetch('/api/ops/v1/pricing'+path,{method:body?'POST':'GET',headers,...(body?{body:JSON.stringify(body)}:{})});return {status:res.status,body:await res.json().catch(()=>null),etag:res.headers.get('ETag')};},{path,body,headers});if(r.status>=400)throw Error(`${path}: ${r.status} ${r.body?.error?.code||''}`);return r.body;}
+const shot=async(page,name)=>page.screenshot({path:resolve(evidenceDirectory,name),fullPage:true});
+try{
+ const preparer=await context(0),reviewer=await context(2),approver=await context(3);
+ const customer=(await request(preparer.page,'/tariffs?limit=1')).items;
+ let tariff=await request(preparer.page,'/tariffs',{name:'RF-PM-024 synthetic policy',owner:'DR',currency:'USD',scope:'Synthetic fixed delivery only'});
+ tariff=await request(preparer.page,`/tariffs/${tariff.id}/actions/save-fee`,{code:'base',enabled:true,method:'fixed',amount:200,unit:null,includedMilli:0,stepMilli:1000,share:true,scope:'DEMO',evidence:'Synthetic policy approval'},tariff.version);
+ for(const page of [preparer.page,reviewer.page,approver.page]){await page.reload();await page.waitForFunction(()=>document.querySelector('#tariff')?.disabled===false);await page.locator('#tariff').selectOption(tariff.id);await page.locator('#policy-panel').waitFor({state:'visible'});}
+ const start=new Date(Date.now()+3600000),end=new Date(Date.now()+7200000),local=d=>new Date(d.getTime()+7*3600000).toISOString().slice(0,16);
+ await preparer.page.locator('#policy-valid-from').fill(local(start));await preparer.page.locator('#policy-valid-until').fill(local(end));await preparer.page.locator('#policy-reason').fill('Synthetic fixed policy submission');await preparer.page.locator('#policy-submit').click();await preparer.page.locator('#policy-status').filter({hasText:'SUBMITTED'}).waitFor();
+ const policy=await request(preparer.page,`/policy-versions/${(await preparer.page.locator('#policy-status').innerText()).match(/[0-9a-f-]{36}/i)[0]}`);const policyId=policy.id;check('preparer submits policy',policy.state==='SUBMITTED');await shot(preparer.page,'01-submitted.png');
+ const same=await preparer.page.evaluate(async({policyId})=>{const s=await (await fetch('/dev/session')).json();const r=await fetch(`/api/ops/v1/pricing/policy-versions/${policyId}/actions/review`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':s.csrfToken,'Idempotency-Key':crypto.randomUUID(),'If-Match':'"1"'},body:JSON.stringify({reason:'same identity must fail'})});return r.status;},{policyId});check('same principal review rejected',same===403);
+ await reviewer.page.locator('#policy-id').fill(policyId);await reviewer.page.locator('#policy-load').click();await reviewer.page.locator('#policy-status').filter({hasText:'SUBMITTED'}).waitFor();await reviewer.page.locator('#policy-review').click();await reviewer.page.locator('#policy-status').filter({hasText:'REVIEWED'}).waitFor();check('independent reviewer completes review',true);await shot(reviewer.page,'02-reviewed.png');
+ await approver.page.locator('#policy-id').fill(policyId);await approver.page.locator('#policy-load').click();await approver.page.locator('#policy-status').filter({hasText:'REVIEWED'}).waitFor();await approver.page.locator('#policy-publish').click();await approver.page.locator('#policy-status').filter({hasText:'PUBLISHED'}).waitFor();const published=await request(approver.page,`/policy-versions/${policyId}`);check('independent approver publishes policy',published.state==='PUBLISHED'&&published.version===3);await shot(approver.page,'03-published.png');
+ console.log(JSON.stringify({task:'RF-PM-024',checks,allPass:true},null,2));
+}finally{await browser.close();}

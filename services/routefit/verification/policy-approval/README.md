@@ -27,4 +27,4 @@
 
 本次策略只接受DR固定base／flash／insurance，不接受启用的距离、阶梯、比例保险或采购规则；其他试算能力仍保留。发布不触发报价、应收、收付款、承保、派单；有效期仍须单独校验。未实现提前撤销／停用，故不能用于真实经营收费。
 
-未新增审核页面，也未重复运行原录单浏览器检查。大旺按[接口说明](../../../../contracts/pricing-policy-api.md)、[HTTP模板](../../../../contracts/examples/pricing-policy.http)接线；独立业务验收、生产身份及外部支付均未完成。
+本轮新增 `prototype/fees.html` 的策略提交、查询、复核和发布面板，复用 `FeeClient` 的同源会话、CSRF、幂等和身份变更处理。`prototype/browser-policy-approval-acceptance.mjs` 使用三个独立本机开发身份覆盖提交 → 复核 → 发布、同人复核被拒；截图见 `01-submitted.png`、`02-reviewed.png`、`03-published.png`。仅用合成费率与本机数据库，未部署或开启真实收费。
