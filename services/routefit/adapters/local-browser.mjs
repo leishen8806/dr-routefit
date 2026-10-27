@@ -58,6 +58,11 @@ export function localBrowser({origin,root,sessionsFile,authenticate,pool}){
    else send(200,{mode:'local-development',companyId:principal.companyId,principalId:principal.principalId,permissions:principal.permissions,expiresAt:principal.expiresAt,csrfToken:principal.csrf});
    return true;
   }
+  if(url.pathname==='/dev/database-name'){
+   ensure(req.method==='GET'&&url.search==='',405,'METHOD_NOT_ALLOWED','仅支持GET且不接受查询参数');
+   const principal=authenticate(req);ensure(principal.browser,401,'BROWSER_SESSION_REQUIRED','请使用本机一次性链接建立浏览器会话');
+   const result=await pool.query('SELECT current_database() AS database');send(200,{database:result.rows[0].database});return true;
+  }
   if(url.pathname.startsWith('/api/')||url.pathname.startsWith('/health/'))return false;
   ensure(req.method==='GET',405,'METHOD_NOT_ALLOWED','静态资源仅支持GET');
   let name;try{name=decodeURIComponent(url.pathname);}catch{ensure(false,404,'NOT_FOUND','资源不存在');}

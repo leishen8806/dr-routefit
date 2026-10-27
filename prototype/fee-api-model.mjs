@@ -36,7 +36,7 @@ export function trialDTO(rules,inputs,currency){
 }
 
 export function snapshotChanged(current,snapshot){return !!current&&snapshot.tariffId===current.id&&snapshot.tariffVersion!==current.version;}
-const ownerLabels=Object.freeze({DR:'对客价表',VET:'兽医合作方',ZTO:'中通承运方',CE:'客户企业',JT:'极兔承运方'});
+const ownerLabels=Object.freeze({DR:'DR 对客收费',VET:'VET 采购费',ZTO:'中通 采购费',CE:'CE 采购费',JT:'极兔 采购费'});
 const stateLabels=Object.freeze({DRAFT:'草稿',SUBMITTED:'待复核',REVIEWED:'已复核',PUBLISHED:'已发布',ARCHIVED:'已归档'});
 export function shortId(id){return String(id??'').slice(0,8);}
 export function tariffStateLabel(state){return stateLabels[state]||state||'未知状态';}

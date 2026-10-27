@@ -2,7 +2,7 @@ import {mkdir,readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {chromium} from '../services/routefit/node_modules/playwright-core/index.mjs';
 import {createBrowserGrant} from '../services/routefit/adapters/local-browser.mjs';
-import {requireTestDatabaseUrl} from './browser-test-env.mjs';
+import {requireTestDatabaseUrl,assertTestDatabase,databaseLabel} from './browser-test-env.mjs';
 
 const testDatabaseUrl=requireTestDatabaseUrl('RF-PM-023');
 const origin=process.env.ROUTEFIT_ALLOWED_ORIGIN||'http://127.0.0.1:4180',sessionsFile=resolve(process.env.ROUTEFIT_SESSION_FILE||'services/routefit/.local/sessions.json'),evidenceDirectory=resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY||'services/routefit/verification/order-quotes');
@@ -13,6 +13,7 @@ async function request(page,path,body=null,version=null){const session=await pag
 const shot=async(page,name)=>page.screenshot({path:resolve(evidenceDirectory,name),fullPage:true});
 try{
  const author=await context(0),reviewer=await context(2),approver=await context(3);
+ await assertTestDatabase(author.page,testDatabaseUrl);
  let tariff=await request(author.page,'/pricing/tariffs',{name:'[TEST] RF-PM-023 synthetic quote',owner:'DR',currency:'USD',scope:'Synthetic fixed delivery only'});
  tariff=await request(author.page,`/pricing/tariffs/${tariff.id}/actions/save-fee`,{code:'base',enabled:true,method:'fixed',amount:1000,unit:null,includedMilli:0,stepMilli:1000,share:true,scope:'DEMO',evidence:'Synthetic quote base'},tariff.version);
  const from=new Date(Date.now()-60000),until=new Date(Date.now()+7200000);let policy=await request(author.page,`/pricing/tariffs/${tariff.id}/policy-versions`,{validFrom:from.toISOString(),validUntil:until.toISOString(),quoteValiditySeconds:1,serviceLevels:['S2'],reason:'Synthetic quote policy'},tariff.version);policy=await request(reviewer.page,`/pricing/policy-versions/${policy.id}/actions/review`,{reason:'Synthetic independent review'},policy.version);policy=await request(approver.page,`/pricing/policy-versions/${policy.id}/actions/publish`,{reason:'Synthetic independent publish'},policy.version);check('published policy available',policy.state==='PUBLISHED');
@@ -23,5 +24,5 @@ try{
  const local=d=>new Date(d.getTime()+7*3600000).toISOString().slice(0,16);await author.page.locator('#confirm-quote').click();check('confirmation time is required in page',await author.page.locator('#quote-confirmed-at').getAttribute('aria-invalid')==='true');await author.page.locator('#quote-customer-contact').fill('Synthetic customer');await author.page.locator('#quote-confirm-reference').fill('Synthetic phone confirmation');await author.page.locator('#quote-confirmed-at').fill(local(new Date()));await author.page.waitForTimeout(1100);await author.page.locator('#confirm-quote').click();await author.page.locator('#notice').filter({hasText:'报价已过期或被替代'}).waitFor();check('expired quote cannot confirm through page',true);
  const replacement=await request(author.page,`/orders/${order.order.id}/quotes`,{pricingPolicyVersionId:policy.id,insuranceRequested:false},order.order.version);order=await request(author.page,`/orders/${order.order.id}`);const superseded=await request(author.page,`/quotes/${oldQuote.id}`);check('superseded quote reports unusable state',superseded.state==='superseded'&&superseded.unusableReasons.includes('ORDER_CHANGED'));await author.page.locator('#confirm-quote').click();await author.page.locator('#notice').filter({hasText:'报价已过期或被替代'}).waitFor();check('superseded quote cannot confirm through page',true);
  const replacementIssued=await request(author.page,`/quotes/${replacement.id}`);await request(author.page,`/quotes/${replacement.id}/actions/record-customer-confirmation`,{customerContact:'Synthetic customer',method:'PHONE',reference:'Synthetic phone confirmation',confirmedAt:replacementIssued.createdAt},replacementIssued.version);const confirmed=await request(author.page,`/quotes/${replacement.id}`);check('customer confirmation records confirmed quote',confirmed.state==='confirmed');await shot(author.page,'02-confirmed-quote.png');
- console.log(JSON.stringify({task:'RF-PM-023',testDatabaseUrl,checks,allPass:true},null,2));
+ console.log(JSON.stringify({task:'RF-PM-023',testDatabase:databaseLabel(testDatabaseUrl),checks,allPass:true},null,2));
 }finally{await browser.close();}

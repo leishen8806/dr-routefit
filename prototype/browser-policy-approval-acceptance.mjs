@@ -2,7 +2,7 @@ import {mkdir,readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {chromium} from '../services/routefit/node_modules/playwright-core/index.mjs';
 import {createBrowserGrant} from '../services/routefit/adapters/local-browser.mjs';
-import {requireTestDatabaseUrl} from './browser-test-env.mjs';
+import {requireTestDatabaseUrl,assertTestDatabase,databaseLabel} from './browser-test-env.mjs';
 
 const testDatabaseUrl=requireTestDatabaseUrl('RF-PM-024');
 const origin=process.env.ROUTEFIT_ALLOWED_ORIGIN||'http://127.0.0.1:4180';
@@ -16,6 +16,7 @@ async function request(page,path,body=null,version=null){const session=await pag
 const shot=async(page,name)=>page.screenshot({path:resolve(evidenceDirectory,name),fullPage:true});
 try{
  const preparer=await context(0),reviewer=await context(2),approver=await context(3);
+ await assertTestDatabase(preparer.page,testDatabaseUrl);
  const customer=(await request(preparer.page,'/tariffs?limit=1')).items;
  let tariff=await request(preparer.page,'/tariffs',{name:'[TEST] RF-PM-024 synthetic policy',owner:'DR',currency:'USD',scope:'Synthetic fixed delivery only'});
  tariff=await request(preparer.page,`/tariffs/${tariff.id}/actions/save-fee`,{code:'base',enabled:true,method:'fixed',amount:200,unit:null,includedMilli:0,stepMilli:1000,share:true,scope:'DEMO',evidence:'Synthetic policy approval'},tariff.version);
@@ -27,5 +28,5 @@ try{
  await reviewer.page.locator('#policy-id').fill(policyId);await reviewer.page.locator('#policy-load').click();await reviewer.page.locator('#policy-status').filter({hasText:'SUBMITTED'}).waitFor();await reviewer.page.locator('#policy-review').click();await reviewer.page.locator('#policy-status').filter({hasText:'REVIEWED'}).waitFor();check('independent reviewer completes review',true);await shot(reviewer.page,'02-reviewed.png');
  const samePublisher=await reviewer.page.evaluate(async({policyId})=>{const s=await (await fetch('/dev/session')).json();const r=await fetch(`/api/ops/v1/pricing/policy-versions/${policyId}/actions/publish`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':s.csrfToken,'Idempotency-Key':crypto.randomUUID(),'If-Match':'"2"'},body:JSON.stringify({reason:'same reviewer must fail'})});return r.status;},{policyId});check('same reviewer publish rejected',samePublisher===403);
  await approver.page.locator('#policy-id').fill(policyId);await approver.page.locator('#policy-load').click();await approver.page.locator('#policy-status').filter({hasText:'REVIEWED'}).waitFor();await approver.page.locator('#policy-publish').click();await approver.page.locator('#policy-status').filter({hasText:'PUBLISHED'}).waitFor();const published=await request(approver.page,`/policy-versions/${policyId}`);check('independent approver publishes policy',published.state==='PUBLISHED'&&published.version===3);await shot(approver.page,'03-published.png');
- console.log(JSON.stringify({task:'RF-PM-024',testDatabaseUrl,checks,allPass:true},null,2));
+ console.log(JSON.stringify({task:'RF-PM-024',testDatabase:databaseLabel(testDatabaseUrl),checks,allPass:true},null,2));
 }finally{await browser.close();}

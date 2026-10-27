@@ -2,7 +2,7 @@ import {mkdir,readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {chromium} from '../services/routefit/node_modules/playwright-core/index.mjs';
 import {createBrowserGrant} from '../services/routefit/adapters/local-browser.mjs';
-import {requireTestDatabaseUrl} from './browser-test-env.mjs';
+import {requireTestDatabaseUrl,assertTestDatabase,databaseLabel} from './browser-test-env.mjs';
 
 const testDatabaseUrl=requireTestDatabaseUrl('RF-PM-022-R1');
 const origin=process.env.ROUTEFIT_ALLOWED_ORIGIN||'http://127.0.0.1:4180';
@@ -22,6 +22,7 @@ async function req(path,body=null,version=null){
 }
 try{await page.waitForTimeout(500);
  const grant=await createBrowserGrant({sessionsFile,actor:0,origin});await page.goto(grant.url);await page.waitForURL(`${origin}/prototype/`);await page.goto(`${origin}/prototype/orders.html`);await page.locator('#refresh-list').waitFor({state:'visible'});await page.waitForFunction(()=>!document.querySelector('#refresh-list').disabled);
+ await assertTestDatabase(page,testDatabaseUrl);
  const customer=(await req('/customers?limit=10')).items[0].id;
  const draft=JSON.parse(await readFile(new URL('../contracts/examples/order-draft.json',import.meta.url),'utf8'));draft.customerId=customer;draft.pickup.point={lng:104.9,lat:11.5};draft.delivery.point={lng:104.95,lat:11.55};for(const [i,k] of ['requestedPickupWindow','requestedDeliveryWindow'].entries())draft[k]={start:new Date(Date.now()+(i+2)*3600000).toISOString(),end:new Date(Date.now()+(i+3)*3600000).toISOString()};
  const area=await req('/service-areas',{name:'[TEST] RF-PM-022 synthetic area',type:'ALLOW',polygon:{type:'Polygon',coordinates:[[[104.8,11.4],[105,11.4],[105,11.6],[104.8,11.6],[104.8,11.4]]]},effectiveFrom:'2026-01-01T00:00:00Z'});await req(`/service-areas/${area.id}/actions/publish`,{reason:'RF-PM-022 browser acceptance'},1);
@@ -33,5 +34,5 @@ try{await page.waitForTimeout(500);
  await page.locator('#submit-intake').click();await page.locator('#edit-state').filter({hasText:'核验中'}).waitFor({state:'visible'});check('submit enters validating',await page.locator('#save-order').isDisabled()&&await page.locator('[name="pickup.address"]').isDisabled());await shot('02-validating-readonly.png');
  await page.locator('#return-reason').fill('RF-PM-022 synthetic correction');await page.locator('#return-to-draft').click();await page.locator('#edit-state').filter({hasText:'草稿'}).waitFor({state:'visible'});check('return reason restores draft editing',await page.locator('#intake-panel').isVisible());
  await page.setViewportSize({width:390,height:844});check('390px order intake has no horizontal overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await shot('03-mobile-order-intake.png');
- console.log(JSON.stringify({task:'RF-PM-022-R1',testDatabaseUrl,checks,screenshots:['01-draft-evidence-ready.png','02-validating-readonly.png','03-mobile-order-intake.png','04-outside-area-blocked.png'],allPass:true},null,2));
+ console.log(JSON.stringify({task:'RF-PM-022-R1',testDatabase:databaseLabel(testDatabaseUrl),checks,screenshots:['01-draft-evidence-ready.png','02-validating-readonly.png','03-mobile-order-intake.png','04-outside-area-blocked.png'],allPass:true},null,2));
 }finally{await context.close();await browser.close();}

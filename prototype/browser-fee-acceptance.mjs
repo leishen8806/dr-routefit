@@ -2,7 +2,7 @@ import {mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {chromium} from '../services/routefit/node_modules/playwright-core/index.mjs';
 import {createBrowserGrant} from '../services/routefit/adapters/local-browser.mjs';
-import {requireTestDatabaseUrl} from './browser-test-env.mjs';
+import {requireTestDatabaseUrl,assertTestDatabase,databaseLabel} from './browser-test-env.mjs';
 
 const testDatabaseUrl=requireTestDatabaseUrl('RF-PM-018-R1');
 const origin=process.env.ROUTEFIT_ALLOWED_ORIGIN||'http://127.0.0.1:4180';
@@ -54,6 +54,7 @@ async function readSession(page){
 }
 try{
   const owner=await session(0);
+  await assertTestDatabase(owner.page,testDatabaseUrl);
   const tariffId=await seed(owner.page);
   await owner.page.reload({waitUntil:'domcontentloaded'});await owner.page.locator('#source').waitFor({state:'visible'});
   await choose(owner.page,tariffId);
@@ -107,5 +108,5 @@ try{
   const after=await readTariff(offline.page,tariffId);if(after.status!==200||after.body.version!==before.body.version+1)fail(`retry changed tariff more than once: before=${before.body.version} after=${after.body?.version}`);
   evidence.push({name:'offline-result-unknown',status:'PASS',detail:`Response cut after server commit; retry shows saved and tariff version changed exactly once (${before.body.version}→${after.body.version})`,screenshot:await snap(offline.page,'06-offline-result-unknown.png')});await offline.context.close();
 
-  console.log(JSON.stringify({task:'RF-PM-018-R1',origin,testDatabaseUrl,viewport:{width:390,height:844},tariffId,checks:evidence,allPass:evidence.every(x=>x.status==='PASS')},null,2));
+  console.log(JSON.stringify({task:'RF-PM-018-R1',origin,testDatabase:databaseLabel(testDatabaseUrl),viewport:{width:390,height:844},tariffId,checks:evidence,allPass:evidence.every(x=>x.status==='PASS')},null,2));
 }finally{await browser.close();}
