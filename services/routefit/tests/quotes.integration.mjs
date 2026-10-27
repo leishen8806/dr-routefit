@@ -89,7 +89,7 @@ test('real PostgreSQL order quote lifecycle',async t=>{
    assert.deepEqual(quoteStatus(quote,timeChanged,{ready:true}).unusableReasons,['ORDER_CHANGED']);
    assert.deepEqual({state:quote.state,total:quote.total.amountMinor,id:quote.id},original);
   });
-  await t.test('customer confirmation, partial bank receipts and three-person allocation posting',async()=>{
+  await t.test('customer confirmation, partial bank receipts and three-person allocation posting',{timeout:30000},async()=>{
    const o=(await req('/orders',{body:draft})).data,p='/orders/'+o.order.id;
    await req(p+'/intake-evidence',{body:evidence,version:1});await req(p+'/actions/submit',{body:{},version:1});
    let q=(await req(p+'/quotes',{body:{pricingPolicyVersionId:policy.id,insuranceRequested:true},version:2})).data;
