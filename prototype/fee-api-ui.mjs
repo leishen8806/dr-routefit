@@ -94,8 +94,9 @@ async function loadPolicy(){const id=$('policy-id')?.value.trim();if(!id)throw E
 function policySubmitValue(){return {validFrom:isoInput($('policy-valid-from').value),validUntil:isoInput($('policy-valid-until').value),quoteValiditySeconds:Number($('policy-ttl').value),serviceLevels:[...document.querySelectorAll('[name="policy-level"]:checked')].map(x=>x.value),reason:$('policy-reason').value.trim()};}
 async function applyPolicy(r){policy=r.data;policyEtag=r.etag;renderPolicy();message(`策略已更新 · ${policy.state}`);}
 async function policyAction(kind){
- const reason=window.prompt(kind==='review'?'复核说明':'发布说明','Synthetic independent policy decision');
- if(!reason?.trim())return;
+ const reason=$(`policy-${kind}-reason`).value.trim();
+ if(!reason){$(`policy-${kind}-reason`).setAttribute('aria-invalid','true');message(kind==='review'?'请填写复核说明。':'请填写发布说明。');$(`policy-${kind}-reason`).focus();return;}
+ $(`policy-${kind}-reason`).removeAttribute('aria-invalid');
  const permission=kind==='review'?'pricing:review':'pricing:publish';
  await mutate(`/policy-versions/${policy.id}/actions/${kind}`,{reason:reason.trim()},policyEtag,applyPolicy,permission);
 }
