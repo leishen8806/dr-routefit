@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import {seed,apply} from './model.mjs';
 import {calculateFeeTrial,feeKey,decimalUnits} from './fee-settings.mjs';
 import {initAccess,sessionFor,executeAsAccount,projectAccount,canView} from './access-control.mjs';
+import {tariffSummary,shortId,listStatus} from './fee-api-model.mjs';
 let sequence=0;
+test('fee draft picker uses readable summary and short display IDs',()=>{const id='12345678-aaaa-bbbb-cccc-ddddeeeeffff';assert.equal(shortId(id),'12345678');assert.match(tariffSummary({owner:'DR',currency:'USD',state:'DRAFT',version:1,id},new Date('2026-10-27T04:45:00Z')),/对客价表 · USD · 草稿 · 第 1 版/);});
+test('fee draft picker explains loading, pagination and access states',()=>{assert.equal(listStatus({connected:false}),'未连接 · 请重新连接开发会话');assert.equal(listStatus({connected:true,loading:true}),'加载中…');assert.equal(listStatus({connected:true,hasMore:true,count:50}),'还有更多草稿可加载');assert.equal(listStatus({connected:true,count:2}),'已显示全部 2 份草稿');});
 const config=(db,code,p={},owner='DR',currency='USD')=>{
  const id=feeKey(owner,currency,code);
  return apply(db,{action:'feeSave',role:'ops',key:'fee-'+(++sequence),id,version:db.feeSettings.rules[id]?.version||0,payload:{enabled:true,method:'fixed',amount:'2',share:false,scope:'合成样例：金边同城普通配送',evidence:'DEMO-价表依据',...p}});

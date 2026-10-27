@@ -2,7 +2,9 @@ import {mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {chromium} from '../services/routefit/node_modules/playwright-core/index.mjs';
 import {createBrowserGrant} from '../services/routefit/adapters/local-browser.mjs';
+import {requireTestDatabaseUrl} from './browser-test-env.mjs';
 
+const testDatabaseUrl=requireTestDatabaseUrl('RF-PM-018-R1');
 const origin=process.env.ROUTEFIT_ALLOWED_ORIGIN||'http://127.0.0.1:4180';
 const sessionsFile=resolve(process.env.ROUTEFIT_SESSION_FILE||'services/routefit/.local/sessions.json');
 const evidenceDirectory=resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY||'.local/evidence/rf-pm-018');
@@ -31,7 +33,7 @@ async function post(page,path,body,version=null,key=crypto.randomUUID(),csrf){
   return page.evaluate(async({path,body,headers})=>{const r=await fetch('/api/ops/v1/pricing'+path,{method:'POST',headers,body:JSON.stringify(body)});return {status:r.status,body:await r.json().catch(()=>null),requestId:r.headers.get('X-Request-Id')};},{path,body,headers});
 }
 async function seed(page){
-  const result=await post(page,'/tariffs',{name:'RF-PM-018 synthetic browser draft',owner:'DR',currency:'USD',scope:'Synthetic browser acceptance only'});
+  const result=await post(page,'/tariffs',{name:'[TEST] RF-PM-018 synthetic browser draft',owner:'DR',currency:'USD',scope:'Synthetic browser acceptance only'});
   if(result.status!==201)fail(`seed tariff failed: ${result.status}`);return result.body.id;
 }
 async function choose(page,id){
@@ -105,5 +107,5 @@ try{
   const after=await readTariff(offline.page,tariffId);if(after.status!==200||after.body.version!==before.body.version+1)fail(`retry changed tariff more than once: before=${before.body.version} after=${after.body?.version}`);
   evidence.push({name:'offline-result-unknown',status:'PASS',detail:`Response cut after server commit; retry shows saved and tariff version changed exactly once (${before.body.version}→${after.body.version})`,screenshot:await snap(offline.page,'06-offline-result-unknown.png')});await offline.context.close();
 
-  console.log(JSON.stringify({task:'RF-PM-018-R1',origin,viewport:{width:390,height:844},tariffId,checks:evidence,allPass:evidence.every(x=>x.status==='PASS')},null,2));
+  console.log(JSON.stringify({task:'RF-PM-018-R1',origin,testDatabaseUrl,viewport:{width:390,height:844},tariffId,checks:evidence,allPass:evidence.every(x=>x.status==='PASS')},null,2));
 }finally{await browser.close();}
