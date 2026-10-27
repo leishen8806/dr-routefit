@@ -13,6 +13,26 @@ export async function getPolicy(client,principal,id){
   review:review?{principalId:review.reviewed_by,reason:review.reason,createdAt:review.created_at.toISOString()}:null,
   publication:publication?{principalId:publication.approved_by,reason:publication.reason,createdAt:publication.created_at.toISOString()}:null};
 }
+export async function listPublishedPolicies(client,principal,query){
+ const values=[principal.companyId],where=['pv.company_id=$1','pub.policy_id IS NOT NULL'];
+ const add=(sql,value)=>{values.push(value);where.push(sql.replace('$N','$'+values.length));};
+ if(query.tariffId)add('pv.tariff_id=$N',query.tariffId);
+ if(query.serviceLevel)add("(pv.snapshot->'serviceLevels') ? $N",query.serviceLevel);
+ if(query.effectiveAt){add("(pv.snapshot->>'validFrom')::timestamptz <= $N::timestamptz",query.effectiveAt);add("(pv.snapshot->>'validUntil')::timestamptz > $N::timestamptz",query.effectiveAt);}
+ if(query.after)add('pv.id>$N',query.after);
+ const limit=Number(query.limit)+1;
+ const sql=`SELECT pv.id,pv.tariff_id,pv.tariff_version,pv.snapshot,pub.created_at AS published_at
+   FROM pricing.policy_version pv LEFT JOIN pricing.policy_publication pub ON pub.company_id=pv.company_id AND pub.policy_id=pv.id
+   WHERE ${where.join(' AND ')} ORDER BY pv.id LIMIT $${values.length+1}`;
+ values.push(limit);
+ const rows=(await client.query(sql,values)).rows;
+ const items=rows.slice(0,query.limit).map(r=>({
+  id:r.id, state:'PUBLISHED', version:3, tariffId:r.tariff_id, tariffVersion:Number(r.tariff_version),
+  validFrom:r.snapshot.validFrom, validUntil:r.snapshot.validUntil, serviceLevels:r.snapshot.serviceLevels,
+  publishedAt:r.published_at.toISOString()
+ }));
+ return {items,nextAfter:rows.length>query.limit?items.at(-1).id:null};
+}
 export async function submitPolicy(client,principal,tariffId,input,version){
  const tariff=await getTariff(client,principal.companyId,tariffId,true);
  ensure(tariff.version===version,412,'VERSION_CONFLICT','费率草稿已变化，请重新读取');validatePolicy(tariff,input);

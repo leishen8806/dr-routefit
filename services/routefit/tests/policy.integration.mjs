@@ -20,7 +20,7 @@ test('real PostgreSQL policy approval HTTP lifecycle',async t=>{
  async function stop(){server?.closeAllConnections();if(server)await new Promise(r=>server.close(r));await pool?.end();server=null;pool=null;}
  async function req(path,{body,version,key=randomUUID(),actor=0,headers={}}={}){
   const a=actors[actor],r=await fetch(origin+'/api/ops/v1/pricing'+path,{method:body?'POST':'GET',headers:{Cookie:'rf_session='+a.token,Origin:origin,'X-CSRF-Token':a.csrf,'Content-Type':'application/json','Idempotency-Key':key,...(version?{'If-Match':`"${version}"`}:{}),...headers},...(body?{body:JSON.stringify(body)}:{})});
-  const data=await r.json();validate(r.ok?(path.includes('policy-versions')?'PricingPolicyVersion':'PricingTariff'):'ApiError',data);return {status:r.status,data,headers:r.headers};
+  const data=await r.json();validate(r.ok?(path==='/policy-versions'||path.startsWith('/policy-versions?')?'PricingPolicyVersionPage':path.includes('policy-versions')?'PricingPolicyVersion':'PricingTariff'):'ApiError',data);return {status:r.status,data,headers:r.headers};
  }
  const base={code:'base',enabled:true,method:'fixed',amount:200,unit:null,includedMilli:0,stepMilli:1000,share:true,scope:'DEMO',evidence:'DEMO fixed fee'};
  const window=()=>({validFrom:new Date(Date.now()-1000).toISOString(),validUntil:new Date(Date.now()+600000).toISOString(),quoteValiditySeconds:120,serviceLevels:['S2'],reason:'DEMO proposed fee, not production'});
@@ -52,6 +52,12 @@ test('real PostgreSQL policy approval HTTP lifecycle',async t=>{
    published=await req(path+'/actions/publish',{body:decision,version:2,actor:2});assert.equal(published.status,200);assert.equal(published.data.state,'PUBLISHED');assert.equal(published.data.version,3);
    assert.equal(published.data.tariff.rules.find(r=>r.code==='insurance').share,false);
    assert.equal((await req(path+'/actions/publish',{body:decision,version:2,actor:2})).status,412);
+   const list=await req('/policy-versions?state=PUBLISHED&serviceLevel=S2&effectiveAt='+encodeURIComponent(new Date().toISOString()),{actor:0});
+   assert.equal(list.status,200,JSON.stringify(list.data));assert.equal(list.data.items.length,1);assert.equal(list.data.items[0].id,policy.id);assert.equal(list.data.items[0].state,'PUBLISHED');
+   const afterExpiry=await req('/policy-versions?effectiveAt='+encodeURIComponent(new Date(Date.now()+86400000).toISOString()),{actor:0});assert.equal(afterExpiry.status,200);assert.equal(afterExpiry.data.items.length,0);
+   assert.equal((await req('/policy-versions?state=SUBMITTED',{actor:0})).status,422);
+   assert.equal((await req('/policy-versions?tariffId='+tariff.id,{actor:4})).status,200);
+   const otherCompany=await req('/policy-versions?tariffId='+tariff.id,{actor:3});assert.equal(otherCompany.status,200);assert.equal(otherCompany.data.items.length,0);
   });
   await t.test('published source remains immutable after later draft edits and restart',async()=>{
    tariff=(await req(`/tariffs/${tariff.id}/actions/save-fee`,{body:{...base,amount:999},version:tariff.version})).data;

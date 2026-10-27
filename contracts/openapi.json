@@ -23318,6 +23318,103 @@
         ]
       }
     },
+    "/api/ops/v1/pricing/policy-versions": {
+      "get": {
+        "operationId": "listPublishedPolicies",
+        "summary": "列出已发布且当前有效的费率策略",
+        "description": "按企业隔离返回已发布策略摘要；默认仅返回当前有效策略，可用游标分页。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PUBLISHED"
+              ],
+              "default": "PUBLISHED"
+            }
+          },
+          {
+            "name": "effectiveAt",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "serviceLevel",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "S1",
+                "S2",
+                "S3"
+              ]
+            }
+          },
+          {
+            "name": "tariffId",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "已发布策略摘要分页",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingPolicyVersionPage"
+                }
+              }
+            }
+          }
+        },
+        "x-permissions": [
+          "pricing:read"
+        ],
+        "x-stage": "R1-PRICING-DRAFT",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
+        "servers": [
+          {
+            "url": "http://127.0.0.1:4180"
+          }
+        ]
+      }
+    },
     "/api/ops/v1/pricing/policy-versions/{policyId}": {
       "get": {
         "operationId": "getPricingPolicy",
@@ -40176,6 +40273,97 @@
             "review": null,
             "publication": null
           }
+        ]
+      },
+      "PricingPolicyVersionPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingPolicyVersionSummary"
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "nextAfter": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextAfter"
+        ],
+        "description": "本企业已发布且按有效期筛选的费率策略摘要；默认不返回草稿、待复核或已过期版本。"
+      },
+      "PricingPolicyVersionSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "const": "PUBLISHED"
+          },
+          "version": {
+            "const": 3
+          },
+          "tariffId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tariffVersion": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9000000000000
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "serviceLevels": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "S1",
+                "S2",
+                "S3"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 3,
+            "uniqueItems": true
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "version",
+          "tariffId",
+          "tariffVersion",
+          "validFrom",
+          "validUntil",
+          "serviceLevels",
+          "publishedAt"
         ]
       },
       "IntakeReason": {
