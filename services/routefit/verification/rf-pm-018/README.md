@@ -19,7 +19,8 @@ node prototype/browser-fee-acceptance.mjs
 | 文件 | 验收项 | 结果 |
 | --- | --- | --- |
 | `01-mobile-navigation.png` | 390px 手机视口，费用设置入口可见且可打开 | PASS |
-| `02-401-session-expired.png` | 会话失效，错误摘要获焦点且保存区域隐藏 | PASS |
-| `03-403-readonly.png` | 只读角色写入被拒绝，错误摘要获焦点 | PASS |
-| `04-404-cross-company.png` | 跨企业对象返回 NOT_FOUND，错误摘要获焦点 | PASS |
-| `05-offline-result-unknown.png` | 保存响应中断，输入保留并显示原请求重试 | PASS |
+| `02-mobile-fees-page.png` | 390px 费用页无横向滚动，保存按钮在视口内 | PASS |
+| `03-401-session-expired.png` | 无会话，API `UNAUTHENTICATED`，错误摘要获焦点且保存区域隐藏 | PASS |
+| `04-403-readonly.png` | 只读界面禁用保存，直接写入返回 `FORBIDDEN`，保存区域隐藏 | PASS |
+| `05-404-cross-company.png` | 跨企业对象返回 `NOT_FOUND`，错误摘要获焦点且保存区域隐藏 | PASS |
+| `06-offline-result-unknown.png` | 服务端已提交后切断响应；重试显示已保存，版本只从 v1 增至 v2 | PASS |
