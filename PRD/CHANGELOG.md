@@ -1,4 +1,11 @@
 # 文档变更记录
+## 2026-10-27 · 需求会结论落盘与 V1.4 冻结
+
+- 产品需求会（2026-10-26）结论与 M01–M09 推荐答案一致；会议记录回填结论、负责人与复核时间。
+- 按 M01 冻结 PRD V1.4 为当前基线，替代 V1.3；新增[冻结说明](docs/decisions/2026-10-27-v1.4-freeze.md)。V1.4 正文、52 条规则与 104 项验收编号未改，仅更新状态行。
+- 按 M08 新增 [ADR D24 数据库选型](docs/decisions/ADR-D24-database.md)：当前 PostgreSQL 16，PostGIS 在 GeoCore 服务区落地时引入。
+- 新增[需求会后任务拆解](docs/tasks/post-meeting-task-breakdown-v0.1.md)：决策落盘 RF-DEC-01–06、v0.3.0 P01 任务卡 RF-PM-022–025 与 RF-QA-02。
+
 
 ## 2026-10-25 · 服务端优先：订单录入接口
 
