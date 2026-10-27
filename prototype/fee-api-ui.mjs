@@ -1,5 +1,6 @@
 import {FeeClient} from './fee-api-client.mjs';
 import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput} from './fee-api-model.mjs';
+import {policySnapshotRows} from './policy-view.mjs';
 const controlsStylesheet=document.createElement('link');controlsStylesheet.rel='stylesheet';controlsStylesheet.href='controls.css';document.head.append(controlsStylesheet);
 const $=id=>document.getElementById(id),client=new FeeClient(),form=$('fee-form');
 let catalog=[],tariffs=[],current=null,etag=null,code=null,dirty=false,busy=false,connected=false,sequence=0,nextAfter=null,historyAfter=null,historyId=null,latest=null,pendingApply=null,tab='edit',snapshot=null,createDirty=false,policy=null,policyEtag=null;
@@ -88,7 +89,7 @@ function renderPolicy(){
  if(!policy){box.textContent='当前草稿尚未在本页面提交策略申请';snapshotBox.hidden=true;sync();return;}
  box.textContent=`策略 ${policy.state} · v${policy.version} · ${policy.id}`;
  snapshotBox.hidden=false;snapshotBox.replaceChildren();
- const pre=el('pre',JSON.stringify({state:policy.state,version:policy.version,tariffVersion:policy.tariffVersion,validFrom:policy.validFrom,validUntil:policy.validUntil,quoteValiditySeconds:policy.quoteValiditySeconds,serviceLevels:policy.serviceLevels,preparedBy:policy.preparedBy,review:policy.review,publication:policy.publication},null,2));snapshotBox.append(el('h3','冻结快照与审核事实'),pre);
+ const table=el('table');const head=el('tr');head.append(el('th','字段'),el('th','值'));table.append(head);for(const [label,value] of policySnapshotRows(policy,x=>new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Phnom_Penh',dateStyle:'short',timeStyle:'short'}).format(new Date(x)))){const row=el('tr'),cell=el('td');if(value&&typeof value==='object'){cell.textContent=value.text;if(value.title)cell.title=value.title;}else cell.textContent=String(value);row.append(el('th',label),cell);table.append(row);}snapshotBox.append(el('h3','冻结快照与审核事实'),table);
  sync();
 }
 async function loadPolicy(){const id=$('policy-id')?.value.trim();if(!id)throw Error('请填写策略 ID');const r=await client.get('/policy-versions/'+encodeURIComponent(id));policy=r.data;policyEtag=r.etag;renderPolicy();message(`策略已读取 · ${policy.state}`);}
