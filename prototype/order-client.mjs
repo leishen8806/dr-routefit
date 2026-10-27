@@ -31,6 +31,12 @@ export function createOrderClient({fetchImpl=globalThis.fetch,uuid=()=>crypto.ra
  }
  return {
   connect,read:path=>request(path),get session(){return session;},get pending(){return Boolean(pending);},
+  async command(path,body,version){
+   if(pending)throw new OrderApiError(409,'UNRESOLVED_REQUEST');
+   if(!session)throw new OrderApiError(401,'UNAUTHENTICATED');
+   pending={owner:owner(session),method:'POST',path,body:JSON.stringify(body),version,key:uuid()};
+   return submit();
+  },
   async save(draft,order){
    if(pending)throw new OrderApiError(409,'UNRESOLVED_REQUEST');
    if(!session)throw new OrderApiError(401,'UNAUTHENTICATED');
