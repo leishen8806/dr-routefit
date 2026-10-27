@@ -103,7 +103,7 @@ function pagination(url,kind){
  const page={limit:Number(raw),after};
  if(kind==='policy-list'){
   const state=url.searchParams.get('state')??'PUBLISHED';ensure(state==='PUBLISHED',422,'INVALID_STATE_FILTER','策略列表只支持state=PUBLISHED');
-  const effectiveAt=url.searchParams.get('effectiveAt');if(effectiveAt)ensure(!Number.isNaN(Date.parse(effectiveAt)),422,'INVALID_EFFECTIVE_AT','effectiveAt须为ISO时间');
+  const effectiveAt=url.searchParams.get('effectiveAt')??new Date().toISOString();ensure(!Number.isNaN(Date.parse(effectiveAt)),422,'INVALID_EFFECTIVE_AT','effectiveAt须为ISO时间');
   const serviceLevel=url.searchParams.get('serviceLevel');if(serviceLevel)ensure(['S1','S2','S3'].includes(serviceLevel),422,'INVALID_SERVICE_LEVEL','serviceLevel无效');
   const tariffId=url.searchParams.get('tariffId');if(tariffId)ensure(uuid.test(tariffId),422,'INVALID_TARIFF_ID','tariffId须为UUID');
   return {...page,state,effectiveAt,serviceLevel,tariffId};

@@ -23322,7 +23322,7 @@
       "get": {
         "operationId": "listPublishedPolicies",
         "summary": "列出已发布且当前有效的费率策略",
-        "description": "按企业隔离返回已发布策略摘要；默认仅返回当前有效策略，可用游标分页。",
+        "description": "按企业隔离返回已发布策略摘要；未提供 effectiveAt 时按服务端当前时间筛选，只返回当前有效策略，可用游标分页。",
         "tags": [
           "ops"
         ],
@@ -23349,6 +23349,7 @@
           {
             "name": "effectiveAt",
             "in": "query",
+            "description": "有效期边界时刻；省略时使用服务端当前时间。validFrom 包含，validUntil 不包含。",
             "schema": {
               "type": "string",
               "format": "date-time"

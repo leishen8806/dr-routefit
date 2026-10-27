@@ -18,7 +18,8 @@ export async function listPublishedPolicies(client,principal,query){
  const add=(sql,value)=>{values.push(value);where.push(sql.replace('$N','$'+values.length));};
  if(query.tariffId)add('pv.tariff_id=$N',query.tariffId);
  if(query.serviceLevel)add("(pv.snapshot->'serviceLevels') ? $N",query.serviceLevel);
- if(query.effectiveAt){add("(pv.snapshot->>'validFrom')::timestamptz <= $N::timestamptz",query.effectiveAt);add("(pv.snapshot->>'validUntil')::timestamptz > $N::timestamptz",query.effectiveAt);}
+ add("(pv.snapshot->>'validFrom')::timestamptz <= $N::timestamptz",query.effectiveAt);
+ add("(pv.snapshot->>'validUntil')::timestamptz > $N::timestamptz",query.effectiveAt);
  if(query.after)add('pv.id>$N',query.after);
  const limit=Number(query.limit)+1;
  const sql=`SELECT pv.id,pv.tariff_id,pv.tariff_version,pv.snapshot,pub.created_at AS published_at

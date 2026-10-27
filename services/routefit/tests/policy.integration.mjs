@@ -54,7 +54,12 @@ test('real PostgreSQL policy approval HTTP lifecycle',async t=>{
    assert.equal((await req(path+'/actions/publish',{body:decision,version:2,actor:2})).status,412);
    const list=await req('/policy-versions?state=PUBLISHED&serviceLevel=S2&effectiveAt='+encodeURIComponent(new Date().toISOString()),{actor:0});
    assert.equal(list.status,200,JSON.stringify(list.data));assert.equal(list.data.items.length,1);assert.equal(list.data.items[0].id,policy.id);assert.equal(list.data.items[0].state,'PUBLISHED');
+   const atStart=await req('/policy-versions?effectiveAt='+encodeURIComponent(policy.validFrom),{actor:0});assert.equal(atStart.data.items.some(x=>x.id===policy.id),true);
+   const atEnd=await req('/policy-versions?effectiveAt='+encodeURIComponent(policy.validUntil),{actor:0});assert.equal(atEnd.data.items.some(x=>x.id===policy.id),false);
+   const beforeStart=await req('/policy-versions?effectiveAt='+encodeURIComponent(new Date(Date.parse(policy.validFrom)-1).toISOString()),{actor:0});assert.equal(beforeStart.data.items.some(x=>x.id===policy.id),false);
    const afterExpiry=await req('/policy-versions?effectiveAt='+encodeURIComponent(new Date(Date.now()+86400000).toISOString()),{actor:0});assert.equal(afterExpiry.status,200);assert.equal(afterExpiry.data.items.length,0);
+   const defaultWindow=await req('/policy-versions',{actor:0});assert.equal(defaultWindow.data.items.some(x=>x.id===policy.id),true);
+   assert.equal((await req('/policy-versions?after=not-a-uuid',{actor:0})).status,422);
    assert.equal((await req('/policy-versions?state=SUBMITTED',{actor:0})).status,422);
    assert.equal((await req('/policy-versions?tariffId='+tariff.id,{actor:4})).status,200);
    const otherCompany=await req('/policy-versions?tariffId='+tariff.id,{actor:3});assert.equal(otherCompany.status,200);assert.equal(otherCompany.data.items.length,0);
