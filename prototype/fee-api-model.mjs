@@ -36,3 +36,22 @@ export function trialDTO(rules,inputs,currency){
 }
 
 export function snapshotChanged(current,snapshot){return !!current&&snapshot.tariffId===current.id&&snapshot.tariffVersion!==current.version;}
+const ownerLabels=Object.freeze({DR:'DR 对客收费',VET:'VET 采购费',ZTO:'中通 采购费',CE:'CE 采购费',JT:'极兔 采购费'});
+const stateLabels=Object.freeze({DRAFT:'草稿',SUBMITTED:'待复核',REVIEWED:'已复核',PUBLISHED:'已发布',ARCHIVED:'已归档'});
+export function shortId(id){return String(id??'').slice(0,8);}
+export function tariffStateLabel(state){return stateLabels[state]||state||'未知状态';}
+export function tariffSummary(tariff,readAt=new Date()){
+ if(!tariff)return '尚未选中草稿';
+ const time=new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Phnom_Penh',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(readAt));
+ return `${ownerLabels[tariff.owner]||'费用草稿'} · ${tariff.currency||'未知币种'} · ${tariffStateLabel(tariff.state)} · 第 ${tariff.version??'—'} 版 · ${time} 读取`;
+}
+export function listStatus({connected=true,loading=false,hasMore=false,count=0,canRead=true}={}){
+ if(!connected)return '未连接 · 请重新连接开发会话';
+ if(!canRead)return '当前会话没有读取费用草稿的权限';
+ if(loading)return '加载中…';
+ return hasMore?'还有更多草稿可加载':`已显示全部 ${count} 份草稿`;
+}
+export async function copyTariffId(id,clipboard=globalThis.navigator?.clipboard){
+ if(!id||!clipboard?.writeText)return false;
+ try{await clipboard.writeText(id);return true;}catch{return false;}
+}
