@@ -18,6 +18,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 StateDirectory=routefit
+StateDirectoryMode=0700
 LogsDirectory=routefit
 ReadWritePaths=/var/lib/routefit /var/log/routefit
 

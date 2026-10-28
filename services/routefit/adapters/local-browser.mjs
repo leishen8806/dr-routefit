@@ -20,7 +20,7 @@ export async function createBrowserGrant({sessionsFile,actor=0,origin='http://12
 }
 
 // shortcut: local synthetic identities only; replace this adapter with approved BFF/IdP before deployment.
-export function localBrowser({origin,root,sessionsFile,authenticate,pool}){
+export function localBrowser({origin,root,sessionsFile,authenticate,pool,trialMode=false}){
  const expected=new URL(origin),grantRoot=grantDirectory(sessionsFile);
  ensure(expected.protocol==='http:'&&expected.hostname==='127.0.0.1'&&expected.origin===origin,500,'INVALID_DEV_ORIGIN','同源开发仅支持127.0.0.1 HTTP');
  return async(req,res,send)=>{
@@ -48,7 +48,8 @@ export function localBrowser({origin,root,sessionsFile,authenticate,pool}){
    const principal=authenticate.source(grant.source);await transaction(pool,principal,async()=>{}, {readOnly:true});
    if(req.headers.cookie){try{authenticate.revoke(authenticate({headers:req.headers,method:'GET'}));}catch{}}
    const {token,session}=authenticate.issue(grant.source),age=Math.max(1,Math.floor((Date.parse(session.expiresAt)-Date.now())/1000));
-   send(303,{mode:'local-development',next:'/prototype/'},{Location:'/prototype/','Set-Cookie':`rf_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${age}`});return true;
+   const next=trialMode?'/prototype/orders.html':'/prototype/';
+   send(303,{mode:'local-development',next},{Location:next,'Set-Cookie':`rf_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${age}`});return true;
   }
   if(url.pathname==='/dev/session'||url.pathname==='/dev/session/logout'){
    const logout=url.pathname.endsWith('/logout');ensure(req.method===(logout?'POST':'GET')&&url.search==='',405,'METHOD_NOT_ALLOWED','请求方法或查询参数不支持');
@@ -69,7 +70,8 @@ export function localBrowser({origin,root,sessionsFile,authenticate,pool}){
   if(['/','/prototype','/prototype/'].includes(name))name='/prototype/index.html';
   const parts=name.split('/');
   ensure(!parts.some(p=>p==='..'||p==='.'||p.startsWith('.')||p.includes('\\'))&&!name.includes('\0'),404,'NOT_FOUND','资源不存在');
-  const allowed=(parts.length===3&&parts[1]==='prototype')||(parts.length===4&&parts[1]==='brand'&&parts[2]==='logo');
+  const trialAllowed=parts.length===3&&parts[1]==='prototype'&&['orders.html','fees.html'].includes(parts[2]);
+  const allowed=trialMode?trialAllowed|| (parts.length===4&&parts[1]==='brand'&&parts[2]==='logo') : ((parts.length===3&&parts[1]==='prototype')||(parts.length===4&&parts[1]==='brand'&&parts[2]==='logo'));
   ensure(allowed&&mime[extname(name)]&&!/\/(?:browser-|server\.mjs$|integration-server\.mjs$)/.test(name)&&!name.endsWith('.test.mjs'),404,'NOT_FOUND','资源不存在');
   let file,body;
   try{const requested=resolve(root,'.'+name);file=await realpath(requested);const comparable=p=>process.platform==='win32'?p.toLowerCase():p;ensure(comparable(file)===comparable(requested)&&file.startsWith(resolve(root)+sep),404,'NOT_FOUND','资源不存在');body=await readFile(file);}catch{ensure(false,404,'NOT_FOUND','资源不存在');}
