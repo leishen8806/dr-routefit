@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,rm} from 'node:fs/promises';
+import {mkdtemp,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask} from '../scripts/trial-common.mjs';
 import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
+import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
@@ -60,4 +61,18 @@ test('SSH login helper maps only registered staff names and ignores command inje
 });
 test('SSH helper reads only explicit environment settings',()=>{
  assert.deepEqual(parseEnvironment('# comment\nROUTEFIT_AUTH_MODE=development\nROUTEFIT_SESSION_FILE="/var/lib/routefit/sessions.json"\n'),{ROUTEFIT_AUTH_MODE:'development',ROUTEFIT_SESSION_FILE:'/var/lib/routefit/sessions.json'});
+});
+test('database CLI strips password from args and passes it only via PGPASSWORD',()=>{
+ const cli=pgCliConnection('postgresql://demo:secret@127.0.0.1:5432/routefit');
+ assert.equal(cli.password,'secret');assert.equal(cli.url,'postgresql://demo@127.0.0.1:5432/routefit');assert.ok(!cli.url.includes('secret'));
+});
+test('restore checksum accepts matching file and rejects mismatch or missing file',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'rf038-checksum-')),file=join(dir,'backup.dump'),sum=join(dir,'backup.dump.sha256');
+ try{
+  await writeFile(file,'synthetic backup');
+  const {createHash}=await import('node:crypto');const hash=createHash('sha256').update('synthetic backup').digest('hex');
+  await writeFile(sum,`${hash}  backup.dump\n`);assert.equal((await verifyBackupChecksum(file,sum)).length,64);
+  await writeFile(sum,`${'0'.repeat(64)}  backup.dump\n`);await assert.rejects(verifyBackupChecksum(file,sum),/mismatch/);
+  await assert.rejects(verifyBackupChecksum(file,join(dir,'missing.sha256')));
+ }finally{await rm(dir,{recursive:true,force:true});}
 });

@@ -1,6 +1,7 @@
 # Template only; RF-OPS-01 deploys and reviews this on the VPS.
-Match Group routefit-trial
-    ForceCommand sudo -u routefit /usr/bin/node /opt/dr-routefit/services/routefit/scripts/trial-ssh-link.mjs
+# <NODE24_PATH> must be the absolute path to a Node 24 executable; RF-OPS-01 replaces this at deployment.
+Match Group rf-tunnel
+    ForceCommand sudo -u routefit <NODE24_PATH> /srv/routefit/services/routefit/scripts/trial-ssh-link.mjs
     AllowTcpForwarding local
     PermitOpen 127.0.0.1:4180
     AllowAgentForwarding no
