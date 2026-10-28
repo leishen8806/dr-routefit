@@ -2,6 +2,8 @@
 
 本目录仅包含本机合成数据库和真实 Chromium 会话生成的脱敏截图；不含 Cookie、CSRF、ticket 或 HAR。
 
+本轮重拍基于 `origin/develop` `5d4aaa6100a6d7ce2cb0afe7dc089891d8fd5a72`（2026-10-28）；六项断言全部 PASS。
+
 ## 复跑
 
 在 `services/routefit` 启动本机开发服务后，从仓库根目录运行：
