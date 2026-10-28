@@ -45,7 +45,7 @@ test('trial backup requires an existing external directory',async()=>{
 test('trial backup names, modes and cleanup only cover generated files',()=>{
  const oldest=trialBackupName(new Date('2026-11-01T01:02:03.000Z')),names=[oldest,...Array.from({length:14},(_,i)=>trialBackupName(new Date(Date.UTC(2026,10,2+i,1,2,3)))),'operator-notes.dump'];
  assert.equal(oldest,'routefit_trial-20261101T010203Z.dump');assert.equal(trialBackupChecksumName(oldest),'routefit_trial-20261101T010203Z.dump.sha256');assert.equal(trialBackupUmask,0o027);assert.equal(trialBackupFileMode,0o640);
- assert.doesNotThrow(()=>assertTrialBackupFileMetadata({uid:1001,gid:1002,mode:0o100640},1001,1002));assert.throws(()=>assertTrialBackupFileMetadata({uid:1001,gid:1002,mode:0o100600},1001,1002),/ownership or mode/);
+ assert.doesNotThrow(()=>assertTrialBackupFileMetadata({uid:1001,gid:1002,mode:0o100640},1001,1002));assert.throws(()=>assertTrialBackupFileMetadata({uid:1001,gid:1003,mode:0o100640},1001,1002),/ownership or mode/);assert.throws(()=>assertTrialBackupFileMetadata({uid:1001,gid:1002,mode:0o100600},1001,1002),/ownership or mode/);
  assert.deepEqual(trialBackupCleanupNames(names),[oldest,trialBackupChecksumName(oldest)]);
 });
 test('SSH login helper maps only registered staff names and ignores command injection',()=>{

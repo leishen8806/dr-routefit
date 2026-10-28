@@ -1,4 +1,4 @@
-import {access,chmod,chown,readdir,stat,unlink,writeFile} from 'node:fs/promises';
+import {access,chmod,readdir,stat,unlink,writeFile} from 'node:fs/promises';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {join} from 'node:path';
@@ -13,7 +13,7 @@ const url=new URL(process.env.ROUTEFIT_DATABASE_URL);
 const name=trialBackupName(new Date()),file=join(dir,name),checksum=join(dir,trialBackupChecksumName(name));
 const bin=process.env.ROUTEFIT_PG_BIN?join(process.env.ROUTEFIT_PG_BIN,process.platform==='win32'?'pg_dump.exe':'pg_dump'):'pg_dump';
 const sha256=async path=>{const hash=createHash('sha256');for await(const chunk of createReadStream(path))hash.update(chunk);return hash.digest('hex');};
-const setMetadata=async path=>{if(process.platform==='win32')return;await chown(path,process.getuid(),gid);await chmod(path,trialBackupFileMode);assertTrialBackupFileMetadata(await stat(path),process.getuid(),gid);};
+const setMetadata=async path=>{if(process.platform==='win32')return;await chmod(path,trialBackupFileMode);assertTrialBackupFileMetadata(await stat(path),process.getuid(),gid);};
 try{
  await access(file).then(()=>{throw Error('backup timestamp collision; retry after one second');}).catch(error=>{if(error.code!=='ENOENT')throw error;});
  const oldUmask=process.umask(trialBackupUmask);
