@@ -4,6 +4,7 @@ import {requiredReason} from './orders-ui-rules.mjs';
 import {policySnapshotRows} from './policy-view.mjs';
 const controlsStylesheet=document.createElement('link');controlsStylesheet.rel='stylesheet';controlsStylesheet.href='controls.css';document.head.append(controlsStylesheet);
 const $=id=>document.getElementById(id),client=new FeeClient(),form=$('fee-form');
+
 let catalog=[],tariffs=[],current=null,etag=null,code=null,dirty=false,busy=false,connected=false,sequence=0,nextAfter=null,historyAfter=null,historyId=null,latest=null,pendingApply=null,tab='edit',snapshot=null,createDirty=false,policy=null,policyEtag=null;
 const field=name=>form.elements.namedItem(name);
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
