@@ -2,7 +2,7 @@
 
 本目录仅包含本机合成数据库和真实 Chromium 会话生成的脱敏截图；不含 Cookie、CSRF、ticket 或 HAR。
 
-本轮重拍基于 `origin/develop` `5d4aaa6100a6d7ce2cb0afe7dc089891d8fd5a72`（2026-10-28）；六项断言全部 PASS。
+本轮重拍基于分支 `test/RF-PM-035-rf018-screenshots`（基线 `origin/develop` `5d4aaa6100a6d7ce2cb0afe7dc089891d8fd5a72`，返工 head 待本次提交生成）；六项断言全部 PASS。
 
 ## 复跑
 
