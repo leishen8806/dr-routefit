@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import {seed,apply} from './model.mjs';
 import {calculateFeeTrial,feeKey,decimalUnits} from './fee-settings.mjs';
 import {initAccess,sessionFor,executeAsAccount,projectAccount,canView} from './access-control.mjs';
-import {tariffSummary,shortId,listStatus} from './fee-api-model.mjs';
+import {tariffSummary,shortId,listStatus,copyTariffId} from './fee-api-model.mjs';
 let sequence=0;
 test('fee draft picker uses readable summary and short display IDs',()=>{const id='12345678-aaaa-bbbb-cccc-ddddeeeeffff';assert.equal(shortId(id),'12345678');for(const [owner,label] of [['DR','DR 对客收费'],['VET','VET 采购费'],['ZTO','中通 采购费'],['CE','CE 采购费'],['JT','极兔 采购费']])assert.match(tariffSummary({owner,currency:'USD',state:'DRAFT',version:1,id},new Date('2026-10-27T04:45:00Z')),new RegExp(label));});
 test('fee draft picker explains loading, pagination and access states',()=>{assert.equal(listStatus({connected:false}),'未连接 · 请重新连接开发会话');assert.equal(listStatus({connected:true,loading:true}),'加载中…');assert.equal(listStatus({connected:true,hasMore:true,count:50}),'还有更多草稿可加载');assert.equal(listStatus({connected:true,count:2}),'已显示全部 2 份草稿');});
+test('fee draft picker explains no-read access and clipboard failure',async()=>{assert.equal(listStatus({connected:true,canRead:false}),'当前会话没有读取费用草稿的权限');assert.equal(await copyTariffId('x',null),false);assert.equal(await copyTariffId('x',{writeText:async()=>{throw Error('blocked');}}),false);let copied='';assert.equal(await copyTariffId('x',{writeText:async value=>{copied=value;}}),true);assert.equal(copied,'x');});
 const config=(db,code,p={},owner='DR',currency='USD')=>{
  const id=feeKey(owner,currency,code);
  return apply(db,{action:'feeSave',role:'ops',key:'fee-'+(++sequence),id,version:db.feeSettings.rules[id]?.version||0,payload:{enabled:true,method:'fixed',amount:'2',share:false,scope:'合成样例：金边同城普通配送',evidence:'DEMO-价表依据',...p}});

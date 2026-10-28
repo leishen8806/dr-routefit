@@ -1,5 +1,5 @@
 import {FeeClient} from './fee-api-client.mjs';
-import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput,tariffSummary,shortId,listStatus} from './fee-api-model.mjs';
+import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput,tariffSummary,shortId,listStatus,copyTariffId} from './fee-api-model.mjs';
 import {requiredReason} from './orders-ui-rules.mjs';
 import {policySnapshotRows} from './policy-view.mjs';
 const controlsStylesheet=document.createElement('link');controlsStylesheet.rel='stylesheet';controlsStylesheet.href='controls.css';document.head.append(controlsStylesheet);
@@ -51,7 +51,7 @@ function leaveGuard(action){
 window.addEventListener('beforeunload',e=>{if(dirty||createDirty||client.pending){e.preventDefault();e.returnValue='';}});
 document.querySelector('[data-leave]').addEventListener('click',e=>{e.preventDefault();const href=e.currentTarget.href;leaveGuard(()=>location.assign(href));});
 function options(loading=false){const previous=current?.id;$('tariff').replaceChildren(new Option(loading?'加载中…':(tariffs.length?'请选择草稿':'本企业尚无草稿'),'') );for(const t of tariffs){const option=new Option(`${t.name} · ${t.owner} / ${t.currency}`,t.id);option.title=t.name;$('tariff').add(option);}$('tariff').value=previous||'';$('tariff').title=current?.name||'请选择本企业费用草稿';}
-async function list(append=false){$('tariff-list-status').textContent=listStatus({connected,loading:true,hasMore:!!nextAfter,count:tariffs.length,canRead});options(true);const r=await client.get('/tariffs?limit=50'+(append&&nextAfter?'&after='+encodeURIComponent(nextAfter):''));tariffs=append?[...tariffs,...r.data.items.filter(x=>!tariffs.some(t=>t.id===x.id))]:r.data.items;nextAfter=r.data.nextAfter;options();$('tariff-list-status').textContent=listStatus({connected,loading:false,hasMore:!!nextAfter,count:tariffs.length,canRead});}
+async function list(append=false){$('tariff-list-status').textContent=listStatus({connected,loading:true,hasMore:!!nextAfter,count:tariffs.length,canRead:canRead()});options(true);const r=await client.get('/tariffs?limit=50'+(append&&nextAfter?'&after='+encodeURIComponent(nextAfter):''));tariffs=append?[...tariffs,...r.data.items.filter(x=>!tariffs.some(t=>t.id===x.id))]:r.data.items;nextAfter=r.data.nextAfter;options();$('tariff-list-status').textContent=listStatus({connected,loading:false,hasMore:!!nextAfter,count:tariffs.length,canRead:canRead()});}
 async function connect(){
  await client.connect();connected=true;catalog=(await client.get('/catalog')).data;await list();$('source').textContent='本机数据库 · 开发会话';message(tariffs.length?'已连接，请选择草稿。':'已连接，本企业尚无草稿；可新建数据库草稿。');
 }
@@ -111,7 +111,7 @@ $('discard').onclick=()=>leaveGuard(()=>edit(code));
 $('create-form').onsubmit=e=>{e.preventDefault();const target=e.target,data=new FormData(target),body=Object.fromEntries(['name','owner','currency','scope'].map(k=>[k,String(data.get(k)||'').trim()]));run(async()=>{if(!body.name||!body.scope)throw Error('请填写名称和适用范围');if(dirty)throw Error('请先处理未保存修改');await mutate('/tariffs',body,null,async r=>{code=null;await appliedTariff(r);$('create-panel').open=false;createDirty=false;target.reset();});});};
 $('create-form').addEventListener('input',()=>{createDirty=true;});
 $('tariff').onchange=e=>{const id=e.target.value;e.target.value=current?.id||'';leaveGuard(()=>run(()=>select(id)));};
- $('more').onclick=()=>run(()=>list(true));$('refresh').onclick=()=>leaveGuard(()=>run(()=>current?select(current.id):list(false)));$('copy-tariff-id').onclick=async()=>{if(!current)return;await navigator.clipboard?.writeText(current.id);message('已复制完整草稿 ID。');};
+ $('more').onclick=()=>run(()=>list(true));$('refresh').onclick=()=>leaveGuard(()=>run(()=>current?select(current.id):list(false)));$('copy-tariff-id').onclick=async()=>{if(!current)return;const copied=await copyTariffId(current.id);if(copied)message('已复制完整草稿 ID。');else{$('context').textContent=`${tariffSummary(current)} · 完整 ID：${current.id}`;message('复制失败，请手动选择 ID。');}};
 $('connect').onclick=()=>run(connect);
 $('retry').onclick=()=>run(async()=>{const apply=pendingApply;const result=await client.retry();pendingApply=null;if(apply)await apply(result);});
 $('latest').onclick=()=>run(async()=>{if(!current)return;const r=await client.get('/tariffs/'+current.id);latest=r;$('comparison').hidden=false;$('compare-values').replaceChildren();for(const [title,value]of [['原已存值',current.rules.find(x=>x.code===code)||'未配置'],['我的输入',formValue()],['最新服务端值',r.data.rules.find(x=>x.code===code)||'未配置']]){const col=el('div');col.append(el('h3',title),el('pre',JSON.stringify(value,null,2)));$('compare-values').append(col);}message('最新版本已读取，原输入未变；请比较后确认编辑基线。');});

@@ -51,3 +51,7 @@ export function listStatus({connected=true,loading=false,hasMore=false,count=0,c
  if(loading)return '加载中…';
  return hasMore?'还有更多草稿可加载':`已显示全部 ${count} 份草稿`;
 }
+export async function copyTariffId(id,clipboard=globalThis.navigator?.clipboard){
+ if(!id||!clipboard?.writeText)return false;
+ try{await clipboard.writeText(id);return true;}catch{return false;}
+}
