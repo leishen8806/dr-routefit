@@ -2,7 +2,8 @@ import {readFile} from 'node:fs/promises';
 import {randomUUID} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import pg from 'pg';
-import {readJson,writePrivate,rolePermissions,newSession,localFile,validateStaffAssignments,sessionFileFor,parseEnvironment} from './trial-common.mjs';
+import {readJson,writePrivate,rolePermissions,newSession,localFile,validateStaffAssignments,sessionFileFor} from './trial-common.mjs';
+import {parseEnvironment} from './trial-ssh-link.mjs';
 
 export async function runTrialStaff({env=process.env,Pool=pg.Pool}={}){
  const file=sessionFileFor(env,import.meta.url),staffFile=env.ROUTEFIT_TRIAL_STAFF_FILE||localFile(import.meta.url,'../.local/trial-staff.json');
