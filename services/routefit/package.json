@@ -21,6 +21,13 @@
     "smoke:quotes": "node --env-file=.local/dev.env scripts/policy-smoke.mjs --quotes",
     "smoke:prepayment": "node --env-file=.local/dev.env scripts/policy-smoke.mjs --prepayment",
     "smoke:reversals": "node --env-file=.local/dev.env scripts/policy-smoke.mjs --reversal"
+    ,"trial:init": "node scripts/trial-init.mjs"
+    ,"trial:renew": "node --env-file=.local/dev.env scripts/trial-renew.mjs"
+    ,"trial:staff": "node --env-file=.local/dev.env scripts/trial-staff.mjs"
+    ,"trial:import": "node --env-file=.local/dev.env scripts/trial-import.mjs"
+    ,"trial:backup": "node --env-file=.local/dev.env scripts/trial-backup.mjs"
+    ,"trial:restore": "node scripts/trial-restore.mjs"
+    ,"trial:start": "node --env-file=.local/dev.env scripts/trial-start.mjs"
   },
   "dependencies": {
     "ajv": "8.20.0",
