@@ -70,8 +70,9 @@ export function localBrowser({origin,root,sessionsFile,authenticate,pool,trialMo
   if(['/','/prototype','/prototype/'].includes(name))name='/prototype/index.html';
   const parts=name.split('/');
   ensure(!parts.some(p=>p==='..'||p==='.'||p.startsWith('.')||p.includes('\\'))&&!name.includes('\0'),404,'NOT_FOUND','资源不存在');
-  const trialAllowed=parts.length===3&&parts[1]==='prototype'&&['orders.html','fees.html'].includes(parts[2]);
-  const allowed=trialMode?trialAllowed|| (parts.length===4&&parts[1]==='brand'&&parts[2]==='logo') : ((parts.length===3&&parts[1]==='prototype')||(parts.length===4&&parts[1]==='brand'&&parts[2]==='logo'));
+  const trialHtmlAllowed=parts.length===3&&parts[1]==='prototype'&&['orders.html','fees.html'].includes(parts[2]);
+  const trialAssetAllowed=parts.length===3&&parts[1]==='prototype'&&extname(parts[2])!=='.html';
+  const allowed=trialMode?(trialHtmlAllowed||trialAssetAllowed||(parts.length===4&&parts[1]==='brand'&&parts[2]==='logo')):((parts.length===3&&parts[1]==='prototype')||(parts.length===4&&parts[1]==='brand'&&parts[2]==='logo'));
   ensure(allowed&&mime[extname(name)]&&!/\/(?:browser-|server\.mjs$|integration-server\.mjs$)/.test(name)&&!name.endsWith('.test.mjs'),404,'NOT_FOUND','资源不存在');
   let file,body;
   try{const requested=resolve(root,'.'+name);file=await realpath(requested);const comparable=p=>process.platform==='win32'?p.toLowerCase():p;ensure(comparable(file)===comparable(requested)&&file.startsWith(resolve(root)+sep),404,'NOT_FOUND','资源不存在');body=await readFile(file);}catch{ensure(false,404,'NOT_FOUND','资源不存在');}

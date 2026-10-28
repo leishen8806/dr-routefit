@@ -20,12 +20,15 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
   const target=new URL(adminUrl);target.pathname='/'+databaseName;const pool=new Pool({connectionString:target.href});
   try{
    await migrate(pool);
-   await pool.query('BEGIN');
+   const client=await pool.connect();
+   try{
+   await client.query('BEGIN');
    const id=company.id||randomUUID();
-   await pool.query("SELECT set_config('app.company_id',$1,true)",[id]);
-   await pool.query('INSERT INTO org.company(id,name,status) VALUES($1,$2,\'ACTIVE\') ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,status=\'ACTIVE\'',[id,company.name]);
-   await pool.query('COMMIT');
-  }catch(error){await pool.query('ROLLBACK').catch(()=>{});throw error;}finally{await pool.end();}
+   await client.query("SELECT set_config('app.company_id',$1,true)",[id]);
+   await client.query('INSERT INTO org.company(id,name,status) VALUES($1,$2,\'ACTIVE\') ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,status=\'ACTIVE\'',[id,company.name]);
+   await client.query('COMMIT');
+   }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
+  }finally{await pool.end();}
   await admin.query(`CREATE ROLE ${quoteIdentifier(runtimeRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${quoteLiteral(runtimePassword)}`);roleCreated=true;
   await admin.query(`GRANT routefit_api TO ${quoteIdentifier(runtimeRole)}`);
   target.username=runtimeRole;target.password=runtimePassword;const sessionFile=process.env.ROUTEFIT_TRIAL_SESSION_FILE||'/var/lib/routefit/sessions.json';

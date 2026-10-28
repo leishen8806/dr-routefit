@@ -9,10 +9,11 @@ export async function runTrialStaff({env=process.env,Pool=pg.Pool}={}){
  const adminEnvFile=env.ROUTEFIT_ADMIN_ENV_FILE||'/root/.config/routefit/admin.env';
  const adminEnv=parseEnvironment(await readFile(adminEnvFile,'utf8'));const adminUrl=env.ROUTEFIT_PG_ADMIN_URL||adminEnv.ROUTEFIT_PG_ADMIN_URL;if(!adminUrl)throw Error('ROUTEFIT_PG_ADMIN_URL is required via root-only env file');
  const people=validateStaffAssignments(await readJson(staffFile)),sessions=JSON.parse(await readFile(file,'utf8')),pool=new Pool({connectionString:adminUrl});let company;
- try{await pool.query('BEGIN');company=(await pool.query("SELECT id FROM org.company WHERE status='ACTIVE' ORDER BY id LIMIT 1")).rows[0];if(!company)throw Error('no active company');await pool.query("SELECT set_config('app.company_id',$1,true)",[company.id]);
-  for(const person of people)for(const role of person.roles||[]){const principalId=randomUUID(),displayName=String(person.displayName||'Synthetic Staff');await pool.query('INSERT INTO org.principal(id,company_id,kind,display_name,idp_subject,status) VALUES($1,$2,\'STAFF\',$3,$4,\'ACTIVE\')',[principalId,company.id,displayName,`local:${principalId}`]);const [session]=newSession({companyId:company.id,principalId,sshLogin:person.sshLogin},rolePermissions[role]||[],new Date(Date.now()+18*3600000).toISOString());sessions.push(session);}
-  await pool.query('COMMIT');
- }catch(error){await pool.query('ROLLBACK').catch(()=>{});throw error;}finally{await pool.end();}
+ const client=await pool.connect();
+ try{await client.query('BEGIN');company=(await client.query("SELECT id FROM org.company WHERE status='ACTIVE' ORDER BY id LIMIT 1")).rows[0];if(!company)throw Error('no active company');await client.query("SELECT set_config('app.company_id',$1,true)",[company.id]);
+  for(const person of people){const principalId=randomUUID(),displayName=String(person.displayName||'Synthetic Staff'),permissions=[...new Set((person.roles||[]).flatMap(role=>rolePermissions[role]||[]))];await client.query('INSERT INTO org.principal(id,company_id,kind,display_name,idp_subject,status) VALUES($1,$2,\'STAFF\',$3,$4,\'ACTIVE\')',[principalId,company.id,displayName,`local:${principalId}`]);const [session]=newSession({companyId:company.id,principalId,sshLogin:person.sshLogin},permissions,new Date(Date.now()+18*3600000).toISOString());sessions.push(session);}
+  await client.query('COMMIT');
+ }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();await pool.end();}
  await writePrivate(file,sessions);return {count:people.length,ssh:people.map(person=>({sshLogin:person.sshLogin,roles:person.roles||[]}))};
 }
 
