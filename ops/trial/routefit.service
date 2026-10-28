@@ -8,13 +8,16 @@ Type=simple
 User=routefit
 Group=routefit
 EnvironmentFile=/etc/routefit/routefit.env
+Environment=ROUTEFIT_NODE_BIN=/usr/bin/node
 WorkingDirectory=/opt/dr-routefit/services/routefit
-ExecStart=/usr/bin/node main.mjs
+ExecStart=${ROUTEFIT_NODE_BIN} main.mjs
 Restart=on-failure
 RestartSec=5
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
+StateDirectory=routefit
+LogsDirectory=routefit
 ReadWritePaths=/var/lib/routefit /var/log/routefit
 
 [Install]

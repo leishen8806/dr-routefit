@@ -18,7 +18,11 @@ test('renewal invalidates the old token hash while preserving service sessions',
  assert.notEqual(next[0].tokenHash,'old');assert.notEqual(next[0].csrfHash,'old');assert.equal(next[0].expiresAt,'2030-01-01T00:00:00.000Z');assert.deepEqual(next[1],old[1]);
 });
 test('staff role conflict is rejected before any database writes',()=>{
- assert.throws(()=>validateStaffAssignments([{humanId:'h1',roles:['policy_author','policy_reviewer']}]),/同一人/);
+ assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'h1',roles:['policy_author','policy_reviewer']}]),/同一人/);
+});
+test('staff SSH logins are required and unique',()=>{
+ assert.throws(()=>validateStaffAssignments([{humanId:'h1',roles:['order_quote']}]),/sshLogin/);
+ assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'same',roles:['order_quote']},{humanId:'h2',sshLogin:'same',roles:['policy_reviewer']}]),/sshLogin/);
 });
 test('CSV parser handles quoted commas and escaped quotes',()=>{
  const rows=parseCsv('name,note\n"Acme, Inc.","say ""hello"""\n');
@@ -33,9 +37,10 @@ test('backup and restore safety guards reject destructive targets',()=>{
  assert.equal(assertRestoreDatabase('routefit_trial_restore_20261028'),'routefit_trial_restore_20261028');
 });
 test('SSH login helper maps only registered staff names and ignores command injection',()=>{
- const people=[{humanId:'synthetic-operator',sshLogin:'ops-one'},{humanId:'synthetic-reviewer'}];
+ const people=[{principalId:'p1',sshLogin:'ops-one'},{principalId:'p2',sshLogin:'reviewer'}];
  assert.equal(resolveStaffActor(people,'ops-one'),0);
- assert.equal(resolveStaffActor(people,'synthetic-reviewer'),1);
+ assert.equal(resolveStaffActor(people,'reviewer'),1);
  assert.equal(resolveStaffActor(people,'ops-one 1'),-1);
+ assert.equal(resolveStaffActor(people,'synthetic-reviewer'),-1);
  assert.equal(resolveStaffActor(people,'unknown'),-1);
 });

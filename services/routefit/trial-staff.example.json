@@ -1,6 +1,6 @@
 [
-  {"humanId":"synthetic-operator","displayName":"Synthetic Order Quote","roles":["order_quote"]},
-  {"humanId":"synthetic-author","displayName":"Synthetic Policy Author","roles":["policy_author"]},
-  {"humanId":"synthetic-reviewer","displayName":"Synthetic Policy Reviewer","roles":["policy_reviewer"]},
-  {"humanId":"synthetic-publisher","displayName":"Synthetic Policy Publisher","roles":["policy_publisher"]}
+  {"humanId":"synthetic-operator","sshLogin":"synthetic-operator","displayName":"Synthetic Order Quote","roles":["order_quote"]},
+  {"humanId":"synthetic-author","sshLogin":"synthetic-author","displayName":"Synthetic Policy Author","roles":["policy_author"]},
+  {"humanId":"synthetic-reviewer","sshLogin":"synthetic-reviewer","displayName":"Synthetic Policy Reviewer","roles":["policy_reviewer"]},
+  {"humanId":"synthetic-publisher","sshLogin":"synthetic-publisher","displayName":"Synthetic Policy Publisher","roles":["policy_publisher"]}
 ]

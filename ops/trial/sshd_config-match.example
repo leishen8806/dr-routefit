@@ -2,6 +2,7 @@
 Match Group routefit-trial
     ForceCommand sudo -u routefit /opt/dr-routefit/services/routefit/scripts/trial-ssh-link.mjs
     AllowTcpForwarding local
+    PermitOpen 127.0.0.1:4180
     PermitTTY no
     X11Forwarding no
     PermitUserEnvironment no
