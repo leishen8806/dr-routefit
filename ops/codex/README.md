@@ -38,8 +38,13 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-028-R1](tasks/RF-PM-028-R1-unit-tests.md) | P01 页面单元测试补齐（大旺＋Codex） | test | 低 | 028 | 已合并（PR #48、#50）· 未经审查，待补审 |
 | RF-PM-022-R1、023-R1、024-R1、029、031 | 未建卡即提交的 PR：受理校验（#41）、报价明细（#39）、策略快照（#40）、角色提醒与移动端顶栏（#43）、下拉箭头样式（#42） | — | — | — | 已合并 · #40、#41、#43 审查 CHANGES_REQUESTED 未处理即合并，缺口转 033；#42 APPROVED；#39 未审查 |
 | [RF-PM-033](tasks/RF-PM-033-p01-post-merge-rework.md) | P01 合并后返工：#40、#41、#43、#44 审查缺口（大旺＋Codex） | fix | 中 | 无 | TODO |
+| RF-PM-030、034、036 | 未建卡即提交的 PR：费用草稿选择区与测试库隔离（#49）、已发布策略列表接口（#55）、报价策略防护与费用页 S1 标注（#52） | — | — | — | 审查中 |
+| [RF-PM-037](tasks/RF-PM-037-p01-trial-readiness.md) | P01 试运营就绪：订单页 S1 与重放回归、报价策略选择（大旺＋Codex） | fix | 中 | 030、033、034、036 | TODO |
+| [RF-PM-038](tasks/RF-PM-038-single-machine-trial-tooling.md) | 单机受控试运营工具：身份续期、员工身份、主数据与备份（大旺＋Codex，需人类批准） | chore | 高 | 无 | TODO |
 | [RF-PM-032](tasks/RF-PM-032-distance-pricing-and-change-requote.md) | 服务端需求：距离计价与仓库／货物／服务类型变更重核价（项目负责人＋Codex） | feat | 高 | 025；开工前决策 | 待决策（不进 v0.3.0） |
-| [RF-QA-02](tasks/RF-QA-02-p01-acceptance.md) | P01 独立浏览器验收，含 P01 浏览器脚本实跑与固定费等价场景（项目负责人） | test | 低 | 025、028、028-R1、033 | TODO |
+| [RF-QA-02](tasks/RF-QA-02-p01-acceptance.md) | P01 独立浏览器验收，含 P01 浏览器脚本实跑与固定费等价场景（项目负责人） | test | 低 | 025、028、028-R1、030、033、034、036、037 | TODO |
+
+2026-10-28 项目负责人把 7 天目标定为受控试运营，方案见 [P01 受控试运营方案](../trial/p01-controlled-trial-plan.md)。
 
 2026-10-27 需求会后的完整拆解（含不经 Codex 的决策落盘任务 RF-DEC-01–06 与执行人）见 [需求会后任务拆解](../../PRD/docs/tasks/post-meeting-task-breakdown-v0.1.md)。上表 RF-PM-000–005 的状态未随实际合并更新，以 GitHub PR 为准。
 
