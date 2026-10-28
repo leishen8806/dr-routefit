@@ -1,4 +1,7 @@
 export const selectableServiceLevels=Object.freeze({S2:'当日送',S3:'预约送'});
+export function serviceLevelOptions(value){const options=Object.entries(selectableServiceLevels).map(([id,label])=>({id,label,disabled:false}));if(value==='S1')options.unshift({id:'S1',label:'及时送（历史草稿，仅可改为 S2/S3）',disabled:true});return options;}
+export function policyOptionLabel(policy){const fmt=new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Phnom_Penh',dateStyle:'short',timeStyle:'short'});const validFrom=policy?.validFrom?fmt.format(new Date(policy.validFrom)):'未知';const validUntil=policy?.validUntil?fmt.format(new Date(policy.validUntil)):'未知';return `v${policy?.version??'?'} · ${validFrom}–${validUntil} · ${String(policy?.id||'').slice(0,8)}`;}
+export function policyPrecheckFailure(error){return !!error&&![403,404].includes(error.status);}
 export function intakeFieldForPath(path){const item=path?.match(/^\/items\/(\d+)/);if(path==='/evidence')return 'intake.pickup.reference';if(path==='/pickup/point')return 'pickup.lng';if(path==='/delivery/point')return 'delivery.lng';if(path==='/requestedDeliveryWindow')return 'requestedDeliveryWindow.end';return item?`items.${item[1]}.unknownReason`:null;}
 export function retainedPoint(prior,address,landmark,point){return prior&&(address!==prior.address||landmark!==(prior.landmark||''))?null:point;}
 export function requiredReason(value){return String(value??'').trim().length>0;}
