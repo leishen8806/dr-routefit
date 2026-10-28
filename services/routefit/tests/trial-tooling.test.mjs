@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions} from '../scripts/trial-common.mjs';
+import {resolveStaffActor} from '../scripts/trial-ssh-link.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
@@ -30,4 +31,11 @@ test('backup and restore safety guards reject destructive targets',()=>{
  assert.throws(()=>assertBackupDirectoryOutsideRepo('/repo','/repo/backups'),/outside/);
  assert.throws(()=>assertRestoreDatabase('routefit_trial'),/usage/);
  assert.equal(assertRestoreDatabase('routefit_trial_restore_20261028'),'routefit_trial_restore_20261028');
+});
+test('SSH login helper maps only registered staff names and ignores command injection',()=>{
+ const people=[{humanId:'synthetic-operator',sshLogin:'ops-one'},{humanId:'synthetic-reviewer'}];
+ assert.equal(resolveStaffActor(people,'ops-one'),0);
+ assert.equal(resolveStaffActor(people,'synthetic-reviewer'),1);
+ assert.equal(resolveStaffActor(people,'ops-one 1'),-1);
+ assert.equal(resolveStaffActor(people,'unknown'),-1);
 });
