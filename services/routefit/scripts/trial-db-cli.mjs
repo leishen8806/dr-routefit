@@ -4,7 +4,8 @@ import {createReadStream} from 'node:fs';
 import {basename} from 'node:path';
 
 export function pgCliConnection(connectionString){
- const url=new URL(connectionString),password=url.password;
+ const url=new URL(connectionString),password=decodeURIComponent(url.password),username=decodeURIComponent(url.username);
+ url.username=username;
  url.password='';
  return {url:url.href,password};
 }

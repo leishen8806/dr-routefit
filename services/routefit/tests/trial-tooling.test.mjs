@@ -6,6 +6,8 @@ import {join} from 'node:path';
 import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask} from '../scripts/trial-common.mjs';
 import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
 import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
+import {runBackup} from '../scripts/trial-backup.mjs';
+import {runRestore} from '../scripts/trial-restore.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
@@ -65,6 +67,24 @@ test('SSH helper reads only explicit environment settings',()=>{
 test('database CLI strips password from args and passes it only via PGPASSWORD',()=>{
  const cli=pgCliConnection('postgresql://demo:secret@127.0.0.1:5432/routefit');
  assert.equal(cli.password,'secret');assert.equal(cli.url,'postgresql://demo@127.0.0.1:5432/routefit');assert.ok(!cli.url.includes('secret'));
+});
+test('database CLI decodes special URL credentials without leaking either form',()=>{
+ const raw='p@ss:slash/percent% space',encoded=encodeURIComponent(raw);
+ const cli=pgCliConnection(`postgresql://ops%40example:${encoded}@127.0.0.1:5432/routefit`);
+ assert.equal(cli.password,raw);assert.ok(!cli.url.includes(raw));assert.ok(!cli.url.includes(encoded));assert.match(cli.url,/ops%40example@/);
+});
+test('backup script injects exec and keeps raw and encoded passwords out of args',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'rf038-backup-')),dir=join(root,'backups');await import('node:fs/promises').then(({mkdir})=>mkdir(dir));
+ const raw='p@ss:slash/percent% space',encoded=encodeURIComponent(raw),calls=[];
+ try{
+  const result=await runBackup({backupDirectory:dir,env:{ROUTEFIT_DATABASE_URL:`postgresql://ops:${encoded}@127.0.0.1:5432/routefit`},now:new Date('2026-11-01T01:02:03Z'),platform:'win32',setMetadata:async()=>{},exec:async(bin,args,options)=>{calls.push({bin,args,options});await writeFile(args[2],'synthetic dump');}});
+  const flat=calls[0].args.join(' ');assert.ok(!flat.includes(raw));assert.ok(!flat.includes(encoded));assert.equal(calls[0].options.env.PGPASSWORD,raw);assert.equal((await verifyBackupChecksum(result.file,result.checksum)).length,64);
+ }finally{await rm(root,{recursive:true,force:true});}
+});
+test('restore verifies checksum before pool creation or exec',async()=>{
+ let pools=0,execCalls=0;
+ await assert.rejects(runRestore({file:'/tmp/missing.dump',database:'routefit_trial_restore_20261101',adminUrl:'postgresql://ops:secret@127.0.0.1/postgres',poolFactory:()=>{pools++;return {query:async()=>({rowCount:0}),end:async()=>{}};},exec:async()=>{execCalls++;},verifyChecksum:async()=>{throw Error('backup checksum mismatch');}}),/mismatch/);
+ assert.equal(pools,0);assert.equal(execCalls,0);
 });
 test('restore checksum accepts matching file and rejects mismatch or missing file',async()=>{
  const dir=await mkdtemp(join(tmpdir(),'rf038-checksum-')),file=join(dir,'backup.dump'),sum=join(dir,'backup.dump.sha256');
