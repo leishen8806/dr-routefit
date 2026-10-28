@@ -39,6 +39,14 @@
 - RouteFit 的文件（`/srv/routefit`、`/etc/routefit`、数据库、备份）只有 `routefit` 用户和管理员能读，其他服务的账户读不到；
 - 这台机器上有其他服务，须在 RF-DEC-07 签批时写明，作为风险由负责人确认。
 
+**2026-10-28 补充决定（root 与 22 端口）：** 盘点发现，root 在 30 天内有约 277 次公钥登录，既有服务的自动化部署依赖 root 经 22 端口登录。所以：
+
+- 暂不禁止 root 登录，改为 `PermitRootLogin prohibit-password`；
+- 22 端口保留，并用 `Match LocalPort` 限定为只允许 root；
+- RouteFit 的人员只走 `<SSH端口>`。
+
+**后续事项（不在本次试运营范围内）：** 既有自动化迁到 `<SSH端口>` 或改用非 root 账户之后，关闭 22、设 `PermitRootLogin no`；清理 root `authorized_keys` 中无备注的密钥。
+
 ## 要做
 
 ### 第 1 步：盘点现状，先做快照（只读）
@@ -58,11 +66,13 @@
 
 - 关闭登录方式：
   - `PasswordAuthentication no`、`KbdInteractiveAuthentication no`；
-  - `PermitRootLogin no`；
+  - `PermitRootLogin prohibit-password`：只允许 root 用密钥登录，暂不禁止。原因见下方“2026-10-28 补充决定”；
   - `PubkeyAuthentication yes`。
-- 限制连接：
-  - `AllowGroups rf-admin rf-tunnel`；
-  - `MaxAuthTries 3`、`LoginGraceTime 30`。
+- 按端口隔离（`Match LocalPort`）：
+  - 22 端口只允许 root：`AllowUsers root`，供既有服务的自动化使用；
+  - `<SSH端口>` 只允许 `AllowGroups rf-admin rf-tunnel`，RouteFit 的管理员和员工只走这个端口；
+  - 先确认 OpenSSH 支持在 Match 块中使用 AllowUsers/AllowGroups，再用 `sshd -t` 检查语法。
+- 限制连接：`MaxAuthTries 3`、`LoginGraceTime 30`。
 - 关闭转发：
   - `X11Forwarding no`、`AllowAgentForwarding no`；
   - 全局 `AllowTcpForwarding no`。
@@ -79,11 +89,15 @@
 - **SSH 改用自定义端口。** 2026-10-28 负责人决定，在 40000–48999 之间选一个端口，下文记作 `<SSH端口>`，端口号不写进仓库。先用 `ss -tlnp` 确认这个端口没被占用。按以下顺序操作，避免把自己锁在外面：
   1. ufw 和云防火墙先放行 `<SSH端口>/tcp`，22 暂时保留；
   2. Ubuntu 24.04 的 SSH 默认由 `ssh.socket` 监听：只改 `sshd_config` 的 `Port` 不会生效，要用 `systemctl edit ssh.socket` 覆盖 `ListenStream`，同时监听 22 和 `<SSH端口>`，然后 `systemctl daemon-reload` 并重启 `ssh.socket`；
-  3. **在新会话中**用 `ssh -p <SSH端口>` 登录 rfadmin，确认成功；
-  4. 再从 `ssh.socket`、ufw、云防火墙中移除 22；
-  5. fail2ban 的 sshd 规则改为 `<SSH端口>`。
-- 服务器防火墙 `ufw`：默认拒绝入站，只放行 `<SSH端口>/tcp`（用 `ufw limit` 限速）。
-- 服务商控制台的云防火墙同样只放行 `<SSH端口>`，两层都要配。
+  3. **在新会话中**验证四件事：
+     - rfadmin 能经 `<SSH端口>` 登录；
+     - rfadmin 经 22 登录被拒；
+     - root 经 22 能登录；
+     - root 经 `<SSH端口>` 登录被拒；
+  4. **22 暂不移除**（2026-10-28 补充决定）：保留给既有自动化的 root 密钥登录。关闭 22 列为后续事项，见下方“后续事项”；
+  5. fail2ban 的 sshd 规则同时覆盖 22 和 `<SSH端口>`。
+- 服务器防火墙 `ufw`：新增 `ufw allow <SSH端口>/tcp`，22 与既有规则保持不变。**不用 `ufw limit`**：员工可能共用办公室的出口 IP，limit 会把短时间内的多次正常连接拒掉。防暴力破解由 fail2ban 负责。
+- 服务商控制台的云防火墙同样新增 `<SSH端口>`，22 与既有规则保持不变，两层都要配。
 - **Docker 会绕过 ufw。** Docker 发布的端口直接写 iptables，ufw 的来源限制管不住。外部核验时要单独测试这些端口；服务器上已有的其他服务怎么处理，由负责人决定（见下方“现状与取舍”）。
 - 安装 `fail2ban`（sshd 规则）和 `unattended-upgrades`（自动安装安全更新）。
 - 时区：按负责人决定（选 B）保持 UTC；确认 NTP 时间同步已开启。
@@ -96,8 +110,8 @@
 
 ### 第 6 步：外部核验（用负责人自己的电脑，从外网做）
 
-- 端口扫描：RouteFit 相关只有 `<SSH端口>` 开放；22、4180、5432 都不可达。既有服务的端口逐个记录实际可达情况，8080 要从非指定来源测试一次。
-- `ssh root@<VPS>` 被拒；用密码登录被拒。
+- 端口扫描：RouteFit 相关只有 `<SSH端口>` 开放；4180、5432 都不可达。22 仍开放，但只允许 root 用密钥登录。既有服务的端口逐个记录实际可达情况，8080 要从非指定来源测试一次。
+- 经 `<SSH端口>` 用 root 登录被拒；经 22 用 rfadmin 登录被拒；任何端口用密码登录都被拒。
 - 用一个临时的 `rf-tunnel` 测试账号检验受限效果：
   - 不能进入命令行；
   - 转发到 `127.0.0.1:5432` 被拒；
