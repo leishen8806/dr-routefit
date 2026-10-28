@@ -1,4 +1,4 @@
-import {readFile,writeFile,mkdir,access} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,access,stat} from 'node:fs/promises';
 import {dirname,resolve,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {randomBytes,randomUUID,createHash} from 'node:crypto';
@@ -18,5 +18,15 @@ export function parseCsv(text){const rows=[];let row=[],cell='',quoted=false;for
 export function rowsToObjects(rows,name='CSV'){if(!rows.length)return [];const [head,...data]=rows;if(head.some(x=>!x)||data.some(row=>row.length!==head.length))throw Error(`${name}: invalid row width`);return data.map(row=>Object.fromEntries(head.map((key,i)=>[key,row[i]||''])));}
 export function validateStaffAssignments(people){if(!Array.isArray(people)||!people.length)throw Error('trial-staff requires a non-empty trial-staff.json');const conflicting=new Set(['policy_author','policy_reviewer','policy_publisher']);const byHuman=new Map(),logins=new Set();for(const person of people){if(!person.humanId)throw Error('trial staff humanId is required');if(!person.sshLogin||logins.has(person.sshLogin))throw Error('trial staff sshLogin is required and must be unique');logins.add(person.sshLogin);const roles=person.roles||[];const prior=byHuman.get(person.humanId)||[];if(roles.filter(r=>conflicting.has(r)).length+prior.filter(r=>conflicting.has(r)).length>1)throw Error(`同一人不能兼任编制、复核、发布：${person.humanId}`);byHuman.set(person.humanId,[...prior,...roles]);}return people;}
 export function assertBackupDirectoryOutsideRepo(repo,dir){const root=resolve(repo),target=resolve(dir);if(target===root||target.startsWith(root+sep))throw Error('backup directory must be outside the repository');return target;}
+export const trialBackupDirectory='/var/backups/routefit';
+export const trialBackupUmask=0o027;
+export const trialBackupFileMode=0o640;
+const trialBackupPattern=/^routefit_trial-\d{8}T\d{6}Z\.dump$/;
+export const trialBackupName=now=>`routefit_trial-${now.toISOString().replaceAll(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z')}.dump`;
+export const trialBackupChecksumName=name=>`${name}.sha256`;
+export const isTrialBackupName=name=>trialBackupPattern.test(name);
+export const trialBackupCleanupNames=(entries,keep=14)=>entries.filter(isTrialBackupName).sort().slice(0,-keep).flatMap(name=>[name,trialBackupChecksumName(name)]);
+export function assertTrialBackupFileMetadata(info,uid,gid){if(info.uid!==uid||info.gid!==gid||(info.mode&0o777)!==trialBackupFileMode)throw Error('backup file ownership or mode is not routefit:rf-admin 640');}
+export async function requireExistingBackupDirectory(repo,dir){const target=assertBackupDirectoryOutsideRepo(repo,dir);let info;try{info=await stat(target);}catch{throw Error('backup directory must already exist');}if(!info.isDirectory())throw Error('backup directory must be a directory');return {dir:target,gid:info.gid};}
 export function assertRestoreDatabase(name){if(!name||name==='routefit_trial')throw Error('usage: trial:restore BACKUP.dump NEW_DATABASE');return name;}
 export function renewSessions(sessions,expiresAt){return sessions.map(session=>session.authType==='service'?session:{...session,tokenHash:digest(token()),csrfHash:digest(token()),expiresAt});}
