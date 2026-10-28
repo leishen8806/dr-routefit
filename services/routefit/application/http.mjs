@@ -89,6 +89,13 @@ async function readBody(req){
  }
  return parseJson(Buffer.concat(chunks));
 }
+const isoDateTimeWithZone=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?(Z|[+-](?:(?:0\d|1[0-3]):[0-5]\d|14:00))$/;
+function normalizedIsoDateTime(value){
+ const match=isoDateTimeWithZone.exec(value);if(!match)return null;
+ const [year,month,day,hour,minute,second]=match.slice(1,7).map(Number),calendar=new Date(Date.UTC(year,month-1,day));
+ if(calendar.getUTCFullYear()!==year||calendar.getUTCMonth()!==month-1||calendar.getUTCDate()!==day||hour>23||minute>59||second>59)return null;
+ const timestamp=Date.parse(value);return Number.isNaN(timestamp)?null:new Date(timestamp).toISOString();
+}
 function pagination(url,kind){
  const cursor=kind==='revisions'?'afterVersion':'after';
  const allowed=kind==='policy-list'?['limit','after','state','effectiveAt','serviceLevel','tariffId']:['list','revisions'].includes(kind)?['limit',cursor]:[];
@@ -103,7 +110,7 @@ function pagination(url,kind){
  const page={limit:Number(raw),after};
  if(kind==='policy-list'){
   const state=url.searchParams.get('state')??'PUBLISHED';ensure(state==='PUBLISHED',422,'INVALID_STATE_FILTER','策略列表只支持state=PUBLISHED');
-  const effectiveAt=url.searchParams.get('effectiveAt')??new Date().toISOString();ensure(!Number.isNaN(Date.parse(effectiveAt)),422,'INVALID_EFFECTIVE_AT','effectiveAt须为ISO时间');
+  const effectiveAt=normalizedIsoDateTime(url.searchParams.get('effectiveAt')??new Date().toISOString());ensure(effectiveAt,422,'INVALID_EFFECTIVE_AT','effectiveAt须为带时区的ISO时间');
   const serviceLevel=url.searchParams.get('serviceLevel');if(serviceLevel)ensure(['S1','S2','S3'].includes(serviceLevel),422,'INVALID_SERVICE_LEVEL','serviceLevel无效');
   const tariffId=url.searchParams.get('tariffId');if(tariffId)ensure(uuid.test(tariffId),422,'INVALID_TARIFF_ID','tariffId须为UUID');
   return {...page,state,effectiveAt,serviceLevel,tariffId};

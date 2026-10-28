@@ -59,6 +59,7 @@ test('real PostgreSQL policy approval HTTP lifecycle',async t=>{
    const beforeStart=await req('/policy-versions?effectiveAt='+encodeURIComponent(new Date(Date.parse(policy.validFrom)-1).toISOString()),{actor:0});assert.equal(beforeStart.data.items.some(x=>x.id===policy.id),false);
    const afterExpiry=await req('/policy-versions?effectiveAt='+encodeURIComponent(new Date(Date.now()+86400000).toISOString()),{actor:0});assert.equal(afterExpiry.status,200);assert.equal(afterExpiry.data.items.length,0);
    const defaultWindow=await req('/policy-versions',{actor:0});assert.equal(defaultWindow.data.items.some(x=>x.id===policy.id),true);
+   for(const effectiveAt of ['Oct 28 2026','2026-10-28T10:00']){const invalid=await req('/policy-versions?effectiveAt='+encodeURIComponent(effectiveAt),{actor:0});assert.equal(invalid.status,422);assert.equal(invalid.data.error.code,'INVALID_EFFECTIVE_AT');}
    assert.equal((await req('/policy-versions?after=not-a-uuid',{actor:0})).status,422);
    assert.equal((await req('/policy-versions?state=SUBMITTED',{actor:0})).status,422);
    assert.equal((await req('/policy-versions?tariffId='+tariff.id,{actor:4})).status,200);
