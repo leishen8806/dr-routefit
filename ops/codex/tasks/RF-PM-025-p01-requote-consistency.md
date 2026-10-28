@@ -9,7 +9,7 @@
 | 分支 | `feat/RF-PM-025-requote-consistency`，PR 目标 `develop` |
 | 依赖 | RF-PM-023 |
 | 需人类批准 | 若需新增或修改迁移：是 |
-| 状态 | IN_PROGRESS（PR #44） |
+| 状态 | 已合并（PR #44）· 审查 CHANGES_REQUESTED 未处理即合并，缺口转 RF-PM-033 |
 
 ## 背景
 
@@ -48,4 +48,15 @@ PR 描述写明核实清单、PASS／FAIL／NOT_RUN 和“发现但未处理”�
 
 ## 审查记录
 
-（Claude 填写）
+**2026-10-27 · Claude · 审查 · CHANGES_REQUESTED**（[PR #44](https://github.com/leishen8806/dr-routefit/pull/44)，审查提交 `0d83c17`）
+
+本 PR 只给报价明细加了“变更候选报价”块（原报价、差额与方向、确认状态）和 1 个单元测试，只覆盖第 3 步的一部分。未满足：
+
+1. 第 1 步：没有核实清单。
+2. 第 2 步：已确认报价普通重报被拒，没有独立的集成测试；现有覆盖只是 `quotes.integration.mjs:88` 顺带断言了一句 409。
+3. 第 3 步：候选报价只要不是 `confirmed` 就显示“等待客户确认”，过期或被替代时也这么写。
+4. 第 4 步：跨端一致没做。
+5. 第 5 步：固定费边界测试都没有。
+6. PR 描述没有 PASS／FAIL／NOT_RUN。
+
+**事后：** 审查发出约 35 分钟后，PR 于 09:02 合并（`1e535c5`）。审查后只加了同步提交，上述各项都没改，合并前也没有看板 APPROVED。缺口全部转 [RF-PM-033](RF-PM-033-p01-post-merge-rework.md) 的 C 部分。

@@ -2554,6 +2554,31 @@ array<[PricingCatalogEntry](fields.md#pricingcatalogentry)>
 | review | [PricingPolicyDecisionRecord](fields.md#pricingpolicydecisionrecord) 或 null | 是 | ； |
 | publication | [PricingPolicyDecisionRecord](fields.md#pricingpolicydecisionrecord) 或 null | 是 | ； |
 
+## PricingPolicyVersionPage
+
+本企业已发布且按有效期筛选的费率策略摘要分页；默认不返回草稿、待复核或已过期版本。
+
+| 字段 | 类型 | 必填 | 约束和用途 |
+|---|---|---|---|
+| items | array<[PricingPolicyVersionSummary](fields.md#pricingpolicyversionsummary)> | 是 | ；maxItems=100 |
+| nextAfter | string 或 null | 是 | ；format=uuid；按策略id游标 |
+
+## PricingPolicyVersionSummary
+
+已发布策略的只读摘要，不包含完整费率快照或审核主体信息。
+
+| 字段 | 类型 | 必填 | 约束和用途 |
+|---|---|---|---|
+| id | string | 是 | ；format=uuid |
+| state | `PUBLISHED` | 是 | ；固定值 |
+| version | integer | 是 | ；固定值3 |
+| tariffId | string | 是 | ；format=uuid |
+| tariffVersion | integer | 是 | ；minimum=1, maximum=9000000000000 |
+| validFrom | string | 是 | ；format=date-time |
+| validUntil | string | 是 | ；format=date-time |
+| serviceLevels | array<`S1` / `S2` / `S3`> | 是 | ；minItems=1, maxItems=3, uniqueItems=True |
+| publishedAt | string | 是 | ；format=date-time |
+
 ## IntakeReason
 
 

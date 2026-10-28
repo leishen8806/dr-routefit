@@ -4,6 +4,7 @@ import {requiredReason} from './orders-ui-rules.mjs';
 import {policySnapshotRows} from './policy-view.mjs';
 const controlsStylesheet=document.createElement('link');controlsStylesheet.rel='stylesheet';controlsStylesheet.href='controls.css';document.head.append(controlsStylesheet);
 const $=id=>document.getElementById(id),client=new FeeClient(),form=$('fee-form');
+
 let catalog=[],tariffs=[],current=null,etag=null,code=null,dirty=false,busy=false,connected=false,sequence=0,nextAfter=null,historyAfter=null,historyId=null,latest=null,pendingApply=null,tab='edit',snapshot=null,createDirty=false,policy=null,policyEtag=null;
 const field=name=>form.elements.namedItem(name);
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
@@ -49,8 +50,8 @@ function leaveGuard(action){
 }
 window.addEventListener('beforeunload',e=>{if(dirty||createDirty||client.pending){e.preventDefault();e.returnValue='';}});
 document.querySelector('[data-leave]').addEventListener('click',e=>{e.preventDefault();const href=e.currentTarget.href;leaveGuard(()=>location.assign(href));});
-function options(){const previous=current?.id;$('tariff').replaceChildren(new Option(tariffs.length?'请选择草稿':'本企业尚无草稿',''));for(const t of tariffs){const option=new Option(`${t.name} · ${t.owner} / ${t.currency}`,t.id);option.title=t.name;$('tariff').add(option);}$('tariff').value=previous||'';$('tariff').title=current?.name||'请选择本企业费用草稿';}
-async function list(append=false){$('tariff-list-status').textContent=listStatus({connected,loading:true,hasMore:!!nextAfter,count:tariffs.length,canRead});const r=await client.get('/tariffs?limit=50'+(append&&nextAfter?'&after='+encodeURIComponent(nextAfter):''));tariffs=append?[...tariffs,...r.data.items.filter(x=>!tariffs.some(t=>t.id===x.id))]:r.data.items;nextAfter=r.data.nextAfter;options();$('tariff-list-status').textContent=listStatus({connected,loading:false,hasMore:!!nextAfter,count:tariffs.length,canRead});}
+function options(loading=false){const previous=current?.id;$('tariff').replaceChildren(new Option(loading?'加载中…':(tariffs.length?'请选择草稿':'本企业尚无草稿'),'') );for(const t of tariffs){const option=new Option(`${t.name} · ${t.owner} / ${t.currency}`,t.id);option.title=t.name;$('tariff').add(option);}$('tariff').value=previous||'';$('tariff').title=current?.name||'请选择本企业费用草稿';}
+async function list(append=false){$('tariff-list-status').textContent=listStatus({connected,loading:true,hasMore:!!nextAfter,count:tariffs.length,canRead});options(true);const r=await client.get('/tariffs?limit=50'+(append&&nextAfter?'&after='+encodeURIComponent(nextAfter):''));tariffs=append?[...tariffs,...r.data.items.filter(x=>!tariffs.some(t=>t.id===x.id))]:r.data.items;nextAfter=r.data.nextAfter;options();$('tariff-list-status').textContent=listStatus({connected,loading:false,hasMore:!!nextAfter,count:tariffs.length,canRead});}
 async function connect(){
  await client.connect();connected=true;catalog=(await client.get('/catalog')).data;await list();$('source').textContent='本机数据库 · 开发会话';message(tariffs.length?'已连接，请选择草稿。':'已连接，本企业尚无草稿；可新建数据库草稿。');
 }

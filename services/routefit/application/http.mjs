@@ -31,7 +31,7 @@ import {recipientRoutes} from './recipient.mjs';
 import {authorizePrepayment,readPrepayment,writePrepayment} from '../adapters/prepayment.mjs';
 import {createQuote,getQuote} from '../adapters/quotes.mjs';
 import {readIntake,writeIntake} from '../adapters/intake.mjs';
-import {getPolicy,submitPolicy,reviewOrPublishPolicy} from '../adapters/policy.mjs';
+import {getPolicy,listPublishedPolicies,submitPolicy,reviewOrPublishPolicy} from '../adapters/policy.mjs';
 import {orderQuery,authorizedCustomer,currentCustomer,getOrder,getCustomerOrder,readOrders,writeOrder,writeOrderCancel} from '../adapters/orders.mjs';
 import {caseQuery,readCases,writeCase} from '../adapters/cases.mjs';
 import {documentQuery,driverIncomeQuery,ledgerQuery,moneyOverviewQuery,readDriverIncome,readFinance,readFinanceDocuments,readFinanceTasks,readLedgerReport,readMoneyOverview,readReceipt,readReceipts,receiptQuery,reportQuery,taskQuery,writeFinanceDocument,writeFinanceTask,writeReceipt} from '../adapters/finance.mjs';
@@ -91,7 +91,7 @@ async function readBody(req){
 }
 function pagination(url,kind){
  const cursor=kind==='revisions'?'afterVersion':'after';
- const allowed=['list','revisions'].includes(kind)?['limit',cursor]:[];
+ const allowed=kind==='policy-list'?['limit','after','state','effectiveAt','serviceLevel','tariffId']:['list','revisions'].includes(kind)?['limit',cursor]:[];
  for(const key of url.searchParams.keys())ensure(allowed.includes(key)&&url.searchParams.getAll(key).length===1,422,'INVALID_QUERY','查询参数不支持或重复');
  const raw=url.searchParams.get('limit')??'50';
  ensure(/^[1-9][0-9]*$/.test(raw)&&Number(raw)<=100,422,'INVALID_LIMIT','limit须为1到100');
@@ -100,7 +100,15 @@ function pagination(url,kind){
   if(kind==='revisions'){ensure(/^[1-9][0-9]*$/.test(after)&&Number(after)<=9000000000000,422,'INVALID_CURSOR','版本游标无效');after=Number(after);}
   else ensure(uuid.test(after),422,'INVALID_CURSOR','游标须为UUID');
  }
- return {limit:Number(raw),after};
+ const page={limit:Number(raw),after};
+ if(kind==='policy-list'){
+  const state=url.searchParams.get('state')??'PUBLISHED';ensure(state==='PUBLISHED',422,'INVALID_STATE_FILTER','策略列表只支持state=PUBLISHED');
+  const effectiveAt=url.searchParams.get('effectiveAt')??new Date().toISOString();ensure(!Number.isNaN(Date.parse(effectiveAt)),422,'INVALID_EFFECTIVE_AT','effectiveAt须为ISO时间');
+  const serviceLevel=url.searchParams.get('serviceLevel');if(serviceLevel)ensure(['S1','S2','S3'].includes(serviceLevel),422,'INVALID_SERVICE_LEVEL','serviceLevel无效');
+  const tariffId=url.searchParams.get('tariffId');if(tariffId)ensure(uuid.test(tariffId),422,'INVALID_TARIFF_ID','tariffId须为UUID');
+  return {...page,state,effectiveAt,serviceLevel,tariffId};
+ }
+ return page;
 }
 // Two id-ordered sources, each already limited to page.limit rows after the same cursor. After merging, anything cut off by
 // the limit is still ahead of the last returned id, so the next page (id > last) will return it; report "more" whenever either
@@ -178,7 +186,7 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evi
    ensure(principal.permissions.includes(route.permission??(route.write?'pricing:write':'pricing:read')),403,'FORBIDDEN','没有执行此操作的权限');
    rateLimit(limits,principal.companyId+':'+principal.principalId,120);
    const id=local.match(route.pattern)[1];if(id)ensure(uuid.test(id),404,'NOT_FOUND','资源不存在');
-   const page=pricing?pagination(url,route.kind):finance?route.kind==='tasks'?taskQuery(url,principal):route.kind==='documents'?documentQuery(url,principal):['receipt','receipts'].includes(route.kind)?receiptQuery(url,principal):route.kind==='bank-transactions'?receiptQuery(url,principal,'bank-transactions'):route.kind==='cash-handovers'?cashHandoverQuery(url,principal,'ops'):route.kind==='settlement-rules'?settlementRuleQuery(url,principal):route.kind==='statements'?statementQuery(url,principal):route.kind==='settlement-accounts'?opsSettlementAccountQuery(url,principal):route.kind==='money-overview'?moneyOverviewQuery(url):route.kind==='ledger-report'?reportQuery(url,principal):ledgerQuery(url,principal):merchant?externalSubjectQuery(url,principal,'merchant-'+route.kind):partnerPortal?externalSubjectQuery(url,principal,'partner-'+route.kind):notifications?null:access?accessGrantQuery(url,principal):dispatch?dispatchQuery(url,principal):custody||delivery||integration?null:warehouse?route.kind==='queue'?orderQuery(url,'warehouse-queue',principal):route.kind.startsWith('inventory-')?null:warehouseRequestQuery(url,principal,'ops',route.kind.startsWith('inbound')?'INBOUND_NOTICE':'OUTBOUND_DELIVERY'):driver?route.kind==='cash-handovers'?cashHandoverQuery(url,principal,'driver'):route.kind==='settlement-accounts'?driverSettlementAccountQuery(url,principal):route.kind==='income'?driverIncomeQuery(url,principal):route.kind==='withdrawal-requests'?driverWithdrawalQuery(url,principal):driverQuery(url,principal):exceptions?exceptionQuery(url,principal):partners?partnerQuery(url,principal):bookings?null:customer&&route.kind==='members'?portalMemberQuery(url,principal):customer&&route.kind==='customer-statements'?customerStatementQuery(url,principal):customer&&route.kind==='customer-settlement-accounts'?customerSettlementAccountQuery(url,principal):customer&&route.kind==='customer-finance-requests'?customerFinanceRequestQuery(url,principal):customer&&route.kind==='inventory'?inventoryQuery(url,principal):customer&&route.kind.startsWith('warehouse-')?warehouseRequestQuery(url,principal,'customer',route.kind.includes('inbound')?'INBOUND_NOTICE':'OUTBOUND_DELIVERY'):customer&&route.kind==='ledger-items'?ledgerQuery(url,principal):customer&&route.kind==='ledger-report'?reportQuery(url,principal,true):customer&&route.kind==='receipts'?receiptQuery(url,principal):route.kind==='timeline'?timelineQuery(url,principal):cases?caseQuery(url,principal):evidence?null:orderQuery(url,route.kind,principal);
+   const page=policy?pagination(url,route.kind):pricing?pagination(url,route.kind):finance?route.kind==='tasks'?taskQuery(url,principal):route.kind==='documents'?documentQuery(url,principal):['receipt','receipts'].includes(route.kind)?receiptQuery(url,principal):route.kind==='bank-transactions'?receiptQuery(url,principal,'bank-transactions'):route.kind==='cash-handovers'?cashHandoverQuery(url,principal,'ops'):route.kind==='settlement-rules'?settlementRuleQuery(url,principal):route.kind==='statements'?statementQuery(url,principal):route.kind==='settlement-accounts'?opsSettlementAccountQuery(url,principal):route.kind==='money-overview'?moneyOverviewQuery(url):route.kind==='ledger-report'?reportQuery(url,principal):ledgerQuery(url,principal):merchant?externalSubjectQuery(url,principal,'merchant-'+route.kind):partnerPortal?externalSubjectQuery(url,principal,'partner-'+route.kind):notifications?null:access?accessGrantQuery(url,principal):dispatch?dispatchQuery(url,principal):custody||delivery||integration?null:warehouse?route.kind==='queue'?orderQuery(url,'warehouse-queue',principal):route.kind.startsWith('inventory-')?null:warehouseRequestQuery(url,principal,'ops',route.kind.startsWith('inbound')?'INBOUND_NOTICE':'OUTBOUND_DELIVERY'):driver?route.kind==='cash-handovers'?cashHandoverQuery(url,principal,'driver'):route.kind==='settlement-accounts'?driverSettlementAccountQuery(url,principal):route.kind==='income'?driverIncomeQuery(url,principal):route.kind==='withdrawal-requests'?driverWithdrawalQuery(url,principal):driverQuery(url,principal):exceptions?exceptionQuery(url,principal):partners?partnerQuery(url,principal):bookings?null:customer&&route.kind==='members'?portalMemberQuery(url,principal):customer&&route.kind==='customer-statements'?customerStatementQuery(url,principal):customer&&route.kind==='customer-settlement-accounts'?customerSettlementAccountQuery(url,principal):customer&&route.kind==='customer-finance-requests'?customerFinanceRequestQuery(url,principal):customer&&route.kind==='inventory'?inventoryQuery(url,principal):customer&&route.kind.startsWith('warehouse-')?warehouseRequestQuery(url,principal,'customer',route.kind.includes('inbound')?'INBOUND_NOTICE':'OUTBOUND_DELIVERY'):customer&&route.kind==='ledger-items'?ledgerQuery(url,principal):customer&&route.kind==='ledger-report'?reportQuery(url,principal,true):customer&&route.kind==='receipts'?receiptQuery(url,principal):route.kind==='timeline'?timelineQuery(url,principal):cases?caseQuery(url,principal):evidence?null:orderQuery(url,route.kind,principal);
    let body,version=null,request;
    if(req.method!=='GET'){
     const key=req.headers['idempotency-key'];ensure(typeof key==='string'&&/^[\x21-\x7e]{16,128}$/.test(key),428,'IDEMPOTENCY_REQUIRED','需要16到128位可见ASCII幂等键');
@@ -336,6 +344,7 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evi
      });
     }
     if(policy){
+     if(route.kind==='policy-list')return {status:200,body:await listPublishedPolicies(client,principal,page)};
      if(req.method==='GET')return {status:200,body:await getPolicy(client,principal,id)};
      return idempotent(client,principal,request,async()=>{
       const data=route.kind==='policy-submit'?await submitPolicy(client,principal,id,body,version):await reviewOrPublishPolicy(client,principal,id,body,version,route.kind==='policy-publish');
