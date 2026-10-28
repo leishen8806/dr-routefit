@@ -8,9 +8,9 @@ Type=simple
 User=routefit
 Group=routefit
 EnvironmentFile=/etc/routefit/routefit.env
-Environment=ROUTEFIT_NODE_BIN=/usr/bin/node
+Environment=ROUTEFIT_SESSION_FILE=/var/lib/routefit/sessions.json
 WorkingDirectory=/opt/dr-routefit/services/routefit
-ExecStart=${ROUTEFIT_NODE_BIN} main.mjs
+ExecStart=/usr/bin/node main.mjs
 Restart=on-failure
 RestartSec=5
 NoNewPrivileges=true

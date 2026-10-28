@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions} from '../scripts/trial-common.mjs';
-import {resolveStaffActor} from '../scripts/trial-ssh-link.mjs';
+import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
@@ -43,4 +43,9 @@ test('SSH login helper maps only registered staff names and ignores command inje
  assert.equal(resolveStaffActor(people,'ops-one 1'),-1);
  assert.equal(resolveStaffActor(people,'synthetic-reviewer'),-1);
  assert.equal(resolveStaffActor(people,'unknown'),-1);
+ assert.equal(resolveStaffActor(people,''),-1);
+ assert.equal(resolveStaffActor([...people,{principalId:'p3',sshLogin:'ops-one'}],'ops-one'),-1);
+});
+test('SSH helper reads only explicit environment settings',()=>{
+ assert.deepEqual(parseEnvironment('# comment\nROUTEFIT_AUTH_MODE=development\nROUTEFIT_SESSION_FILE="/var/lib/routefit/sessions.json"\n'),{ROUTEFIT_AUTH_MODE:'development',ROUTEFIT_SESSION_FILE:'/var/lib/routefit/sessions.json'});
 });

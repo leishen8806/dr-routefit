@@ -1,8 +1,11 @@
 # Template only; RF-OPS-01 deploys and reviews this on the VPS.
 Match Group routefit-trial
-    ForceCommand sudo -u routefit /opt/dr-routefit/services/routefit/scripts/trial-ssh-link.mjs
+    ForceCommand sudo -u routefit /usr/bin/node /opt/dr-routefit/services/routefit/scripts/trial-ssh-link.mjs
     AllowTcpForwarding local
     PermitOpen 127.0.0.1:4180
+    AllowAgentForwarding no
+    PermitTunnel no
+    GatewayPorts no
     PermitTTY no
     X11Forwarding no
     PermitUserEnvironment no
