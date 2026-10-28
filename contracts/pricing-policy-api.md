@@ -2,11 +2,12 @@
 
 2026-10-25 · LOCAL_IMPLEMENTED_NOT_DEPLOYED。本地开发增量，非生产定价授权。现有8个费用＋5个录单＋本次4个策略操作，共17个；完整契约215个操作中198个仍待实现。
 
-## 四个操作与身份
+## 五个操作与身份
 
 | 操作 | 权限 | If-Match含义 | 结果 |
 |---|---|---|---|
 | POST `/api/ops/v1/pricing/tariffs/{tariffId}/policy-versions` | pricing:write | 来源tariff.version | 201 PricingPolicyVersion，version=1、SUBMITTED |
+| GET `/api/ops/v1/pricing/policy-versions` | pricing:read | `state=PUBLISHED`（默认）、`effectiveAt`、`serviceLevel`、`tariffId`、`after`、`limit` | 200 PricingPolicyVersionPage；仅返回本企业已发布且有效的摘要 |
 | GET `/api/ops/v1/pricing/policy-versions/{policyId}` | pricing:read | 不需要 | 当前策略投影、ETag |
 | POST `…/policy-versions/{policyId}/actions/review` | pricing:review | 策略version，初始1 | 200、version=2、REVIEWED |
 | POST `…/policy-versions/{policyId}/actions/publish` | pricing:publish | 策略version，复核后2 | 200、version=3、PUBLISHED |
