@@ -1,0 +1,24 @@
+[Unit]
+Description=DR RouteFit local trial service
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=routefit
+Group=routefit
+EnvironmentFile=/etc/routefit/routefit.env
+Environment=ROUTEFIT_SESSION_FILE=/var/lib/routefit/sessions.json
+WorkingDirectory=/opt/dr-routefit/services/routefit
+ExecStart=/usr/bin/node main.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+StateDirectory=routefit
+LogsDirectory=routefit
+ReadWritePaths=/var/lib/routefit /var/log/routefit
+
+[Install]
+WantedBy=multi-user.target

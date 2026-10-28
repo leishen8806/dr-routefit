@@ -1,0 +1,3 @@
+# Install as /etc/sudoers.d/routefit-trial-link with mode 440 after review.
+# The routefit user must be a dedicated no-login service account.
+%routefit-trial ALL=(routefit) NOPASSWD: /usr/bin/node /opt/dr-routefit/services/routefit/scripts/trial-ssh-link.mjs
