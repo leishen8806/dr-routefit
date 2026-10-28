@@ -21,7 +21,7 @@ test('trial chain runs from clean database through activation, order, backup and
  const companyId=randomUUID(),database=`routefit_chain_${randomUUID().replaceAll('-','').slice(0,12)}`;await writeFile(companyFile,JSON.stringify({id:companyId,name:'Synthetic Chain Company'}));await writeFile(adminEnv,`ROUTEFIT_PG_ADMIN_URL=${process.env.ROUTEFIT_TEST_DATABASE_URL}\n`);await writeFile(staffFile,JSON.stringify([{humanId:'operator',sshLogin:'operator',roles:['order_quote']}])) ;await writeFile(join(importDir,'customers.csv'),'name\nSynthetic Customer\n');await writeFile(join(importDir,'service-areas.csv'),'name,type\nSynthetic Area,ALLOW\n');
  let init,server,pool,restoredDb;
  try{
-  init=await runTrialInit({adminUrl:process.env.ROUTEFIT_TEST_DATABASE_URL,databaseName,envFile,companyFile});
+  init=await runTrialInit({adminUrl:process.env.ROUTEFIT_TEST_DATABASE_URL,databaseName,envFile,companyFile,sessionFile});
   await runTrialStaff({env:{ROUTEFIT_TRIAL:'1',ROUTEFIT_SESSION_FILE:sessionFile,ROUTEFIT_TRIAL_STAFF_FILE:staffFile,ROUTEFIT_ADMIN_ENV_FILE:adminEnv}});
   const runtimeEnv=Object.fromEntries((await import('node:fs/promises')).readFile(envFile,'utf8').then(x=>x.split(/\n/).filter(Boolean).map(line=>line.split('='))));Object.assign(runtimeEnv,{ROUTEFIT_DATABASE_URL:runtimeEnv.ROUTEFIT_DATABASE_URL,ROUTEFIT_TRIAL:'1',ROUTEFIT_SESSION_FILE:sessionFile,ROUTEFIT_TRIAL_IMPORT_DIRECTORY:importDir});
   await runTrialImport({env:runtimeEnv});
