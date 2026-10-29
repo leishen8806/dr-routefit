@@ -52,4 +52,8 @@
 - 收工：完成当日对账，登记未决差异，锁定台账文件并交负责人复核。
 - 任何停运、全线下切换、退款或异常派单都必须有负责人和时间记录。
 
-备份由 `trial:init` 创建的专用备份角色执行。该角色只有 `pg_read_all_data` 与 `BYPASSRLS`，没有写权限；连接串只写入 root 可读的 `/root/.config/routefit/backup.env`，不放在命令行或员工端环境文件中。
+备份由 `trial:init` 创建的专用备份角色执行。该角色只有 `pg_read_all_data` 与 `BYPASSRLS`，没有写权限；连接串只写入 root 可读的 `/root/.config/routefit/backup.env`，不放在命令行或员工端环境文件中。初始化会话文件后由 root 执行 `chown routefit:routefit /var/lib/routefit/sessions.json && chmod 600 /var/lib/routefit/sessions.json`，确保 systemd 服务用户拥有会话文件且其他用户不可读。
+
+## 8. 服务区域导入
+
+负责人提供合成服务区域文件 `service-areas.example.geojson`（GeoJSON `FeatureCollection`，单外环 Polygon，坐标顺序为 `[经度,纬度]`），放在导入目录并设置权限 600；真实地址或未审核坐标不得放入仓库。由 root/管理员在试运营库执行 `trial:import`，命令会在同一事务中创建并直接发布 ALLOW/DENY 区域，发布主体记录为试运营库中的管理员 principal；任一区域校验失败会回滚客户与区域全部导入。导入后再用受理页验证区域内、区域外和 DENY 点的结果。
