@@ -31,7 +31,7 @@ function controls(){
  $('#submit-intake').disabled=busy||api.pending||!intakeReady||current?.order.state!=='draft'||!api.session?.permissions.includes('orders:submit')||!intakeReport?.ready;
  $('#return-to-draft').disabled=busy||api.pending||!intakeReady||!['validating','quoted'].includes(current?.order.state)||!api.session?.permissions.includes('orders:edit');
  $('#quote-panel').hidden=!current;$('#quote-policy-list').disabled=busy||api.pending||!current;$('#more-quote-policies').disabled=busy||api.pending||!policyCursor;
- $('#load-quote').disabled=busy||api.pending||!current||!api.session?.permissions.includes('quotes:read')||!current.order.quoteId;
+ $('#load-quote').disabled=busy||api.pending||!current||!api.session?.permissions.includes('quotes:read')||!current.quoteId;
  const policyGuard=quotePolicy?policyAvailability(quotePolicy):null;const guard=$('#quote-policy-guard');if(guard)guard.textContent=policyGuard&&!policyGuard.ok?policyGuard.message:policyListState==='empty'?'暂无可用的已发布策略':policyListState==='error'?'策略列表读取失败，请改用手填策略 ID':'';$('#generate-quote').disabled=busy||api.pending||!current||!['validating','quoted'].includes(current.order.state)||!api.session?.permissions.includes('quotes:create')||!!quote&&quote.state==='issued'||!!policyGuard&&!policyGuard.ok||(policyListState==='empty'&&!$('#quote-policy-id')?.value.trim());
  $('#confirm-quote').disabled=busy||api.pending||!quote||quote.state!=='issued'||!api.session?.permissions.includes('quotes:confirm');
  $('#back-list').disabled=busy||api.pending;$('#compare-latest').disabled=busy;$('#use-latest').disabled=busy;
@@ -77,9 +77,9 @@ function render(draft,detail=null){
  if(detail&&detail.order.state!=='draft')notice('本单只读查看。未确认报价的订单可经受理接口有原因退回；已确认报价须走后续受控变更。报价有效性与付款结果请读取对应接口。');else $('#customer').focus();
 }
 function renderQuote(){
- $('#quote-state').textContent=quote?`${quote.state} · ${quote.id} · v${quote.version}`:(current?.order.quoteId?'当前订单已有报价，点击读取':'尚未读取报价');const box=$('#quote-detail');if(!quote){box.hidden=true;$('#quote-confirm').hidden=true;return;}box.hidden=false;box.innerHTML=quoteDetailHtml(quote,esc,displayTime);$('#quote-confirm').hidden=false;controls();
+ $('#quote-state').textContent=quote?`${quote.state} · ${quote.id} · v${quote.version}`:(current?.quoteId?'当前订单已有报价，点击读取':'尚未读取报价');const box=$('#quote-detail');if(!quote){box.hidden=true;$('#quote-confirm').hidden=true;return;}box.hidden=false;box.innerHTML=quoteDetailHtml(quote,esc,displayTime);$('#quote-confirm').hidden=false;controls();
 }
-async function loadQuote(){if(!current?.order.quoteId)return;const data=await api.read('/api/ops/v1/quotes/'+current.order.quoteId);quote=data;quoteEtag=String(data.version);renderQuote();}
+async function loadQuote(){if(!current?.quoteId)return;const data=await api.read('/api/ops/v1/quotes/'+current.quoteId);quote=data;quoteEtag=String(data.version);renderQuote();}
 async function loadQuotePolicy(id){try{const data=await api.read('/api/ops/v1/pricing/policy-versions/'+encodeURIComponent(id));quotePolicy=data;controls();return data;}catch(error){if(policyPrecheckFailure(error))throw error;quotePolicy=null;controls();return null;}}
 function renderPolicyOptions(){const select=$('#quote-policy-list');if(!select)return;select.innerHTML='<option value="">选择已发布策略（可改用下方手填 ID）</option>'+policyItems.map(p=>`<option value="${esc(p.id)}">${esc(policyOptionLabel(p))}</option>`).join('');$('#more-quote-policies').hidden=!policyCursor;controls();}
 async function loadQuotePolicies(reset=true){if(!current)return;policyListState='loading';if(reset){policyItems=[];policyCursor=null;}renderPolicyOptions();try{const params=new URLSearchParams({serviceLevel:current.draft.serviceLevel});if(!reset&&policyCursor)params.set('after',policyCursor);const data=await api.read('/api/ops/v1/pricing/policy-versions?'+params.toString());policyItems=reset?data.items:[...policyItems,...data.items];policyCursor=data.nextAfter||null;policyListState=policyItems.length?'ready':'empty';}catch(error){if(!policyPrecheckFailure(error)){policyListState='error';}else throw error;}renderPolicyOptions();}

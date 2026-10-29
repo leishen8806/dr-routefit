@@ -1,0 +1,18 @@
+{
+  "task": "RF-PM-024",
+  "testDatabase": "127.0.0.1:5432/routefit_local_61895bc81d891817",
+  "checks": [
+    "preparer submits policy",
+    "preparer cannot review",
+    "same principal review rejected",
+    "blank review reason sends no request",
+    "blank review reason marks field invalid",
+    "independent reviewer completes review",
+    "reviewer cannot publish",
+    "same reviewer publish rejected",
+    "blank publish reason sends no request",
+    "blank publish reason marks field invalid",
+    "independent approver publishes policy"
+  ],
+  "allPass": true
+}
