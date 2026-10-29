@@ -3,12 +3,13 @@ import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {localBrowser,createBrowserGrant} from '../adapters/local-browser.mjs';
 import {digest} from '../adapters/development-auth.mjs';
 
 const origin='http://127.0.0.1:4180';
-const root=new URL('../../../',import.meta.url).pathname;
-const sessionsFile=new URL('../.local/sessions.json',import.meta.url).pathname;
+const root=fileURLToPath(new URL('../../../',import.meta.url));
+const sessionsFile=fileURLToPath(new URL('../.local/sessions.json',import.meta.url));
 const principal={browser:true,companyId:'60676152-92f2-4937-bc8c-1abb5c6f6c17',principalId:'9742d6c8-6668-4af3-92ef-72f735cab2c5'};
 const request=(url='/dev/database-name',over={})=>({socket:{remoteAddress:'127.0.0.1'},...over,headers:{host:'127.0.0.1:4180',...(over.headers||{})},url,method:over.method||'GET'});
 const response=()=>{const headers={};return {headers,status:null,body:null,setHeader(k,v){headers[k]=v;},writeHead(status){this.status=status;},end(body){this.body=body;}};};
