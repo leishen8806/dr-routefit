@@ -15,6 +15,7 @@ export const rolePermissions=Object.freeze({order_quote:['orders:read','orders:c
 export const fullStaffPermissions=Object.freeze([...new Set([...developmentPermissions])]);
 export const localFile=(url,...parts)=>fileURLToPath(new URL(parts.join('/'),url));
 export const isTrialMode=(env=process.env)=>env.ROUTEFIT_TRIAL==='1';
+export const trialDatabaseName=(env=process.env)=>env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial';
 export const sessionFileFor=(env=process.env,url=import.meta.url)=>env.ROUTEFIT_SESSION_FILE||(isTrialMode(env)?'/var/lib/routefit/sessions.json':localFile(url,'../.local/sessions.json'));
 export function parseCsv(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const ch=text[i],next=text[i+1];if(quoted){if(ch==='"'&&next==='"'){cell+='"';i++;}else if(ch==='"')quoted=false;else cell+=ch;}else if(ch==='"'&&cell===''){quoted=true;}else if(ch===','){row.push(cell.trim());cell='';}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&next==='\n')i++;row.push(cell.trim());if(row.some(Boolean))rows.push(row);row=[];cell='';}else cell+=ch;}if(quoted)throw Error('CSV contains an unterminated quote');if(cell||row.length){row.push(cell.trim());rows.push(row);}return rows;}
 export function rowsToObjects(rows,name='CSV'){if(!rows.length)return [];const [head,...data]=rows;if(head.some(x=>!x)||data.some(row=>row.length!==head.length))throw Error(`${name}: invalid row width`);return data.map(row=>Object.fromEntries(head.map((key,i)=>[key,row[i]||''])));}

@@ -2,7 +2,7 @@ import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import pg from 'pg';
-import {parseCsv,rowsToObjects,sessionFileFor} from './trial-common.mjs';
+import {parseCsv,rowsToObjects,sessionFileFor,trialDatabaseName} from './trial-common.mjs';
 import {parseEnvironment} from './trial-ssh-link.mjs';
 import {writeIntake} from '../adapters/intake.mjs';
 
@@ -17,7 +17,7 @@ export async function runTrialImport({env=process.env,Pool=pg.Pool}={}){
  const features=geojson.type==='FeatureCollection'?geojson.features:(geojson.type==='Feature'?[geojson]:[]);
  if(!features.length)throw Error('service-area GeoJSON must contain at least one Feature');
  const drafts=features.map((feature,index)=>{const props=feature.properties||{},draft={name:props.name,type:props.type,polygon:feature.geometry,effectiveFrom:props.effectiveFrom||new Date().toISOString()};if(!draft.name||!['ALLOW','DENY'].includes(draft.type)||draft.polygon?.type!=='Polygon')throw Error(`service-area ${index+1} has invalid properties`);return draft;});
- let databaseUrl=env.ROUTEFIT_DATABASE_URL;if(env.ROUTEFIT_ADMIN_ENV_FILE){const adminEnv=parseEnvironment(await (await import('node:fs/promises')).readFile(env.ROUTEFIT_ADMIN_ENV_FILE,'utf8'));databaseUrl=adminEnv.ROUTEFIT_PG_ADMIN_URL||databaseUrl;const u=new URL(databaseUrl);u.pathname='/'+(env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial');databaseUrl=u.href;}
+ let databaseUrl=env.ROUTEFIT_DATABASE_URL;if(env.ROUTEFIT_ADMIN_ENV_FILE){const adminEnv=parseEnvironment(await (await import('node:fs/promises')).readFile(env.ROUTEFIT_ADMIN_ENV_FILE,'utf8'));databaseUrl=adminEnv.ROUTEFIT_PG_ADMIN_URL||databaseUrl;const u=new URL(databaseUrl);u.pathname='/'+trialDatabaseName(env);databaseUrl=u.href;}
  const pool=new Pool({connectionString:databaseUrl});let imported=0;const client=await pool.connect();
  try{await client.query('BEGIN');const companyId=env.ROUTEFIT_TRIAL_COMPANY_ID||JSON.parse(await readFile(env.ROUTEFIT_TRIAL_COMPANY_FILE||fileURLToPath(new URL('../.local/trial-company.json',import.meta.url)),'utf8')).id;await client.query("SELECT set_config('app.company_id',$1,true)",[companyId]);const company=(await client.query("SELECT id FROM org.company WHERE id=$1 AND status='ACTIVE'",[companyId])).rows[0];if(!company)throw Error('no active company');
   const principal=(await client.query("SELECT id FROM org.principal WHERE company_id=$1 AND kind='STAFF' AND status='ACTIVE' ORDER BY id LIMIT 1",[company.id])).rows[0];if(!principal)throw Error('no active administrator principal');
