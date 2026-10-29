@@ -51,3 +51,9 @@
 - 开工：确认 VPS SSH 隧道、健康检查、收款/派单台账可写。
 - 收工：完成当日对账，登记未决差异，锁定台账文件并交负责人复核。
 - 任何停运、全线下切换、退款或异常派单都必须有负责人和时间记录。
+
+备份由 `trial:init` 创建的专用备份角色执行。该角色保留 `BYPASSRLS`，但不授予集群级 `pg_read_all_data`：初始化会在 `routefit_trial` 库内为所有业务 schema 授予 USAGE、现有表/序列 SELECT，并为实际迁移执行角色设置可重复执行的 ALTER DEFAULT PRIVILEGES；每次迁移后由 root/管理员从受控 env 文件执行 `npm run trial:backup-grants` 重新授权。`ops/trial/pg_hba-backup.example` 限制该角色只能从 127.0.0.1/::1 连接 `routefit_trial`，其他库在 reject 规则中拒绝。连接串只写入 root 可读的 `/root/.config/routefit/backup.env`，不放在命令行或员工端环境文件中。初始化会话文件后由 root 执行 `chown routefit:routefit /var/lib/routefit/sessions.json && chmod 600 /var/lib/routefit/sessions.json`，确保 systemd 服务用户拥有会话文件且其他用户不可读。
+
+## 8. 服务区域导入
+
+负责人提供审核过的真实服务区域文件，只放在服务器的 `/root/.config/routefit/service-areas.geojson`（GeoJSON `FeatureCollection`，单外环 Polygon，坐标顺序为 `[经度,纬度]`）；仓库里的 `service-areas.example.geojson` 仅为合成示例，真实地址或未审核坐标不得放入仓库。由 root/管理员在试运营库执行 `trial:import` 并通过 `ROUTEFIT_TRIAL_AREA_REASON` 传入发布依据，命令会在同一事务中创建并直接发布 ALLOW/DENY 区域，发布主体是 `trial:init` 创建的专用系统 principal；任一区域校验失败会回滚客户与区域全部导入。导入后再用受理页验证区域内、区域外和 DENY 点的结果。

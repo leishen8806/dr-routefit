@@ -1,3 +1,3 @@
 # Install as /etc/sudoers.d/rf-tunnel-link with mode 440 after review. <NODE24_PATH> must be the absolute path to a Node 24 executable; RF-OPS-01 replaces it at deployment.
 # The routefit user must be a dedicated no-login service account.
-%rf-tunnel ALL=(routefit) NOPASSWD: <NODE24_PATH> /srv/routefit/services/routefit/scripts/trial-ssh-link.mjs
+%rf-tunnel ALL=(routefit) NOPASSWD: /usr/local/lib/routefit/routefit-tunnel-link ""

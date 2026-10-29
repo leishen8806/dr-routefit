@@ -20,7 +20,7 @@ async function main(){
  const configured=parseEnvironment(await readFile(envFile,'utf8'));
  const setting=name=>process.env[name]??configured[name];
  if(setting('NODE_ENV')==='production'||setting('ROUTEFIT_AUTH_MODE')!=='development')throw Error('Explicit local development mode required');
- const sessionsFile=setting('ROUTEFIT_SESSION_FILE')||fileURLToPath(new URL('../.local/sessions.json',import.meta.url));
+ const sessionsFile=setting('ROUTEFIT_SESSION_FILE')||(setting('ROUTEFIT_TRIAL')==='1'?'/var/lib/routefit/sessions.json':fileURLToPath(new URL('../.local/sessions.json',import.meta.url)));
  const people=JSON.parse(await readFile(sessionsFile,'utf8'));
  const login=process.env.SUDO_USER;
  const actor=resolveStaffActor(people,login);

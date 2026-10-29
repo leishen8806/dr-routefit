@@ -3,16 +3,37 @@ import assert from 'node:assert/strict';
 import {mkdtemp,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask} from '../scripts/trial-common.mjs';
+import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName} from '../scripts/trial-common.mjs';
 import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
 import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
 import {runBackup} from '../scripts/trial-backup.mjs';
 import {runRestore} from '../scripts/trial-restore.mjs';
+import {configureBackupRole} from '../scripts/trial-init.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
  assert.ok(!rolePermissions.policy_reviewer.includes('pricing:write'));
  assert.ok(!rolePermissions.policy_publisher.includes('pricing:review'));
+});
+test('trial tooling defaults all database targets to routefit_trial',()=>{
+ assert.equal(trialDatabaseName({}),'routefit_trial');
+ assert.equal(trialDatabaseName({ROUTEFIT_TRIAL_DATABASE:'routefit_custom'}),'routefit_custom');
+});
+test('backup role grants are database-local and default-readable without pg_read_all_data',async()=>{
+ const calls=[],client={query:async(sql)=>{calls.push(sql);if(sql.startsWith('SELECT schema_name'))return {rows:[{schema_name:'coverage'}]};if(sql.startsWith('SELECT DISTINCT'))return {rows:[]};return {rows:[]};}};
+ await configureBackupRole({client,backupRole:'rf_backup_demo'});
+ assert.ok(calls.some(sql=>sql.includes('GRANT USAGE ON SCHEMA "coverage"')));
+ assert.ok(calls.some(sql=>sql.includes('GRANT SELECT ON ALL TABLES IN SCHEMA "coverage"')));
+ assert.ok(calls.some(sql=>sql.includes('GRANT SELECT ON ALL SEQUENCES IN SCHEMA "coverage"')));
+ assert.ok(calls.some(sql=>sql.includes('ALTER DEFAULT PRIVILEGES FOR ROLE CURRENT_USER')));
+ assert.ok(calls.some(sql=>sql.includes('REVOKE CREATE ON SCHEMA public FROM PUBLIC')));
+ assert.ok(!calls.some(sql=>sql.includes('pg_read_all_data')));
+});
+test('backup pg_hba template limits the role to loopback trial database before reject',async()=>{
+ const text=await (await import('node:fs/promises')).readFile(new URL('../../../ops/trial/pg_hba-backup.example',import.meta.url),'utf8');
+ const localReject=text.indexOf('local   all'),allow=text.indexOf('host    routefit_trial'),reject=text.indexOf('host    all');
+ assert.ok(localReject>=0&&localReject<allow);
+ assert.ok(allow>=0&&reject>allow);assert.match(text,/127\.0\.0\.1\/32/);assert.match(text,/::1\/128/);assert.match(text,/reject/);
 });
 test('trial session generation stores only hashes and an expiry',()=>{
  const [session,raw,csrf]=newSession({companyId:'11111111-1111-4111-8111-111111111111',principalId:'22222222-2222-4222-8222-222222222222'},['pricing:read'],new Date(Date.now()+3600000).toISOString());

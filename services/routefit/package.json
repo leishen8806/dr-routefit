@@ -26,6 +26,7 @@
     ,"trial:staff": "node --env-file=.local/dev.env scripts/trial-staff.mjs"
     ,"trial:import": "node --env-file=.local/dev.env scripts/trial-import.mjs"
     ,"trial:backup": "node --env-file=.local/dev.env scripts/trial-backup.mjs"
+    ,"trial:backup-grants": "node scripts/trial-backup-grants.mjs"
     ,"trial:restore": "node scripts/trial-restore.mjs"
     ,"trial:start": "node --env-file=.local/dev.env scripts/trial-start.mjs"
   },

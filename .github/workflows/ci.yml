@@ -97,6 +97,18 @@ jobs:
           cache: npm
           cache-dependency-path: services/routefit/package-lock.json
       - run: npm ci
+      - name: Install PostgreSQL client for trial backup/restore integration
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+          pg_dump_path="$(find /usr/lib/postgresql -type f -name pg_dump -perm -111 -print -quit)"
+          if [ -z "$pg_dump_path" ]; then
+            echo "pg_dump was not installed" >&2
+            exit 1
+          fi
+          pg_bin="$(dirname "$pg_dump_path")"
+          echo "$pg_bin" >> "$GITHUB_PATH"
+          echo "ROUTEFIT_PG_BIN=$pg_bin" >> "$GITHUB_ENV"
       # Every integration test calls localFixture(), which creates its own random
       # synthetic database, applies all migrations, uses an RLS runtime role and cleans up.
       # No separate migration against the administrative template database is needed.

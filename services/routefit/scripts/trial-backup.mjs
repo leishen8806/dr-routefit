@@ -5,10 +5,16 @@ import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupDirectory,trialBackupFileMode,trialBackupName,trialBackupUmask} from './trial-common.mjs';
 import {pgCliConnection,sha256File} from './trial-db-cli.mjs';
+import {parseEnvironment} from './trial-ssh-link.mjs';
 
 export async function runBackup({exec=promisify(execFile),cwd=process.cwd(),env=process.env,backupDirectory=env.ROUTEFIT_BACKUP_DIRECTORY||trialBackupDirectory,now=new Date(),platform=process.platform,setMetadata:customSetMetadata}={}){
  const {dir,gid}=await requireExistingBackupDirectory(cwd,backupDirectory);
- const url=new URL(env.ROUTEFIT_DATABASE_URL);
+ let databaseUrl=env.ROUTEFIT_DATABASE_URL;
+ const fs=await import('node:fs/promises');
+ if(env.ROUTEFIT_BACKUP_ENV_FILE){const backupEnv=parseEnvironment(await fs.readFile(env.ROUTEFIT_BACKUP_ENV_FILE,'utf8'));databaseUrl=backupEnv.ROUTEFIT_PG_BACKUP_URL||databaseUrl;}
+ else if(env.ROUTEFIT_ADMIN_ENV_FILE){const adminEnv=parseEnvironment(await fs.readFile(env.ROUTEFIT_ADMIN_ENV_FILE,'utf8'));databaseUrl=adminEnv.ROUTEFIT_PG_ADMIN_URL||databaseUrl;const u=new URL(databaseUrl);u.pathname='/'+(env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial');databaseUrl=u.href;}
+ if(env.ROUTEFIT_TRIAL==='1'&&!env.ROUTEFIT_BACKUP_ENV_FILE)throw Error('ROUTEFIT_BACKUP_ENV_FILE is required in trial mode');
+ const url=new URL(databaseUrl);
  const name=trialBackupName(now),file=join(dir,name),checksum=join(dir,trialBackupChecksumName(name));
  const bin=env.ROUTEFIT_PG_BIN?join(env.ROUTEFIT_PG_BIN,platform==='win32'?'pg_dump.exe':'pg_dump'):'pg_dump';
  const setMetadata=customSetMetadata|| (async path=>{if(platform==='win32')return;await chmod(path,trialBackupFileMode);assertTrialBackupFileMetadata(await stat(path),process.getuid(),gid);});

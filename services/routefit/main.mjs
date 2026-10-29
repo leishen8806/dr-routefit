@@ -20,7 +20,7 @@ const authenticate=developmentAuth(sessions,origin),serviceAuthenticate=developm
 const pool=new pg.Pool({connectionString:process.env.ROUTEFIT_DATABASE_URL,max:10,connectionTimeoutMillis:3000,idleTimeoutMillis:30000});
 pool.on('error',()=>console.error('Idle database connection failed'));
 await assertRuntimeRole(pool);
-const localAccess=localBrowser({origin,root:fileURLToPath(new URL('../../',import.meta.url)),sessionsFile:process.env.ROUTEFIT_SESSION_FILE,authenticate,pool});
+const localAccess=localBrowser({origin,root:fileURLToPath(new URL('../../',import.meta.url)),sessionsFile:process.env.ROUTEFIT_SESSION_FILE,authenticate,pool,trialMode:process.env.ROUTEFIT_TRIAL==='1'});
 const evidenceDirectory=resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY??'.local/evidence');await mkdir(evidenceDirectory,{recursive:true});
 const codeSink=process.env.ROUTEFIT_RECIPIENT_CODE_SINK?resolve(process.env.ROUTEFIT_RECIPIENT_CODE_SINK):null;
 const recipientCodeSender=codeSink?async({code,expiresAt})=>{await mkdir(resolve(codeSink,'..'),{recursive:true});await appendFile(codeSink,JSON.stringify({code,expiresAt})+'\n',{encoding:'utf8',mode:0o600});}:undefined;
