@@ -1,0 +1,12 @@
+# RF-OPS-01 template: place every line below before broad local/host rules.
+# pg_hba.conf uses the first matching rule; do not move these lines below a generic allow.
+local   all              <RUNTIME_ROLE>                                  reject
+host    routefit_trial   <RUNTIME_ROLE>   127.0.0.1/32    scram-sha-256
+host    all              <RUNTIME_ROLE>   127.0.0.1/32    reject
+host    routefit_trial   <RUNTIME_ROLE>   ::1/128         scram-sha-256
+host    all              <RUNTIME_ROLE>   ::1/128         reject
+local   all              <BACKUP_ROLE>                                  reject
+host    routefit_trial   <BACKUP_ROLE>   127.0.0.1/32    scram-sha-256
+host    all              <BACKUP_ROLE>   127.0.0.1/32    reject
+host    routefit_trial   <BACKUP_ROLE>   ::1/128         scram-sha-256
+host    all              <BACKUP_ROLE>   ::1/128         reject

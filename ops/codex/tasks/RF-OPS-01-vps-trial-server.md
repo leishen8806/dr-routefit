@@ -2,7 +2,7 @@
 
 试运营主数据导入时，负责人提供审核过的真实服务区域文件，只放在服务器；仓库中的 `service-areas.example.geojson` 仅为合成示例。导入由 `trial:init` 创建的专用系统主体执行，发布依据必须通过 `ROUTEFIT_TRIAL_AREA_REASON` 外部传入。
 
-备份角色不授予集群级 `pg_read_all_data`；`trial:init` 在 `routefit_trial` 库内授予 schema/table/sequence 读取权限并设置迁移后的默认权限。部署 RF-OPS-01 时按 `ops/trial/pg_hba-backup.example` 配置：仅允许该角色从 loopback 连接 `routefit_trial`，其他数据库在 reject 规则中拒绝。
+备份角色不授予集群级 `pg_read_all_data`；`trial:init` 在 `routefit_trial` 库内授予 schema/table/sequence 读取权限并设置迁移后的默认权限。部署 RF-OPS-01 时按 `ops/trial/pg_hba-routefit.example` 配置：运行角色和备份角色仅允许从 loopback 连接 `routefit_trial`，其他数据库在 reject 规则中拒绝。
 每次迁移完成后，管理员从 root-only env 文件重复执行 `npm run trial:backup-grants`，再执行备份；该命令可幂等重跑。
 
 | 项目 | 内容 |
@@ -141,7 +141,8 @@
 - `/srv/routefit` 检出 `v0.3.0` 标签。
 - `trial:init` 建 `routefit_trial` 库，用真实员工名单执行 `trial:staff`。员工名单只存在服务器上，不进仓库。
 - 为每位员工建 `rf-tunnel` 组账号，配置其公钥。员工的私钥由员工自己生成，不经过任何人转交。
-- 做一次备份和恢复演练。
+- 用 root 将 `ops/trial/pg_hba-routefit.example` 中的 `<RUNTIME_ROLE>`、`<BACKUP_ROLE>` 替换为 `trial:init` 输出的随机角色名，插入 `pg_hba.conf` 中泛化允许规则之前；执行 `SELECT pg_reload_conf()`（或等价的 PostgreSQL reload），再核验运行角色和备份角色连接 `postgres` 均被拒绝、连接 `routefit_trial` 均正常。
+- 每次迁移完成后，从 root-only env 文件执行 `npm run trial:backup-grants`，再执行 `npm run trial:backup`；最后做一次备份和恢复演练。
 
 ## 不做
 

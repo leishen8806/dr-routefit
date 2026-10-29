@@ -61,5 +61,5 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
 
 if(process.argv[1]===fileURLToPath(import.meta.url)){
  if(process.env.NODE_ENV==='production')throw Error('trial:init refuses NODE_ENV=production');
- const result=await runTrialInit();console.log(`Created ${result.databaseName}, runtime account ${result.runtimeRole}, and applied all migrations. No demo customers or orders were inserted.`);
+ const result=await runTrialInit();console.log(`Created ${result.databaseName}; runtime role ${result.runtimeRole}; backup role ${result.backupRole}; applied all migrations. No passwords were printed and no demo customers or orders were inserted.`);
 }

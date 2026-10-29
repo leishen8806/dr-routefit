@@ -10,11 +10,13 @@ export async function runTrialImport({env=process.env,Pool=pg.Pool}={}){
  const areaReason=String(env.ROUTEFIT_TRIAL_AREA_REASON||'').trim();if(!areaReason)throw Error('ROUTEFIT_TRIAL_AREA_REASON is required');
  const dir=env.ROUTEFIT_TRIAL_IMPORT_DIRECTORY||fileURLToPath(new URL('../.local/import/',import.meta.url));
  const csv=async name=>rowsToObjects(parseCsv(await readFile(join(dir,name),'utf8')),name);
- const customers=await csv('customers.csv'),areas=await csv('service-areas.csv');
- if(customers.some(x=>!x.name)||areas.some(x=>!x.name||!x.type))throw Error('CSV validation failed; no rows were written');
- const areaFile=env.ROUTEFIT_TRIAL_SERVICE_AREAS_FILE||join(dir,'service-areas.example.geojson');
+ const customers=await csv('customers.csv');
+ if(customers.some(x=>!x.name))throw Error('CSV validation failed; no rows were written');
+ const areaFile=String(env.ROUTEFIT_TRIAL_SERVICE_AREAS_FILE||'').trim();
+ if(env.ROUTEFIT_TRIAL==='1'&&!areaFile)throw Error('ROUTEFIT_TRIAL_SERVICE_AREAS_FILE is required in trial mode');
+ const resolvedAreaFile=areaFile||join(dir,'service-areas.example.geojson');
  let geojson;
- try{geojson=JSON.parse(await readFile(areaFile,'utf8'));}catch(error){throw Error(`service-area GeoJSON is required: ${areaFile} (${error.message})`);}
+ try{geojson=JSON.parse(await readFile(resolvedAreaFile,'utf8'));}catch(error){throw Error(`service-area GeoJSON is required: ${resolvedAreaFile} (${error.message})`);}
  const features=geojson.type==='FeatureCollection'?geojson.features:(geojson.type==='Feature'?[geojson]:[]);
  if(!features.length)throw Error('service-area GeoJSON must contain at least one Feature');
  const drafts=features.map((feature,index)=>{const props=feature.properties||{},draft={name:props.name,type:props.type,polygon:feature.geometry,effectiveFrom:props.effectiveFrom||new Date().toISOString()};if(!draft.name||!['ALLOW','DENY'].includes(draft.type)||draft.polygon?.type!=='Polygon')throw Error(`service-area ${index+1} has invalid properties`);return draft;});

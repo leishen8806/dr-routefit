@@ -9,6 +9,7 @@ import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs'
 import {runBackup} from '../scripts/trial-backup.mjs';
 import {runRestore} from '../scripts/trial-restore.mjs';
 import {configureBackupRole} from '../scripts/trial-init.mjs';
+import {runTrialStaff} from '../scripts/trial-staff.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
@@ -18,6 +19,13 @@ test('trial staff role permissions are least privilege and distinct',()=>{
 test('trial tooling defaults all database targets to routefit_trial',()=>{
  assert.equal(trialDatabaseName({}),'routefit_trial');
  assert.equal(trialDatabaseName({ROUTEFIT_TRIAL_DATABASE:'routefit_custom'}),'routefit_custom');
+});
+test('trial staff uses the configured company id instead of the first active company',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'routefit-staff-')),staffFile=join(root,'staff.json'),sessionsFile=join(root,'sessions.json'),companyFile=join(root,'company.json'),adminEnv=join(root,'admin.env');
+ await writeFile(staffFile,JSON.stringify([{humanId:'synthetic',sshLogin:'synthetic',roles:['order_quote']}]))
+ await writeFile(sessionsFile,'[]\n');await writeFile(companyFile,JSON.stringify({id:'11111111-1111-4111-8111-111111111111'}));await writeFile(adminEnv,'ROUTEFIT_PG_ADMIN_URL=postgresql://admin@127.0.0.1/postgres\n');
+ const calls=[];class FakePool{constructor(config){this.config=config;}async connect(){return {query:async(sql,params=[])=>{calls.push({sql,params});if(sql.includes('SELECT id FROM org.company'))return {rows:[{id:params[0]}]};if(sql.includes('INSERT INTO org.principal'))return {rows:[]};return {rows:[]};},release(){}};}async end(){}}
+ try{await runTrialStaff({env:{ROUTEFIT_TRIAL:'1',ROUTEFIT_TRIAL_DATABASE:'routefit_trial',ROUTEFIT_SESSION_FILE:sessionsFile,ROUTEFIT_TRIAL_STAFF_FILE:staffFile,ROUTEFIT_TRIAL_COMPANY_FILE:companyFile,ROUTEFIT_ADMIN_ENV_FILE:adminEnv},Pool:FakePool});assert.deepEqual(calls.find(call=>call.sql.includes('SELECT id FROM org.company')).params,['11111111-1111-4111-8111-111111111111']);}finally{await rm(root,{recursive:true,force:true});}
 });
 test('backup role grants are database-local and default-readable without pg_read_all_data',async()=>{
  const calls=[],client={query:async(sql)=>{calls.push(sql);if(sql.startsWith('SELECT schema_name'))return {rows:[{schema_name:'coverage'}]};if(sql.startsWith('SELECT DISTINCT'))return {rows:[]};return {rows:[]};}};
@@ -29,11 +37,13 @@ test('backup role grants are database-local and default-readable without pg_read
  assert.ok(calls.some(sql=>sql.includes('REVOKE CREATE ON SCHEMA public FROM PUBLIC')));
  assert.ok(!calls.some(sql=>sql.includes('pg_read_all_data')));
 });
-test('backup pg_hba template limits the role to loopback trial database before reject',async()=>{
- const text=await (await import('node:fs/promises')).readFile(new URL('../../../ops/trial/pg_hba-backup.example',import.meta.url),'utf8');
- const localReject=text.indexOf('local   all'),allow=text.indexOf('host    routefit_trial'),reject=text.indexOf('host    all');
- assert.ok(localReject>=0&&localReject<allow);
- assert.ok(allow>=0&&reject>allow);assert.match(text,/127\.0\.0\.1\/32/);assert.match(text,/::1\/128/);assert.match(text,/reject/);
+test('pg_hba template limits runtime and backup roles with allow-before-reject order',async()=>{
+ const text=await (await import('node:fs/promises')).readFile(new URL('../../../ops/trial/pg_hba-routefit.example',import.meta.url),'utf8');
+ assert.match(text,/first matching rule/i);assert.match(text,/local\s+all\s+<RUNTIME_ROLE>\s+reject/);assert.match(text,/local\s+all\s+<BACKUP_ROLE>\s+reject/);
+ for(const role of ['<RUNTIME_ROLE>','<BACKUP_ROLE>']){
+  const allowLoopback=text.search(new RegExp(`host\\s+routefit_trial\\s+${role}\\s+127\\.0\\.0\\.1/32\\s+scram-sha-256`)),rejectLoopback=text.search(new RegExp(`host\\s+all\\s+${role}\\s+127\\.0\\.0\\.1/32\\s+reject`)),allowIpv6=text.search(new RegExp(`host\\s+routefit_trial\\s+${role}\\s+::1/128\\s+scram-sha-256`)),rejectIpv6=text.search(new RegExp(`host\\s+all\\s+${role}\\s+::1/128\\s+reject`));
+  assert.ok(allowLoopback>=0&&allowLoopback<rejectLoopback);assert.ok(allowIpv6>=0&&allowIpv6<rejectIpv6);
+ }
 });
 test('trial session generation stores only hashes and an expiry',()=>{
  const [session,raw,csrf]=newSession({companyId:'11111111-1111-4111-8111-111111111111',principalId:'22222222-2222-4222-8222-222222222222'},['pricing:read'],new Date(Date.now()+3600000).toISOString());

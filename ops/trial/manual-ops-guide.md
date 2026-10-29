@@ -52,7 +52,7 @@
 - 收工：完成当日对账，登记未决差异，锁定台账文件并交负责人复核。
 - 任何停运、全线下切换、退款或异常派单都必须有负责人和时间记录。
 
-备份由 `trial:init` 创建的专用备份角色执行。该角色保留 `BYPASSRLS`，但不授予集群级 `pg_read_all_data`：初始化会在 `routefit_trial` 库内为所有业务 schema 授予 USAGE、现有表/序列 SELECT，并为实际迁移执行角色设置可重复执行的 ALTER DEFAULT PRIVILEGES；每次迁移后由 root/管理员从受控 env 文件执行 `npm run trial:backup-grants` 重新授权。`ops/trial/pg_hba-backup.example` 限制该角色只能从 127.0.0.1/::1 连接 `routefit_trial`，其他库在 reject 规则中拒绝。连接串只写入 root 可读的 `/root/.config/routefit/backup.env`，不放在命令行或员工端环境文件中。初始化会话文件后由 root 执行 `chown routefit:routefit /var/lib/routefit/sessions.json && chmod 600 /var/lib/routefit/sessions.json`，确保 systemd 服务用户拥有会话文件且其他用户不可读。
+备份由 `trial:init` 创建的专用备份角色执行。该角色保留 `BYPASSRLS`，但不授予集群级 `pg_read_all_data`：初始化会在 `routefit_trial` 库内为所有业务 schema 授予 USAGE、现有表/序列 SELECT，并为实际迁移执行角色设置可重复执行的 ALTER DEFAULT PRIVILEGES；每次迁移后由 root/管理员从受控 env 文件执行 `npm run trial:backup-grants` 重新授权。`ops/trial/pg_hba-routefit.example` 同时限制运行角色和备份角色只能从 127.0.0.1/::1 连接 `routefit_trial`，其他库在 reject 规则中拒绝。连接串只写入 root 可读的 `/root/.config/routefit/backup.env`，不放在命令行或员工端环境文件中。初始化会话文件后由 root 执行 `chown routefit:routefit /var/lib/routefit/sessions.json && chmod 600 /var/lib/routefit/sessions.json`，确保 systemd 服务用户拥有会话文件且其他用户不可读。
 
 ## 8. 服务区域导入
 
