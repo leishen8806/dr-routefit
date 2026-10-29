@@ -41,6 +41,7 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | RF-PM-030、034、036 | 未建卡即提交的 PR：费用草稿选择区与测试库隔离（#49）、已发布策略列表接口（#55）、报价策略防护与费用页 S1 标注（#52） | — | — | — | 审查中 |
 | [RF-PM-037](tasks/RF-PM-037-p01-trial-readiness.md) | P01 试运营就绪：订单页 S1 与重放回归、报价策略选择（大旺＋Codex） | fix | 中 | 030、033、034、036 | TODO |
 | [RF-PM-038](tasks/RF-PM-038-single-machine-trial-tooling.md) | 受控试运营工具：身份续期、员工身份、主数据、备份与 VPS 登录辅助（大旺＋Codex，需人类批准） | chore | 高 | 无 | TODO（10-28 补第 7–9 项） |
+| [RF-PM-038-R3](tasks/RF-PM-038-R3-db-access-scope.md) | 试运营数据库访问边界收口：运行/备份角色 pg_hba、授权范围测试、导入与员工的企业来源（大旺＋Codex，需人类批准） | fix | 高 | RF-PM-038-R2（#68） | TODO（11-01 部署前合并） |
 | [RF-OPS-01](tasks/RF-OPS-01-vps-trial-server.md) | 试运营 VPS 准备与加固：只允许 SSH 访问（苏晨＋Codex，需人类批准） | ops | 高 | 第 7 步依赖 038 | TODO |
 | [RF-PM-032](tasks/RF-PM-032-distance-pricing-and-change-requote.md) | 服务端需求：距离计价与仓库／货物／服务类型变更重核价（项目负责人＋Codex） | feat | 高 | 025；开工前决策 | 待决策（不进 v0.3.0） |
 | [RF-QA-02](tasks/RF-QA-02-p01-acceptance.md) | P01 独立浏览器验收，含 P01 浏览器脚本实跑与固定费等价场景（项目负责人） | test | 低 | 025、028、028-R1、030、033、034、036、037 | TODO |
