@@ -97,6 +97,8 @@ jobs:
           cache: npm
           cache-dependency-path: services/routefit/package-lock.json
       - run: npm ci
+      - name: Install PostgreSQL client for trial backup/restore integration
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-16
       # Every integration test calls localFixture(), which creates its own random
       # synthetic database, applies all migrations, uses an RLS runtime role and cleans up.
       # No separate migration against the administrative template database is needed.
