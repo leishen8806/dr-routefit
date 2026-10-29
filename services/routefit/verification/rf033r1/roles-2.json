@@ -1,6 +1,8 @@
 {
   "task": "RF-PM-033",
   "checks": [
+    "ops expected reminders are independent and complete",
+    "customer expected reminders are empty",
     "ops notice trigger visibility matches scope",
     "ops reminder count matches data source",
     "ops reminder ids match data source",
@@ -28,12 +30,12 @@
     "customer notice trigger visibility matches scope",
     "customer mapped-out role sees empty reminders",
     "customer has no horizontal overflow",
-    "customer mobile navigation remains usable",
+    "customer mobile main action area remains usable",
     "driver notice trigger visibility matches scope",
     "driver reminder count matches data source",
     "driver reminder ids match data source",
     "driver has no horizontal overflow",
-    "driver mobile navigation remains usable"
+    "driver mobile main action area remains usable"
   ],
   "allPass": true
 }
