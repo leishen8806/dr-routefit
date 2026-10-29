@@ -1,0 +1,18 @@
+{
+  "task": "RF-PM-023",
+  "testDatabase": "127.0.0.1:5432/routefit_local_61895bc81d891817",
+  "checks": [
+    "published policy available",
+    "unpublished policy shows reason and disables generate",
+    "published policy list is available",
+    "generate quote displays issued detail",
+    "replayed quote request returns original result",
+    "page re-GETs quote and renders server result after replay",
+    "confirmation time is required in page",
+    "expired quote cannot confirm through page",
+    "superseded quote reports unusable state",
+    "superseded quote cannot confirm through page",
+    "customer confirmation records confirmed quote"
+  ],
+  "allPass": true
+}
