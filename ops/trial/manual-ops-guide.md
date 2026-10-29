@@ -56,4 +56,4 @@
 
 ## 8. 服务区域导入
 
-负责人提供合成服务区域文件 `service-areas.example.geojson`（GeoJSON `FeatureCollection`，单外环 Polygon，坐标顺序为 `[经度,纬度]`），放在导入目录并设置权限 600；真实地址或未审核坐标不得放入仓库。由 root/管理员在试运营库执行 `trial:import`，命令会在同一事务中创建并直接发布 ALLOW/DENY 区域，发布主体记录为试运营库中的管理员 principal；任一区域校验失败会回滚客户与区域全部导入。导入后再用受理页验证区域内、区域外和 DENY 点的结果。
+负责人提供审核过的真实服务区域文件，只放在服务器的 `/root/.config/routefit/service-areas.geojson`（GeoJSON `FeatureCollection`，单外环 Polygon，坐标顺序为 `[经度,纬度]`）；仓库里的 `service-areas.example.geojson` 仅为合成示例，真实地址或未审核坐标不得放入仓库。由 root/管理员在试运营库执行 `trial:import` 并通过 `ROUTEFIT_TRIAL_AREA_REASON` 传入发布依据，命令会在同一事务中创建并直接发布 ALLOW/DENY 区域，发布主体是 `trial:init` 创建的专用系统 principal；任一区域校验失败会回滚客户与区域全部导入。导入后再用受理页验证区域内、区域外和 DENY 点的结果。

@@ -1,5 +1,7 @@
 # RF-OPS-01 · 试运营 VPS 准备与加固：只允许 SSH 访问
 
+试运营主数据导入时，负责人提供审核过的真实服务区域文件，只放在服务器；仓库中的 `service-areas.example.geojson` 仅为合成示例。导入由 `trial:init` 创建的专用系统主体执行，发布依据必须通过 `ROUTEFIT_TRIAL_AREA_REASON` 外部传入。
+
 | 项目 | 内容 |
 | --- | --- |
 | 类型 / 风险 | ops / 高（服务器、访问控制、真实数据存放） |

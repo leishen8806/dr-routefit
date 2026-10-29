@@ -13,7 +13,7 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
  const base=new URL(adminUrl);if(!['127.0.0.1','localhost','[::1]'].includes(base.hostname))throw Error('admin URL must be local');
  const company=JSON.parse(await readFile(companyFile,'utf8'));if(!company.name)throw Error('trial company name is required');
  const runtimeRole=`rf_trial_${randomBytes(8).toString('hex')}`,runtimePassword=randomBytes(32).toString('hex'),backupRole=`rf_backup_${randomBytes(8).toString('hex')}`,backupPassword=randomBytes(32).toString('hex');
- const admin=new Pool({connectionString:adminUrl});let created=false,roleCreated=false,backupRoleCreated=false,companyId;
+ const admin=new Pool({connectionString:adminUrl});let created=false,roleCreated=false,backupRoleCreated=false,companyId,systemPrincipalId;
  try{
   const exists=await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[databaseName]);if(exists.rowCount)throw Error(`${databaseName} already exists; refusing to overwrite`);
   await admin.query(`CREATE DATABASE ${quoteIdentifier(databaseName)}`);created=true;
@@ -26,6 +26,7 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
    const id=company.id||randomUUID();companyId=id;
    await client.query("SELECT set_config('app.company_id',$1,true)",[id]);
    await client.query('INSERT INTO org.company(id,name,status) VALUES($1,$2,\'ACTIVE\') ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,status=\'ACTIVE\'',[id,company.name]);
+   systemPrincipalId=(await client.query("INSERT INTO org.principal(id,company_id,kind,display_name,idp_subject,status) VALUES($1,$2,'SERVICE','Trial Import Administrator','system:trial-import','ACTIVE') ON CONFLICT(company_id,idp_subject) DO UPDATE SET kind='SERVICE',display_name=EXCLUDED.display_name,status='ACTIVE' RETURNING id",[randomUUID(),id])).rows[0].id;
    await client.query('COMMIT');
    if(!company.id){await writeFile(companyFile,JSON.stringify({...company,id},null,2)+'\n',{mode:0o600});}
    }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
@@ -39,7 +40,7 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
   await mkdir(dirname(envFile),{recursive:true});await writeFile(envFile,`NODE_ENV=development\nROUTEFIT_TRIAL=1\nROUTEFIT_AUTH_MODE=development\nROUTEFIT_DATABASE_URL=${target.href}\nROUTEFIT_SESSION_FILE=${sessionFile}\nROUTEFIT_PORT=4180\n`,{flag:'wx',mode:0o600});
   await mkdir(dirname(sessionFile),{recursive:true});await writeFile(sessionFile,'[]\n',{flag:'wx',mode:0o600});
   await mkdir(dirname(backupEnvFile),{recursive:true});await writeFile(backupEnvFile,`ROUTEFIT_PG_BACKUP_URL=${backupTarget.href}\n`,{flag:'wx',mode:0o600});
-  return {databaseName,runtimeRole,backupRole,envFile,backupEnvFile,sessionFile,companyId};
+  return {databaseName,runtimeRole,backupRole,envFile,backupEnvFile,sessionFile,companyId,systemPrincipalId};
  }catch(error){if(backupRoleCreated)await admin.query(`DROP ROLE IF EXISTS ${quoteIdentifier(backupRole)}`).catch(()=>{});if(roleCreated)await admin.query(`DROP ROLE IF EXISTS ${quoteIdentifier(runtimeRole)}`).catch(()=>{});if(created)await admin.query(`DROP DATABASE IF EXISTS ${quoteIdentifier(databaseName)}`).catch(()=>{});throw error;}finally{await admin.end();}
 }
 
