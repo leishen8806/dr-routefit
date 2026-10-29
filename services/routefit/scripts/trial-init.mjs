@@ -8,6 +8,20 @@ import {migrate} from '../db/migrate.mjs';
 const quoteIdentifier=value=>`"${String(value).replaceAll('"','""')}"`;
 const quoteLiteral=value=>`'${String(value).replaceAll("'","''")}'`;
 
+export async function configureBackupRole({client,backupRole,migrationRoles=[]}){
+ const schemas=(await client.query("SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT LIKE 'pg_%' AND schema_name <> 'information_schema' ORDER BY schema_name")).rows.map(row=>row.schema_name);
+ const roles=[...new Set(migrationRoles.length?migrationRoles:['current_user'])];
+ await client.query(`REVOKE CREATE ON SCHEMA public FROM PUBLIC`);
+ for(const schema of schemas){
+  const s=quoteIdentifier(schema),r=quoteIdentifier(backupRole);
+  await client.query(`GRANT USAGE ON SCHEMA ${s} TO ${r}`);
+  await client.query(`GRANT SELECT ON ALL TABLES IN SCHEMA ${s} TO ${r}`);
+  await client.query(`GRANT SELECT ON ALL SEQUENCES IN SCHEMA ${s} TO ${r}`);
+  for(const role of roles){const owner=role==='current_user'?'CURRENT_USER':quoteIdentifier(role);await client.query(`ALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${s} GRANT SELECT ON TABLES TO ${r}`);await client.query(`ALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${s} GRANT SELECT ON SEQUENCES TO ${r}`);}
+ }
+ return schemas;
+}
+
 export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,databaseName=process.env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial',envFile=process.env.ROUTEFIT_TRIAL_ENV_FILE||fileURLToPath(new URL('../.local/dev.env',import.meta.url)),companyFile=process.env.ROUTEFIT_TRIAL_COMPANY_FILE||fileURLToPath(new URL('../.local/trial-company.json',import.meta.url)),sessionFile=process.env.ROUTEFIT_TRIAL_SESSION_FILE||'/var/lib/routefit/sessions.json',backupEnvFile=process.env.ROUTEFIT_BACKUP_ENV_FILE||fileURLToPath(new URL('../.local/backup.env',import.meta.url)),Pool=pg.Pool}={}){
  if(!adminUrl)throw Error('ROUTEFIT_PG_ADMIN_URL is required');
  const base=new URL(adminUrl);if(!['127.0.0.1','localhost','[::1]'].includes(base.hostname))throw Error('admin URL must be local');
@@ -34,7 +48,8 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
   await admin.query(`CREATE ROLE ${quoteIdentifier(runtimeRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${quoteLiteral(runtimePassword)}`);roleCreated=true;
   await admin.query(`GRANT routefit_api TO ${quoteIdentifier(runtimeRole)}`);
   await admin.query(`CREATE ROLE ${quoteIdentifier(backupRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION BYPASSRLS PASSWORD ${quoteLiteral(backupPassword)}`);backupRoleCreated=true;
-  await admin.query(`GRANT pg_read_all_data TO ${quoteIdentifier(backupRole)}`);
+  const grantPool=new Pool({connectionString:target.href}),backupClient=await grantPool.connect();
+  try{const owners=(await backupClient.query("SELECT DISTINCT tableowner AS role FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname <> 'information_schema'")).rows.map(row=>row.role);await configureBackupRole({client:backupClient,backupRole,migrationRoles:owners});}finally{backupClient.release();await grantPool.end();}
   target.username=runtimeRole;target.password=runtimePassword;
   const backupTarget=new URL(adminUrl);backupTarget.pathname='/'+databaseName;backupTarget.username=backupRole;backupTarget.password=backupPassword;
   await mkdir(dirname(envFile),{recursive:true});await writeFile(envFile,`NODE_ENV=development\nROUTEFIT_TRIAL=1\nROUTEFIT_AUTH_MODE=development\nROUTEFIT_DATABASE_URL=${target.href}\nROUTEFIT_SESSION_FILE=${sessionFile}\nROUTEFIT_PORT=4180\n`,{flag:'wx',mode:0o600});
