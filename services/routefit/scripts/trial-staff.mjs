@@ -8,7 +8,8 @@ import {parseEnvironment} from './trial-ssh-link.mjs';
 export async function runTrialStaff({env=process.env,Pool=pg.Pool}={}){
  const file=sessionFileFor(env,import.meta.url),staffFile=env.ROUTEFIT_TRIAL_STAFF_FILE||localFile(import.meta.url,'../.local/trial-staff.json');
  const adminEnvFile=env.ROUTEFIT_ADMIN_ENV_FILE||'/root/.config/routefit/admin.env';
- const adminEnv=parseEnvironment(await readFile(adminEnvFile,'utf8'));const adminUrl=env.ROUTEFIT_PG_ADMIN_URL||adminEnv.ROUTEFIT_PG_ADMIN_URL;if(!adminUrl)throw Error('ROUTEFIT_PG_ADMIN_URL is required via root-only env file');
+ const adminEnv=parseEnvironment(await readFile(adminEnvFile,'utf8'));let adminUrl=env.ROUTEFIT_PG_ADMIN_URL||adminEnv.ROUTEFIT_PG_ADMIN_URL;if(!adminUrl)throw Error('ROUTEFIT_PG_ADMIN_URL is required via root-only env file');
+ const target=new URL(adminUrl);target.pathname='/'+(env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial');adminUrl=target.href;
  const people=validateStaffAssignments(await readJson(staffFile)),sessions=JSON.parse(await readFile(file,'utf8')),pool=new Pool({connectionString:adminUrl});let company;
  const client=await pool.connect();
  try{await client.query('BEGIN');company=(await client.query("SELECT id FROM org.company WHERE status='ACTIVE' ORDER BY id LIMIT 1")).rows[0];if(!company)throw Error('no active company');await client.query("SELECT set_config('app.company_id',$1,true)",[company.id]);

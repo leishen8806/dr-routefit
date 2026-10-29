@@ -44,3 +44,6 @@ test('activation redirect changes only in trial mode',async()=>{
   for(const [trial,next] of [[false,'/prototype/'],[true,'/prototype/orders.html']]){const accessMode=make(trial),grant=await createBrowserGrant({sessionsFile:file,origin}),res=response(),send=(status,body,headers)=>{res.status=status;res.body=body;Object.assign(res.headers,headers||{});};const req=request(new URL(grant.url).pathname+new URL(grant.url).search);assert.equal(await accessMode(req,res,send),true);assert.equal(res.status,303);assert.equal(res.headers.Location,next);}
  }finally{await rm(dir,{recursive:true,force:true});}
 });
+test('non-trial prototype index remains accessible',async()=>{
+ const res=response();assert.equal(await access(request('/prototype/index.html',{headers:{cookie:'rf_session=browser'}}),res,()=>{}),true);assert.equal(res.status,200);
+});
