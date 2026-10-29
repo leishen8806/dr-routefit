@@ -99,7 +99,8 @@ test('real PostgreSQL order quote lifecycle',async t=>{
    const retry=await req(orderPath+'/quotes',{body:{pricingPolicyVersionId:policy.id,insuranceRequested:true},version:3});
    assert.equal(retry.status,409);assert.equal(retry.data.error.code,'CONFIRMED_QUOTE_LOCKED');
    const afterQuote=(await req('/quotes/'+confirmed.id)).data,afterOrder=(await req(orderPath)).data;
-   assert.deepEqual([afterQuote.state,afterQuote.total.amountMinor,afterOrder.order.quoteId],[beforeQuote.state,beforeQuote.total.amountMinor,beforeOrder.order.quoteId]);
+   assert.equal(beforeOrder.quoteId,confirmed.id);
+   assert.deepEqual([afterQuote.state,afterQuote.total.amountMinor,afterOrder.quoteId],[beforeQuote.state,beforeQuote.total.amountMinor,beforeOrder.quoteId]);
   });
   await t.test('customer confirmation, partial bank receipts and three-person allocation posting',{timeout:30000},async()=>{
    const o=(await req('/orders',{body:draft})).data,p='/orders/'+o.order.id;
