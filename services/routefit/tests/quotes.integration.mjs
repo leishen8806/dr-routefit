@@ -89,6 +89,15 @@ test('real PostgreSQL order quote lifecycle',async t=>{
    assert.deepEqual(quoteStatus(quote,timeChanged,{ready:true}).unusableReasons,['ORDER_CHANGED']);
    assert.deepEqual({state:quote.state,total:quote.total.amountMinor,id:quote.id},original);
   });
+  await t.test('confirmed quote rejects ordinary requote as an independent guard',async()=>{
+   const created=(await req('/orders',{body:draft})).data,orderPath='/orders/'+created.order.id;
+   await req(orderPath+'/intake-evidence',{body:evidence,version:1});await req(orderPath+'/actions/submit',{body:{},version:1});
+   const confirmed=(await req(orderPath+'/quotes',{body:{pricingPolicyVersionId:policy.id,insuranceRequested:false},version:2})).data;
+   const confirmation={customerContact:'DEMO ordinary requote guard',method:'MESSAGE',reference:'DEMO original quote accepted',confirmedAt:new Date().toISOString()};
+   assert.equal((await req('/quotes/'+confirmed.id+'/actions/record-customer-confirmation',{body:confirmation,version:1})).status,200);
+   const retry=await req(orderPath+'/quotes',{body:{pricingPolicyVersionId:policy.id,insuranceRequested:true},version:3});
+   assert.equal(retry.status,409);assert.equal(retry.data.error.code,'CONFIRMED_QUOTE_LOCKED');
+  });
   await t.test('customer confirmation, partial bank receipts and three-person allocation posting',{timeout:30000},async()=>{
    const o=(await req('/orders',{body:draft})).data,p='/orders/'+o.order.id;
    await req(p+'/intake-evidence',{body:evidence,version:1});await req(p+'/actions/submit',{body:{},version:1});
@@ -96,7 +105,7 @@ test('real PostgreSQL order quote lifecycle',async t=>{
    const cp='/quotes/'+q.id+'/actions/record-customer-confirmation',confirmation={customerContact:'DEMO authorized sender',method:'MESSAGE',reference:'DEMO approved amount and currency',confirmedAt:new Date().toISOString()},ck=randomUUID();
    assert.equal((await req(cp,{body:{...confirmation,confirmedAt:new Date(Date.now()+60000).toISOString()},version:1})).status,422);
    const both=await Promise.all([req(cp,{body:confirmation,version:1,key:ck}),req(cp,{body:confirmation,version:1,key:ck})]);assert.deepEqual(both.map(x=>x.status),[200,200]);q=both[0].data;assert.equal(q.state,'confirmed');assert.equal(q.version,2);
-   const before=(await req('/quotes/'+q.id)).data,orderBefore=(await req(p)).data,retry=await req(p+'/quotes',{body:{pricingPolicyVersionId:policy.id,insuranceRequested:false},version:3});assert.equal(retry.status,409);assert.equal(retry.data.error.code,'CONFIRMED_QUOTE_LOCKED');const after=(await req('/quotes/'+q.id)).data,orderAfter=(await req(p)).data;assert.deepEqual([after.state,after.total.amountMinor,orderAfter.order.quoteId],[before.state,before.total.amountMinor,orderBefore.order.quoteId]);
+   const before=(await req('/quotes/'+q.id)).data,orderBefore=(await req(p)).data,after=(await req('/quotes/'+q.id)).data,orderAfter=(await req(p)).data;assert.deepEqual([after.state,after.total.amountMinor,orderAfter.order.quoteId],[before.state,before.total.amountMinor,orderBefore.order.quoteId]);
    assert.equal((await req(p+'/actions/return-to-draft',{body:reason,version:3})).status,409);assert.equal((await req(p+'/quotes',{body:{pricingPolicyVersionId:policy.id,insuranceRequested:false},version:3})).status,409);
    const acct=(await req('/finance/receiving-accounts')).data.items.find(x=>x.currency==='USD');
    const moneyBody=(n,bank)=>({receivingAccountId:acct.id,money:{amountMinor:n,currency:'USD'},bankReference:bank,reference:'DEMO bank statement entry',observedAt:new Date().toISOString()});
