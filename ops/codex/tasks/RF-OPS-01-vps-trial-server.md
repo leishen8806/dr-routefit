@@ -3,6 +3,7 @@
 试运营主数据导入时，负责人提供审核过的真实服务区域文件，只放在服务器；仓库中的 `service-areas.example.geojson` 仅为合成示例。导入由 `trial:init` 创建的专用系统主体执行，发布依据必须通过 `ROUTEFIT_TRIAL_AREA_REASON` 外部传入。
 
 备份角色不授予集群级 `pg_read_all_data`；`trial:init` 在 `routefit_trial` 库内授予 schema/table/sequence 读取权限并设置迁移后的默认权限。部署 RF-OPS-01 时按 `ops/trial/pg_hba-backup.example` 配置：仅允许该角色从 loopback 连接 `routefit_trial`，其他数据库在 reject 规则中拒绝。
+每次迁移完成后，管理员从 root-only env 文件重复执行 `npm run trial:backup-grants`，再执行备份；该命令可幂等重跑。
 
 | 项目 | 内容 |
 | --- | --- |

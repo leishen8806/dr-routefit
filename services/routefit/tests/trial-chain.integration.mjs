@@ -11,6 +11,7 @@ import {runTrialInit} from '../scripts/trial-init.mjs';
 import {runTrialStaff} from '../scripts/trial-staff.mjs';
 import {runTrialImport} from '../scripts/trial-import.mjs';
 import {runBackup} from '../scripts/trial-backup.mjs';
+import {runBackupGrants} from '../scripts/trial-backup-grants.mjs';
 import {runRestore} from '../scripts/trial-restore.mjs';
 import {apiServer} from '../application/http.mjs';
 import {localBrowser,createBrowserGrant} from '../adapters/local-browser.mjs';
@@ -23,6 +24,7 @@ test('trial chain runs from clean database through activation, order, backup and
  let init,server,pool,restoredDb,otherDb;
  try{
   init=await runTrialInit({adminUrl:process.env.ROUTEFIT_TEST_DATABASE_URL,databaseName,envFile,companyFile,sessionFile,backupEnvFile:join(root,'backup.env')});const companyId=init.companyId;assert.equal(JSON.parse(await (await import('node:fs/promises')).readFile(companyFile,'utf8')).id,companyId);
+  await runBackupGrants({env:{ROUTEFIT_ADMIN_ENV_FILE:adminEnv,ROUTEFIT_BACKUP_ENV_FILE:init.backupEnvFile,ROUTEFIT_TRIAL_DATABASE:init.databaseName}});const grantAdmin=new pg.Pool({connectionString:(()=>{const u=new URL(process.env.ROUTEFIT_TEST_DATABASE_URL);u.pathname='/'+databaseName;return u.href;})()});await grantAdmin.query('CREATE TABLE public.backup_grant_probe(id int)');await grantAdmin.end();await runBackupGrants({env:{ROUTEFIT_ADMIN_ENV_FILE:adminEnv,ROUTEFIT_BACKUP_ENV_FILE:init.backupEnvFile,ROUTEFIT_TRIAL_DATABASE:init.databaseName}});
   await runTrialStaff({env:{ROUTEFIT_TRIAL_DATABASE:init.databaseName,ROUTEFIT_TRIAL:'1',ROUTEFIT_SESSION_FILE:sessionFile,ROUTEFIT_TRIAL_STAFF_FILE:staffFile,ROUTEFIT_ADMIN_ENV_FILE:adminEnv}});
   const envText=await (await import('node:fs/promises')).readFile(envFile,'utf8');const runtimeEnv=Object.fromEntries(envText.split(/\n/).filter(Boolean).map(line=>{const i=line.indexOf('=');return [line.slice(0,i),line.slice(i+1)];}));Object.assign(runtimeEnv,{ROUTEFIT_TRIAL:'1',ROUTEFIT_SESSION_FILE:sessionFile,ROUTEFIT_TRIAL_IMPORT_DIRECTORY:importDir,ROUTEFIT_TRIAL_COMPANY_ID:companyId,ROUTEFIT_TRIAL_AREA_REASON:'负责人审核通过的试运营服务区域导入',ROUTEFIT_PG_BIN:process.env.ROUTEFIT_PG_BIN||'/opt/homebrew/bin'});
   await assert.rejects(()=>runTrialImport({env:{...runtimeEnv,ROUTEFIT_ADMIN_ENV_FILE:adminEnv,ROUTEFIT_TRIAL_DATABASE:init.databaseName,ROUTEFIT_TRIAL_SERVICE_AREAS_FILE:join(importDir,'service-areas.example.geojson'),ROUTEFIT_TRIAL_AREA_REASON:''}}),/ROUTEFIT_TRIAL_AREA_REASON/);const importResult=await runTrialImport({env:{...runtimeEnv,ROUTEFIT_ADMIN_ENV_FILE:adminEnv,ROUTEFIT_TRIAL_DATABASE:init.databaseName,ROUTEFIT_TRIAL_SERVICE_AREAS_FILE:join(importDir,'service-areas.example.geojson')}});assert.equal(importResult.coverageRevision,2);assert.equal(importResult.principalId,init.systemPrincipalId);

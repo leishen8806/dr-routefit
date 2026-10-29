@@ -31,7 +31,8 @@ test('backup role grants are database-local and default-readable without pg_read
 });
 test('backup pg_hba template limits the role to loopback trial database before reject',async()=>{
  const text=await (await import('node:fs/promises')).readFile(new URL('../../../ops/trial/pg_hba-backup.example',import.meta.url),'utf8');
- const allow=text.indexOf('host    routefit_trial'),reject=text.indexOf('host    all');
+ const localReject=text.indexOf('local   all'),allow=text.indexOf('host    routefit_trial'),reject=text.indexOf('host    all');
+ assert.ok(localReject>=0&&localReject<allow);
  assert.ok(allow>=0&&reject>allow);assert.match(text,/127\.0\.0\.1\/32/);assert.match(text,/::1\/128/);assert.match(text,/reject/);
 });
 test('trial session generation stores only hashes and an expiry',()=>{
