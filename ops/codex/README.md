@@ -47,6 +47,7 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-038](tasks/RF-PM-038-single-machine-trial-tooling.md) | 受控试运营工具：身份续期、员工身份、主数据、备份与 VPS 登录辅助（大旺＋Codex，需人类批准） | chore | 高 | 无 | TODO（10-28 补第 7–9 项） |
 | [RF-PM-038-R3](tasks/RF-PM-038-R3-db-access-scope.md) | 试运营数据库访问边界收口：运行/备份角色 pg_hba、授权范围测试、导入与员工的企业来源（大旺＋Codex，需人类批准） | fix | 高 | RF-PM-038-R2（#68） | 已合并（PR #71 → `4131325`）· 审查 APPROVED（`3dc90e2`）；pg_hba 连接核验待 RF-OPS-01 第 8 步 |
 | [RF-PM-038-R4](tasks/RF-PM-038-R4-init-atomic.md) | trial:init 输出预检、原子回滚与企业配置恢复（大旺＋Codex，需人类批准） | fix | 高 | RF-PM-038-R3（#71） | 已合并（PR #74 → `9f5b867`）· claude-bridge 审查 APPROVED（`fce8935`），leishen8806 批准；负责人侧 Claude 事后审查无阻断 |
+| [RF-PM-038-R5](tasks/RF-PM-038-R5-deploy-gaps.md) | 试运营部署链路：证据目录、不可写启动报错、Node 24 服务器命令表（大旺＋Codex，需人类批准） | fix | 高 | RF-PM-038-R4（#74） | IN_REVIEW（Draft，待审查） |
 | [RF-OPS-01](tasks/RF-OPS-01-vps-trial-server.md) | 试运营 VPS 准备与加固：只允许 SSH 访问（苏晨＋Codex，需人类批准） | ops | 高 | 第 7 步依赖 038 | TODO |
 | [RF-PM-032](tasks/RF-PM-032-distance-pricing-and-change-requote.md) | 服务端需求：距离计价与仓库／货物／服务类型变更重核价（项目负责人＋Codex） | feat | 高 | 025；开工前决策 | 待决策（不进 v0.3.0） |
 | [RF-QA-02](tasks/RF-QA-02-p01-acceptance.md) | P01 独立浏览器验收，含 P01 浏览器脚本实跑与固定费等价场景（项目负责人） | test | 低 | 025、028、028-R1、030、033、034、036、037 | TODO |

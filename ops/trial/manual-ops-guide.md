@@ -56,6 +56,29 @@
 
 ## 8. 服务区域导入
 
+### 服务器上的命令表
+
+以下命令均在 `/srv/routefit/services/routefit` 执行；`<NODE24_PATH>` 是服务器上 Node 24 的完整路径。`<ADMIN_ENV>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<COMPANY_FILE>`、`<STAFF_FILE>`、`<IMPORT_DIR>`、`<AREA_FILE>`、`<BACKUP_DIR>`、`<SESSION_FILE>` 是服务器布局占位符，不在仓库或命令行中写入任何值。root-only 文件只允许 root 读取。`trial:init` 先读 `<ADMIN_ENV>`，并按其中的 `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`、`ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>` 等路径写出运行文件；后续命令再读生成的 `<RUN_ENV>`。
+
+`<ADMIN_ENV>` 在执行 `trial:init` 前还必须包含以下七个非秘密路径/参数变量：`ROUTEFIT_ADMIN_ENV_FILE`、`ROUTEFIT_TRIAL_STAFF_FILE`、`ROUTEFIT_TRIAL_IMPORT_DIRECTORY`、`ROUTEFIT_TRIAL_SERVICE_AREAS_FILE`、`ROUTEFIT_TRIAL_AREA_REASON`、`ROUTEFIT_BACKUP_DIRECTORY`、`ROUTEFIT_PG_BIN`。init 只复制这些非秘密路径/参数到新生成的 `<RUN_ENV>`，绝不复制或写入管理连接串、备份连接串或其他凭据。
+
+| 操作 | 完整命令 | 显式环境变量名 | 身份/文件要求 |
+| --- | --- | --- | --- |
+| 初始化 | `sudo <NODE24_PATH> --env-file=<ADMIN_ENV> scripts/trial-init.mjs` | `ROUTEFIT_PG_ADMIN_URL`→`<ADMIN_ENV>`；`ROUTEFIT_TRIAL_DATABASE`, `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`, `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`→`<ADMIN_ENV>` | 必须 root；`<ADMIN_ENV>` root-only，预检要求 `<RUN_ENV>`/`<SESSION_FILE>`/`<BACKUP_ENV>` 尚不存在 |
+| 员工 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-staff.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_STAFF_FILE=<STAFF_FILE>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` root-only；员工名单仅服务器 |
+| 导入 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-import.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SERVICE_AREAS_FILE=<AREA_FILE>`, `ROUTEFIT_TRIAL_AREA_REASON`, `ROUTEFIT_TRIAL_IMPORT_DIRECTORY=<IMPORT_DIR>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` root-only；真实区域文件仅服务器 |
+| 备份 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup.mjs` | `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`, `ROUTEFIT_PG_BIN`→`<RUN_ENV>` | 必须 root；`<BACKUP_ENV>` root-only；备份目录由 root 准备 |
+| 备份授权 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-grants.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_TRIAL_DATABASE`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` 与 `<BACKUP_ENV>` root-only |
+| 恢复 | `sudo <NODE24_PATH> --env-file=<ADMIN_ENV> scripts/trial-restore.mjs <BACKUP_FILE> <NEW_DATABASE>` | `ROUTEFIT_PG_ADMIN_URL`、`ROUTEFIT_PG_BIN`→`<ADMIN_ENV>` | 必须 root；恢复直接读 root-only `<ADMIN_ENV>`，不读尚未生成的 `<RUN_ENV>` |
+| 续期 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-renew.mjs` | `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；续期后会话文件归 routefit 服务用户 |
+| 启动检查 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-start.mjs` | `ROUTEFIT_DATABASE_URL`, `ROUTEFIT_SESSION_FILE=<SESSION_FILE>`, `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`→`<RUN_ENV>` | 必须 root；实际服务由 systemd 运行 |
+
+`--env-file` 是 Node 24 的参数；上述命令是服务器直接调用脚本的写法，不改本地 npm 脚本。`trial:import` 的 `ROUTEFIT_TRIAL_AREA_REASON` 必须由值班人员在 root-only env 中提供，未提供会拒绝运行。
+
+#### 临时目录演练记录（合成值）
+
+按上表逐字执行 `trial:init` → `trial:staff` → `trial:import` → `trial:backup-grants` → `trial:backup` → `trial:restore` → `trial:renew` → `trial:start`；每步使用临时 `<ADMIN_ENV>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<SESSION_FILE>`、`<COMPANY_FILE>`、`<STAFF_FILE>`、`<IMPORT_DIR>`、`<AREA_FILE>`、`<BACKUP_DIR>`，不记录连接串。2026-10-30 本机合成演练结果：init 0（创建临时库/角色，无口令输出）；staff 0（创建 1 个合成员工）；import 0（导入 1 个合成客户、发布 1 个区域）；backup-grants 0（刷新 19 个 schema 授权）；backup 0（写出 dump）；restore 0（恢复到新库，原库未修改）；renew 0（续期 18 小时）；start 1（本机非 Linux，明确提示需要 Linux systemd）。负责人须在 VPS 复核同一命令表。
+
 负责人提供审核过的真实服务区域文件，只放在服务器的 `/root/.config/routefit/service-areas.geojson`（GeoJSON `FeatureCollection`，单外环 Polygon，坐标顺序为 `[经度,纬度]`）；仓库里的 `service-areas.example.geojson` 仅为合成示例，真实地址或未审核坐标不得放入仓库。由 root/管理员在试运营库执行 `trial:import` 并通过 `ROUTEFIT_TRIAL_AREA_REASON` 传入发布依据，命令会在同一事务中创建并直接发布 ALLOW/DENY 区域，发布主体是 `trial:init` 创建的专用系统 principal；任一区域校验失败会回滚客户与区域全部导入。导入后再用受理页验证区域内、区域外和 DENY 点的结果。
 
 `trial:init` 开始前会预检运行 env、会话文件和备份 env：三个文件都必须不存在，且各自父目录必须事先存在并可写；任一不满足就直接拒绝，不创建数据库或角色。若初始化中途失败，程序先断开试运营库残留连接，再删库、备份角色、运行角色，最后只删除本次新写出的文件；企业配置写入企业 id 后显式收紧为 600，失败时恢复原内容和原权限。清理失败不会被吞掉，错误会列出“仍有残留：角色/库/文件”，值班人员必须按清单处理。可用下列 SQL 检查残留角色：

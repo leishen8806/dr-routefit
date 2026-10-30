@@ -8,7 +8,7 @@ import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs'
 import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
 import {runBackup} from '../scripts/trial-backup.mjs';
 import {runRestore} from '../scripts/trial-restore.mjs';
-import {configureBackupRole} from '../scripts/trial-init.mjs';
+import {buildTrialEnv,configureBackupRole} from '../scripts/trial-init.mjs';
 import {runTrialStaff} from '../scripts/trial-staff.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
@@ -19,6 +19,10 @@ test('trial staff role permissions are least privilege and distinct',()=>{
 test('trial tooling defaults all database targets to routefit_trial',()=>{
  assert.equal(trialDatabaseName({}),'routefit_trial');
  assert.equal(trialDatabaseName({ROUTEFIT_TRIAL_DATABASE:'routefit_custom'}),'routefit_custom');
+});
+test('trial:init writes the non-secret server paths needed by later scripts',()=>{
+ const env=buildTrialEnv({databaseUrl:'postgresql://runtime@127.0.0.1/routefit_trial',sessionFile:'/srv/session.json',source:{ROUTEFIT_TRIAL_DATABASE:'routefit_trial',ROUTEFIT_ADMIN_ENV_FILE:'/root/admin.env',ROUTEFIT_TRIAL_STAFF_FILE:'/root/staff.json',ROUTEFIT_TRIAL_COMPANY_FILE:'/root/company.json',ROUTEFIT_TRIAL_IMPORT_DIRECTORY:'/root/import',ROUTEFIT_TRIAL_SERVICE_AREAS_FILE:'/root/areas.geojson',ROUTEFIT_TRIAL_AREA_REASON:'synthetic',ROUTEFIT_BACKUP_ENV_FILE:'/root/backup.env',ROUTEFIT_BACKUP_DIRECTORY:'/var/backups',ROUTEFIT_PG_BIN:'/opt/pg/bin'}});
+ assert.match(env,/ROUTEFIT_ADMIN_ENV_FILE=\/root\/admin\.env/);assert.match(env,/ROUTEFIT_BACKUP_ENV_FILE=\/root\/backup\.env/);assert.match(env,/ROUTEFIT_TRIAL_SERVICE_AREAS_FILE=\/root\/areas\.geojson/);assert.match(env,/ROUTEFIT_PG_BIN=\/opt\/pg\/bin/);
 });
 test('trial staff uses the configured company id instead of the first active company',async()=>{
  const root=await mkdtemp(join(tmpdir(),'routefit-staff-')),staffFile=join(root,'staff.json'),sessionsFile=join(root,'sessions.json'),companyFile=join(root,'company.json'),adminEnv=join(root,'admin.env');

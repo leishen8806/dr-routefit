@@ -6,6 +6,7 @@ import {developmentAuth,developmentServiceAuth} from './adapters/development-aut
 import {assertRuntimeRole} from './adapters/postgres.mjs';
 import {localBrowser} from './adapters/local-browser.mjs';
 import {fileURLToPath} from 'node:url';
+import {prepareEvidenceDirectory} from './evidence-directory.mjs';
 
 if(process.env.NODE_ENV==='production'||process.env.ROUTEFIT_AUTH_MODE!=='development')throw new Error('Only explicit local development mode is implemented');
 if(!process.env.ROUTEFIT_DATABASE_URL||!process.env.ROUTEFIT_SESSION_FILE)throw new Error('ROUTEFIT_DATABASE_URL and ROUTEFIT_SESSION_FILE are required');
@@ -21,7 +22,7 @@ const pool=new pg.Pool({connectionString:process.env.ROUTEFIT_DATABASE_URL,max:1
 pool.on('error',()=>console.error('Idle database connection failed'));
 await assertRuntimeRole(pool);
 const localAccess=localBrowser({origin,root:fileURLToPath(new URL('../../',import.meta.url)),sessionsFile:process.env.ROUTEFIT_SESSION_FILE,authenticate,pool,trialMode:process.env.ROUTEFIT_TRIAL==='1'});
-const evidenceDirectory=resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY??'.local/evidence');await mkdir(evidenceDirectory,{recursive:true});
+const evidenceDirectory=await prepareEvidenceDirectory({directory:resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY??'.local/evidence'),trial:process.env.ROUTEFIT_TRIAL==='1'});
 const codeSink=process.env.ROUTEFIT_RECIPIENT_CODE_SINK?resolve(process.env.ROUTEFIT_RECIPIENT_CODE_SINK):null;
 const recipientCodeSender=codeSink?async({code,expiresAt})=>{await mkdir(resolve(codeSink,'..'),{recursive:true});await appendFile(codeSink,JSON.stringify({code,expiresAt})+'\n',{encoding:'utf8',mode:0o600});}:undefined;
 const requestRateLimit=Number(process.env.ROUTEFIT_DEV_RATE_LIMIT||120);
