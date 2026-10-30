@@ -28,7 +28,7 @@ const runtimePathVariables=['ROUTEFIT_TRIAL_DATABASE','ROUTEFIT_ADMIN_ENV_FILE',
 export function buildTrialEnv({databaseUrl,sessionFile,source=process.env,port=4180}={}){
  const lines=[`NODE_ENV=development`,`ROUTEFIT_TRIAL=1`,`ROUTEFIT_AUTH_MODE=development`,`ROUTEFIT_DATABASE_URL=${databaseUrl}`,`ROUTEFIT_SESSION_FILE=${sessionFile}`,`ROUTEFIT_PORT=${port}`];
  for(const name of runtimePathVariables)if(source[name])lines.push(`${name}=${source[name]}`);
- return `${lines.join('\\n')}\\n`;
+ return `${lines.join('\n')}\n`;
 }
 
 async function assertPreflightOutput(path,label){
