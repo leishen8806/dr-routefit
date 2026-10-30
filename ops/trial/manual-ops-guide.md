@@ -58,7 +58,7 @@
 
 ### 服务器上的命令表
 
-以下命令均在 `/srv/routefit/services/routefit` 执行；`<NODE24_PATH>` 是服务器上 Node 24 的完整路径。`<ADMIN_ENV>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<COMPANY_FILE>`、`<STAFF_FILE>`、`<IMPORT_DIR>`、`<AREA_FILE>`、`<BACKUP_DIR>`、`<SESSION_FILE>` 是服务器布局占位符，不在仓库或命令行中写入任何值。root-only 文件只允许 root 读取。`trial:init` 先读 `<ADMIN_ENV>`，并按其中的 `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`、`ROUTEFIT_TRIAL_BACKUP_ENV_FILE=<BACKUP_ENV>` 等路径写出运行文件；后续命令再读生成的 `<RUN_ENV>`。
+以下命令均在 `/srv/routefit/services/routefit` 执行；`<NODE24_PATH>` 是服务器上 Node 24 的完整路径。`<ADMIN_ENV>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<COMPANY_FILE>`、`<STAFF_FILE>`、`<IMPORT_DIR>`、`<AREA_FILE>`、`<BACKUP_DIR>`、`<SESSION_FILE>` 是服务器布局占位符，不在仓库或命令行中写入任何值。root-only 文件只允许 root 读取。`trial:init` 先读 `<ADMIN_ENV>`，并按其中的 `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`、`ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>` 等路径写出运行文件；后续命令再读生成的 `<RUN_ENV>`。
 
 | 操作 | 完整命令 | 显式环境变量名 | 身份/文件要求 |
 | --- | --- | --- | --- |

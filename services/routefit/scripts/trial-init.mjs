@@ -24,6 +24,13 @@ export async function configureBackupRole({client,backupRole,migrationRoles=[]})
  return schemas;
 }
 
+const runtimePathVariables=['ROUTEFIT_TRIAL_DATABASE','ROUTEFIT_ADMIN_ENV_FILE','ROUTEFIT_TRIAL_STAFF_FILE','ROUTEFIT_TRIAL_COMPANY_FILE','ROUTEFIT_TRIAL_IMPORT_DIRECTORY','ROUTEFIT_TRIAL_SERVICE_AREAS_FILE','ROUTEFIT_TRIAL_AREA_REASON','ROUTEFIT_BACKUP_ENV_FILE','ROUTEFIT_BACKUP_DIRECTORY','ROUTEFIT_PG_BIN'];
+export function buildTrialEnv({databaseUrl,sessionFile,source=process.env,port=4180}={}){
+ const lines=[`NODE_ENV=development`,`ROUTEFIT_TRIAL=1`,`ROUTEFIT_AUTH_MODE=development`,`ROUTEFIT_DATABASE_URL=${databaseUrl}`,`ROUTEFIT_SESSION_FILE=${sessionFile}`,`ROUTEFIT_PORT=${port}`];
+ for(const name of runtimePathVariables)if(source[name])lines.push(`${name}=${source[name]}`);
+ return `${lines.join('\\n')}\\n`;
+}
+
 async function assertPreflightOutput(path,label){
  try{await access(dirname(path),W_OK);}catch(error){throw Error(`${label} parent directory must already exist and be writable: ${error.message}`);}
  try{await access(path,F_OK);throw Error(`${label} already exists; refusing to overwrite`);}catch(error){if(error?.code!=='ENOENT')throw error;}
@@ -75,7 +82,7 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
   try{const owners=(await backupClient.query("SELECT DISTINCT tableowner AS role FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname <> 'information_schema'")).rows.map(row=>row.role);await configureBackupRole({client:backupClient,backupRole,migrationRoles:owners});}finally{backupClient.release();await grantPool.end();}
   target.username=runtimeRole;target.password=runtimePassword;
   const backupTarget=new URL(adminUrl);backupTarget.pathname='/'+databaseName;backupTarget.username=backupRole;backupTarget.password=backupPassword;
-  filesCreated.push(envFile);await writeFileImpl(envFile,`NODE_ENV=development\nROUTEFIT_TRIAL=1\nROUTEFIT_AUTH_MODE=development\nROUTEFIT_DATABASE_URL=${target.href}\nROUTEFIT_SESSION_FILE=${sessionFile}\nROUTEFIT_PORT=4180\n`,{flag:'wx',mode:0o600});
+  filesCreated.push(envFile);await writeFileImpl(envFile,buildTrialEnv({databaseUrl:target.href,sessionFile,source:process.env}),{flag:'wx',mode:0o600});
   filesCreated.push(sessionFile);await writeFileImpl(sessionFile,'[]\n',{flag:'wx',mode:0o600});
   filesCreated.push(backupEnvFile);await writeFileImpl(backupEnvFile,`ROUTEFIT_PG_BACKUP_URL=${backupTarget.href}\n`,{flag:'wx',mode:0o600});
   return {databaseName,runtimeRole,backupRole,envFile,backupEnvFile,sessionFile,companyId,systemPrincipalId};
