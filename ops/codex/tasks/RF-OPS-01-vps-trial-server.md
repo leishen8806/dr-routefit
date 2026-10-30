@@ -144,6 +144,19 @@
 - 用 root 将 `ops/trial/pg_hba-routefit.example` 中的 `<RUNTIME_ROLE>`、`<BACKUP_ROLE>` 替换为 `trial:init` 输出的随机角色名，插入 `pg_hba.conf` 中泛化允许规则之前；执行 `SELECT pg_reload_conf()`（或等价的 PostgreSQL reload），再核验运行角色和备份角色连接 `postgres` 均被拒绝、连接 `routefit_trial` 均正常。
 - 每次迁移完成后，从 root-only env 文件执行 `npm run trial:backup-grants`，再执行 `npm run trial:backup`；最后做一次备份和恢复演练。
 
+服务器直接运行脚本时统一使用 Node 24 完整路径和 `--env-file`（不使用本地 npm 脚本的 `.local/dev.env` 默认值）：
+
+| 操作 | 完整命令 | 显式环境变量名 | root 要求 |
+| --- | --- | --- | --- |
+| 初始化 | `sudo <NODE24_PATH> --env-file=/etc/routefit/routefit.env scripts/trial-init.mjs` | `ROUTEFIT_PG_ADMIN_URL`, `ROUTEFIT_TRIAL_DATABASE`, `ROUTEFIT_TRIAL_ENV_FILE`, `ROUTEFIT_TRIAL_COMPANY_FILE`, `ROUTEFIT_TRIAL_SESSION_FILE`, `ROUTEFIT_BACKUP_ENV_FILE` | 必须 root；admin.env 仅 root |
+| 员工 | `sudo <NODE24_PATH> --env-file=/etc/routefit/routefit.env scripts/trial-staff.mjs` | `ROUTEFIT_TRIAL_STAFF_FILE`, `ROUTEFIT_TRIAL_COMPANY_FILE`, `ROUTEFIT_ADMIN_ENV_FILE`, `ROUTEFIT_TRIAL_SESSION_FILE` | 必须 root；admin.env 仅 root |
+| 导入 | `sudo <NODE24_PATH> --env-file=/etc/routefit/routefit.env scripts/trial-import.mjs` | `ROUTEFIT_ADMIN_ENV_FILE`, `ROUTEFIT_TRIAL_COMPANY_FILE`, `ROUTEFIT_TRIAL_SERVICE_AREAS_FILE`, `ROUTEFIT_TRIAL_AREA_REASON`, `ROUTEFIT_TRIAL_IMPORT_DIRECTORY` | 必须 root；admin.env 仅 root；真实区域文件仅服务器 |
+| 备份 | `sudo <NODE24_PATH> --env-file=/etc/routefit/routefit.env scripts/trial-backup.mjs` | `ROUTEFIT_BACKUP_ENV_FILE`, `ROUTEFIT_BACKUP_DIRECTORY`, `ROUTEFIT_PG_BIN` | 必须 root；backup.env 仅 root |
+| 备份授权 | `sudo <NODE24_PATH> --env-file=/etc/routefit/routefit.env scripts/trial-backup-grants.mjs` | `ROUTEFIT_ADMIN_ENV_FILE`, `ROUTEFIT_BACKUP_ENV_FILE`, `ROUTEFIT_TRIAL_DATABASE` | root；admin.env、backup.env |
+| 恢复 | `sudo <NODE24_PATH> --env-file=/etc/routefit/routefit.env scripts/trial-restore.mjs <BACKUP_FILE> <NEW_DATABASE>` | `ROUTEFIT_PG_ADMIN_URL`, `ROUTEFIT_PG_BIN` | root；admin.env |
+| 续期 | `sudo <NODE24_PATH> --env-file=/etc/routefit/routefit.env scripts/trial-renew.mjs` | `ROUTEFIT_TRIAL_SESSION_FILE` | 必须 root；会话文件随后归 routefit 服务用户 |
+| 启动检查 | `sudo <NODE24_PATH> --env-file=/etc/routefit/routefit.env scripts/trial-start.mjs` | `ROUTEFIT_DATABASE_URL`, `ROUTEFIT_SESSION_FILE`, `ROUTEFIT_BACKUP_DIRECTORY` | root；systemd 实际启动服务 |
+
 ## 不做
 
 - 除 `<SSH端口>` 外不开放任何端口（负责人另有决定的既有服务除外），不配置域名、HTTPS、反向代理。

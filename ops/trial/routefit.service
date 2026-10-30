@@ -9,6 +9,7 @@ User=routefit
 Group=routefit
 EnvironmentFile=/etc/routefit/routefit.env
 Environment=ROUTEFIT_SESSION_FILE=/var/lib/routefit/sessions.json
+Environment=ROUTEFIT_EVIDENCE_DIRECTORY=/var/lib/routefit/evidence
 WorkingDirectory=/srv/routefit/services/routefit
 # <NODE24_PATH> must be the absolute path to a Node 24 executable; RF-OPS-01 replaces this at deployment.
 ExecStart=<NODE24_PATH> main.mjs
