@@ -4,9 +4,9 @@
 | --- | --- |
 | 类型 / 风险 | fix / 高（部署关键路径） |
 | 基线 SHA | `origin/develop` at claim |
-| 分支 / PR | `fix/RF-PM-038-R5-deploy-gaps` / draft |
-| 依赖 | RF-PM-038-R4 |
-| 状态 | IN_REVIEW |
+| 分支 / PR | `fix/RF-PM-038-R5-deploy-gaps` / #76 |
+| 依赖 | RF-PM-038-R4（#74） |
+| 状态 | 已合并（PR #76 → `fc7121e`，2026-10-30 13:34）；命令表待 VPS 从干净状态复核 |
 
 ## 范围
 
@@ -18,9 +18,21 @@
 ## 验收证据
 
 - 证据目录单元测试：PASS（目录 0700；不可写时含 `ROUTEFIT_EVIDENCE_DIRECTORY` 与路径）。
-- CI 五项：待 PR 运行。
+- CI 五项：SUCCESS。
 - Linux systemd 限制启动：NOT_RUN（当前环境无 VPS/systemd；负责人按 RF-OPS-01 复核）。
 
 ## 审查记录
 
-待 Claude 审查最终 head；按要求保持 Draft，不合并。
+### 2026-10-30 · claude-bridge 审查
+
+`c457df2`、`be3b0f0`、`500610c` 三轮 CHANGES_REQUESTED（命令表与 R4 预检矛盾、变量来源、`<RUN_ENV>` 缺后续脚本所需变量、`<ADMIN_ENV>` 须含 7 个变量的说明），13:00 在 `6c0527f` APPROVED。
+
+### 2026-10-30 13:25 · 负责人侧 Claude 审查：APPROVED（`6c0527f`）
+
+- 证据目录：service 显式设置并在启动时收紧为 700，写探针确认可写；试运营模式不可写时报出变量名与路径并非 0 退出，有测试。
+- 服务器命令表：Node 24 完整路径加 `--env-file` 直接调用 `scripts/*.mjs`，不改 npm 脚本本地用法。
+- `trial:init` 把非秘密路径和参数写进新生成的 `<RUN_ENV>`，不复制连接串，有单元测试。
+- 待验证：命令表需在 VPS 上从干净状态逐字执行 `init → start`，确认无需手工补配置。
+- 建议（不阻断，并入 RF-PM-044）：`buildTrialEnv` 拒绝含换行的值；`ROUTEFIT_TRIAL_AREA_REASON` 避免引号和 `#`。
+
+合并：13:34 由 leishen8806 合并，合并 head 即批准的 `6c0527f`，合并内容与重新合并一致，develop CI 通过。
