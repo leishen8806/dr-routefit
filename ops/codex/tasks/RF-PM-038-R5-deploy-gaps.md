@@ -6,7 +6,7 @@
 | 基线 SHA | `origin/develop` at claim |
 | 分支 / PR | `fix/RF-PM-038-R5-deploy-gaps` / #76 |
 | 依赖 | RF-PM-038-R4（#74） |
-| 状态 | 已合并（PR #76 → `fc7121e`，2026-10-30 13:34）；命令表待 VPS 从干净状态复核 |
+| 状态 | 已合并（PR #76 → `fc7121e`，2026-10-30 13:34）；10-30 VPS 从干净状态验证 PASS |
 
 ## 范围
 
@@ -19,13 +19,13 @@
 
 - 证据目录单元测试：PASS（目录 0700；不可写时含 `ROUTEFIT_EVIDENCE_DIRECTORY` 与路径）。
 - CI 五项：SUCCESS。
-- Linux systemd 限制启动：NOT_RUN（当前环境无 VPS/systemd；负责人按 RF-OPS-01 复核）。
+- Linux systemd 限制启动：PR 时 NOT_RUN；2026-10-30 负责人在 VPS 上按命令表从干净状态验证 PASS（见 RF-OPS-01 审查记录）。
 
 ## 审查记录
 
 ### 2026-10-30 · claude-bridge 审查
 
-`c457df2`、`be3b0f0`、`500610c` 三轮 CHANGES_REQUESTED（命令表与 R4 预检矛盾、变量来源、`<RUN_ENV>` 缺后续脚本所需变量、`<ADMIN_ENV>` 须含 7 个变量的说明），13:00 在 `6c0527f` APPROVED。
+`c457df2`、`be3b0f0`、`500610c` 三轮 CHANGES_REQUESTED（命令表与 R4 预检矛盾、变量来源、`<RUN_ENV>` 缺后续脚本所需变量、`<ADMIN_ENV>` 须含 7 个变量的说明），12:55 在 `6c0527f` APPROVED（13:00 发到 PR 评论区）。
 
 ### 2026-10-30 13:25 · 负责人侧 Claude 审查：APPROVED（`6c0527f`）
 

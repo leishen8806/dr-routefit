@@ -13,7 +13,7 @@
 | 服务器 | 负责人提供的 Linux VPS。**真实地址不写进本仓库**，文中用 `<VPS>` 代替 |
 | 依赖 | 第 1–6 步无依赖；第 7 步依赖 RF-PM-038 合并；第 8 步依赖 v0.3.0 打标签 |
 | 需人类批准 | **是**：每一步改动服务器前，由项目负责人在场确认 |
-| 状态 | TODO |
+| 状态 | 第 1–7 步通过（第 7 步 2026-10-30 R5 从干净状态验证 PASS）；第 8 步待 11-01 正式部署 |
 
 ## 背景
 
@@ -142,7 +142,22 @@
 - `trial:init` 建 `routefit_trial` 库，用真实员工名单执行 `trial:staff`。员工名单只存在服务器上，不进仓库。
 - 为每位员工建 `rf-tunnel` 组账号，配置其公钥。员工的私钥由员工自己生成，不经过任何人转交。
 - 用 root 将 `ops/trial/pg_hba-routefit.example` 中的 `<RUNTIME_ROLE>`、`<BACKUP_ROLE>` 替换为 `trial:init` 输出的随机角色名，插入 `pg_hba.conf` 中泛化允许规则之前；执行 `SELECT pg_reload_conf()`（或等价的 PostgreSQL reload），再核验运行角色和备份角色连接 `postgres` 均被拒绝、连接 `routefit_trial` 均正常。
-- 每次迁移完成后，从 root-only env 文件执行 `npm run trial:backup-grants`，再执行 `npm run trial:backup`；最后做一次备份和恢复演练。
+- 每次迁移完成后，按下方命令表先执行 `trial-backup-grants.mjs`，再执行 `trial-backup.mjs`（服务器上不用 `npm run`）；最后做一次备份和恢复演练。
+
+**部署前准备清单（2026-10-30 演练后补充）：**
+
+1. **数据库日志：** `SHOW log_statement` 不能是 `ddl` 或 `all`。`trial:init` 建角色的语句里带明文口令，记录 DDL 会把口令写进服务器日志。
+2. **管理连接：** 专用管理角色为 `LOGIN SUPERUSER`（创建带 `BYPASSRLS` 的备份角色需要超级用户），`pg_hba` 只允许它从 `127.0.0.1/32`、`::1/128` 以 `scram-sha-256` 连接 `postgres` 和 `routefit_trial`；`<ADMIN_ENV>` 为 `root:root 600`。部署完成后可改为 `NOLOGIN`，维护时再临时打开。
+3. **父目录：** R4 起 `trial:init` 不再自动建目录。`/etc/routefit`、`/var/lib/routefit`、`/root/.config/routefit` 须事先存在且可写；备份目录为 `root:rf-admin 2750`。
+4. **`<ADMIN_ENV>` 在 `trial:init` 前须包含的全部变量（共 12 个，另加连接串）：**
+   - 连接串（秘密）：`ROUTEFIT_PG_ADMIN_URL`；
+   - 初始化输出位置：`ROUTEFIT_TRIAL_DATABASE`、`ROUTEFIT_TRIAL_ENV_FILE`、`ROUTEFIT_TRIAL_SESSION_FILE`、`ROUTEFIT_BACKUP_ENV_FILE`、`ROUTEFIT_TRIAL_COMPANY_FILE`；
+   - 复制进 `<RUN_ENV>` 的非秘密路径和参数：`ROUTEFIT_ADMIN_ENV_FILE`、`ROUTEFIT_TRIAL_STAFF_FILE`、`ROUTEFIT_TRIAL_IMPORT_DIRECTORY`、`ROUTEFIT_TRIAL_SERVICE_AREAS_FILE`、`ROUTEFIT_TRIAL_AREA_REASON`、`ROUTEFIT_BACKUP_DIRECTORY`、`ROUTEFIT_PG_BIN`。
+5. **模板占位符替换：** 安装下列模板时，只替换占位符，其余内容逐字不变；安装后检查已安装文件里不再含 `<…>` 占位符。
+   - `ops/trial/routefit.service`：`<NODE24_PATH>`。安装后 `daemon-reload`，用 `systemctl cat routefit` 核对生效的 `ExecStart`，并确认没有遗留的 drop-in；
+   - `ops/trial/routefit-tunnel-link.example`、`ops/trial/routefit-sudoers.conf.example`、`ops/trial/sshd_config-match.example`：`<NODE24_PATH>` 及文件内其他占位符；
+   - `ops/trial/pg_hba-routefit.example`：`<RUNTIME_ROLE>`、`<BACKUP_ROLE>`（`trial:init` 输出后替换，见上文）。
+6. **备份属主：** 备份由 root 执行，文件和校验文件为 `root:rf-admin 640`。
 
 服务器直接运行脚本时统一使用 Node 24 完整路径和 `--env-file`（不使用本地 npm 脚本的 `.local/dev.env` 默认值）。`<ADMIN_ENV>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<COMPANY_FILE>`、`<STAFF_FILE>`、`<IMPORT_DIR>`、`<AREA_FILE>`、`<BACKUP_DIR>`、`<SESSION_FILE>` 均为服务器布局占位符；`trial:init` 只读 root-only `<ADMIN_ENV>` 并按其中的 `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`、`ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>` 路径写出新文件，不能把尚不存在的 `<RUN_ENV>` 作为 `--env-file`。
 
@@ -238,3 +253,26 @@
 - 宿主机 PostgreSQL 实例中只有 `postgres`、`template1` 两个系统库，没有任何业务库。
 - 两个既有容器都没有在环境变量里声明连接这个实例。按授权范围，未读取它们的挂载配置文件，所以不能完全排除它们在使用这个实例。
 - 结论：RouteFit 的运行角色和备份角色按 [RF-PM-038-R3](RF-PM-038-R3-db-access-scope.md) 在 `pg_hba` 层限定为只能连 `routefit_trial`。这样即使以后有其他库放进这个实例，这两个角色也读不到，项目负责人不需要另外接受“备份账号可读其他业务数据”的风险。
+
+### 2026-10-29 · 第 7 步重新演练 · FAIL（在 `trial:init` 处终止）
+
+- 管理连接文件缺失，原指定的管理角色不存在，原因未能查明；新建本机专用管理角色 `routefit_admin`，`pg_hba` 只新增规则，不改原有规则。
+- 预检漏掉了 10-28 演练手工建的 `/etc/routefit/routefit.env` 和 `sessions.json`，`trial:init` 拒绝覆盖（这一行为正确）。
+- 但失败回滚先删角色、后删库，备份角色删除失败且错误被吞掉，遗留一个能登录、带 `BYPASSRLS` 的备份角色。转 [RF-PM-038-R4](RF-PM-038-R4-init-atomic.md)（#74）修复。遗留资源已清理。
+
+### 2026-10-30 · 第 7 步重新演练（基线含 R4）· 第 0–8 步 PASS，第 9 步部分完成
+
+- 第 0–8 步通过：初始化、临时 `pg_hba` 规则（两个角色连 `postgres` 被拒、连 `routefit_trial` 正常）、合成员工、区域导入、服务启动、隧道登录（一次性链接复用返回 401、演示页 404、只能转发 4180、5432 被拒、不能进入命令行）、区域内订单提交受理、区域外订单被拦截、会话续期。
+- 发现三处部署链路缺口，转 [RF-PM-038-R5](RF-PM-038-R5-deploy-gaps.md)（#76）修复：证据目录默认在只读代码目录下，服务无法启动；服务器上 `npm` 回落到系统 Node 18；`trial:*` npm 脚本把 env 写死为 `.local/dev.env`。
+- 第 7 步首次返回 422，原因是操作时未填写必填的受理依据字段，服务端校验正确拦截，不属于缺陷。
+- 第 9 步：负责人决定备份由 root 执行（见本卡上方 10-28 记录中的更正），服务器端备份与站外拉取完成，三方哈希一致；恢复和篡改拒绝转到下面的 R5 验证中执行。
+
+### 2026-10-30 · R5 从干净状态验证 · PASS（第 7 步完整通过）
+
+- 基线 develop `fc7121e`（含 R4、R5）；PostgreSQL 16.15；全部按运维说明里的服务器命令表，用 Node 24 完整路径加 `--env-file` 直接调用脚本。
+- `init`、`staff`、`import`、`backup-grants`、`backup`、`restore`、`renew` 退出码均为 0；恢复库与原库核心表行数一致，备份 SHA-256 通过，备份文件为 `root:rf-admin 640`。
+- 服务首次启动失败（203），原因是安装服务单元时没有替换 `<NODE24_PATH>`，属于部署步骤遗漏，不是实现缺陷；已补进第 8 步“部署前准备清单”第 5 条。替换后服务正常启动，证据目录自动建为 700，运行 env 里没有手工追加的项，`trial:start` 通过。
+- 合成员工经隧道登录，录入区域内订单并提交受理，进入“核验中”。
+- 补充检查：篡改过的备份被校验和拒绝，未创建目标库；R4 失败回滚在连接数据库前退出，没有遗留库或角色。
+- 收尾：合成库、角色、输出文件、合成输入、合成备份、临时隧道账号和本机临时密钥均已删除；服务为 inactive、disabled；备份目录为空，仍为 `root:rf-admin 2750`。保留管理角色、其 `pg_hba` 规则、`<ADMIN_ENV>` 和已渲染的服务模板。
+- 全程没有手工改库、补业务数据或放宽校验。
