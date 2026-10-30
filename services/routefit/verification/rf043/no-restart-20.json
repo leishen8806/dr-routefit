@@ -1,0 +1,12 @@
+{
+  "task": "RF-PM-043",
+  "phase": "fixed branch no-restart acceptance",
+  "head": "working tree before rework commit",
+  "serviceRestarts": 1,
+  "runs": 20,
+  "passes": 20,
+  "failures": 0,
+  "failureRate": 0,
+  "rateLimitConfig": "ROUTEFIT_DEV_RATE_LIMIT=1000 (explicit local acceptance configuration; default remains 120)",
+  "evidence": "/tmp/rf043-post-fixfresh2b-1793328796/runs.log"
+}

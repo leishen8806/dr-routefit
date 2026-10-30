@@ -24,6 +24,8 @@ const localAccess=localBrowser({origin,root:fileURLToPath(new URL('../../',impor
 const evidenceDirectory=resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY??'.local/evidence');await mkdir(evidenceDirectory,{recursive:true});
 const codeSink=process.env.ROUTEFIT_RECIPIENT_CODE_SINK?resolve(process.env.ROUTEFIT_RECIPIENT_CODE_SINK):null;
 const recipientCodeSender=codeSink?async({code,expiresAt})=>{await mkdir(resolve(codeSink,'..'),{recursive:true});await appendFile(codeSink,JSON.stringify({code,expiresAt})+'\n',{encoding:'utf8',mode:0o600});}:undefined;
-const server=apiServer({pool,authenticate,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,log:entry=>console.log(JSON.stringify(entry))});
+const requestRateLimit=Number(process.env.ROUTEFIT_DEV_RATE_LIMIT||120);
+if(!Number.isInteger(requestRateLimit)||requestRateLimit<1)throw new Error('Invalid ROUTEFIT_DEV_RATE_LIMIT');
+const server=apiServer({pool,authenticate,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,requestRateLimit,log:entry=>console.log(JSON.stringify(entry))});
 server.listen(port,'127.0.0.1',()=>console.log(`RouteFit local pricing API: http://127.0.0.1:${port}`));
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>server.close(()=>pool.end()));
