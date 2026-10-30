@@ -1,5 +1,5 @@
 import {randomBytes,randomUUID} from 'node:crypto';
-import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {access,mkdir,readFile,unlink,writeFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import pg from 'pg';
@@ -22,12 +22,43 @@ export async function configureBackupRole({client,backupRole,migrationRoles=[]})
  return schemas;
 }
 
-export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,databaseName=process.env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial',envFile=process.env.ROUTEFIT_TRIAL_ENV_FILE||fileURLToPath(new URL('../.local/dev.env',import.meta.url)),companyFile=process.env.ROUTEFIT_TRIAL_COMPANY_FILE||fileURLToPath(new URL('../.local/trial-company.json',import.meta.url)),sessionFile=process.env.ROUTEFIT_TRIAL_SESSION_FILE||'/var/lib/routefit/sessions.json',backupEnvFile=process.env.ROUTEFIT_BACKUP_ENV_FILE||fileURLToPath(new URL('../.local/backup.env',import.meta.url)),Pool=pg.Pool}={}){
+async function assertPreflightFile(path,label,{emptySession=false}={}){
+ try{
+  const content=await readFile(path,'utf8');
+  if(emptySession){
+   let parsed;try{parsed=JSON.parse(content);}catch{throw Error(`${label} already exists and is not an empty JSON session file`);}
+   if(Array.isArray(parsed)&&parsed.length===0)return;
+  }
+  throw Error(`${label} already exists; refusing to overwrite`);
+ }catch(error){
+  if(error?.code==='ENOENT')return;
+  throw error;
+ }
+}
+
+async function cleanupTrialInit({admin,databaseName,created,runtimeRole,roleCreated,backupRole,backupRoleCreated,filesCreated}){
+ const failures=[];
+ const attempt=async(label,action)=>{try{await action();}catch(error){failures.push(`${label} (${error.message})`);}};
+ if(created){
+  await attempt(`数据库 ${databaseName} 的残留连接`,()=>admin.query('SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=$1 AND pid<>pg_backend_pid()',[databaseName]));
+  await attempt(`数据库 ${databaseName}`,()=>admin.query(`DROP DATABASE IF EXISTS ${quoteIdentifier(databaseName)}`));
+ }
+ if(backupRoleCreated)await attempt(`角色 ${backupRole}`,()=>admin.query(`DROP ROLE IF EXISTS ${quoteIdentifier(backupRole)}`));
+ if(roleCreated)await attempt(`角色 ${runtimeRole}`,()=>admin.query(`DROP ROLE IF EXISTS ${quoteIdentifier(runtimeRole)}`));
+ for(const file of [...filesCreated].reverse())await attempt(`文件 ${file}`,async()=>{try{await unlink(file);}catch(error){if(error?.code!=='ENOENT')throw error;}});
+ return failures;
+}
+
+export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,databaseName=process.env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial',envFile=process.env.ROUTEFIT_TRIAL_ENV_FILE||fileURLToPath(new URL('../.local/dev.env',import.meta.url)),companyFile=process.env.ROUTEFIT_TRIAL_COMPANY_FILE||fileURLToPath(new URL('../.local/trial-company.json',import.meta.url)),sessionFile=process.env.ROUTEFIT_TRIAL_SESSION_FILE||'/var/lib/routefit/sessions.json',backupEnvFile=process.env.ROUTEFIT_BACKUP_ENV_FILE||fileURLToPath(new URL('../.local/backup.env',import.meta.url)),Pool=pg.Pool,writeFileImpl=writeFile}={}){
  if(!adminUrl)throw Error('ROUTEFIT_PG_ADMIN_URL is required');
+ await assertPreflightFile(envFile,'ROUTEFIT_TRIAL_ENV_FILE');
+ await assertPreflightFile(backupEnvFile,'ROUTEFIT_BACKUP_ENV_FILE');
+ let sessionExisted=true;try{await access(sessionFile);}catch(error){if(error?.code==='ENOENT')sessionExisted=false;else throw error;}
+ if(sessionExisted)await assertPreflightFile(sessionFile,'ROUTEFIT_TRIAL_SESSION_FILE',{emptySession:true});
  const base=new URL(adminUrl);if(!['127.0.0.1','localhost','[::1]'].includes(base.hostname))throw Error('admin URL must be local');
  const company=JSON.parse(await readFile(companyFile,'utf8'));if(!company.name)throw Error('trial company name is required');
  const runtimeRole=`rf_trial_${randomBytes(8).toString('hex')}`,runtimePassword=randomBytes(32).toString('hex'),backupRole=`rf_backup_${randomBytes(8).toString('hex')}`,backupPassword=randomBytes(32).toString('hex');
- const admin=new Pool({connectionString:adminUrl});let created=false,roleCreated=false,backupRoleCreated=false,companyId,systemPrincipalId;
+ const admin=new Pool({connectionString:adminUrl});let created=false,roleCreated=false,backupRoleCreated=false,companyId,systemPrincipalId;const filesCreated=[];
  try{
   const exists=await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[databaseName]);if(exists.rowCount)throw Error(`${databaseName} already exists; refusing to overwrite`);
   await admin.query(`CREATE DATABASE ${quoteIdentifier(databaseName)}`);created=true;
@@ -52,11 +83,11 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
   try{const owners=(await backupClient.query("SELECT DISTINCT tableowner AS role FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname <> 'information_schema'")).rows.map(row=>row.role);await configureBackupRole({client:backupClient,backupRole,migrationRoles:owners});}finally{backupClient.release();await grantPool.end();}
   target.username=runtimeRole;target.password=runtimePassword;
   const backupTarget=new URL(adminUrl);backupTarget.pathname='/'+databaseName;backupTarget.username=backupRole;backupTarget.password=backupPassword;
-  await mkdir(dirname(envFile),{recursive:true});await writeFile(envFile,`NODE_ENV=development\nROUTEFIT_TRIAL=1\nROUTEFIT_AUTH_MODE=development\nROUTEFIT_DATABASE_URL=${target.href}\nROUTEFIT_SESSION_FILE=${sessionFile}\nROUTEFIT_PORT=4180\n`,{flag:'wx',mode:0o600});
-  await mkdir(dirname(sessionFile),{recursive:true});await writeFile(sessionFile,'[]\n',{flag:'wx',mode:0o600});
-  await mkdir(dirname(backupEnvFile),{recursive:true});await writeFile(backupEnvFile,`ROUTEFIT_PG_BACKUP_URL=${backupTarget.href}\n`,{flag:'wx',mode:0o600});
+  await mkdir(dirname(envFile),{recursive:true});await writeFileImpl(envFile,`NODE_ENV=development\nROUTEFIT_TRIAL=1\nROUTEFIT_AUTH_MODE=development\nROUTEFIT_DATABASE_URL=${target.href}\nROUTEFIT_SESSION_FILE=${sessionFile}\nROUTEFIT_PORT=4180\n`,{flag:'wx',mode:0o600});filesCreated.push(envFile);
+  if(!sessionExisted){await mkdir(dirname(sessionFile),{recursive:true});await writeFileImpl(sessionFile,'[]\n',{flag:'wx',mode:0o600});filesCreated.push(sessionFile);}
+  await mkdir(dirname(backupEnvFile),{recursive:true});await writeFileImpl(backupEnvFile,`ROUTEFIT_PG_BACKUP_URL=${backupTarget.href}\n`,{flag:'wx',mode:0o600});filesCreated.push(backupEnvFile);
   return {databaseName,runtimeRole,backupRole,envFile,backupEnvFile,sessionFile,companyId,systemPrincipalId};
- }catch(error){if(backupRoleCreated)await admin.query(`DROP ROLE IF EXISTS ${quoteIdentifier(backupRole)}`).catch(()=>{});if(roleCreated)await admin.query(`DROP ROLE IF EXISTS ${quoteIdentifier(runtimeRole)}`).catch(()=>{});if(created)await admin.query(`DROP DATABASE IF EXISTS ${quoteIdentifier(databaseName)}`).catch(()=>{});throw error;}finally{await admin.end();}
+ }catch(error){const failures=await cleanupTrialInit({admin,databaseName,created,runtimeRole,roleCreated,backupRole,backupRoleCreated,filesCreated});if(failures.length)error.message=`${error.message}; 未能清理：${failures.join('；')}`;throw error;}finally{await admin.end();}
 }
 
 if(process.argv[1]===fileURLToPath(import.meta.url)){

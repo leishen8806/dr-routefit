@@ -57,3 +57,10 @@
 ## 8. 服务区域导入
 
 负责人提供审核过的真实服务区域文件，只放在服务器的 `/root/.config/routefit/service-areas.geojson`（GeoJSON `FeatureCollection`，单外环 Polygon，坐标顺序为 `[经度,纬度]`）；仓库里的 `service-areas.example.geojson` 仅为合成示例，真实地址或未审核坐标不得放入仓库。由 root/管理员在试运营库执行 `trial:import` 并通过 `ROUTEFIT_TRIAL_AREA_REASON` 传入发布依据，命令会在同一事务中创建并直接发布 ALLOW/DENY 区域，发布主体是 `trial:init` 创建的专用系统 principal；任一区域校验失败会回滚客户与区域全部导入。导入后再用受理页验证区域内、区域外和 DENY 点的结果。
+
+`trial:init` 开始前会预检运行 env、备份 env 和会话文件：前两个文件必须不存在；已有会话文件只有内容为 JSON 空数组 `[]` 时才复用，其他内容直接拒绝且不创建数据库或角色。若初始化中途失败，程序先断开试运营库残留连接，再删库、备份角色、运行角色，最后只删除本次新写出的文件；企业配置中回写的企业 id 不回滚，以保留明确的企业身份。清理失败不会被吞掉，错误会列出“未能清理：角色/库/文件”，值班人员必须按清单处理。可用下列 SQL 检查残留角色：
+
+```sql
+SELECT rolname FROM pg_roles
+WHERE rolname LIKE 'rf_trial_%' OR rolname LIKE 'rf_backup_%';
+```
