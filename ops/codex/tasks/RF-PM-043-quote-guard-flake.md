@@ -1,6 +1,6 @@
 # RF-PM-043 · 报价脚本“未发布策略守卫”间歇性超时
 
-状态：IN_REVIEW · 分支：`fix/RF-PM-043-quote-guard-flake` · PR：[PR #75](https://github.com/leishen8806/dr-routefit/pull/75) · head `4fa81f793cc02f1f86b07c89c15c600d497dd72d`
+状态：已合并（PR [#75](https://github.com/leishen8806/dr-routefit/pull/75) → `faa6a2c`，2026-10-30 11:33）· 分支：`fix/RF-PM-043-quote-guard-flake` · 批准 head `bee9c87`
 
 ## 交付范围
 
@@ -18,4 +18,13 @@
 
 ## 审查记录
 
-待 Claude 审查固定提交 SHA；PR 保持 Draft，未经合并指令不得合并。
+### 2026-10-30 · 负责人侧 Claude 审查
+
+- 09:43 `ad68e87`：CHANGES_REQUESTED。`orders.mjs` 删了 `policyPrecheckFailure` 的 import 但仍在使用，列表读取失败会让页面报错；403/404 改为阻断，与 RF-PM-037 第 3 项冲突；缺修复前复现数据。
+- 10:15 `559c750`：CHANGES_REQUESTED。根因已查清：修复前同一服务进程连跑 20 次失败 17 次，探针 130 次请求中 10 次返回 429，是每主体每分钟 120 次的固定窗口限流。但上一轮两项未处理，修复后的 20/20 是在 `ROUTEFIT_DEV_RATE_LIMIT=1000` 下得到的。
+- 10:50 `8177f32`：三项均已改好（import 补回、403/404 恢复 RF-PM-037 行为、验收结论限定在 `ROUTEFIT_DEV_RATE_LIMIT=1000`），代码可批准；当时与 develop 冲突，CI 未运行。
+- `bee9c87`：同步 develop、解决看板冲突，除看板外与 `8177f32` 逐字一致；CI 五项 SUCCESS。负责人与 leishen8806 批准后，11:33 合并，合并 head 即批准的 `bee9c87`。
+
+claude-bridge 曾在 `559c750` 上给出 APPROVED 并发出合并指令，未看到负责人审查，之后撤回。
+
+后续：RF-QA-02 第 7 步报价脚本按 `ROUTEFIT_DEV_RATE_LIMIT=1000` 重跑 3 次，结果补入复验报告。
