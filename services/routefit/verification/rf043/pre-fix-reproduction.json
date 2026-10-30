@@ -1,0 +1,21 @@
+{
+  "task": "RF-PM-043",
+  "phase": "pre-fix develop baseline",
+  "baseline": "develop@5db5849",
+  "serviceRestarts": 1,
+  "runs": 20,
+  "passes": 3,
+  "failures": 17,
+  "failureRate": 0.85,
+  "rootCause": "fixed-window per-principal request limiter (120 requests / 60 seconds)",
+  "failedRequests": {
+    "429": "Repeated runs exhausted the principal limiter; failures surfaced RATE_LIMITED before quote setup."
+  },
+  "policyReadProbe": {
+    "principal": "synthetic reviewer actor",
+    "requests": 130,
+    "statusCounts": {"200": 120, "429": 10},
+    "retryAfter": "1"
+  },
+  "evidence": "/tmp/rf043-pre-fix-1793328469/runs.log"
+}

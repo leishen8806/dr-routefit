@@ -41,6 +41,7 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-033-R1](tasks/RF-PM-033-R1-acceptance-checks.md) | P01 验收脚本与报价确认不变量补强（大旺＋Codex） | test+fix | 中 | 033 | 已合并（PR #69 → `e083202`）· 审查 APPROVED（`604815c`） |
 | RF-PM-041 | v0.3.0 发布说明与发布 PR（Claude） | docs | 低 | — | 发布说明初稿已合并（PR #64，未经审查），修订见 #70；发布 PR 待“发布前必须解决”关闭（未建卡，编号已占用） |
 | [RF-PM-042](tasks/RF-PM-042-test-windows-path.md) | local-browser 测试 Windows 根目录路径修复 | test | 低 | 无 | 已合并（PR #72 → `5db5849`）· 审查 APPROVED（`c2a1314`，Windows 实测 128/128） |
+| [RF-PM-043](tasks/RF-PM-043-quote-guard-flake.md) | 报价脚本未发布策略守卫间歇性超时 | fix | 中 | 无 | IN_REVIEW |
 | RF-PM-030、034、036 | 未建卡即提交的 PR：费用草稿选择区与测试库隔离（#49）、已发布策略列表接口（#55）、报价策略防护与费用页 S1 标注（#52） | — | — | — | 审查中 |
 | [RF-PM-037](tasks/RF-PM-037-p01-trial-readiness.md) | P01 试运营就绪：订单页 S1 与重放回归、报价策略选择（大旺＋Codex） | fix | 中 | 030、033、034、036 | TODO |
 | [RF-PM-038](tasks/RF-PM-038-single-machine-trial-tooling.md) | 受控试运营工具：身份续期、员工身份、主数据、备份与 VPS 登录辅助（大旺＋Codex，需人类批准） | chore | 高 | 无 | TODO（10-28 补第 7–9 项） |

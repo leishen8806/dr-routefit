@@ -1,0 +1,61 @@
+{
+  "task": "RF-PM-043",
+  "runId": "20261030022206",
+  "testDatabase": "127.0.0.1:5432/routefit_local_c55a1daf718e6132",
+  "checks": [
+    "published policy available",
+    "unpublished policy shows reason and disables generate",
+    "published policy list is available",
+    "generate quote displays issued detail",
+    "replayed quote request returns original result",
+    "page re-GETs quote and renders server result after replay",
+    "confirmation time is required in page",
+    "expired quote cannot confirm through page",
+    "superseded quote reports unusable state",
+    "superseded quote cannot confirm through page",
+    "customer confirmation records confirmed quote"
+  ],
+  "requestDiagnostics": [
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:4180/api/ops/v1/pricing/policy-versions?serviceLevel=S2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:4180/api/ops/v1/pricing/policy-versions/d7e7ae1b-a65f-4b38-9ae0-90e2cc11d3b1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:4180/api/ops/v1/pricing/policy-versions/9b4c73ac-f48d-43af-a890-f0536fb5f38a",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:4180/api/ops/v1/orders/5b2627f7-61b5-4638-82ea-5726b2d3501c/quotes",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:4180/api/ops/v1/orders/73674987-1dbf-42ce-b5a0-ef0c986bd7d6/quotes",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:4180/api/ops/v1/orders/73674987-1dbf-42ce-b5a0-ef0c986bd7d6/quotes",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:4180/api/ops/v1/pricing/policy-versions?serviceLevel=S2",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:4180/api/ops/v1/orders/5b2627f7-61b5-4638-82ea-5726b2d3501c/quotes",
+      "status": 201
+    }
+  ],
+  "allPass": true
+}
