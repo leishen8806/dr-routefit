@@ -60,6 +60,8 @@
 
 以下命令均在 `/srv/routefit/services/routefit` 执行；`<NODE24_PATH>` 是服务器上 Node 24 的完整路径。`<ADMIN_ENV>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<COMPANY_FILE>`、`<STAFF_FILE>`、`<IMPORT_DIR>`、`<AREA_FILE>`、`<BACKUP_DIR>`、`<SESSION_FILE>` 是服务器布局占位符，不在仓库或命令行中写入任何值。root-only 文件只允许 root 读取。`trial:init` 先读 `<ADMIN_ENV>`，并按其中的 `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`、`ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>` 等路径写出运行文件；后续命令再读生成的 `<RUN_ENV>`。
 
+`<ADMIN_ENV>` 在执行 `trial:init` 前还必须包含以下七个非秘密路径/参数变量：`ROUTEFIT_ADMIN_ENV_FILE`、`ROUTEFIT_TRIAL_STAFF_FILE`、`ROUTEFIT_TRIAL_IMPORT_DIRECTORY`、`ROUTEFIT_TRIAL_SERVICE_AREAS_FILE`、`ROUTEFIT_TRIAL_AREA_REASON`、`ROUTEFIT_BACKUP_DIRECTORY`、`ROUTEFIT_PG_BIN`。init 只复制这些非秘密路径/参数到新生成的 `<RUN_ENV>`，绝不复制或写入管理连接串、备份连接串或其他凭据。
+
 | 操作 | 完整命令 | 显式环境变量名 | 身份/文件要求 |
 | --- | --- | --- | --- |
 | 初始化 | `sudo <NODE24_PATH> --env-file=<ADMIN_ENV> scripts/trial-init.mjs` | `ROUTEFIT_PG_ADMIN_URL`→`<ADMIN_ENV>`；`ROUTEFIT_TRIAL_DATABASE`, `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`, `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`→`<ADMIN_ENV>` | 必须 root；`<ADMIN_ENV>` root-only，预检要求 `<RUN_ENV>`/`<SESSION_FILE>`/`<BACKUP_ENV>` 尚不存在 |
