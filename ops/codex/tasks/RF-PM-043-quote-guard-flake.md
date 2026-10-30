@@ -1,6 +1,6 @@
 # RF-PM-043 · 报价脚本“未发布策略守卫”间歇性超时
 
-状态：IN_REVIEW · 分支：`fix/RF-PM-043-quote-guard-flake` · PR：待创建
+状态：IN_REVIEW · 分支：`fix/RF-PM-043-quote-guard-flake` · PR：[PR #75](https://github.com/leishen8806/dr-routefit/pull/75)
 
 ## 交付范围
 
