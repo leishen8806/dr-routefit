@@ -146,13 +146,18 @@
 
 **部署前准备清单（2026-10-30 演练后补充）：**
 
-1. **数据库日志：** `SHOW log_statement` 不能是 `ddl` 或 `all`。`trial:init` 建角色的语句里带明文口令，记录 DDL 会把口令写进服务器日志。
+1. **数据库日志：** `trial:init` 建角色的语句里带明文口令，任何会记录语句文本的日志设置都会把口令写进服务器日志。执行前逐项确认：
+   - `SHOW log_statement` 必须为 `none`（`ddl`、`mod`、`all` 都会记录 DDL）；
+   - `SHOW log_min_duration_statement` 必须为 `-1`（大于等于 0 时会连同语句文本一起记录）；
+   - `SHOW shared_preload_libraries` 里没有会记录语句文本的扩展（如 `pgaudit`、`auto_explain`），有的话确认其配置不记录 DDL；
+   - `log_min_error_statement` 默认为 `error`，`CREATE ROLE` 一旦执行失败，失败语句的文本会进错误日志。`trial:init` 失败后，须检查当次日志并清除含口令的行；也可以在 init 前临时设为 `panic`，完成后恢复。
 2. **管理连接：** 专用管理角色为 `LOGIN SUPERUSER`（创建带 `BYPASSRLS` 的备份角色需要超级用户），`pg_hba` 只允许它从 `127.0.0.1/32`、`::1/128` 以 `scram-sha-256` 连接 `postgres` 和 `routefit_trial`；`<ADMIN_ENV>` 为 `root:root 600`。部署完成后可改为 `NOLOGIN`，维护时再临时打开。
 3. **父目录：** R4 起 `trial:init` 不再自动建目录。`/etc/routefit`、`/var/lib/routefit`、`/root/.config/routefit` 须事先存在且可写；备份目录为 `root:rf-admin 2750`。
 4. **`<ADMIN_ENV>` 在 `trial:init` 前须包含的全部变量（共 12 个，另加连接串）：**
    - 连接串（秘密）：`ROUTEFIT_PG_ADMIN_URL`；
    - 初始化输出位置：`ROUTEFIT_TRIAL_DATABASE`、`ROUTEFIT_TRIAL_ENV_FILE`、`ROUTEFIT_TRIAL_SESSION_FILE`、`ROUTEFIT_BACKUP_ENV_FILE`、`ROUTEFIT_TRIAL_COMPANY_FILE`；
-   - 复制进 `<RUN_ENV>` 的非秘密路径和参数：`ROUTEFIT_ADMIN_ENV_FILE`、`ROUTEFIT_TRIAL_STAFF_FILE`、`ROUTEFIT_TRIAL_IMPORT_DIRECTORY`、`ROUTEFIT_TRIAL_SERVICE_AREAS_FILE`、`ROUTEFIT_TRIAL_AREA_REASON`、`ROUTEFIT_BACKUP_DIRECTORY`、`ROUTEFIT_PG_BIN`。
+   - 非秘密路径和参数：`ROUTEFIT_ADMIN_ENV_FILE`、`ROUTEFIT_TRIAL_STAFF_FILE`、`ROUTEFIT_TRIAL_IMPORT_DIRECTORY`、`ROUTEFIT_TRIAL_SERVICE_AREAS_FILE`、`ROUTEFIT_TRIAL_AREA_REASON`、`ROUTEFIT_BACKUP_DIRECTORY`、`ROUTEFIT_PG_BIN`；
+   - 除 `ROUTEFIT_TRIAL_ENV_FILE`、`ROUTEFIT_TRIAL_SESSION_FILE` 外，上面 10 个都会被 `trial:init` 复制进 `<RUN_ENV>`（会话文件路径以 `ROUTEFIT_SESSION_FILE` 写入）；连接串和口令不复制。
 5. **模板占位符替换：** 安装下列模板时，只替换占位符，其余内容逐字不变；安装后检查已安装文件里不再含 `<…>` 占位符。
    - `ops/trial/routefit.service`：`<NODE24_PATH>`。安装后 `daemon-reload`，用 `systemctl cat routefit` 核对生效的 `ExecStart`，并确认没有遗留的 drop-in；
    - `ops/trial/routefit-tunnel-link.example`、`ops/trial/routefit-sudoers.conf.example`、`ops/trial/sshd_config-match.example`：`<NODE24_PATH>` 及文件内其他占位符；
@@ -256,7 +261,7 @@
 
 ### 2026-10-29 · 第 7 步重新演练 · FAIL（在 `trial:init` 处终止）
 
-- 管理连接文件缺失，原指定的管理角色不存在，原因未能查明；新建本机专用管理角色 `routefit_admin`，`pg_hba` 只新增规则，不改原有规则。
+- 管理连接文件缺失，原指定的管理角色不存在，原因未能查明；新建本机专用管理角色 `<ADMIN_ROLE>`，`pg_hba` 只新增规则，不改原有规则。
 - 预检漏掉了 10-28 演练手工建的 `/etc/routefit/routefit.env` 和 `sessions.json`，`trial:init` 拒绝覆盖（这一行为正确）。
 - 但失败回滚先删角色、后删库，备份角色删除失败且错误被吞掉，遗留一个能登录、带 `BYPASSRLS` 的备份角色。转 [RF-PM-038-R4](RF-PM-038-R4-init-atomic.md)（#74）修复。遗留资源已清理。
 
