@@ -12082,7 +12082,7 @@
         "security": [{"WebSession": []}],
         "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/OpsServiceRequest"}}}},
         "responses": {"201": {"description": "申请已创建", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ServiceCase"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "409": {"$ref": "#/components/responses/Error409"}, "422": {"$ref": "#/components/responses/Error422"}},
-        "x-permissions": ["cases:decide"],
+        "x-permissions": ["cases:create"],
         "x-stage": "C1",
         "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED"
       },
@@ -34226,7 +34226,7 @@
           "type": {"type": "string", "enum": ["ADDRESS_CHANGE"]},
           "description": {"type": "string", "minLength": 1, "maxLength": 2000},
           "requestedDelivery": {"$ref": "#/components/schemas/Location"},
-          "customerConsentChannel": {"type": "string", "minLength": 1, "maxLength": 64},
+          "customerConsentChannel": {"type": "string", "enum": ["PHONE", "MESSAGE", "IN_PERSON"]},
           "customerConsentReference": {"type": "string", "minLength": 1, "maxLength": 1000},
           "customerConsentConfirmedAt": {"type": "string", "format": "date-time"},
           "evidenceFileIds": {"type": "array", "items": {"$ref": "#/components/schemas/Id"}, "minItems": 0, "maxItems": 20}

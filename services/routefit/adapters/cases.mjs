@@ -39,6 +39,8 @@ export async function writeCase(c,p,kind,id,input,version){
   ensure(input.type==='ADDRESS_CHANGE',422,'CHANGE_TYPE_NOT_SUPPORTED','运营代登记当前只支持改址');
   ensure(input.requestedDelivery,422,'CHANGE_DETAILS_REQUIRED','改地址须提供新的送达地点');
   ensure(order.order.state==='quoted'&&!order.activeExecutionId,409,'CHANGE_NOT_AVAILABLE','当前订单不允许申请变更');
+  ensure(['PHONE','MESSAGE','IN_PERSON'].includes(input.customerConsentChannel),422,'INVALID_CONSENT_CHANNEL','客户同意渠道无效');
+  ensure(Number.isFinite(Date.parse(input.customerConsentConfirmedAt))&&Date.parse(input.customerConsentConfirmedAt)<=Date.now(),422,'CONSENT_TIME_IN_FUTURE','客户同意时间不能晚于当前时间');
   const customerConsent={channel:input.customerConsentChannel,reference:input.customerConsentReference,confirmedAt:input.customerConsentConfirmedAt};
   ensure(customerConsent.channel&&customerConsent.reference&&customerConsent.confirmedAt,422,'CUSTOMER_CONSENT_REQUIRED','缺少客户同意依据');
   const snapshot={id:randomUUID(),orderId:input.orderId,customerId:order.order.customerId,type:input.type,preparedBy:p.principalId,personId:who,...input,customerConsent,createdAt:new Date().toISOString()};

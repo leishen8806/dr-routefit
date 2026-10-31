@@ -112,7 +112,7 @@
 | customerServiceRequests | `GET /api/customer/v1/service-requests` | 本货主申请与处理进度 | portal:cases:read | C1 | 无body → [ServiceCasePage](fields.md#servicecasepage) | read only | LOCAL_IMPLEMENTED_NOT_DEPLOYED |
 | customerServiceRequestDetail | `GET /api/customer/v1/service-requests/{caseId}` | 申请详情 | portal:cases:read | C1 | 无body → [ServiceCase](fields.md#servicecase) | read only | LOCAL_IMPLEMENTED_NOT_DEPLOYED |
 | opsServiceRequests | `GET /api/ops/v1/service-requests` | 客户与收货人请求队列 | cases:read | C1 | 无body → [ServiceCasePage](fields.md#servicecasepage) | read only | LOCAL_IMPLEMENTED_NOT_DEPLOYED |
-| opsServiceRequestCreate | `POST /api/ops/v1/service-requests` | 运营代客户登记改址申请 | cases:decide | C1 | [OpsServiceRequest](fields.md#opsservicerequest) → [ServiceCase](fields.md#servicecase) | body resource version | LOCAL_IMPLEMENTED_NOT_DEPLOYED |
+| opsServiceRequestCreate | `POST /api/ops/v1/service-requests` | 运营代客户登记改址申请 | cases:create | C1 | [OpsServiceRequest](fields.md#opsservicerequest) → [ServiceCase](fields.md#servicecase) | body resource version | LOCAL_IMPLEMENTED_NOT_DEPLOYED |
 | decideServiceRequest | `POST /api/ops/v1/service-requests/{caseId}/actions/decide` | 受理或拒绝客户变更 | cases:decide | C1 | [CaseDecision](fields.md#casedecision) → [ServiceCase](fields.md#servicecase) | ServiceCase | LOCAL_IMPLEMENTED_NOT_DEPLOYED |
 | customerInventory | `GET /api/customer/v1/inventory` | 本货主库存与更新时间 | portal:inventory:read | C2 | 无body → [InventoryRowPage](fields.md#inventoryrowpage) | read only | LOCAL_IMPLEMENTED_NOT_DEPLOYED |
 | customerInboundNotices | `GET /api/customer/v1/inbound-notices` | 本货主仓储申请 | portal:warehouse:read | C2 | 无body → [WarehouseRequestPage](fields.md#warehouserequestpage) | read only | LOCAL_IMPLEMENTED_NOT_DEPLOYED |

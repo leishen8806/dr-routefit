@@ -23,6 +23,8 @@ try{
   check(`run ${run}: ops address-change panel is present`,await page.locator('#address-change-panel').count()===1);
   check(`run ${run}: consent fields are present`,await page.locator('#change-consent-reference,#change-consent-at,#change-consent-channel').count()===3);
   check(`run ${run}: original quote warning is visible`,await page.locator('#address-change-panel').innerText().then(text=>text.includes('原报价、原收款不被覆盖')));
+  check(`run ${run}: independent decision controls are present`,await page.locator('#decide-address-change,#generate-address-candidate,#confirm-address-candidate').count()===3);
+  check(`run ${run}: candidate confirmation fields are present`,await page.locator('#candidate-confirm-contact,#candidate-confirm-reference,#candidate-confirm-at').count()===3);
   check(`run ${run}: independent decision warning is visible`,await page.locator('#address-change-status').count()===1);
   await page.reload();await page.locator('#refresh-list').waitFor({state:'visible'});await page.waitForFunction(()=>document.querySelector('#refresh-list')?.disabled===false);
   check(`run ${run}: panel survives page reload`,await page.locator('#address-change-panel').count()===1);
