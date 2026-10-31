@@ -70,6 +70,8 @@ Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、�
 - 大版本完成后由 Claude 发布 `develop → main` 版本发布 PR；需要 CI 全绿、Claude 版本评审 APPROVED、负责人在 GitHub 点 Approve 后由负责人合并，并打 `vX.Y.0` 标签。
 - `main` 规则集要求三项必需检查、分支与 main 同步（strict）及 1 个审批；`develop` 规则集要求三项必需检查和 1 个非作者审批，并自 2026-10-30 起开启“推送新提交后作废已有批准”。高风险任务合并前，须负责人侧 Claude 审查通过，且由作者以外的人批准最终 head；有未解决的 CHANGES_REQUESTED 时不得发合并指令。
 
+整体计划与目标方案（阶段划分、路线图、质量门禁、风险）见 [roadmap.md](roadmap.md)（草案，待负责人确认）。
+
 ## 版本计划
 
 | 版本 | 范围 | 状态 |
