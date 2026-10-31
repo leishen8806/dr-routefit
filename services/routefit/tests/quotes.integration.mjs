@@ -207,6 +207,7 @@ test('real PostgreSQL order quote lifecycle',async t=>{
    assert.equal((await req(settled.p,{actor:caseDeciderIndex})).status,200);
    assert.equal((await req('/quotes/'+(await req(settled.p,{actor:0})).data.quoteId,{actor:caseDeciderIndex})).status,200);
    const guardOrder=(await req('/orders',{body:{...draft,notes:'DEMO case decider submit denied'},actor:0,key:randomUUID()})).data;
+   assert.equal((await req('/orders/'+guardOrder.order.id,{method:'PATCH',body:{...draft,notes:'DEMO case decider edit denied'},version:1,actor:caseDeciderIndex,key:randomUUID()})).status,403);
    await req('/orders/'+guardOrder.order.id+'/intake-evidence',{body:evidence,version:1,actor:0,key:randomUUID()});
    assert.equal((await req('/orders/'+guardOrder.order.id+'/actions/submit',{body:{},version:2,actor:caseDeciderIndex,key:randomUUID()})).status,403);
    assert.equal((await req(settled.p+'/quotes',{body:{pricingPolicyVersionId:policy.id,insuranceRequested:false},version:3,actor:caseDeciderIndex,key:randomUUID()})).status,403);
