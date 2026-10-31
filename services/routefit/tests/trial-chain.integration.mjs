@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {once} from 'node:events';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,createHash} from 'node:crypto';
 import pg from 'pg';
 import {runTrialInit} from '../scripts/trial-init.mjs';
 import {runTrialStaff} from '../scripts/trial-staff.mjs';
@@ -49,6 +49,20 @@ test('trial init preflight refuses existing output files before creating databas
  const databaseName=`routefit_preflight_${randomUUID().replaceAll('-','').slice(0,12)}`;await writeFile(companyFile,JSON.stringify({name:'Preflight Company'}));await writeFile(envFile,'existing env\n');await writeFile(sessionFile,'[]\n');
  const admin=new pg.Pool({connectionString:process.env.ROUTEFIT_TEST_DATABASE_URL});
  try{const before=Number((await admin.query("SELECT count(*) FROM pg_roles WHERE rolname LIKE 'rf_trial_%' OR rolname LIKE 'rf_backup_%'")).rows[0].count);await assert.rejects(()=>runTrialInit({adminUrl:process.env.ROUTEFIT_TEST_DATABASE_URL,databaseName,envFile,companyFile,sessionFile,backupEnvFile}),/ROUTEFIT_TRIAL_ENV_FILE already exists/);assert.equal((await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[databaseName])).rowCount,0);assert.equal(Number((await admin.query("SELECT count(*) FROM pg_roles WHERE rolname LIKE 'rf_trial_%' OR rolname LIKE 'rf_backup_%'")).rows[0].count),before);assert.equal(await readFile(envFile,'utf8'),'existing env\n');assert.equal(await readFile(sessionFile,'utf8'),'[]\n');}finally{await admin.end();await rm(root,{recursive:true,force:true});}
+});
+
+test('restore failure removes only a newly created database in real PostgreSQL',async t=>{
+ if(!process.env.ROUTEFIT_TEST_DATABASE_URL){t.skip('ROUTEFIT_TEST_DATABASE_URL is required');return;}
+ const root=await mkdtemp(join(tmpdir(),'routefit-restore-failure-')),file=join(root,'broken.dump'),checksum=join(root,'broken.dump.sha256'),admin=new pg.Pool({connectionString:process.env.ROUTEFIT_TEST_DATABASE_URL});
+ const broken=Buffer.from('not a PostgreSQL custom-format archive');await writeFile(file,broken);await writeFile(checksum,`${createHash('sha256').update(broken).digest('hex')}  broken.dump\n`);
+ const newDb=`routefit_restore_fail_${randomUUID().replaceAll('-','').slice(0,12)}`,existingDb=`routefit_restore_existing_${randomUUID().replaceAll('-','').slice(0,12)}`;
+ try{
+  await assert.rejects(runRestore({file,database:newDb,adminUrl:process.env.ROUTEFIT_TEST_DATABASE_URL}),/pg_restore|archive|input/);
+  assert.equal((await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[newDb])).rowCount,0);
+  await admin.query(`CREATE DATABASE "${existingDb}"`);
+  await assert.rejects(runRestore({file,database:existingDb,adminUrl:process.env.ROUTEFIT_TEST_DATABASE_URL}),/already exists/);
+  assert.equal((await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[existingDb])).rowCount,1);
+ }finally{await admin.query(`DROP DATABASE IF EXISTS "${newDb}"`).catch(()=>{});await admin.query(`DROP DATABASE IF EXISTS "${existingDb}"`).catch(()=>{});await admin.end();await rm(root,{recursive:true,force:true});}
 });
 
 test('trial init reports cleanup failures, restores company config, and removes only files created by this run',async t=>{
