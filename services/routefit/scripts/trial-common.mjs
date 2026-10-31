@@ -11,7 +11,7 @@ export const writePrivate=async(file,value)=>{await mkdir(dirname(file),{recursi
 export const token=()=>randomBytes(32).toString('hex');
 export const newSession=(principal,permissions,expiresAt)=>{const raw=token(),csrf=token();return [{...principal,tokenHash:digest(raw),csrfHash:digest(csrf),permissions,expiresAt},raw,csrf];};
 export const poolFor=url=>new pg.Pool({connectionString:url,max:3});
-export const rolePermissions=Object.freeze({order_quote:['orders:read','orders:create','orders:edit','orders:verify','orders:submit','areas:read','quotes:read','quotes:create','quotes:confirm','pricing:read','cases:read','cases:create'],case_decider:['cases:read','cases:decide'],policy_author:['pricing:read','pricing:write'],policy_reviewer:['pricing:read','pricing:review'],policy_publisher:['pricing:read','pricing:publish']});
+export const rolePermissions=Object.freeze({order_quote:['orders:read','orders:create','orders:edit','orders:verify','orders:submit','areas:read','quotes:read','quotes:create','quotes:confirm','pricing:read','cases:read','cases:create'],case_decider:['cases:read','cases:decide','orders:read','quotes:read','areas:read'],policy_author:['pricing:read','pricing:write'],policy_reviewer:['pricing:read','pricing:review'],policy_publisher:['pricing:read','pricing:publish']});
 export const fullStaffPermissions=Object.freeze([...new Set([...developmentPermissions])]);
 export const localFile=(url,...parts)=>fileURLToPath(new URL(parts.join('/'),url));
 export const isTrialMode=(env=process.env)=>env.ROUTEFIT_TRIAL==='1';

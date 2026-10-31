@@ -1,14 +1,8 @@
-import {developmentCaseDeciderPermissions} from '../adapters/development-auth.mjs';
+import {rolePermissions} from '../scripts/trial-common.mjs';
 
-export const developmentOrderQuotePermissions=[
- 'orders:read','orders:create','orders:edit','orders:verify','orders:submit',
- 'areas:read','quotes:read','quotes:create','quotes:confirm','pricing:read',
- 'cases:read','cases:create'
-];
+export const developmentOrderQuotePermissions=rolePermissions.order_quote;
 
-export const developmentBootstrapCaseDeciderPermissions=[
- ...developmentCaseDeciderPermissions,'orders:read','quotes:read','areas:read'
-];
+export const developmentBootstrapCaseDeciderPermissions=rolePermissions.case_decider;
 
 export function buildDevelopmentPermissionSets(basePermissions){
  const base=[...basePermissions];
