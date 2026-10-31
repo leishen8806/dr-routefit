@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,rm,writeFile} from 'node:fs/promises';
+import {mkdtemp,rm,writeFile,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup} from '../scripts/trial-common.mjs';
@@ -152,6 +152,15 @@ test('trial start requires a backup directory and fails backup preflight errors'
   const env={...base,ROUTEFIT_BACKUP_DIRECTORY:join(root,'missing')};await assert.rejects(runTrialStart({env,Pool:class{async query(){}async end(){}},now:()=>Date.parse('2026-11-01T01:00:00Z')}),/今日没有可用备份/);
  }finally{await rm(root,{recursive:true,force:true});}
 });
+test('trial start treats failed backup and unverified dumps as failures',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'rf038-start-fail-')),sessionFile=join(root,'sessions.json'),backupDir=join(root,'backups');await writeFile(sessionFile,'[]\n');await mkdir(backupDir);
+ const env={ROUTEFIT_TRIAL:'1',ROUTEFIT_DATABASE_URL:'postgresql://runtime@127.0.0.1/routefit_trial',ROUTEFIT_SESSION_FILE:sessionFile,ROUTEFIT_BACKUP_DIRECTORY:backupDir};let spawned=0;
+ const spawnFail=()=>({on(event,callback){if(event==='exit')setImmediate(()=>callback(1));return this;}});
+ try{
+  await assert.rejects(runTrialStart({env,Pool:class{async query(){}async end(){}},spawnImpl:(...args)=>{spawned++;return spawnFail(...args);}}),/今日没有可用备份，补做备份失败/);assert.equal(spawned,1);
+  await writeFile(join(backupDir,'routefit_trial-20261101T000000Z.dump'),'orphan');spawned=0;await assert.rejects(runTrialStart({env,Pool:class{async query(){}async end(){}},spawnImpl:(...args)=>{spawned++;return spawnFail(...args);}}),/今日没有可用备份，补做备份失败/);assert.equal(spawned,1);
+ }finally{await rm(root,{recursive:true,force:true});}
+});
 test('restore failure drops only the database created in this run',async()=>{
  const calls=[];class FakePool{constructor(){ }async query(sql,params){calls.push({sql,params});if(sql.startsWith('SELECT 1'))return {rowCount:0};return {rowCount:0};}async end(){}}
  await assert.rejects(runRestore({file:'/tmp/backup.dump',database:'routefit_restore_test',adminUrl:'postgresql://ops@127.0.0.1/postgres',poolFactory:()=>new FakePool(),verifyChecksum:async()=>{},exec:async()=>{throw Error('pg_restore failed');}}),/pg_restore failed/);
@@ -161,4 +170,10 @@ test('restore refuses an existing database without cleanup',async()=>{
  const calls=[];let execCalls=0;class FakePool{async query(sql){calls.push(sql);if(sql.startsWith('SELECT 1'))return {rowCount:1};return {rowCount:0};}async end(){}}
  await assert.rejects(runRestore({file:'/tmp/backup.dump',database:'routefit_existing',adminUrl:'postgresql://ops@127.0.0.1/postgres',poolFactory:()=>new FakePool(),verifyChecksum:async()=>{},exec:async()=>{execCalls++;}}),/already exists/);
  assert.equal(execCalls,0);assert.equal(calls.some(sql=>sql.startsWith('DROP DATABASE')),false);
+});
+test('restore cleans up ENOENT and reports cleanup residue',async()=>{
+ const calls=[];class FakePool{async query(sql,params){calls.push({sql,params});return {rowCount:0};}async end(){}}
+ await assert.rejects(runRestore({file:'/tmp/backup.dump',database:'routefit_enoent',adminUrl:'postgresql://ops@127.0.0.1/postgres',poolFactory:()=>new FakePool(),verifyChecksum:async()=>{},exec:async()=>{throw Object.assign(new Error('missing pg_restore'),{code:'ENOENT'});}}),/找不到 pg_restore/);assert.ok(calls.some(x=>x.sql.startsWith('DROP DATABASE')));
+ const residueCalls=[];class ResiduePool{async query(sql,params){residueCalls.push(sql);if(sql.startsWith('DROP DATABASE'))throw Error('drop denied');return {rowCount:0};}async end(){}}
+ await assert.rejects(runRestore({file:'/tmp/backup.dump',database:'routefit_residue',adminUrl:'postgresql://ops@127.0.0.1/postgres',poolFactory:()=>new ResiduePool(),verifyChecksum:async()=>{},exec:async()=>{throw Error('restore exploded');}}),error=>/restore exploded/.test(error.message)&&/仍有残留：routefit_residue/.test(error.message));assert.ok(residueCalls.some(sql=>sql.startsWith('DROP DATABASE')));
 });
