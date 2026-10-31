@@ -14,6 +14,15 @@ import {runTrialStaff} from '../scripts/trial-staff.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
+ assert.ok(rolePermissions.order_quote.includes('cases:read'));
+ assert.ok(rolePermissions.order_quote.includes('cases:create'));
+ assert.ok(!rolePermissions.order_quote.includes('cases:decide'));
+ assert.ok(rolePermissions.case_decider.includes('cases:read'));
+ assert.ok(rolePermissions.case_decider.includes('cases:decide'));
+ assert.ok(!rolePermissions.case_decider.includes('cases:create'));
+ assert.ok(!rolePermissions.policy_author.includes('cases:read'));
+ assert.ok(!rolePermissions.policy_reviewer.includes('cases:decide'));
+ assert.ok(!rolePermissions.policy_publisher.includes('cases:decide'));
  assert.ok(!rolePermissions.policy_reviewer.includes('pricing:write'));
  assert.ok(!rolePermissions.policy_publisher.includes('pricing:review'));
 });
@@ -69,6 +78,9 @@ test('staff SSH logins are required and unique',()=>{
 test('staff assignments reject unknown and empty roles before writes',()=>{
  assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'h1',roles:['unknown']}]),/unknown trial staff role/);
  assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'h1',roles:[]}]),/roles must be a non-empty array/);
+});
+test('case_decider is a recognized trial role',()=>{
+ assert.doesNotThrow(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'case-decider',roles:['case_decider']}]))
 });
 test('CSV parser handles quoted commas and escaped quotes',()=>{
  const rows=parseCsv('name,note\n"Acme, Inc.","say ""hello"""\n');

@@ -1541,6 +1541,13 @@
           },
           {
             "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "orderId",
+            "in": "query",
+            "required": false,
+            "schema": {"$ref": "#/components/schemas/Id"},
+            "description": "按订单过滤；用于恢复该订单最新未完结服务申请"
           }
         ],
         "responses": {
@@ -12074,6 +12081,18 @@
       }
     },
     "/api/ops/v1/service-requests": {
+      "post": {
+        "operationId": "opsServiceRequestCreate",
+        "summary": "运营代客户登记改址申请",
+        "description": "记录客户同意依据后创建改址申请，不覆盖原报价或原收款。",
+        "tags": ["ops"],
+        "security": [{"WebSession": []}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/OpsServiceRequest"}}}},
+        "responses": {"201": {"description": "申请已创建", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ServiceCase"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "409": {"$ref": "#/components/responses/Error409"}, "422": {"$ref": "#/components/responses/Error422"}},
+        "x-permissions": ["cases:create"],
+        "x-stage": "C1",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED"
+      },
       "get": {
         "operationId": "opsServiceRequests",
         "summary": "客户与收货人请求队列",
@@ -12142,6 +12161,21 @@
         "x-permissions": [
           "cases:read"
         ],
+        "x-stage": "C1",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
+        "x-version-resource": "read only"
+      }
+    },
+    "/api/ops/v1/service-requests/{caseId}": {
+      "get": {
+        "operationId": "opsServiceRequestDetail",
+        "summary": "读取运营变更案件",
+        "description": "按案件编号读取当前授权的运营变更案件状态与候选报价引用。",
+        "tags": ["ops"],
+        "security": [{"WebSession": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "caseId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}],
+        "responses": {"200": {"description": "当前授权案件", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ServiceCase"}}}}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}},
+        "x-permissions": ["cases:read"],
         "x-stage": "C1",
         "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
         "x-version-resource": "read only"
@@ -34203,6 +34237,23 @@
             ]
           }
         ]
+      },
+      "OpsServiceRequest": {
+        "type": "object",
+        "description": "运营代客户登记改址申请；必须留存客户同意依据",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {"$ref": "#/components/schemas/Id"},
+          "orderVersion": {"type": "integer", "minimum": 1, "maximum": 9000000000000},
+          "type": {"type": "string", "enum": ["ADDRESS_CHANGE"]},
+          "description": {"type": "string", "minLength": 1, "maxLength": 2000},
+          "requestedDelivery": {"$ref": "#/components/schemas/Location"},
+          "customerConsentChannel": {"type": "string", "enum": ["PHONE", "MESSAGE", "IN_PERSON"]},
+          "customerConsentReference": {"type": "string", "minLength": 1, "maxLength": 1000},
+          "customerConsentConfirmedAt": {"type": "string", "format": "date-time"},
+          "evidenceFileIds": {"type": "array", "items": {"$ref": "#/components/schemas/Id"}, "minItems": 0, "maxItems": 20}
+        },
+        "required": ["orderId", "orderVersion", "type", "description", "requestedDelivery", "customerConsentChannel", "customerConsentReference", "customerConsentConfirmedAt", "evidenceFileIds"]
       },
       "ServiceCase": {
         "type": "object",

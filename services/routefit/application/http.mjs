@@ -323,7 +323,7 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evi
      if(req.method==='GET')return {status:200,body:await readCases(client,principal,route.kind,id,page)};
      return idempotent(client,principal,request,async()=>{
       const data=await writeCase(client,principal,route.kind,id,body,version);validate(route.schema,data);
-      return {status:route.kind==='create'?201:200,body:data,etag:`"${data.version}"`};
+      return {status:['create','ops-create'].includes(route.kind)?201:200,body:data,etag:`"${data.version}"`};
      });
     }
     if(prepayment){
