@@ -1,0 +1,20 @@
+{
+  "task": "RF-PM-046",
+  "origin": "http://127.0.0.1:4180",
+  "runs": 3,
+  "allPass": true,
+  "checks": [
+    "ops address-change panel is present",
+    "consent fields are present",
+    "original quote warning is visible",
+    "independent decision controls are present",
+    "candidate confirmation fields are present",
+    "independent decision warning is visible",
+    "panel survives page reload"
+  ],
+  "screenshots": [
+    "run-1-address-change.png",
+    "run-2-address-change.png",
+    "run-3-address-change.png"
+  ]
+}
