@@ -80,58 +80,48 @@
       "run": 1,
       "status": 200,
       "body": {
-        "id": "7d597adc-ee43-42d8-b7ed-a413bdad03e2",
+        "id": "dc0d9d32-436d-46cb-b313-e3a29313746e",
         "fees": [
           {
-            "id": "2c6c9567-62fb-44e7-a4a1-f6556aaa1086",
-            "basis": "DEMO fixed fee",
+            "id": "83571e1d-cb10-4c62-a978-9d203a5c41aa",
+            "basis": "Synthetic agreed fee",
             "money": {
               "currency": "USD",
               "amountMinor": 200
             },
             "purpose": "DELIVERY",
             "direction": "CHARGE"
-          },
-          {
-            "id": "811b06da-be04-4bd6-95cc-e22802f81340",
-            "basis": "DEMO fixed fee",
-            "money": {
-              "currency": "USD",
-              "amountMinor": 50
-            },
-            "purpose": "EXCLUSIVE",
-            "direction": "CHARGE"
           }
         ],
         "state": "confirmed",
         "total": {
           "currency": "USD",
-          "amountMinor": 250
+          "amountMinor": 200
         },
-        "orderId": "32464ce2-8a99-45b4-9e94-f6660f9edcc0",
+        "orderId": "e58a78ea-c839-4d50-951c-a7df4d0054cb",
         "version": 2,
         "amendment": {
-          "baseQuoteId": "04b87131-d7ac-493e-9b62-47afd488e81e",
-          "serviceCaseId": "65427466-4397-4907-9fb5-2c2a349a8f4a",
+          "baseQuoteId": "0ab34497-31e6-4eae-8ced-4d99c3f65df6",
+          "serviceCaseId": "f1d27ba7-9f6a-4266-8376-6d41a3e011d7",
           "differenceMinor": 0,
           "differenceDirection": "NONE",
           "financialPosition": {
             "currency": "USD",
-            "baseQuoteId": "04b87131-d7ac-493e-9b62-47afd488e81e",
-            "calculatedAt": "2026-10-31T09:13:01.131Z",
-            "baseTotalMinor": 250,
+            "baseQuoteId": "0ab34497-31e6-4eae-8ced-4d99c3f65df6",
+            "calculatedAt": "2026-10-31T09:27:01.118Z",
+            "baseTotalMinor": 200,
             "differenceMinor": 0,
-            "candidateQuoteId": "7d597adc-ee43-42d8-b7ed-a413bdad03e2",
+            "candidateQuoteId": "dc0d9d32-436d-46cb-b313-e3a29313746e",
             "creditPendingMinor": 0,
-            "candidateTotalMinor": 250,
+            "candidateTotalMinor": 200,
             "allocatedOriginalMinor": 0,
             "confirmedOriginalMinor": 0,
-            "additionalRequiredMinor": 250,
+            "additionalRequiredMinor": 200,
             "unallocatedOriginalMinor": 0
           }
         },
-        "createdAt": "2026-10-31T09:12:27.895Z",
-        "expiresAt": "2026-10-31T09:22:27.895Z",
+        "createdAt": "2026-10-31T09:26:50.097Z",
+        "expiresAt": "2026-10-31T09:36:50.097Z",
         "calculation": {
           "lines": [
             {
@@ -144,7 +134,7 @@
                 "amount": 200,
                 "method": "fixed",
                 "enabled": true,
-                "evidence": "DEMO fixed fee",
+                "evidence": "Synthetic agreed fee",
                 "stepMilli": 1000,
                 "includedMilli": 0
               },
@@ -155,49 +145,27 @@
               },
               "units": 1,
               "amountMinor": 200
-            },
-            {
-              "code": "flash",
-              "rule": {
-                "code": "flash",
-                "unit": null,
-                "scope": "DEMO",
-                "share": true,
-                "amount": 50,
-                "method": "fixed",
-                "enabled": true,
-                "evidence": "DEMO fixed fee",
-                "stepMilli": 1000,
-                "includedMilli": 0
-              },
-              "input": {
-                "code": "flash",
-                "basisMinor": null,
-                "quantityMilli": null
-              },
-              "units": 1,
-              "amountMinor": 50
             }
           ],
           "currency": "USD",
-          "shareMinor": 250,
-          "totalMinor": 250,
+          "shareMinor": 200,
+          "totalMinor": 200,
           "separateMinor": 0,
           "insuranceMinor": 0
         },
         "orderVersion": 4,
         "policySnapshot": {
-          "id": "d5b0d9a1-8281-46eb-bb2d-02289dad507b",
+          "id": "e84f1b55-e900-4176-9b87-41528850e66d",
           "state": "PUBLISHED",
-          "reason": "DEMO browser review",
+          "reason": "Synthetic policy submission",
           "review": {
-            "reason": "DEMO browser review",
-            "createdAt": "2026-10-31T07:55:14.085Z",
-            "principalId": "37ed7b15-285d-4737-8e62-9cea260772d2"
+            "reason": "Synthetic independent check",
+            "createdAt": "2026-10-31T09:26:04.791Z",
+            "principalId": "366752a5-b7ea-46f0-9b64-ed6b1be8e350"
           },
           "tariff": {
-            "id": "a06bea47-5b7b-44b2-920c-82aa05f84de9",
-            "name": "DEMO browser tariff",
+            "id": "db694fb8-2286-4db5-a1e3-9d9c2e01661c",
+            "name": "DEMO published policy",
             "owner": "DR",
             "rules": [
               {
@@ -208,19 +176,7 @@
                 "amount": 200,
                 "method": "fixed",
                 "enabled": true,
-                "evidence": "DEMO fixed fee",
-                "stepMilli": 1000,
-                "includedMilli": 0
-              },
-              {
-                "code": "flash",
-                "unit": null,
-                "scope": "DEMO",
-                "share": true,
-                "amount": 50,
-                "method": "fixed",
-                "enabled": true,
-                "evidence": "DEMO fixed fee",
+                "evidence": "Synthetic agreed fee",
                 "stepMilli": 1000,
                 "includedMilli": 0
               },
@@ -229,45 +185,45 @@
                 "unit": null,
                 "scope": "DEMO",
                 "share": false,
-                "amount": 25,
+                "amount": 75,
                 "method": "fixed",
                 "enabled": true,
-                "evidence": "DEMO fixed fee",
+                "evidence": "Synthetic agreed fee",
                 "stepMilli": 1000,
                 "includedMilli": 0
               }
             ],
-            "scope": "DEMO",
+            "scope": "Synthetic fixed delivery only",
             "state": "DRAFT",
-            "version": 4,
+            "version": 3,
             "currency": "USD",
-            "createdAt": "2026-10-31T07:55:14.057Z",
-            "updatedAt": "2026-10-31T07:55:14.072Z"
+            "createdAt": "2026-10-31T09:26:04.744Z",
+            "updatedAt": "2026-10-31T09:26:04.769Z"
           },
           "version": 3,
-          "tariffId": "a06bea47-5b7b-44b2-920c-82aa05f84de9",
-          "createdAt": "2026-10-31T07:55:14.077Z",
-          "validFrom": "2026-10-31 14:59:05.367071+07",
-          "preparedBy": "cb807929-d5e3-43a3-b3ca-17132fcc5537",
-          "validUntil": "2026-11-01 15:59:05.367071+07",
+          "tariffId": "db694fb8-2286-4db5-a1e3-9d9c2e01661c",
+          "createdAt": "2026-10-31T09:26:04.779Z",
+          "validFrom": "2026-10-31T09:26:04.774Z",
+          "preparedBy": "19083fbf-65bd-4d16-8e36-0cdde9a6fd79",
+          "validUntil": "2026-10-31T10:26:04.775Z",
           "publication": {
-            "reason": "DEMO browser review",
-            "createdAt": "2026-10-31T07:55:14.089Z",
-            "principalId": "e257a85c-852c-4b3b-b2cf-a8c34616634e"
+            "reason": "Synthetic independent approval",
+            "createdAt": "2026-10-31T09:26:04.797Z",
+            "principalId": "192ecc45-a186-4f76-b52d-50e6a2dc44c0"
           },
           "contributors": [
-            "cb807929-d5e3-43a3-b3ca-17132fcc5537"
+            "19083fbf-65bd-4d16-8e36-0cdde9a6fd79"
           ],
           "serviceLevels": [
             "S2"
           ],
-          "tariffVersion": 4,
+          "tariffVersion": 3,
           "quoteValiditySeconds": 600
         },
         "unusableReasons": [],
         "insuranceRequested": false,
         "sourceOrderVersion": 3,
-        "customerConfirmedAt": "2026-10-31T09:13:01.000Z",
+        "customerConfirmedAt": "2026-10-31T09:27:01.000Z",
         "sourceOrderSnapshot": {
           "draft": {
             "items": [
@@ -305,22 +261,22 @@
               "address": "DEMO browser run 1 replacement entrance",
               "contactName": "DEMO recipient"
             },
-            "customerId": "2560bc3a-915e-4241-86bb-586797cf8210",
+            "customerId": "5a4b9e1d-8d82-4270-b127-f4e7f40ff96f",
             "paymentTerms": "PREPAID",
             "serviceLevel": "S2",
-            "exclusiveVehicle": true,
+            "exclusiveVehicle": false,
             "requestedPickupWindow": {
-              "end": "2026-10-31T09:55:13.998Z",
-              "start": "2026-10-31T08:55:13.998Z"
+              "end": "2026-10-31T12:26:38.233Z",
+              "start": "2026-10-31T11:26:38.232Z"
             },
             "requestedDeliveryWindow": {
-              "end": "2026-10-31T11:55:13.998Z",
-              "start": "2026-10-31T10:55:13.998Z"
+              "end": "2026-10-31T13:26:38.233Z",
+              "start": "2026-10-31T12:26:38.233Z"
             }
           },
           "items": [
             {
-              "id": "3b78195f-1759-4af3-8900-6b0fbd5c34ea",
+              "id": "fcce5e00-0829-4278-9ac0-6a1e5ddd7123",
               "name": "DEMO package",
               "widthCm": 20,
               "heightCm": 20,
@@ -329,7 +285,7 @@
               "weightKg": 2,
               "stackable": true,
               "packageIds": [
-                "2e2ca3a9-aa66-4cdf-bb14-b08c5c2dfee5"
+                "a6298d88-873f-4326-9686-9a57d1d2f6cf"
               ],
               "uprightOnly": false,
               "clientItemId": "box-1",
@@ -339,21 +295,21 @@
             }
           ],
           "order": {
-            "id": "32464ce2-8a99-45b4-9e94-f6660f9edcc0",
+            "id": "e58a78ea-c839-4d50-951c-a7df4d0054cb",
             "state": "quoted",
-            "orderNo": "RF-32464ce2-8a99-45b4-9e94-f6660f9edcc0",
+            "orderNo": "RF-e58a78ea-c839-4d50-951c-a7df4d0054cb",
             "version": 3,
             "promiseId": null,
-            "updatedAt": "2026-10-31T09:12:23.846Z",
-            "customerId": "2560bc3a-915e-4241-86bb-586797cf8210",
+            "updatedAt": "2026-10-31T09:26:45.883Z",
+            "customerId": "5a4b9e1d-8d82-4270-b127-f4e7f40ff96f",
             "serviceLevel": "S2",
             "collectionState": "unpaid",
             "fulfillmentStage": "none"
           },
           "intake": {
-            "checkedAt": "2026-10-31T09:12:23.820Z",
-            "evidenceId": "9e96781a-07af-4cdb-827a-128e834846e5",
-            "areaRevision": 1,
+            "checkedAt": "2026-10-31T09:26:45.847Z",
+            "evidenceId": "85c6cb78-25bf-4f02-9e79-65910402948e",
+            "areaRevision": 3,
             "automationEligible": false,
             "sourceOrderVersion": 1,
             "acceptedOrderVersion": 2
@@ -367,7 +323,7 @@
             "address": "DEMO warehouse entrance",
             "contactName": "DEMO sender"
           },
-          "quoteId": "04b87131-d7ac-493e-9b62-47afd488e81e",
+          "quoteId": "0ab34497-31e6-4eae-8ced-4d99c3f65df6",
           "delivery": {
             "phone": "+855000000002",
             "point": {
@@ -380,14 +336,14 @@
           "activeExecutionId": null,
           "blockingExceptionIds": []
         },
-        "pricingPolicyVersionId": "d5b0d9a1-8281-46eb-bb2d-02289dad507b",
+        "pricingPolicyVersionId": "e84f1b55-e900-4176-9b87-41528850e66d",
         "confirmation": {
           "method": "PHONE",
-          "personId": "9af9e988-3f2c-490a-9829-6105b22b95dc",
+          "personId": "b16e5672-dfce-4fda-b5f4-2b2e13c081ed",
           "reference": "DEMO candidate confirmation 1",
-          "recordedAt": "2026-10-31T09:13:01.112Z",
-          "confirmedAt": "2026-10-31T09:13:01.000Z",
-          "principalId": "cb807929-d5e3-43a3-b3ca-17132fcc5537",
+          "recordedAt": "2026-10-31T09:27:01.093Z",
+          "confirmedAt": "2026-10-31T09:27:01.000Z",
+          "principalId": "19083fbf-65bd-4d16-8e36-0cdde9a6fd79",
           "sourceQuality": "MANUAL_RECORDED",
           "customerContact": "DEMO browser customer 1"
         }
@@ -398,58 +354,48 @@
       "run": 2,
       "status": 200,
       "body": {
-        "id": "5046ace2-cdde-452b-8d53-7d274008d2db",
+        "id": "b440758c-33e6-4070-96a4-2883786b6f69",
         "fees": [
           {
-            "id": "cb2bc1f7-f8ca-4fe4-bb4d-69300c4a1654",
-            "basis": "DEMO fixed fee",
+            "id": "ddcd0b2a-8496-4a06-8a69-98541e32246e",
+            "basis": "Synthetic agreed fee",
             "money": {
               "currency": "USD",
               "amountMinor": 200
             },
             "purpose": "DELIVERY",
             "direction": "CHARGE"
-          },
-          {
-            "id": "f14002b1-2ea5-40e8-b757-e053da40b862",
-            "basis": "DEMO fixed fee",
-            "money": {
-              "currency": "USD",
-              "amountMinor": 50
-            },
-            "purpose": "EXCLUSIVE",
-            "direction": "CHARGE"
           }
         ],
         "state": "confirmed",
         "total": {
           "currency": "USD",
-          "amountMinor": 250
+          "amountMinor": 200
         },
-        "orderId": "11239885-0a24-4d1e-b15b-5218cab6eeaa",
+        "orderId": "457b0684-edfb-4cee-9cc7-3dd60f64c280",
         "version": 2,
         "amendment": {
-          "baseQuoteId": "b680c344-cb14-4834-92f5-6e8a113f3d1a",
-          "serviceCaseId": "8dd2af52-605c-4811-8769-71c5d9af44cb",
+          "baseQuoteId": "4f364e39-2985-46da-b11e-20b382b38945",
+          "serviceCaseId": "894ebc4f-b52a-4684-b035-8a07bdb277db",
           "differenceMinor": 0,
           "differenceDirection": "NONE",
           "financialPosition": {
             "currency": "USD",
-            "baseQuoteId": "b680c344-cb14-4834-92f5-6e8a113f3d1a",
-            "calculatedAt": "2026-10-31T09:14:01.119Z",
-            "baseTotalMinor": 250,
+            "baseQuoteId": "4f364e39-2985-46da-b11e-20b382b38945",
+            "calculatedAt": "2026-10-31T09:28:01.153Z",
+            "baseTotalMinor": 200,
             "differenceMinor": 0,
-            "candidateQuoteId": "5046ace2-cdde-452b-8d53-7d274008d2db",
+            "candidateQuoteId": "b440758c-33e6-4070-96a4-2883786b6f69",
             "creditPendingMinor": 0,
-            "candidateTotalMinor": 250,
+            "candidateTotalMinor": 200,
             "allocatedOriginalMinor": 0,
             "confirmedOriginalMinor": 0,
-            "additionalRequiredMinor": 250,
+            "additionalRequiredMinor": 200,
             "unallocatedOriginalMinor": 0
           }
         },
-        "createdAt": "2026-10-31T09:13:07.686Z",
-        "expiresAt": "2026-10-31T09:23:07.686Z",
+        "createdAt": "2026-10-31T09:27:07.549Z",
+        "expiresAt": "2026-10-31T09:37:07.549Z",
         "calculation": {
           "lines": [
             {
@@ -462,7 +408,7 @@
                 "amount": 200,
                 "method": "fixed",
                 "enabled": true,
-                "evidence": "DEMO fixed fee",
+                "evidence": "Synthetic agreed fee",
                 "stepMilli": 1000,
                 "includedMilli": 0
               },
@@ -473,49 +419,27 @@
               },
               "units": 1,
               "amountMinor": 200
-            },
-            {
-              "code": "flash",
-              "rule": {
-                "code": "flash",
-                "unit": null,
-                "scope": "DEMO",
-                "share": true,
-                "amount": 50,
-                "method": "fixed",
-                "enabled": true,
-                "evidence": "DEMO fixed fee",
-                "stepMilli": 1000,
-                "includedMilli": 0
-              },
-              "input": {
-                "code": "flash",
-                "basisMinor": null,
-                "quantityMilli": null
-              },
-              "units": 1,
-              "amountMinor": 50
             }
           ],
           "currency": "USD",
-          "shareMinor": 250,
-          "totalMinor": 250,
+          "shareMinor": 200,
+          "totalMinor": 200,
           "separateMinor": 0,
           "insuranceMinor": 0
         },
         "orderVersion": 4,
         "policySnapshot": {
-          "id": "d5b0d9a1-8281-46eb-bb2d-02289dad507b",
+          "id": "e84f1b55-e900-4176-9b87-41528850e66d",
           "state": "PUBLISHED",
-          "reason": "DEMO browser review",
+          "reason": "Synthetic policy submission",
           "review": {
-            "reason": "DEMO browser review",
-            "createdAt": "2026-10-31T07:55:14.085Z",
-            "principalId": "37ed7b15-285d-4737-8e62-9cea260772d2"
+            "reason": "Synthetic independent check",
+            "createdAt": "2026-10-31T09:26:04.791Z",
+            "principalId": "366752a5-b7ea-46f0-9b64-ed6b1be8e350"
           },
           "tariff": {
-            "id": "a06bea47-5b7b-44b2-920c-82aa05f84de9",
-            "name": "DEMO browser tariff",
+            "id": "db694fb8-2286-4db5-a1e3-9d9c2e01661c",
+            "name": "DEMO published policy",
             "owner": "DR",
             "rules": [
               {
@@ -526,19 +450,7 @@
                 "amount": 200,
                 "method": "fixed",
                 "enabled": true,
-                "evidence": "DEMO fixed fee",
-                "stepMilli": 1000,
-                "includedMilli": 0
-              },
-              {
-                "code": "flash",
-                "unit": null,
-                "scope": "DEMO",
-                "share": true,
-                "amount": 50,
-                "method": "fixed",
-                "enabled": true,
-                "evidence": "DEMO fixed fee",
+                "evidence": "Synthetic agreed fee",
                 "stepMilli": 1000,
                 "includedMilli": 0
               },
@@ -547,45 +459,45 @@
                 "unit": null,
                 "scope": "DEMO",
                 "share": false,
-                "amount": 25,
+                "amount": 75,
                 "method": "fixed",
                 "enabled": true,
-                "evidence": "DEMO fixed fee",
+                "evidence": "Synthetic agreed fee",
                 "stepMilli": 1000,
                 "includedMilli": 0
               }
             ],
-            "scope": "DEMO",
+            "scope": "Synthetic fixed delivery only",
             "state": "DRAFT",
-            "version": 4,
+            "version": 3,
             "currency": "USD",
-            "createdAt": "2026-10-31T07:55:14.057Z",
-            "updatedAt": "2026-10-31T07:55:14.072Z"
+            "createdAt": "2026-10-31T09:26:04.744Z",
+            "updatedAt": "2026-10-31T09:26:04.769Z"
           },
           "version": 3,
-          "tariffId": "a06bea47-5b7b-44b2-920c-82aa05f84de9",
-          "createdAt": "2026-10-31T07:55:14.077Z",
-          "validFrom": "2026-10-31 14:59:05.367071+07",
-          "preparedBy": "cb807929-d5e3-43a3-b3ca-17132fcc5537",
-          "validUntil": "2026-11-01 15:59:05.367071+07",
+          "tariffId": "db694fb8-2286-4db5-a1e3-9d9c2e01661c",
+          "createdAt": "2026-10-31T09:26:04.779Z",
+          "validFrom": "2026-10-31T09:26:04.774Z",
+          "preparedBy": "19083fbf-65bd-4d16-8e36-0cdde9a6fd79",
+          "validUntil": "2026-10-31T10:26:04.775Z",
           "publication": {
-            "reason": "DEMO browser review",
-            "createdAt": "2026-10-31T07:55:14.089Z",
-            "principalId": "e257a85c-852c-4b3b-b2cf-a8c34616634e"
+            "reason": "Synthetic independent approval",
+            "createdAt": "2026-10-31T09:26:04.797Z",
+            "principalId": "192ecc45-a186-4f76-b52d-50e6a2dc44c0"
           },
           "contributors": [
-            "cb807929-d5e3-43a3-b3ca-17132fcc5537"
+            "19083fbf-65bd-4d16-8e36-0cdde9a6fd79"
           ],
           "serviceLevels": [
             "S2"
           ],
-          "tariffVersion": 4,
+          "tariffVersion": 3,
           "quoteValiditySeconds": 600
         },
         "unusableReasons": [],
         "insuranceRequested": false,
         "sourceOrderVersion": 3,
-        "customerConfirmedAt": "2026-10-31T09:14:01.000Z",
+        "customerConfirmedAt": "2026-10-31T09:28:01.000Z",
         "sourceOrderSnapshot": {
           "draft": {
             "items": [
@@ -623,22 +535,22 @@
               "address": "DEMO browser run 2 replacement entrance",
               "contactName": "DEMO recipient"
             },
-            "customerId": "2560bc3a-915e-4241-86bb-586797cf8210",
+            "customerId": "5a4b9e1d-8d82-4270-b127-f4e7f40ff96f",
             "paymentTerms": "PREPAID",
             "serviceLevel": "S2",
-            "exclusiveVehicle": true,
+            "exclusiveVehicle": false,
             "requestedPickupWindow": {
-              "end": "2026-10-31T09:55:13.998Z",
-              "start": "2026-10-31T08:55:13.998Z"
+              "end": "2026-10-31T12:26:38.233Z",
+              "start": "2026-10-31T11:26:38.232Z"
             },
             "requestedDeliveryWindow": {
-              "end": "2026-10-31T11:55:13.998Z",
-              "start": "2026-10-31T10:55:13.998Z"
+              "end": "2026-10-31T13:26:38.233Z",
+              "start": "2026-10-31T12:26:38.233Z"
             }
           },
           "items": [
             {
-              "id": "239818a4-dba5-410b-8939-ef885a7e7750",
+              "id": "6b35af10-57b6-4923-a1b0-ea7169cab827",
               "name": "DEMO package",
               "widthCm": 20,
               "heightCm": 20,
@@ -647,7 +559,7 @@
               "weightKg": 2,
               "stackable": true,
               "packageIds": [
-                "ec023b71-edc9-4b10-997a-9103b8772e4e"
+                "6f7b2138-7c42-4f56-b4c5-d1910d07dc6c"
               ],
               "uprightOnly": false,
               "clientItemId": "box-1",
@@ -657,21 +569,21 @@
             }
           ],
           "order": {
-            "id": "11239885-0a24-4d1e-b15b-5218cab6eeaa",
+            "id": "457b0684-edfb-4cee-9cc7-3dd60f64c280",
             "state": "quoted",
-            "orderNo": "RF-11239885-0a24-4d1e-b15b-5218cab6eeaa",
+            "orderNo": "RF-457b0684-edfb-4cee-9cc7-3dd60f64c280",
             "version": 3,
             "promiseId": null,
-            "updatedAt": "2026-10-31T09:13:03.532Z",
-            "customerId": "2560bc3a-915e-4241-86bb-586797cf8210",
+            "updatedAt": "2026-10-31T09:27:03.427Z",
+            "customerId": "5a4b9e1d-8d82-4270-b127-f4e7f40ff96f",
             "serviceLevel": "S2",
             "collectionState": "unpaid",
             "fulfillmentStage": "none"
           },
           "intake": {
-            "checkedAt": "2026-10-31T09:13:03.498Z",
-            "evidenceId": "ca5957fc-e0d4-4f69-bc04-4083ee889db1",
-            "areaRevision": 1,
+            "checkedAt": "2026-10-31T09:27:03.397Z",
+            "evidenceId": "79145aa7-e371-4e95-856c-c1ffcf38a6be",
+            "areaRevision": 3,
             "automationEligible": false,
             "sourceOrderVersion": 1,
             "acceptedOrderVersion": 2
@@ -685,7 +597,7 @@
             "address": "DEMO warehouse entrance",
             "contactName": "DEMO sender"
           },
-          "quoteId": "b680c344-cb14-4834-92f5-6e8a113f3d1a",
+          "quoteId": "4f364e39-2985-46da-b11e-20b382b38945",
           "delivery": {
             "phone": "+855000000002",
             "point": {
@@ -698,14 +610,14 @@
           "activeExecutionId": null,
           "blockingExceptionIds": []
         },
-        "pricingPolicyVersionId": "d5b0d9a1-8281-46eb-bb2d-02289dad507b",
+        "pricingPolicyVersionId": "e84f1b55-e900-4176-9b87-41528850e66d",
         "confirmation": {
           "method": "PHONE",
-          "personId": "9af9e988-3f2c-490a-9829-6105b22b95dc",
+          "personId": "b16e5672-dfce-4fda-b5f4-2b2e13c081ed",
           "reference": "DEMO candidate confirmation 2",
-          "recordedAt": "2026-10-31T09:14:01.098Z",
-          "confirmedAt": "2026-10-31T09:14:01.000Z",
-          "principalId": "cb807929-d5e3-43a3-b3ca-17132fcc5537",
+          "recordedAt": "2026-10-31T09:28:01.127Z",
+          "confirmedAt": "2026-10-31T09:28:01.000Z",
+          "principalId": "19083fbf-65bd-4d16-8e36-0cdde9a6fd79",
           "sourceQuality": "MANUAL_RECORDED",
           "customerContact": "DEMO browser customer 2"
         }
@@ -716,58 +628,48 @@
       "run": 3,
       "status": 200,
       "body": {
-        "id": "4e2f5ed3-4c08-4f29-bd06-bc8462cf4bfb",
+        "id": "40565c63-a0b3-4db0-aa30-be7bb5ad4dd0",
         "fees": [
           {
-            "id": "2cb48039-94bc-498c-bec6-68c79acb6b08",
-            "basis": "DEMO fixed fee",
+            "id": "1e902f84-073d-4f28-90f2-f59a2478ee7b",
+            "basis": "Synthetic agreed fee",
             "money": {
               "currency": "USD",
               "amountMinor": 200
             },
             "purpose": "DELIVERY",
             "direction": "CHARGE"
-          },
-          {
-            "id": "12fbf555-9c0e-47c2-b70b-95e0a761384a",
-            "basis": "DEMO fixed fee",
-            "money": {
-              "currency": "USD",
-              "amountMinor": 50
-            },
-            "purpose": "EXCLUSIVE",
-            "direction": "CHARGE"
           }
         ],
         "state": "confirmed",
         "total": {
           "currency": "USD",
-          "amountMinor": 250
+          "amountMinor": 200
         },
-        "orderId": "df34590a-97d9-4dd8-a8a4-ef236380db71",
+        "orderId": "9b32f028-e847-4c79-838e-729821da4287",
         "version": 2,
         "amendment": {
-          "baseQuoteId": "d13fbbd5-1281-4235-b65a-c8761996925a",
-          "serviceCaseId": "e7a9c34e-c2bf-47b8-b84c-501aea0ab6ff",
+          "baseQuoteId": "0dec1ea6-7941-4923-a127-c9f8edf84860",
+          "serviceCaseId": "37b2d90d-9d36-4fbb-b8e4-8da2c203e7f1",
           "differenceMinor": 0,
           "differenceDirection": "NONE",
           "financialPosition": {
             "currency": "USD",
-            "baseQuoteId": "d13fbbd5-1281-4235-b65a-c8761996925a",
-            "calculatedAt": "2026-10-31T09:15:01.124Z",
-            "baseTotalMinor": 250,
+            "baseQuoteId": "0dec1ea6-7941-4923-a127-c9f8edf84860",
+            "calculatedAt": "2026-10-31T09:29:01.155Z",
+            "baseTotalMinor": 200,
             "differenceMinor": 0,
-            "candidateQuoteId": "4e2f5ed3-4c08-4f29-bd06-bc8462cf4bfb",
+            "candidateQuoteId": "40565c63-a0b3-4db0-aa30-be7bb5ad4dd0",
             "creditPendingMinor": 0,
-            "candidateTotalMinor": 250,
+            "candidateTotalMinor": 200,
             "allocatedOriginalMinor": 0,
             "confirmedOriginalMinor": 0,
-            "additionalRequiredMinor": 250,
+            "additionalRequiredMinor": 200,
             "unallocatedOriginalMinor": 0
           }
         },
-        "createdAt": "2026-10-31T09:14:07.595Z",
-        "expiresAt": "2026-10-31T09:24:07.595Z",
+        "createdAt": "2026-10-31T09:28:07.539Z",
+        "expiresAt": "2026-10-31T09:38:07.539Z",
         "calculation": {
           "lines": [
             {
@@ -780,7 +682,7 @@
                 "amount": 200,
                 "method": "fixed",
                 "enabled": true,
-                "evidence": "DEMO fixed fee",
+                "evidence": "Synthetic agreed fee",
                 "stepMilli": 1000,
                 "includedMilli": 0
               },
@@ -791,49 +693,27 @@
               },
               "units": 1,
               "amountMinor": 200
-            },
-            {
-              "code": "flash",
-              "rule": {
-                "code": "flash",
-                "unit": null,
-                "scope": "DEMO",
-                "share": true,
-                "amount": 50,
-                "method": "fixed",
-                "enabled": true,
-                "evidence": "DEMO fixed fee",
-                "stepMilli": 1000,
-                "includedMilli": 0
-              },
-              "input": {
-                "code": "flash",
-                "basisMinor": null,
-                "quantityMilli": null
-              },
-              "units": 1,
-              "amountMinor": 50
             }
           ],
           "currency": "USD",
-          "shareMinor": 250,
-          "totalMinor": 250,
+          "shareMinor": 200,
+          "totalMinor": 200,
           "separateMinor": 0,
           "insuranceMinor": 0
         },
         "orderVersion": 4,
         "policySnapshot": {
-          "id": "d5b0d9a1-8281-46eb-bb2d-02289dad507b",
+          "id": "e84f1b55-e900-4176-9b87-41528850e66d",
           "state": "PUBLISHED",
-          "reason": "DEMO browser review",
+          "reason": "Synthetic policy submission",
           "review": {
-            "reason": "DEMO browser review",
-            "createdAt": "2026-10-31T07:55:14.085Z",
-            "principalId": "37ed7b15-285d-4737-8e62-9cea260772d2"
+            "reason": "Synthetic independent check",
+            "createdAt": "2026-10-31T09:26:04.791Z",
+            "principalId": "366752a5-b7ea-46f0-9b64-ed6b1be8e350"
           },
           "tariff": {
-            "id": "a06bea47-5b7b-44b2-920c-82aa05f84de9",
-            "name": "DEMO browser tariff",
+            "id": "db694fb8-2286-4db5-a1e3-9d9c2e01661c",
+            "name": "DEMO published policy",
             "owner": "DR",
             "rules": [
               {
@@ -844,19 +724,7 @@
                 "amount": 200,
                 "method": "fixed",
                 "enabled": true,
-                "evidence": "DEMO fixed fee",
-                "stepMilli": 1000,
-                "includedMilli": 0
-              },
-              {
-                "code": "flash",
-                "unit": null,
-                "scope": "DEMO",
-                "share": true,
-                "amount": 50,
-                "method": "fixed",
-                "enabled": true,
-                "evidence": "DEMO fixed fee",
+                "evidence": "Synthetic agreed fee",
                 "stepMilli": 1000,
                 "includedMilli": 0
               },
@@ -865,45 +733,45 @@
                 "unit": null,
                 "scope": "DEMO",
                 "share": false,
-                "amount": 25,
+                "amount": 75,
                 "method": "fixed",
                 "enabled": true,
-                "evidence": "DEMO fixed fee",
+                "evidence": "Synthetic agreed fee",
                 "stepMilli": 1000,
                 "includedMilli": 0
               }
             ],
-            "scope": "DEMO",
+            "scope": "Synthetic fixed delivery only",
             "state": "DRAFT",
-            "version": 4,
+            "version": 3,
             "currency": "USD",
-            "createdAt": "2026-10-31T07:55:14.057Z",
-            "updatedAt": "2026-10-31T07:55:14.072Z"
+            "createdAt": "2026-10-31T09:26:04.744Z",
+            "updatedAt": "2026-10-31T09:26:04.769Z"
           },
           "version": 3,
-          "tariffId": "a06bea47-5b7b-44b2-920c-82aa05f84de9",
-          "createdAt": "2026-10-31T07:55:14.077Z",
-          "validFrom": "2026-10-31 14:59:05.367071+07",
-          "preparedBy": "cb807929-d5e3-43a3-b3ca-17132fcc5537",
-          "validUntil": "2026-11-01 15:59:05.367071+07",
+          "tariffId": "db694fb8-2286-4db5-a1e3-9d9c2e01661c",
+          "createdAt": "2026-10-31T09:26:04.779Z",
+          "validFrom": "2026-10-31T09:26:04.774Z",
+          "preparedBy": "19083fbf-65bd-4d16-8e36-0cdde9a6fd79",
+          "validUntil": "2026-10-31T10:26:04.775Z",
           "publication": {
-            "reason": "DEMO browser review",
-            "createdAt": "2026-10-31T07:55:14.089Z",
-            "principalId": "e257a85c-852c-4b3b-b2cf-a8c34616634e"
+            "reason": "Synthetic independent approval",
+            "createdAt": "2026-10-31T09:26:04.797Z",
+            "principalId": "192ecc45-a186-4f76-b52d-50e6a2dc44c0"
           },
           "contributors": [
-            "cb807929-d5e3-43a3-b3ca-17132fcc5537"
+            "19083fbf-65bd-4d16-8e36-0cdde9a6fd79"
           ],
           "serviceLevels": [
             "S2"
           ],
-          "tariffVersion": 4,
+          "tariffVersion": 3,
           "quoteValiditySeconds": 600
         },
         "unusableReasons": [],
         "insuranceRequested": false,
         "sourceOrderVersion": 3,
-        "customerConfirmedAt": "2026-10-31T09:15:01.000Z",
+        "customerConfirmedAt": "2026-10-31T09:29:01.000Z",
         "sourceOrderSnapshot": {
           "draft": {
             "items": [
@@ -941,22 +809,22 @@
               "address": "DEMO browser run 3 replacement entrance",
               "contactName": "DEMO recipient"
             },
-            "customerId": "2560bc3a-915e-4241-86bb-586797cf8210",
+            "customerId": "5a4b9e1d-8d82-4270-b127-f4e7f40ff96f",
             "paymentTerms": "PREPAID",
             "serviceLevel": "S2",
-            "exclusiveVehicle": true,
+            "exclusiveVehicle": false,
             "requestedPickupWindow": {
-              "end": "2026-10-31T09:55:13.998Z",
-              "start": "2026-10-31T08:55:13.998Z"
+              "end": "2026-10-31T12:26:38.233Z",
+              "start": "2026-10-31T11:26:38.232Z"
             },
             "requestedDeliveryWindow": {
-              "end": "2026-10-31T11:55:13.998Z",
-              "start": "2026-10-31T10:55:13.998Z"
+              "end": "2026-10-31T13:26:38.233Z",
+              "start": "2026-10-31T12:26:38.233Z"
             }
           },
           "items": [
             {
-              "id": "6666096d-8142-423c-85fb-9e3e76c3868a",
+              "id": "20a74209-58e7-48d2-8af9-861adac96c6c",
               "name": "DEMO package",
               "widthCm": 20,
               "heightCm": 20,
@@ -965,7 +833,7 @@
               "weightKg": 2,
               "stackable": true,
               "packageIds": [
-                "bc8b442f-dee2-4e7b-9db1-be00f46a92de"
+                "96879068-e657-44d5-9530-3a7a9b8f3c0d"
               ],
               "uprightOnly": false,
               "clientItemId": "box-1",
@@ -975,21 +843,21 @@
             }
           ],
           "order": {
-            "id": "df34590a-97d9-4dd8-a8a4-ef236380db71",
+            "id": "9b32f028-e847-4c79-838e-729821da4287",
             "state": "quoted",
-            "orderNo": "RF-df34590a-97d9-4dd8-a8a4-ef236380db71",
+            "orderNo": "RF-9b32f028-e847-4c79-838e-729821da4287",
             "version": 3,
             "promiseId": null,
-            "updatedAt": "2026-10-31T09:14:03.474Z",
-            "customerId": "2560bc3a-915e-4241-86bb-586797cf8210",
+            "updatedAt": "2026-10-31T09:28:03.501Z",
+            "customerId": "5a4b9e1d-8d82-4270-b127-f4e7f40ff96f",
             "serviceLevel": "S2",
             "collectionState": "unpaid",
             "fulfillmentStage": "none"
           },
           "intake": {
-            "checkedAt": "2026-10-31T09:14:03.435Z",
-            "evidenceId": "8cbf4c93-8cce-4b6d-bfe5-ccf4411d44a5",
-            "areaRevision": 1,
+            "checkedAt": "2026-10-31T09:28:03.475Z",
+            "evidenceId": "089db872-c9d3-48ae-9471-db1c5f491938",
+            "areaRevision": 3,
             "automationEligible": false,
             "sourceOrderVersion": 1,
             "acceptedOrderVersion": 2
@@ -1003,7 +871,7 @@
             "address": "DEMO warehouse entrance",
             "contactName": "DEMO sender"
           },
-          "quoteId": "d13fbbd5-1281-4235-b65a-c8761996925a",
+          "quoteId": "0dec1ea6-7941-4923-a127-c9f8edf84860",
           "delivery": {
             "phone": "+855000000002",
             "point": {
@@ -1016,14 +884,14 @@
           "activeExecutionId": null,
           "blockingExceptionIds": []
         },
-        "pricingPolicyVersionId": "d5b0d9a1-8281-46eb-bb2d-02289dad507b",
+        "pricingPolicyVersionId": "e84f1b55-e900-4176-9b87-41528850e66d",
         "confirmation": {
           "method": "PHONE",
-          "personId": "9af9e988-3f2c-490a-9829-6105b22b95dc",
+          "personId": "b16e5672-dfce-4fda-b5f4-2b2e13c081ed",
           "reference": "DEMO candidate confirmation 3",
-          "recordedAt": "2026-10-31T09:15:01.104Z",
-          "confirmedAt": "2026-10-31T09:15:01.000Z",
-          "principalId": "cb807929-d5e3-43a3-b3ca-17132fcc5537",
+          "recordedAt": "2026-10-31T09:29:01.129Z",
+          "confirmedAt": "2026-10-31T09:29:01.000Z",
+          "principalId": "19083fbf-65bd-4d16-8e36-0cdde9a6fd79",
           "sourceQuality": "MANUAL_RECORDED",
           "customerContact": "DEMO browser customer 3"
         }
@@ -1032,8 +900,8 @@
     }
   ],
   "identityActors": {
-    "orderQuoteActor": 1,
-    "caseDeciderActor": 2,
+    "orderQuoteActor": 6,
+    "caseDeciderActor": 7,
     "customerActor": 0
   },
   "runs": 3,
