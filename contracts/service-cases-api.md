@@ -5,6 +5,7 @@
 | 操作 | 权限 | 结果 |
 |---|---|---|
 | `POST /api/customer/v1/service-requests` | `portal:cases:create` | 创建版本1申请，使用订单当前版本和幂等键 |
+| `POST /api/ops/v1/service-requests` | `cases:decide` | 运营代客户登记改址；必须记录客户同意渠道、reference、时间，不覆盖原报价/原收款 |
 | `GET /api/customer/v1/service-requests` | `portal:cases:read` | 只读本货主授权申请，签名游标分页 |
 | `GET /api/customer/v1/service-requests/{caseId}` | `portal:cases:read` | 只读单项授权投影 |
 | `GET /api/ops/v1/service-requests` | `cases:read` | 运营队列；仍受企业与对象范围限制 |

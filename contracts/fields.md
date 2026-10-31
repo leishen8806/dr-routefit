@@ -1475,6 +1475,22 @@ gross-fee-refund=net，同币种；处理成功才移转保管净额和记录手
 | relatedQuoteId | [Id](fields.md#id) 或 null | 是 | ； |
 | relatedFinanceDocumentId | [Id](fields.md#id) 或 null | 是 | ； |
 
+## OpsServiceRequest
+
+运营代客户登记改址申请；必须同时记录客户同意依据。
+
+| 字段 | 类型 | 必填 | 约束和用途 |
+|---|---|---|---|
+| orderId | [Id](fields.md#id) | 是 | 原订单； |
+| orderVersion | integer | 是 | 聚合乐观锁版本； |
+| type | `ADDRESS_CHANGE` | 是 | 当前仅支持改址； |
+| description | string | 是 | 申请说明； |
+| requestedDelivery | [Location](fields.md#location) | 是 | 新送达地点； |
+| customerConsentChannel | string | 是 | 客户同意渠道； |
+| customerConsentReference | string | 是 | 同意依据引用； |
+| customerConsentConfirmedAt | [Timestamp](fields.md#timestamp) | 是 | 客户同意时间； |
+| evidenceFileIds | array<[Id](fields.md#id)> | 是 | 证据文件，可为空数组； |
+
 ## CaseDecision
 
 接受申请后仍通过相应领域动作生效；不能写成功标志跳过门槛

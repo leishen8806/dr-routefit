@@ -18,12 +18,13 @@ async function caseRecord(c,p,id){
  ensure(uuid.test(id),404,'NOT_FOUND','资源不存在');
  const row=(await c.query('SELECT snapshot FROM casework.service_case WHERE company_id=$1 AND id=$2',[p.companyId,id])).rows[0];ensure(row,404,'NOT_FOUND','资源不存在');
  const event=(await c.query('SELECT snapshot FROM casework.service_case_event WHERE company_id=$1 AND case_id=$2',[p.companyId,id])).rows[0]?.snapshot;
- return {snapshot:row.snapshot,event};
+ const amendment=(await c.query('SELECT quote_id FROM pricing.amendment_quote WHERE company_id=$1 AND case_id=$2',[p.companyId,id])).rows[0]?.quote_id??null;
+ return {snapshot:row.snapshot,event,amendment};
 }
 export async function serviceCase(c,p,id){
- const {snapshot,event}=await caseRecord(c,p,id);
+ const {snapshot,event,amendment}=await caseRecord(c,p,id);
  const state=event?({ACCEPT:'accepted',REJECT:'rejected',REQUEST_CUSTOMER_CONSENT:'needs_customer_consent'}[event.decision]):'submitted';
- return {id:snapshot.id,version:event?2:1,orderId:snapshot.orderId,type:snapshot.type,state,ownerDisplayName:event?.ownerDisplayName??null,nextAction:event?.nextAction??'等待运营受理',relatedQuoteId:event?.newQuoteId??null,relatedFinanceDocumentId:event?.financeDocumentId??null};
+ return {id:snapshot.id,version:event?2:1,orderId:snapshot.orderId,type:snapshot.type,state,ownerDisplayName:event?.ownerDisplayName??null,nextAction:event?.nextAction??'等待运营受理',relatedQuoteId:amendment??event?.newQuoteId??null,relatedFinanceDocumentId:event?.financeDocumentId??null};
 }
 export async function readCases(c,p,kind,id,query){
  if(kind==='detail')return serviceCase(c,p,id);
@@ -32,6 +33,18 @@ export async function readCases(c,p,kind,id,query){
 }
 export async function writeCase(c,p,kind,id,input,version){
  const who=await person(c,p);
+ if(kind==='ops-create'){
+  const order=await getOrder(c,p,input.orderId,true);
+  ensure(order.order.version===input.orderVersion,412,'VERSION_CONFLICT','订单版本已变化');
+  ensure(input.type==='ADDRESS_CHANGE',422,'CHANGE_TYPE_NOT_SUPPORTED','运营代登记当前只支持改址');
+  ensure(input.requestedDelivery,422,'CHANGE_DETAILS_REQUIRED','改地址须提供新的送达地点');
+  ensure(order.order.state==='quoted'&&!order.activeExecutionId,409,'CHANGE_NOT_AVAILABLE','当前订单不允许申请变更');
+  const customerConsent={channel:input.customerConsentChannel,reference:input.customerConsentReference,confirmedAt:input.customerConsentConfirmedAt};
+  ensure(customerConsent.channel&&customerConsent.reference&&customerConsent.confirmedAt,422,'CUSTOMER_CONSENT_REQUIRED','缺少客户同意依据');
+  const snapshot={id:randomUUID(),orderId:input.orderId,customerId:order.order.customerId,type:input.type,preparedBy:p.principalId,personId:who,...input,customerConsent,createdAt:new Date().toISOString()};
+  await c.query('INSERT INTO casework.service_case(id,company_id,customer_id,order_id,prepared_by,person_id,snapshot) VALUES($1,$2,$3,$4,$5,$6,$7)',[snapshot.id,p.companyId,snapshot.customerId,snapshot.orderId,p.principalId,who,snapshot]);
+  return serviceCase(c,p,snapshot.id);
+ }
  if(kind==='create'){
   const order=await getOrder(c,p,input.orderId,true);ensure(order.order.version===input.orderVersion,412,'VERSION_CONFLICT','订单版本已变化');
   const restricted=['ADDRESS_CHANGE','TIME_CHANGE'];

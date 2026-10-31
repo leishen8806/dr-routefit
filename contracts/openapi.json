@@ -12074,6 +12074,18 @@
       }
     },
     "/api/ops/v1/service-requests": {
+      "post": {
+        "operationId": "opsServiceRequestCreate",
+        "summary": "运营代客户登记改址申请",
+        "description": "记录客户同意依据后创建改址申请，不覆盖原报价或原收款。",
+        "tags": ["ops"],
+        "security": [{"WebSession": []}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/OpsServiceRequest"}}}},
+        "responses": {"201": {"description": "申请已创建", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ServiceCase"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "409": {"$ref": "#/components/responses/Error409"}, "422": {"$ref": "#/components/responses/Error422"}},
+        "x-permissions": ["cases:decide"],
+        "x-stage": "C1",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED"
+      },
       "get": {
         "operationId": "opsServiceRequests",
         "summary": "客户与收货人请求队列",
@@ -34203,6 +34215,23 @@
             ]
           }
         ]
+      },
+      "OpsServiceRequest": {
+        "type": "object",
+        "description": "运营代客户登记改址申请；必须留存客户同意依据",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {"$ref": "#/components/schemas/Id"},
+          "orderVersion": {"type": "integer", "minimum": 1, "maximum": 9000000000000},
+          "type": {"type": "string", "enum": ["ADDRESS_CHANGE"]},
+          "description": {"type": "string", "minLength": 1, "maxLength": 2000},
+          "requestedDelivery": {"$ref": "#/components/schemas/Location"},
+          "customerConsentChannel": {"type": "string", "minLength": 1, "maxLength": 64},
+          "customerConsentReference": {"type": "string", "minLength": 1, "maxLength": 1000},
+          "customerConsentConfirmedAt": {"type": "string", "format": "date-time"},
+          "evidenceFileIds": {"type": "array", "items": {"$ref": "#/components/schemas/Id"}, "minItems": 0, "maxItems": 20}
+        },
+        "required": ["orderId", "orderVersion", "type", "description", "requestedDelivery", "customerConsentChannel", "customerConsentReference", "customerConsentConfirmedAt", "evidenceFileIds"]
       },
       "ServiceCase": {
         "type": "object",

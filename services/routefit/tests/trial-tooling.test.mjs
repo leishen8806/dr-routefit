@@ -14,6 +14,11 @@ import {runTrialStaff} from '../scripts/trial-staff.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
+ assert.ok(rolePermissions.order_quote.includes('cases:read'));
+ assert.ok(rolePermissions.order_quote.includes('cases:decide'));
+ assert.ok(!rolePermissions.policy_author.includes('cases:read'));
+ assert.ok(!rolePermissions.policy_reviewer.includes('cases:decide'));
+ assert.ok(!rolePermissions.policy_publisher.includes('cases:decide'));
  assert.ok(!rolePermissions.policy_reviewer.includes('pricing:write'));
  assert.ok(!rolePermissions.policy_publisher.includes('pricing:review'));
 });
