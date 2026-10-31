@@ -1,20 +1,47 @@
 {
   "task": "RF-PM-046",
-  "origin": "http://127.0.0.1:4180",
-  "runs": 3,
-  "allPass": true,
   "checks": [
-    "ops address-change panel is present",
-    "consent fields are present",
-    "original quote warning is visible",
-    "independent decision controls are present",
-    "candidate confirmation fields are present",
-    "independent decision warning is visible",
-    "panel survives page reload"
+    "three local identities are configured",
+    "order_quote identity is intake-only",
+    "case_decider identity is decision-only",
+    "customer identity can confirm",
+    "run 1: ops address-change panel is present",
+    "run 1: consent fields are present",
+    "run 1: original quote warning is visible",
+    "run 1: independent decision controls are present",
+    "run 1: candidate confirmation fields are present",
+    "run 1: independent decision warning is visible",
+    "browser-created case is submitted",
+    "latest browser case is selected",
+    "same identity decision is rejected",
+    "case decider accepts submitted case",
+    "candidate quote shows difference direction",
+    "customer confirms candidate quote",
+    "run 1: panel survives page reload",
+    "run 1: original quote remains unchanged",
+    "run 2: ops address-change panel is present",
+    "run 2: consent fields are present",
+    "run 2: original quote warning is visible",
+    "run 2: independent decision controls are present",
+    "run 2: candidate confirmation fields are present",
+    "run 2: independent decision warning is visible",
+    "run 2: panel survives page reload",
+    "run 2: original quote remains unchanged",
+    "run 3: ops address-change panel is present",
+    "run 3: consent fields are present",
+    "run 3: original quote warning is visible",
+    "run 3: independent decision controls are present",
+    "run 3: candidate confirmation fields are present",
+    "run 3: independent decision warning is visible",
+    "run 3: panel survives page reload",
+    "run 3: original quote remains unchanged"
   ],
-  "screenshots": [
-    "run-1-address-change.png",
-    "run-2-address-change.png",
-    "run-3-address-change.png"
-  ]
+  "identityActors": {
+    "orderQuoteActor": 1,
+    "caseDeciderActor": 2,
+    "customerActor": 0
+  },
+  "orderId": "be70ee1c-eb34-413f-bd33-2d171f647a94",
+  "originalQuoteId": "a144de4f-79bb-483f-bc7e-1ca39e308b31",
+  "allPass": true
 }

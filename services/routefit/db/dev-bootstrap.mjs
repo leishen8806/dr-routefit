@@ -2,7 +2,7 @@ import {mkdir,writeFile,access} from 'node:fs/promises';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {localFixture} from './local-fixture.mjs';
-import {digest,developmentPermissions} from '../adapters/development-auth.mjs';
+import {digest,developmentPermissions,developmentCaseDeciderPermissions} from '../adapters/development-auth.mjs';
 
 if(process.env.NODE_ENV==='production'||!process.env.ROUTEFIT_PG_ADMIN_URL)throw Error('Set ROUTEFIT_PG_ADMIN_URL to a local development PostgreSQL administrator');
 const dir=new URL('../.local/',import.meta.url);
@@ -17,6 +17,10 @@ try{
   await fixture.owner.query("INSERT INTO org.principal(id,company_id,kind,display_name,idp_subject,status) VALUES($1,$2,'STAFF',$3,$4,'ACTIVE')",[principalId,companyId,'DEMO Pricing '+role,'local:'+principalId]);
   fixture.principals.push({companyId,principalId});permissionSets.push(['pricing:read','pricing:'+role]);
  }
+ const caseDeciderPrincipalId=randomUUID(),caseDeciderCompanyId=fixture.principals[0].companyId;
+ await fixture.owner.query("INSERT INTO org.principal(id,company_id,kind,display_name,idp_subject,status) VALUES($1,$2,'STAFF','DEMO Case Decider',$3,'ACTIVE')",[caseDeciderPrincipalId,caseDeciderCompanyId,'local:'+caseDeciderPrincipalId]);
+ await fixture.owner.query('INSERT INTO party.customer_access VALUES($1,$2,$3)',[caseDeciderCompanyId,fixture.customers[0],caseDeciderPrincipalId]);
+ fixture.principals.push({companyId:caseDeciderCompanyId,principalId:caseDeciderPrincipalId});permissionSets.push(developmentCaseDeciderPermissions);
  for(const role of ['review','approve']){
   const principalId=randomUUID(),companyId=fixture.principals[0].companyId;
   await fixture.owner.query("INSERT INTO org.principal(id,company_id,kind,display_name,idp_subject,status) VALUES($1,$2,'STAFF',$3,$4,'ACTIVE')",[principalId,companyId,'DEMO Finance '+role,'local:'+principalId]);

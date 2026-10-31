@@ -8,7 +8,8 @@
 | `POST /api/ops/v1/service-requests` | `cases:create` | 运营代客户登记改址；必须记录客户同意渠道、reference、时间，不覆盖原报价/原收款 |
 | `GET /api/customer/v1/service-requests` | `portal:cases:read` | 只读本货主授权申请，签名游标分页 |
 | `GET /api/customer/v1/service-requests/{caseId}` | `portal:cases:read` | 只读单项授权投影 |
-| `GET /api/ops/v1/service-requests` | `cases:read` | 运营队列；仍受企业与对象范围限制 |
+| `GET /api/ops/v1/service-requests` | `cases:read` | 运营队列；支持 `orderId` 过滤，仍受企业与对象范围限制 |
+| `GET /api/ops/v1/service-requests/{caseId}` | `cases:read` | 读取单个运营案件当前状态与候选报价引用 |
 | `POST /api/ops/v1/service-requests/{caseId}/actions/decide` | `cases:decide` | 用 `If-Match: "1"` 独立决定接受、拒绝或要求客户确认 |
 
 ## 当前保障

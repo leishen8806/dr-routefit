@@ -1541,6 +1541,13 @@
           },
           {
             "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "orderId",
+            "in": "query",
+            "required": false,
+            "schema": {"$ref": "#/components/schemas/Id"},
+            "description": "按订单过滤；用于恢复该订单最新未完结服务申请"
           }
         ],
         "responses": {
@@ -12154,6 +12161,21 @@
         "x-permissions": [
           "cases:read"
         ],
+        "x-stage": "C1",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
+        "x-version-resource": "read only"
+      }
+    },
+    "/api/ops/v1/service-requests/{caseId}": {
+      "get": {
+        "operationId": "opsServiceRequestDetail",
+        "summary": "读取运营变更案件",
+        "description": "按案件编号读取当前授权的运营变更案件状态与候选报价引用。",
+        "tags": ["ops"],
+        "security": [{"WebSession": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "caseId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}],
+        "responses": {"200": {"description": "当前授权案件", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ServiceCase"}}}}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}},
+        "x-permissions": ["cases:read"],
         "x-stage": "C1",
         "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
         "x-version-resource": "read only"

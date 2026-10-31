@@ -7,11 +7,12 @@ const cursorKey=randomBytes(32),sign=value=>createHmac('sha256',cursorKey).updat
 const person=async(c,p)=>(await c.query('SELECT person_id FROM org.principal WHERE company_id=$1 AND id=$2',[p.companyId,p.principalId])).rows[0].person_id;
 const stamp=(p,input,personId)=>({principalId:p.principalId,personId,...input,recordedAt:new Date().toISOString(),sourceQuality:'MANUAL_RECORDED'});
 function page(url,p){
- for(const key of url.searchParams.keys())ensure(['limit','cursor'].includes(key)&&url.searchParams.getAll(key).length===1,422,'INVALID_QUERY','查询参数不支持或重复');
+ for(const key of url.searchParams.keys())ensure(['limit','cursor','orderId'].includes(key)&&url.searchParams.getAll(key).length===1,422,'INVALID_QUERY','查询参数不支持或重复');
  const limit=Number(url.searchParams.get('limit')??50);ensure(Number.isInteger(limit)&&limit>=1&&limit<=100,422,'INVALID_LIMIT','limit须为1到100');
- const binding=JSON.stringify([p.companyId,p.principalId,limit]),token=url.searchParams.get('cursor');let after=null;
+ const orderId=url.searchParams.get('orderId');ensure(!orderId||uuid.test(orderId),422,'INVALID_QUERY','orderId无效');
+ const binding=JSON.stringify([p.companyId,p.principalId,limit,orderId]),token=url.searchParams.get('cursor');let after=null;
  if(token!==null){try{const [payload,signature,...rest]=token.split('.');ensure(token.length<=2048&&signature&&rest.length===0&&signature.length===43&&timingSafeEqual(Buffer.from(signature),Buffer.from(sign(payload))),422,'INVALID_CURSOR','游标无效或已失效');const decoded=JSON.parse(Buffer.from(payload,'base64url').toString('utf8'));ensure(decoded.binding===binding&&decoded.expiresAt>Date.now()&&uuid.test(decoded.after),422,'INVALID_CURSOR','游标无效或已失效');after=decoded.after;}catch{ensure(false,422,'INVALID_CURSOR','游标无效或已失效');}}
- return {limit,after,cursor:id=>{const payload=Buffer.from(JSON.stringify({binding,after:id,expiresAt:Date.now()+3600000})).toString('base64url');return payload+'.'+sign(payload)}};
+ return {limit,after,orderId,cursor:id=>{const payload=Buffer.from(JSON.stringify({binding,after:id,expiresAt:Date.now()+3600000})).toString('base64url');return payload+'.'+sign(payload)}};
 }
 export function caseQuery(url,p){return page(url,p);}
 async function caseRecord(c,p,id){
@@ -28,7 +29,7 @@ export async function serviceCase(c,p,id){
 }
 export async function readCases(c,p,kind,id,query){
  if(kind==='detail')return serviceCase(c,p,id);
- const rows=(await c.query('SELECT id FROM casework.service_case WHERE company_id=$1 AND ($2::uuid IS NULL OR id>$2) ORDER BY id LIMIT $3',[p.companyId,query.after,query.limit+1])).rows;
+ const rows=(await c.query("SELECT id FROM casework.service_case WHERE company_id=$1 AND ($2::uuid IS NULL OR id>$2) AND ($3::uuid IS NULL OR order_id=$3) ORDER BY (snapshot->>'createdAt')::timestamptz ASC,id ASC LIMIT $4",[p.companyId,query.after,query.orderId,query.limit+1])).rows;
  const selected=rows.slice(0,query.limit),items=[];for(const row of selected)items.push(await serviceCase(c,p,row.id));return {items,nextCursor:rows.length>query.limit?query.cursor(selected.at(-1).id):null};
 }
 export async function writeCase(c,p,kind,id,input,version){

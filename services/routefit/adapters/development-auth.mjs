@@ -8,6 +8,7 @@ developmentPermissions.push('customer:accounts:read','driver:accounts:read','fin
 developmentPermissions.push('merchant:finance:read','merchant:settlement:request','merchant:accounts:read','partner:finance:read','partner:settlement:request','partner:accounts:read');
 developmentPermissions.push('finance:export');
 export const developmentServicePermissions=['warehouse:orders:create','warehouse:orders:read','warehouse:orders:dispatch-request','warehouse:inventory:write','external:orders:create','external:orders:read','external:orders:dispatch-request'];
+export const developmentCaseDeciderPermissions=['cases:read','cases:decide'];
 // shortcut: explicit development sessions only; replace with verified IdP/BFF sessions before deployment.
 export function developmentAuth(sessions,allowedOrigin){
  const origin=new URL(allowedOrigin);ensure(['127.0.0.1','localhost','[::1]'].includes(origin.hostname)&&origin.origin===allowedOrigin,500,'INVALID_DEV_ORIGIN','开发Origin必须为精确本地源');
