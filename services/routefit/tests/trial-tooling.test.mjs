@@ -1,13 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,rm,writeFile} from 'node:fs/promises';
+import {mkdtemp,rm,writeFile,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName} from '../scripts/trial-common.mjs';
+import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup} from '../scripts/trial-common.mjs';
 import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
 import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
 import {runBackup} from '../scripts/trial-backup.mjs';
 import {runRestore} from '../scripts/trial-restore.mjs';
+import {runTrialStart} from '../scripts/trial-start.mjs';
 import {buildTrialEnv,configureBackupRole} from '../scripts/trial-init.mjs';
 import {runTrialStaff} from '../scripts/trial-staff.mjs';
 
@@ -64,6 +65,10 @@ test('staff role conflict is rejected before any database writes',()=>{
 test('staff SSH logins are required and unique',()=>{
  assert.throws(()=>validateStaffAssignments([{humanId:'h1',roles:['order_quote']}]),/sshLogin/);
  assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'same',roles:['order_quote']},{humanId:'h2',sshLogin:'same',roles:['policy_reviewer']}]),/sshLogin/);
+});
+test('staff assignments reject unknown and empty roles before writes',()=>{
+ assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'h1',roles:['unknown']}]),/unknown trial staff role/);
+ assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'h1',roles:[]}]),/roles must be a non-empty array/);
 });
 test('CSV parser handles quoted commas and escaped quotes',()=>{
  const rows=parseCsv('name,note\n"Acme, Inc.","say ""hello"""\n');
@@ -130,4 +135,45 @@ test('restore checksum accepts matching file and rejects mismatch or missing fil
   await writeFile(sum,`${'0'.repeat(64)}  backup.dump\n`);await assert.rejects(verifyBackupChecksum(file,sum),/mismatch/);
   await assert.rejects(verifyBackupChecksum(file,join(dir,'missing.sha256')));
  }finally{await rm(dir,{recursive:true,force:true});}
+});
+test('fresh trial backups require a matching checksum and non-empty dump',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'rf038-fresh-')),now=Date.parse('2026-11-01T01:00:00Z');
+ try{
+  const file=join(dir,'routefit_trial-20261101T000000Z.dump'),sum=`${file}.sha256`;
+  await writeFile(file,'dump');await writeFile(sum,'bad\n');assert.deepEqual(await findFreshValidBackup(dir,{now,verify:verifyBackupChecksum}),[]);
+  const {createHash}=await import('node:crypto');await writeFile(sum,`${createHash('sha256').update('dump').digest('hex')}  ${file.split('/').pop()}\n`);assert.deepEqual(await findFreshValidBackup(dir,{now,verify:verifyBackupChecksum}),[file]);
+ }finally{await rm(dir,{recursive:true,force:true});}
+});
+test('trial start requires a backup directory and fails backup preflight errors',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'rf038-start-')),sessionFile=join(root,'sessions.json');await writeFile(sessionFile,'[]\n');
+ const base={ROUTEFIT_TRIAL:'1',ROUTEFIT_DATABASE_URL:'postgresql://runtime@127.0.0.1/routefit_trial',ROUTEFIT_SESSION_FILE:sessionFile};
+ try{
+  await assert.rejects(runTrialStart({env:base,Pool:class{async query(){}async end(){}}}),/ROUTEFIT_BACKUP_DIRECTORY is required/);
+  const env={...base,ROUTEFIT_BACKUP_DIRECTORY:join(root,'missing')};await assert.rejects(runTrialStart({env,Pool:class{async query(){}async end(){}},now:()=>Date.parse('2026-11-01T01:00:00Z')}),/今日没有可用备份/);
+ }finally{await rm(root,{recursive:true,force:true});}
+});
+test('trial start treats failed backup and unverified dumps as failures',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'rf038-start-fail-')),sessionFile=join(root,'sessions.json'),backupDir=join(root,'backups');await writeFile(sessionFile,'[]\n');await mkdir(backupDir);
+ const env={ROUTEFIT_TRIAL:'1',ROUTEFIT_DATABASE_URL:'postgresql://runtime@127.0.0.1/routefit_trial',ROUTEFIT_SESSION_FILE:sessionFile,ROUTEFIT_BACKUP_DIRECTORY:backupDir};let spawned=0;
+ const spawnFail=()=>({on(event,callback){if(event==='exit')setImmediate(()=>callback(1));return this;}});
+ try{
+  await assert.rejects(runTrialStart({env,Pool:class{async query(){}async end(){}},spawnImpl:(...args)=>{spawned++;return spawnFail(...args);}}),/今日没有可用备份，补做备份失败/);assert.equal(spawned,1);
+  await writeFile(join(backupDir,'routefit_trial-20261101T000000Z.dump'),'orphan');spawned=0;await assert.rejects(runTrialStart({env,Pool:class{async query(){}async end(){}},spawnImpl:(...args)=>{spawned++;return spawnFail(...args);}}),/今日没有可用备份，补做备份失败/);assert.equal(spawned,1);
+ }finally{await rm(root,{recursive:true,force:true});}
+});
+test('restore failure drops only the database created in this run',async()=>{
+ const calls=[];class FakePool{constructor(){ }async query(sql,params){calls.push({sql,params});if(sql.startsWith('SELECT 1'))return {rowCount:0};return {rowCount:0};}async end(){}}
+ await assert.rejects(runRestore({file:'/tmp/backup.dump',database:'routefit_restore_test',adminUrl:'postgresql://ops@127.0.0.1/postgres',poolFactory:()=>new FakePool(),verifyChecksum:async()=>{},exec:async()=>{throw Error('pg_restore failed');}}),/pg_restore failed/);
+ assert.ok(calls.some(x=>x.sql.startsWith('SELECT pg_terminate_backend')));assert.ok(calls.some(x=>x.sql.startsWith('DROP DATABASE')));
+});
+test('restore refuses an existing database without cleanup',async()=>{
+ const calls=[];let execCalls=0;class FakePool{async query(sql){calls.push(sql);if(sql.startsWith('SELECT 1'))return {rowCount:1};return {rowCount:0};}async end(){}}
+ await assert.rejects(runRestore({file:'/tmp/backup.dump',database:'routefit_existing',adminUrl:'postgresql://ops@127.0.0.1/postgres',poolFactory:()=>new FakePool(),verifyChecksum:async()=>{},exec:async()=>{execCalls++;}}),/already exists/);
+ assert.equal(execCalls,0);assert.equal(calls.some(sql=>sql.startsWith('DROP DATABASE')),false);
+});
+test('restore cleans up ENOENT and reports cleanup residue',async()=>{
+ const calls=[];class FakePool{async query(sql,params){calls.push({sql,params});return {rowCount:0};}async end(){}}
+ await assert.rejects(runRestore({file:'/tmp/backup.dump',database:'routefit_enoent',adminUrl:'postgresql://ops@127.0.0.1/postgres',poolFactory:()=>new FakePool(),verifyChecksum:async()=>{},exec:async()=>{throw Object.assign(new Error('missing pg_restore'),{code:'ENOENT'});}}),/找不到 pg_restore/);assert.ok(calls.some(x=>x.sql.startsWith('DROP DATABASE')));
+ const residueCalls=[];class ResiduePool{async query(sql,params){residueCalls.push(sql);if(sql.startsWith('DROP DATABASE'))throw Error('drop denied');return {rowCount:0};}async end(){}}
+ await assert.rejects(runRestore({file:'/tmp/backup.dump',database:'routefit_residue',adminUrl:'postgresql://ops@127.0.0.1/postgres',poolFactory:()=>new ResiduePool(),verifyChecksum:async()=>{},exec:async()=>{throw Error('restore exploded');}}),error=>/restore exploded/.test(error.message)&&/仍有残留：routefit_residue/.test(error.message));assert.ok(residueCalls.some(sql=>sql.startsWith('DROP DATABASE')));
 });
