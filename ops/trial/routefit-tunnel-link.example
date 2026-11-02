@@ -1,0 +1,5 @@
+#!/bin/sh
+# Install as /usr/local/lib/routefit/routefit-tunnel-link, owned by root:root, mode 755.
+# <NODE24_PATH> must be the absolute path to Node 24; RF-OPS-01 replaces this placeholder.
+export ROUTEFIT_ENV_FILE=/var/lib/routefit/tunnel.env
+exec <NODE24_PATH> /srv/routefit/services/routefit/scripts/trial-ssh-link.mjs

@@ -1,0 +1,12 @@
+# Template only; RF-OPS-01 deploys and reviews this on the VPS.
+# <NODE24_PATH> must be the absolute path to a Node 24 executable; RF-OPS-01 replaces this at deployment.
+Match Group rf-tunnel
+    ForceCommand /usr/bin/sudo -u routefit /usr/local/lib/routefit/routefit-tunnel-link
+    AllowTcpForwarding local
+    PermitOpen 127.0.0.1:4180
+    AllowAgentForwarding no
+    PermitTunnel no
+    GatewayPorts no
+    PermitTTY no
+    X11Forwarding no
+    PermitUserEnvironment no

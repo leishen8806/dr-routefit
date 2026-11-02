@@ -1541,6 +1541,13 @@
           },
           {
             "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "orderId",
+            "in": "query",
+            "required": false,
+            "schema": {"$ref": "#/components/schemas/Id"},
+            "description": "按订单过滤；用于恢复该订单最新未完结服务申请"
           }
         ],
         "responses": {
@@ -12074,6 +12081,18 @@
       }
     },
     "/api/ops/v1/service-requests": {
+      "post": {
+        "operationId": "opsServiceRequestCreate",
+        "summary": "运营代客户登记改址申请",
+        "description": "记录客户同意依据后创建改址申请，不覆盖原报价或原收款。",
+        "tags": ["ops"],
+        "security": [{"WebSession": []}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/OpsServiceRequest"}}}},
+        "responses": {"201": {"description": "申请已创建", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ServiceCase"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "409": {"$ref": "#/components/responses/Error409"}, "422": {"$ref": "#/components/responses/Error422"}},
+        "x-permissions": ["cases:create"],
+        "x-stage": "C1",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED"
+      },
       "get": {
         "operationId": "opsServiceRequests",
         "summary": "客户与收货人请求队列",
@@ -12142,6 +12161,21 @@
         "x-permissions": [
           "cases:read"
         ],
+        "x-stage": "C1",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
+        "x-version-resource": "read only"
+      }
+    },
+    "/api/ops/v1/service-requests/{caseId}": {
+      "get": {
+        "operationId": "opsServiceRequestDetail",
+        "summary": "读取运营变更案件",
+        "description": "按案件编号读取当前授权的运营变更案件状态与候选报价引用。",
+        "tags": ["ops"],
+        "security": [{"WebSession": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "caseId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}],
+        "responses": {"200": {"description": "当前授权案件", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ServiceCase"}}}}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}},
+        "x-permissions": ["cases:read"],
         "x-stage": "C1",
         "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
         "x-version-resource": "read only"
@@ -23318,6 +23352,104 @@
         ]
       }
     },
+    "/api/ops/v1/pricing/policy-versions": {
+      "get": {
+        "operationId": "listPublishedPolicies",
+        "summary": "列出已发布且当前有效的费率策略",
+        "description": "按企业隔离返回已发布策略摘要；未提供 effectiveAt 时按服务端当前时间筛选，只返回当前有效策略，可用游标分页。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PUBLISHED"
+              ],
+              "default": "PUBLISHED"
+            }
+          },
+          {
+            "name": "effectiveAt",
+            "in": "query",
+            "description": "有效期边界时刻；省略时使用服务端当前时间。validFrom 包含，validUntil 不包含。",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "serviceLevel",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "S1",
+                "S2",
+                "S3"
+              ]
+            }
+          },
+          {
+            "name": "tariffId",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "已发布策略摘要分页",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingPolicyVersionPage"
+                }
+              }
+            }
+          }
+        },
+        "x-permissions": [
+          "pricing:read"
+        ],
+        "x-stage": "R1-PRICING-DRAFT",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
+        "servers": [
+          {
+            "url": "http://127.0.0.1:4180"
+          }
+        ]
+      }
+    },
     "/api/ops/v1/pricing/policy-versions/{policyId}": {
       "get": {
         "operationId": "getPricingPolicy",
@@ -34106,6 +34238,23 @@
           }
         ]
       },
+      "OpsServiceRequest": {
+        "type": "object",
+        "description": "运营代客户登记改址申请；必须留存客户同意依据",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {"$ref": "#/components/schemas/Id"},
+          "orderVersion": {"type": "integer", "minimum": 1, "maximum": 9000000000000},
+          "type": {"type": "string", "enum": ["ADDRESS_CHANGE"]},
+          "description": {"type": "string", "minLength": 1, "maxLength": 2000},
+          "requestedDelivery": {"$ref": "#/components/schemas/Location"},
+          "customerConsentChannel": {"type": "string", "enum": ["PHONE", "MESSAGE", "IN_PERSON"]},
+          "customerConsentReference": {"type": "string", "minLength": 1, "maxLength": 1000},
+          "customerConsentConfirmedAt": {"type": "string", "format": "date-time"},
+          "evidenceFileIds": {"type": "array", "items": {"$ref": "#/components/schemas/Id"}, "minItems": 0, "maxItems": 20}
+        },
+        "required": ["orderId", "orderVersion", "type", "description", "requestedDelivery", "customerConsentChannel", "customerConsentReference", "customerConsentConfirmedAt", "evidenceFileIds"]
+      },
       "ServiceCase": {
         "type": "object",
         "description": "事实留痕与争议处置；财务调整单另行审批",
@@ -40176,6 +40325,97 @@
             "review": null,
             "publication": null
           }
+        ]
+      },
+      "PricingPolicyVersionPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingPolicyVersionSummary"
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "nextAfter": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextAfter"
+        ],
+        "description": "本企业已发布且按有效期筛选的费率策略摘要；默认不返回草稿、待复核或已过期版本。"
+      },
+      "PricingPolicyVersionSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "const": "PUBLISHED"
+          },
+          "version": {
+            "const": 3
+          },
+          "tariffId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tariffVersion": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9000000000000
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "serviceLevels": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "S1",
+                "S2",
+                "S3"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 3,
+            "uniqueItems": true
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "version",
+          "tariffId",
+          "tariffVersion",
+          "validFrom",
+          "validUntil",
+          "serviceLevels",
+          "publishedAt"
         ]
       },
       "IntakeReason": {

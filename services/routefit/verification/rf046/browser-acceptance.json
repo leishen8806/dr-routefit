@@ -1,0 +1,909 @@
+{
+  "task": "RF-PM-046",
+  "checks": [
+    "three local identities are configured",
+    "order_quote identity is intake-only",
+    "case_decider identity is decision-only",
+    "customer identity can confirm",
+    "run 1: creates a new order",
+    "run 1: records intake evidence",
+    "run 1: submits order",
+    "run 1: creates original quote",
+    "run 1: confirms original quote",
+    "run 1: ops address-change panel is present",
+    "run 1: consent fields are present",
+    "run 1: original quote warning is visible",
+    "run 1: independent decision controls are present",
+    "run 1: candidate confirmation fields are present",
+    "run 1: candidate confirmation keeps seconds precision",
+    "run 1: browser submits address change",
+    "run 1: latest browser case is selected",
+    "run 1: same identity decision is rejected",
+    "run 1: case decider accepts submitted case",
+    "run 1: candidate quote shows difference direction",
+    "run 1: customer confirmation control enabled",
+    "run 1: confirmation page is not busy",
+    "run 1: confirmation response is 200",
+    "run 1: customer confirms candidate quote",
+    "run 1: refreshed page shows confirmed candidate",
+    "run 1: panel survives page reload",
+    "run 1: original quote remains unchanged",
+    "run 2: creates a new order",
+    "run 2: records intake evidence",
+    "run 2: submits order",
+    "run 2: creates original quote",
+    "run 2: confirms original quote",
+    "run 2: ops address-change panel is present",
+    "run 2: consent fields are present",
+    "run 2: original quote warning is visible",
+    "run 2: independent decision controls are present",
+    "run 2: candidate confirmation fields are present",
+    "run 2: candidate confirmation keeps seconds precision",
+    "run 2: browser submits address change",
+    "run 2: latest browser case is selected",
+    "run 2: same identity decision is rejected",
+    "run 2: case decider accepts submitted case",
+    "run 2: candidate quote shows difference direction",
+    "run 2: customer confirmation control enabled",
+    "run 2: confirmation page is not busy",
+    "run 2: confirmation response is 200",
+    "run 2: customer confirms candidate quote",
+    "run 2: refreshed page shows confirmed candidate",
+    "run 2: panel survives page reload",
+    "run 2: original quote remains unchanged",
+    "run 3: creates a new order",
+    "run 3: records intake evidence",
+    "run 3: submits order",
+    "run 3: creates original quote",
+    "run 3: confirms original quote",
+    "run 3: ops address-change panel is present",
+    "run 3: consent fields are present",
+    "run 3: original quote warning is visible",
+    "run 3: independent decision controls are present",
+    "run 3: candidate confirmation fields are present",
+    "run 3: candidate confirmation keeps seconds precision",
+    "run 3: browser submits address change",
+    "run 3: latest browser case is selected",
+    "run 3: same identity decision is rejected",
+    "run 3: case decider accepts submitted case",
+    "run 3: candidate quote shows difference direction",
+    "run 3: customer confirmation control enabled",
+    "run 3: confirmation page is not busy",
+    "run 3: confirmation response is 200",
+    "run 3: customer confirms candidate quote",
+    "run 3: refreshed page shows confirmed candidate",
+    "run 3: panel survives page reload",
+    "run 3: original quote remains unchanged"
+  ],
+  "confirmationResponses": [
+    {
+      "run": 1,
+      "status": 200,
+      "body": {
+        "id": "2b4c2f02-c91b-4fa2-8fc2-18fd17778a7d",
+        "fees": [
+          {
+            "id": "44a3b257-0db3-4b1f-bf80-d6e02a983bdc",
+            "basis": "Synthetic agreed fee",
+            "money": {
+              "currency": "USD",
+              "amountMinor": 200
+            },
+            "purpose": "DELIVERY",
+            "direction": "CHARGE"
+          }
+        ],
+        "state": "confirmed",
+        "total": {
+          "currency": "USD",
+          "amountMinor": 200
+        },
+        "orderId": "58e91273-f367-42e0-aaf0-ca5f2ad7bf02",
+        "version": 2,
+        "amendment": {
+          "baseQuoteId": "df123ece-8be6-4f59-a92f-17f24c8eef8e",
+          "serviceCaseId": "41a62461-5488-47ce-9ff6-24411c313c31",
+          "differenceMinor": 0,
+          "differenceDirection": "NONE",
+          "financialPosition": {
+            "currency": "USD",
+            "baseQuoteId": "df123ece-8be6-4f59-a92f-17f24c8eef8e",
+            "calculatedAt": "2026-10-31T09:42:01.106Z",
+            "baseTotalMinor": 200,
+            "differenceMinor": 0,
+            "candidateQuoteId": "2b4c2f02-c91b-4fa2-8fc2-18fd17778a7d",
+            "creditPendingMinor": 0,
+            "candidateTotalMinor": 200,
+            "allocatedOriginalMinor": 0,
+            "confirmedOriginalMinor": 0,
+            "additionalRequiredMinor": 200,
+            "unallocatedOriginalMinor": 0
+          }
+        },
+        "createdAt": "2026-10-31T09:41:29.251Z",
+        "expiresAt": "2026-10-31T09:51:29.251Z",
+        "calculation": {
+          "lines": [
+            {
+              "code": "base",
+              "rule": {
+                "code": "base",
+                "unit": null,
+                "scope": "DEMO",
+                "share": true,
+                "amount": 200,
+                "method": "fixed",
+                "enabled": true,
+                "evidence": "Synthetic agreed fee",
+                "stepMilli": 1000,
+                "includedMilli": 0
+              },
+              "input": {
+                "code": "base",
+                "basisMinor": null,
+                "quantityMilli": null
+              },
+              "units": 1,
+              "amountMinor": 200
+            }
+          ],
+          "currency": "USD",
+          "shareMinor": 200,
+          "totalMinor": 200,
+          "separateMinor": 0,
+          "insuranceMinor": 0
+        },
+        "orderVersion": 4,
+        "policySnapshot": {
+          "id": "19d7bc0d-2d55-4fa5-b1ba-5a976b70c216",
+          "state": "PUBLISHED",
+          "reason": "Synthetic policy submission",
+          "review": {
+            "reason": "Synthetic independent check",
+            "createdAt": "2026-10-31T09:41:16.944Z",
+            "principalId": "50160e9e-1be8-4e7c-92db-1868e1f03ed7"
+          },
+          "tariff": {
+            "id": "9b4d5870-8365-4796-ae97-8a822101797f",
+            "name": "DEMO published policy",
+            "owner": "DR",
+            "rules": [
+              {
+                "code": "base",
+                "unit": null,
+                "scope": "DEMO",
+                "share": true,
+                "amount": 200,
+                "method": "fixed",
+                "enabled": true,
+                "evidence": "Synthetic agreed fee",
+                "stepMilli": 1000,
+                "includedMilli": 0
+              },
+              {
+                "code": "insurance",
+                "unit": null,
+                "scope": "DEMO",
+                "share": false,
+                "amount": 75,
+                "method": "fixed",
+                "enabled": true,
+                "evidence": "Synthetic agreed fee",
+                "stepMilli": 1000,
+                "includedMilli": 0
+              }
+            ],
+            "scope": "Synthetic fixed delivery only",
+            "state": "DRAFT",
+            "version": 3,
+            "currency": "USD",
+            "createdAt": "2026-10-31T09:41:16.909Z",
+            "updatedAt": "2026-10-31T09:41:16.926Z"
+          },
+          "version": 3,
+          "tariffId": "9b4d5870-8365-4796-ae97-8a822101797f",
+          "createdAt": "2026-10-31T09:41:16.935Z",
+          "validFrom": "2026-10-31T09:41:16.930Z",
+          "preparedBy": "36aee05e-36be-4431-8b73-0ffc67d5c4d1",
+          "validUntil": "2026-10-31T10:41:16.931Z",
+          "publication": {
+            "reason": "Synthetic independent approval",
+            "createdAt": "2026-10-31T09:41:16.950Z",
+            "principalId": "0f94a410-a1e5-4576-9154-44599d74c395"
+          },
+          "contributors": [
+            "36aee05e-36be-4431-8b73-0ffc67d5c4d1"
+          ],
+          "serviceLevels": [
+            "S2"
+          ],
+          "tariffVersion": 3,
+          "quoteValiditySeconds": 600
+        },
+        "unusableReasons": [],
+        "insuranceRequested": false,
+        "sourceOrderVersion": 3,
+        "customerConfirmedAt": "2026-10-31T09:42:01.000Z",
+        "sourceOrderSnapshot": {
+          "draft": {
+            "items": [
+              {
+                "name": "DEMO package",
+                "widthCm": 20,
+                "heightCm": 20,
+                "lengthCm": 20,
+                "quantity": 1,
+                "weightKg": 2,
+                "stackable": true,
+                "uprightOnly": false,
+                "clientItemId": "box-1",
+                "restrictions": [],
+                "rotationAllowed": true,
+                "measurementEvidenceIds": []
+              }
+            ],
+            "notes": "RF-PM-046 R3 browser run 1",
+            "pickup": {
+              "phone": "+855000000001",
+              "point": {
+                "lat": 11.5,
+                "lng": 104.9
+              },
+              "address": "DEMO warehouse entrance",
+              "contactName": "DEMO sender"
+            },
+            "delivery": {
+              "phone": "+855000000002",
+              "point": {
+                "lat": 11.5,
+                "lng": 104.9
+              },
+              "address": "DEMO browser run 1 replacement entrance",
+              "contactName": "DEMO recipient"
+            },
+            "customerId": "a965c52a-a112-4a22-a2ad-d89bec920fa4",
+            "paymentTerms": "PREPAID",
+            "serviceLevel": "S2",
+            "exclusiveVehicle": false,
+            "requestedPickupWindow": {
+              "end": "2026-10-31T12:41:18.572Z",
+              "start": "2026-10-31T11:41:18.572Z"
+            },
+            "requestedDeliveryWindow": {
+              "end": "2026-10-31T13:41:18.572Z",
+              "start": "2026-10-31T12:41:18.572Z"
+            }
+          },
+          "items": [
+            {
+              "id": "924a5d8e-6faf-4bb5-bbb0-eac35a47717d",
+              "name": "DEMO package",
+              "widthCm": 20,
+              "heightCm": 20,
+              "lengthCm": 20,
+              "quantity": 1,
+              "weightKg": 2,
+              "stackable": true,
+              "packageIds": [
+                "106e7478-3e22-4bcf-9561-11394090cb35"
+              ],
+              "uprightOnly": false,
+              "clientItemId": "box-1",
+              "restrictions": [],
+              "rotationAllowed": true,
+              "measurementEvidenceIds": []
+            }
+          ],
+          "order": {
+            "id": "58e91273-f367-42e0-aaf0-ca5f2ad7bf02",
+            "state": "quoted",
+            "orderNo": "RF-58e91273-f367-42e0-aaf0-ca5f2ad7bf02",
+            "version": 3,
+            "promiseId": null,
+            "updatedAt": "2026-10-31T09:41:25.080Z",
+            "customerId": "a965c52a-a112-4a22-a2ad-d89bec920fa4",
+            "serviceLevel": "S2",
+            "collectionState": "unpaid",
+            "fulfillmentStage": "none"
+          },
+          "intake": {
+            "checkedAt": "2026-10-31T09:41:25.048Z",
+            "evidenceId": "fe2e5761-04aa-41b1-ad14-d9e6b023fa21",
+            "areaRevision": 2,
+            "automationEligible": false,
+            "sourceOrderVersion": 1,
+            "acceptedOrderVersion": 2
+          },
+          "pickup": {
+            "phone": "+855000000001",
+            "point": {
+              "lat": 11.5,
+              "lng": 104.9
+            },
+            "address": "DEMO warehouse entrance",
+            "contactName": "DEMO sender"
+          },
+          "quoteId": "df123ece-8be6-4f59-a92f-17f24c8eef8e",
+          "delivery": {
+            "phone": "+855000000002",
+            "point": {
+              "lat": 11.5,
+              "lng": 104.9
+            },
+            "address": "DEMO browser run 1 delivery",
+            "contactName": "DEMO recipient"
+          },
+          "activeExecutionId": null,
+          "blockingExceptionIds": []
+        },
+        "pricingPolicyVersionId": "19d7bc0d-2d55-4fa5-b1ba-5a976b70c216",
+        "confirmation": {
+          "method": "PHONE",
+          "personId": "172d3e0a-2fd8-4412-a192-478020d6a356",
+          "reference": "DEMO candidate confirmation 1",
+          "recordedAt": "2026-10-31T09:42:01.082Z",
+          "confirmedAt": "2026-10-31T09:42:01.000Z",
+          "principalId": "36aee05e-36be-4431-8b73-0ffc67d5c4d1",
+          "sourceQuality": "MANUAL_RECORDED",
+          "customerContact": "DEMO browser customer 1"
+        }
+      },
+      "errorText": "本单只读查看。未确认报价的订单可经受理接口有原因退回；已确认报价须走后续受控变更。报价有效性与付款结果请读取对应接口。"
+    },
+    {
+      "run": 2,
+      "status": 200,
+      "body": {
+        "id": "b88df3d1-cb71-45ca-837d-b9f0221a5b7f",
+        "fees": [
+          {
+            "id": "b02cbbd3-9671-4a49-98c3-6d3d734a3faf",
+            "basis": "Synthetic agreed fee",
+            "money": {
+              "currency": "USD",
+              "amountMinor": 200
+            },
+            "purpose": "DELIVERY",
+            "direction": "CHARGE"
+          }
+        ],
+        "state": "confirmed",
+        "total": {
+          "currency": "USD",
+          "amountMinor": 200
+        },
+        "orderId": "eb696e5a-d351-4d01-bfd1-5a1974318e69",
+        "version": 2,
+        "amendment": {
+          "baseQuoteId": "47c5b31c-810e-421a-8a20-0648cd67d6bb",
+          "serviceCaseId": "855735ed-69e5-4b76-8275-055cb73fe0d9",
+          "differenceMinor": 0,
+          "differenceDirection": "NONE",
+          "financialPosition": {
+            "currency": "USD",
+            "baseQuoteId": "47c5b31c-810e-421a-8a20-0648cd67d6bb",
+            "calculatedAt": "2026-10-31T09:43:01.119Z",
+            "baseTotalMinor": 200,
+            "differenceMinor": 0,
+            "candidateQuoteId": "b88df3d1-cb71-45ca-837d-b9f0221a5b7f",
+            "creditPendingMinor": 0,
+            "candidateTotalMinor": 200,
+            "allocatedOriginalMinor": 0,
+            "confirmedOriginalMinor": 0,
+            "additionalRequiredMinor": 200,
+            "unallocatedOriginalMinor": 0
+          }
+        },
+        "createdAt": "2026-10-31T09:42:07.500Z",
+        "expiresAt": "2026-10-31T09:52:07.500Z",
+        "calculation": {
+          "lines": [
+            {
+              "code": "base",
+              "rule": {
+                "code": "base",
+                "unit": null,
+                "scope": "DEMO",
+                "share": true,
+                "amount": 200,
+                "method": "fixed",
+                "enabled": true,
+                "evidence": "Synthetic agreed fee",
+                "stepMilli": 1000,
+                "includedMilli": 0
+              },
+              "input": {
+                "code": "base",
+                "basisMinor": null,
+                "quantityMilli": null
+              },
+              "units": 1,
+              "amountMinor": 200
+            }
+          ],
+          "currency": "USD",
+          "shareMinor": 200,
+          "totalMinor": 200,
+          "separateMinor": 0,
+          "insuranceMinor": 0
+        },
+        "orderVersion": 4,
+        "policySnapshot": {
+          "id": "19d7bc0d-2d55-4fa5-b1ba-5a976b70c216",
+          "state": "PUBLISHED",
+          "reason": "Synthetic policy submission",
+          "review": {
+            "reason": "Synthetic independent check",
+            "createdAt": "2026-10-31T09:41:16.944Z",
+            "principalId": "50160e9e-1be8-4e7c-92db-1868e1f03ed7"
+          },
+          "tariff": {
+            "id": "9b4d5870-8365-4796-ae97-8a822101797f",
+            "name": "DEMO published policy",
+            "owner": "DR",
+            "rules": [
+              {
+                "code": "base",
+                "unit": null,
+                "scope": "DEMO",
+                "share": true,
+                "amount": 200,
+                "method": "fixed",
+                "enabled": true,
+                "evidence": "Synthetic agreed fee",
+                "stepMilli": 1000,
+                "includedMilli": 0
+              },
+              {
+                "code": "insurance",
+                "unit": null,
+                "scope": "DEMO",
+                "share": false,
+                "amount": 75,
+                "method": "fixed",
+                "enabled": true,
+                "evidence": "Synthetic agreed fee",
+                "stepMilli": 1000,
+                "includedMilli": 0
+              }
+            ],
+            "scope": "Synthetic fixed delivery only",
+            "state": "DRAFT",
+            "version": 3,
+            "currency": "USD",
+            "createdAt": "2026-10-31T09:41:16.909Z",
+            "updatedAt": "2026-10-31T09:41:16.926Z"
+          },
+          "version": 3,
+          "tariffId": "9b4d5870-8365-4796-ae97-8a822101797f",
+          "createdAt": "2026-10-31T09:41:16.935Z",
+          "validFrom": "2026-10-31T09:41:16.930Z",
+          "preparedBy": "36aee05e-36be-4431-8b73-0ffc67d5c4d1",
+          "validUntil": "2026-10-31T10:41:16.931Z",
+          "publication": {
+            "reason": "Synthetic independent approval",
+            "createdAt": "2026-10-31T09:41:16.950Z",
+            "principalId": "0f94a410-a1e5-4576-9154-44599d74c395"
+          },
+          "contributors": [
+            "36aee05e-36be-4431-8b73-0ffc67d5c4d1"
+          ],
+          "serviceLevels": [
+            "S2"
+          ],
+          "tariffVersion": 3,
+          "quoteValiditySeconds": 600
+        },
+        "unusableReasons": [],
+        "insuranceRequested": false,
+        "sourceOrderVersion": 3,
+        "customerConfirmedAt": "2026-10-31T09:43:01.000Z",
+        "sourceOrderSnapshot": {
+          "draft": {
+            "items": [
+              {
+                "name": "DEMO package",
+                "widthCm": 20,
+                "heightCm": 20,
+                "lengthCm": 20,
+                "quantity": 1,
+                "weightKg": 2,
+                "stackable": true,
+                "uprightOnly": false,
+                "clientItemId": "box-1",
+                "restrictions": [],
+                "rotationAllowed": true,
+                "measurementEvidenceIds": []
+              }
+            ],
+            "notes": "RF-PM-046 R3 browser run 2",
+            "pickup": {
+              "phone": "+855000000001",
+              "point": {
+                "lat": 11.5,
+                "lng": 104.9
+              },
+              "address": "DEMO warehouse entrance",
+              "contactName": "DEMO sender"
+            },
+            "delivery": {
+              "phone": "+855000000002",
+              "point": {
+                "lat": 11.5,
+                "lng": 104.9
+              },
+              "address": "DEMO browser run 2 replacement entrance",
+              "contactName": "DEMO recipient"
+            },
+            "customerId": "a965c52a-a112-4a22-a2ad-d89bec920fa4",
+            "paymentTerms": "PREPAID",
+            "serviceLevel": "S2",
+            "exclusiveVehicle": false,
+            "requestedPickupWindow": {
+              "end": "2026-10-31T12:41:18.572Z",
+              "start": "2026-10-31T11:41:18.572Z"
+            },
+            "requestedDeliveryWindow": {
+              "end": "2026-10-31T13:41:18.572Z",
+              "start": "2026-10-31T12:41:18.572Z"
+            }
+          },
+          "items": [
+            {
+              "id": "4a144a6c-d5f4-4143-b3cc-54c6ef98b57e",
+              "name": "DEMO package",
+              "widthCm": 20,
+              "heightCm": 20,
+              "lengthCm": 20,
+              "quantity": 1,
+              "weightKg": 2,
+              "stackable": true,
+              "packageIds": [
+                "7392129b-52d5-4283-bc8d-77f727a7094c"
+              ],
+              "uprightOnly": false,
+              "clientItemId": "box-1",
+              "restrictions": [],
+              "rotationAllowed": true,
+              "measurementEvidenceIds": []
+            }
+          ],
+          "order": {
+            "id": "eb696e5a-d351-4d01-bfd1-5a1974318e69",
+            "state": "quoted",
+            "orderNo": "RF-eb696e5a-d351-4d01-bfd1-5a1974318e69",
+            "version": 3,
+            "promiseId": null,
+            "updatedAt": "2026-10-31T09:42:03.500Z",
+            "customerId": "a965c52a-a112-4a22-a2ad-d89bec920fa4",
+            "serviceLevel": "S2",
+            "collectionState": "unpaid",
+            "fulfillmentStage": "none"
+          },
+          "intake": {
+            "checkedAt": "2026-10-31T09:42:03.479Z",
+            "evidenceId": "4c47d7d3-564a-4bbf-9a95-3e9656049d19",
+            "areaRevision": 2,
+            "automationEligible": false,
+            "sourceOrderVersion": 1,
+            "acceptedOrderVersion": 2
+          },
+          "pickup": {
+            "phone": "+855000000001",
+            "point": {
+              "lat": 11.5,
+              "lng": 104.9
+            },
+            "address": "DEMO warehouse entrance",
+            "contactName": "DEMO sender"
+          },
+          "quoteId": "47c5b31c-810e-421a-8a20-0648cd67d6bb",
+          "delivery": {
+            "phone": "+855000000002",
+            "point": {
+              "lat": 11.5,
+              "lng": 104.9
+            },
+            "address": "DEMO browser run 2 delivery",
+            "contactName": "DEMO recipient"
+          },
+          "activeExecutionId": null,
+          "blockingExceptionIds": []
+        },
+        "pricingPolicyVersionId": "19d7bc0d-2d55-4fa5-b1ba-5a976b70c216",
+        "confirmation": {
+          "method": "PHONE",
+          "personId": "172d3e0a-2fd8-4412-a192-478020d6a356",
+          "reference": "DEMO candidate confirmation 2",
+          "recordedAt": "2026-10-31T09:43:01.100Z",
+          "confirmedAt": "2026-10-31T09:43:01.000Z",
+          "principalId": "36aee05e-36be-4431-8b73-0ffc67d5c4d1",
+          "sourceQuality": "MANUAL_RECORDED",
+          "customerContact": "DEMO browser customer 2"
+        }
+      },
+      "errorText": "本单只读查看。未确认报价的订单可经受理接口有原因退回；已确认报价须走后续受控变更。报价有效性与付款结果请读取对应接口。"
+    },
+    {
+      "run": 3,
+      "status": 200,
+      "body": {
+        "id": "7067ca97-69b8-4c07-9eb8-0228622dcbd9",
+        "fees": [
+          {
+            "id": "deeed1b3-15ca-45bd-af2f-c0dadb0bfbb7",
+            "basis": "Synthetic agreed fee",
+            "money": {
+              "currency": "USD",
+              "amountMinor": 200
+            },
+            "purpose": "DELIVERY",
+            "direction": "CHARGE"
+          }
+        ],
+        "state": "confirmed",
+        "total": {
+          "currency": "USD",
+          "amountMinor": 200
+        },
+        "orderId": "c03a9a00-113e-4dc5-8f17-46c10c64c533",
+        "version": 2,
+        "amendment": {
+          "baseQuoteId": "7ba212cb-a950-4e9e-ad16-d21eb732779d",
+          "serviceCaseId": "d0c51ec3-cdb4-4f3d-b5a2-e207849710d8",
+          "differenceMinor": 0,
+          "differenceDirection": "NONE",
+          "financialPosition": {
+            "currency": "USD",
+            "baseQuoteId": "7ba212cb-a950-4e9e-ad16-d21eb732779d",
+            "calculatedAt": "2026-10-31T09:44:01.129Z",
+            "baseTotalMinor": 200,
+            "differenceMinor": 0,
+            "candidateQuoteId": "7067ca97-69b8-4c07-9eb8-0228622dcbd9",
+            "creditPendingMinor": 0,
+            "candidateTotalMinor": 200,
+            "allocatedOriginalMinor": 0,
+            "confirmedOriginalMinor": 0,
+            "additionalRequiredMinor": 200,
+            "unallocatedOriginalMinor": 0
+          }
+        },
+        "createdAt": "2026-10-31T09:43:07.470Z",
+        "expiresAt": "2026-10-31T09:53:07.470Z",
+        "calculation": {
+          "lines": [
+            {
+              "code": "base",
+              "rule": {
+                "code": "base",
+                "unit": null,
+                "scope": "DEMO",
+                "share": true,
+                "amount": 200,
+                "method": "fixed",
+                "enabled": true,
+                "evidence": "Synthetic agreed fee",
+                "stepMilli": 1000,
+                "includedMilli": 0
+              },
+              "input": {
+                "code": "base",
+                "basisMinor": null,
+                "quantityMilli": null
+              },
+              "units": 1,
+              "amountMinor": 200
+            }
+          ],
+          "currency": "USD",
+          "shareMinor": 200,
+          "totalMinor": 200,
+          "separateMinor": 0,
+          "insuranceMinor": 0
+        },
+        "orderVersion": 4,
+        "policySnapshot": {
+          "id": "19d7bc0d-2d55-4fa5-b1ba-5a976b70c216",
+          "state": "PUBLISHED",
+          "reason": "Synthetic policy submission",
+          "review": {
+            "reason": "Synthetic independent check",
+            "createdAt": "2026-10-31T09:41:16.944Z",
+            "principalId": "50160e9e-1be8-4e7c-92db-1868e1f03ed7"
+          },
+          "tariff": {
+            "id": "9b4d5870-8365-4796-ae97-8a822101797f",
+            "name": "DEMO published policy",
+            "owner": "DR",
+            "rules": [
+              {
+                "code": "base",
+                "unit": null,
+                "scope": "DEMO",
+                "share": true,
+                "amount": 200,
+                "method": "fixed",
+                "enabled": true,
+                "evidence": "Synthetic agreed fee",
+                "stepMilli": 1000,
+                "includedMilli": 0
+              },
+              {
+                "code": "insurance",
+                "unit": null,
+                "scope": "DEMO",
+                "share": false,
+                "amount": 75,
+                "method": "fixed",
+                "enabled": true,
+                "evidence": "Synthetic agreed fee",
+                "stepMilli": 1000,
+                "includedMilli": 0
+              }
+            ],
+            "scope": "Synthetic fixed delivery only",
+            "state": "DRAFT",
+            "version": 3,
+            "currency": "USD",
+            "createdAt": "2026-10-31T09:41:16.909Z",
+            "updatedAt": "2026-10-31T09:41:16.926Z"
+          },
+          "version": 3,
+          "tariffId": "9b4d5870-8365-4796-ae97-8a822101797f",
+          "createdAt": "2026-10-31T09:41:16.935Z",
+          "validFrom": "2026-10-31T09:41:16.930Z",
+          "preparedBy": "36aee05e-36be-4431-8b73-0ffc67d5c4d1",
+          "validUntil": "2026-10-31T10:41:16.931Z",
+          "publication": {
+            "reason": "Synthetic independent approval",
+            "createdAt": "2026-10-31T09:41:16.950Z",
+            "principalId": "0f94a410-a1e5-4576-9154-44599d74c395"
+          },
+          "contributors": [
+            "36aee05e-36be-4431-8b73-0ffc67d5c4d1"
+          ],
+          "serviceLevels": [
+            "S2"
+          ],
+          "tariffVersion": 3,
+          "quoteValiditySeconds": 600
+        },
+        "unusableReasons": [],
+        "insuranceRequested": false,
+        "sourceOrderVersion": 3,
+        "customerConfirmedAt": "2026-10-31T09:44:01.000Z",
+        "sourceOrderSnapshot": {
+          "draft": {
+            "items": [
+              {
+                "name": "DEMO package",
+                "widthCm": 20,
+                "heightCm": 20,
+                "lengthCm": 20,
+                "quantity": 1,
+                "weightKg": 2,
+                "stackable": true,
+                "uprightOnly": false,
+                "clientItemId": "box-1",
+                "restrictions": [],
+                "rotationAllowed": true,
+                "measurementEvidenceIds": []
+              }
+            ],
+            "notes": "RF-PM-046 R3 browser run 3",
+            "pickup": {
+              "phone": "+855000000001",
+              "point": {
+                "lat": 11.5,
+                "lng": 104.9
+              },
+              "address": "DEMO warehouse entrance",
+              "contactName": "DEMO sender"
+            },
+            "delivery": {
+              "phone": "+855000000002",
+              "point": {
+                "lat": 11.5,
+                "lng": 104.9
+              },
+              "address": "DEMO browser run 3 replacement entrance",
+              "contactName": "DEMO recipient"
+            },
+            "customerId": "a965c52a-a112-4a22-a2ad-d89bec920fa4",
+            "paymentTerms": "PREPAID",
+            "serviceLevel": "S2",
+            "exclusiveVehicle": false,
+            "requestedPickupWindow": {
+              "end": "2026-10-31T12:41:18.572Z",
+              "start": "2026-10-31T11:41:18.572Z"
+            },
+            "requestedDeliveryWindow": {
+              "end": "2026-10-31T13:41:18.572Z",
+              "start": "2026-10-31T12:41:18.572Z"
+            }
+          },
+          "items": [
+            {
+              "id": "38c0afa4-4707-40dd-8b58-00778ab55ca6",
+              "name": "DEMO package",
+              "widthCm": 20,
+              "heightCm": 20,
+              "lengthCm": 20,
+              "quantity": 1,
+              "weightKg": 2,
+              "stackable": true,
+              "packageIds": [
+                "4d62e926-7182-40c6-8f81-cca2b38bee40"
+              ],
+              "uprightOnly": false,
+              "clientItemId": "box-1",
+              "restrictions": [],
+              "rotationAllowed": true,
+              "measurementEvidenceIds": []
+            }
+          ],
+          "order": {
+            "id": "c03a9a00-113e-4dc5-8f17-46c10c64c533",
+            "state": "quoted",
+            "orderNo": "RF-c03a9a00-113e-4dc5-8f17-46c10c64c533",
+            "version": 3,
+            "promiseId": null,
+            "updatedAt": "2026-10-31T09:43:03.426Z",
+            "customerId": "a965c52a-a112-4a22-a2ad-d89bec920fa4",
+            "serviceLevel": "S2",
+            "collectionState": "unpaid",
+            "fulfillmentStage": "none"
+          },
+          "intake": {
+            "checkedAt": "2026-10-31T09:43:03.400Z",
+            "evidenceId": "a7977c46-d119-4ce6-8477-5c401a8afebb",
+            "areaRevision": 2,
+            "automationEligible": false,
+            "sourceOrderVersion": 1,
+            "acceptedOrderVersion": 2
+          },
+          "pickup": {
+            "phone": "+855000000001",
+            "point": {
+              "lat": 11.5,
+              "lng": 104.9
+            },
+            "address": "DEMO warehouse entrance",
+            "contactName": "DEMO sender"
+          },
+          "quoteId": "7ba212cb-a950-4e9e-ad16-d21eb732779d",
+          "delivery": {
+            "phone": "+855000000002",
+            "point": {
+              "lat": 11.5,
+              "lng": 104.9
+            },
+            "address": "DEMO browser run 3 delivery",
+            "contactName": "DEMO recipient"
+          },
+          "activeExecutionId": null,
+          "blockingExceptionIds": []
+        },
+        "pricingPolicyVersionId": "19d7bc0d-2d55-4fa5-b1ba-5a976b70c216",
+        "confirmation": {
+          "method": "PHONE",
+          "personId": "172d3e0a-2fd8-4412-a192-478020d6a356",
+          "reference": "DEMO candidate confirmation 3",
+          "recordedAt": "2026-10-31T09:44:01.106Z",
+          "confirmedAt": "2026-10-31T09:44:01.000Z",
+          "principalId": "36aee05e-36be-4431-8b73-0ffc67d5c4d1",
+          "sourceQuality": "MANUAL_RECORDED",
+          "customerContact": "DEMO browser customer 3"
+        }
+      },
+      "errorText": "本单只读查看。未确认报价的订单可经受理接口有原因退回；已确认报价须走后续受控变更。报价有效性与付款结果请读取对应接口。"
+    }
+  ],
+  "identityActors": {
+    "orderQuoteActor": 6,
+    "caseDeciderActor": 7,
+    "customerActor": 0
+  },
+  "runs": 3,
+  "allPass": true
+}

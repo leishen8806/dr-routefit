@@ -45,6 +45,9 @@ test('412 is definitive; malformed success and 5xx remain unknown, not saved',as
  await assert.rejects(c.mutate('/tariffs/x',{},'"1"'),e=>e.status===412);assert.equal(c.pending,null);
  status=200;await assert.rejects(c.mutate('/tariffs/x',{},'"1"'));assert.ok(c.pending);status=503;await assert.rejects(c.retry());assert.ok(c.pending);
 });
+test('policy review and publish use their distinct session permissions',async()=>{
+ let who={...session,permissions:['pricing:read','pricing:review']};const writes=[];const c=new FeeClient(async(path,init)=>{if(path==='/dev/session')return response(who);writes.push({path,init});return response({id:'policy',version:2});});await c.connect();await c.mutate('/policy-versions/p/actions/review',{reason:'check'},'"1"');assert.equal(writes[0].path,'/api/ops/v1/pricing/policy-versions/p/actions/review');who={...session,permissions:['pricing:read','pricing:publish']};await c.connect();await c.mutate('/policy-versions/p/actions/publish',{reason:'approve'},'"2"');assert.equal(writes[1].path,'/api/ops/v1/pricing/policy-versions/p/actions/publish');who={...session,permissions:['pricing:read']};await c.connect();await assert.rejects(c.mutate('/policy-versions/p/actions/review',{reason:'no'},'"2"'),e=>e.status===403);
+});
 test('invalid fee amount identifies field for error summary while retaining input',()=>{
  assert.throws(()=>feeDTO({...form,amount:'1.251'},{code:'insurance',basis:'goods',locked:true},'DR','USD'),e=>e.status===422&&e.fields[0].path==='/amount');
 });

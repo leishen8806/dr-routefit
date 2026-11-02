@@ -21,10 +21,10 @@ export class FeeClient{
   this.#session=s;if(changed){this.#pending=null;throw new FeeError(401,'IDENTITY_CHANGED');}return this.identity;
  }
  async get(path){return this.#request(prefix+path);}
- async mutate(path,body,etag){
+ async mutate(path,body,etag,requiredPermission){
   if(this.#pending||this.#sending)throw new FeeError(409,'PENDING_OPERATION');
   if(!this.#session)throw new FeeError(401,'SESSION_REQUIRED');
-  const permission=path.endsWith('/trials')?'pricing:read':'pricing:write';
+  const permission=requiredPermission||(path.includes('/actions/review')?'pricing:review':path.includes('/actions/publish')?'pricing:publish':path.endsWith('/trials')?'pricing:read':'pricing:write');
   if(!this.#session.permissions.includes(permission))throw new FeeError(403,'FORBIDDEN');
   this.#pending={path,body:JSON.stringify(body),key:crypto.randomUUID(),etag,identity:this.#session.companyId+':'+this.#session.principalId};
   return this.#send();

@@ -1,0 +1,17 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Synthetic Phnom Penh service area",
+        "type": "ALLOW",
+        "effectiveFrom": "2026-01-01T00:00:00Z"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[104.80, 11.40], [105.00, 11.40], [105.00, 11.60], [104.80, 11.60], [104.80, 11.40]]]
+      }
+    }
+  ]
+}

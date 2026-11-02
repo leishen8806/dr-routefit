@@ -9,7 +9,7 @@
 | 分支 | `feat/RF-PM-022-order-intake-page`，PR 目标 `develop` |
 | 依赖 | 无 |
 | 需人类批准 | 否 |
-| 状态 | TODO |
+| 状态 | 已合并（PR #35）· 事后审查 CHANGES_REQUESTED，缺口转 RF-PM-028 |
 
 ## 背景
 
@@ -44,4 +44,15 @@ PR 描述写明 PASS／FAIL／NOT_RUN（含浏览器脚本结果与原因）和�
 
 ## 审查记录
 
-（Claude 填写）
+**2026-10-27 · Claude · 事后审查 · CHANGES_REQUESTED**（PR #35，提交 `20f358a`，合并于 `acec67d`；合并前未经审查，PR 描述为空）
+
+已做到：依据登记（取送渠道、reference、入口、每行货物来源，带 If-Match）、受理检查展示 ready 与阻断项、提交、退回原因必填、validating 只读、412 走既有冲突面板、浏览器主路径与 390px 截图。
+
+未满足验收，转 [RF-PM-028](RF-PM-028-p01-acceptance-gaps.md)：
+
+1. 没有新增单元测试（卡片要求：请求体、阻断项到字段映射、412／422、退回原因必填）。
+2. 422 INTAKE_BLOCKED 与受理检查阻断项只列 code／message，没有按 `error.fields` 定位到字段。
+3. 浏览器脚本缺“区域外订单被阻断并能看到原因”。
+4. 服务等级下拉仍列出及时送 S1，违反会议 M03。
+5. `readDraft` 改为直接取经纬度输入框：改了地址但没改经纬度时，旧坐标会随新地址提交，可能让区域检查用错点。原逻辑在地址变化时会清空坐标，应恢复或显式提示。
+6. PR 描述没有 PASS／FAIL／NOT_RUN 与“发现但未处理”。

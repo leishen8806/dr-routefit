@@ -6,6 +6,7 @@ import {developmentAuth,developmentServiceAuth} from './adapters/development-aut
 import {assertRuntimeRole} from './adapters/postgres.mjs';
 import {localBrowser} from './adapters/local-browser.mjs';
 import {fileURLToPath} from 'node:url';
+import {prepareEvidenceDirectory} from './evidence-directory.mjs';
 
 if(process.env.NODE_ENV==='production'||process.env.ROUTEFIT_AUTH_MODE!=='development')throw new Error('Only explicit local development mode is implemented');
 if(!process.env.ROUTEFIT_DATABASE_URL||!process.env.ROUTEFIT_SESSION_FILE)throw new Error('ROUTEFIT_DATABASE_URL and ROUTEFIT_SESSION_FILE are required');
@@ -20,10 +21,12 @@ const authenticate=developmentAuth(sessions,origin),serviceAuthenticate=developm
 const pool=new pg.Pool({connectionString:process.env.ROUTEFIT_DATABASE_URL,max:10,connectionTimeoutMillis:3000,idleTimeoutMillis:30000});
 pool.on('error',()=>console.error('Idle database connection failed'));
 await assertRuntimeRole(pool);
-const localAccess=localBrowser({origin,root:fileURLToPath(new URL('../../',import.meta.url)),sessionsFile:process.env.ROUTEFIT_SESSION_FILE,authenticate,pool});
-const evidenceDirectory=resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY??'.local/evidence');await mkdir(evidenceDirectory,{recursive:true});
+const localAccess=localBrowser({origin,root:fileURLToPath(new URL('../../',import.meta.url)),sessionsFile:process.env.ROUTEFIT_SESSION_FILE,authenticate,pool,trialMode:process.env.ROUTEFIT_TRIAL==='1'});
+const evidenceDirectory=await prepareEvidenceDirectory({directory:resolve(process.env.ROUTEFIT_EVIDENCE_DIRECTORY??'.local/evidence'),trial:process.env.ROUTEFIT_TRIAL==='1'});
 const codeSink=process.env.ROUTEFIT_RECIPIENT_CODE_SINK?resolve(process.env.ROUTEFIT_RECIPIENT_CODE_SINK):null;
 const recipientCodeSender=codeSink?async({code,expiresAt})=>{await mkdir(resolve(codeSink,'..'),{recursive:true});await appendFile(codeSink,JSON.stringify({code,expiresAt})+'\n',{encoding:'utf8',mode:0o600});}:undefined;
-const server=apiServer({pool,authenticate,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,log:entry=>console.log(JSON.stringify(entry))});
+const requestRateLimit=Number(process.env.ROUTEFIT_DEV_RATE_LIMIT||120);
+if(!Number.isInteger(requestRateLimit)||requestRateLimit<1)throw new Error('Invalid ROUTEFIT_DEV_RATE_LIMIT');
+const server=apiServer({pool,authenticate,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,requestRateLimit,log:entry=>console.log(JSON.stringify(entry))});
 server.listen(port,'127.0.0.1',()=>console.log(`RouteFit local pricing API: http://127.0.0.1:${port}`));
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>server.close(()=>pool.end()));

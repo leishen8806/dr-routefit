@@ -11,3 +11,8 @@
 交接包由 `scripts/export-fee-baseline.py` 生成；最终包身份及空目录恢复结果见被忽略的 `handoff/latest.json`、`handoff/restore-result.json`。两者必须匹配snapshotId，不能把测试预览包视为最终包。恢复验证执行npm ci、bootstrap及费用/订单/策略/受理四套smoke；不包含本机凭据。
 
 未覆盖：生产身份、PostGIS/GeoCore、装载认证、正式报价/付款/派单、真实移动端。完整受理操作UI尚待大旺接线；RF-QA-01独立验收未代签。GitHub仅同步README，不提交本地业务增量。
+## RF-PM-022 页面验收补充
+
+`prototype/browser-order-intake-acceptance.mjs` 在本机真实 Chromium + 合成 PostgreSQL 上覆盖：草稿登记取送依据与每行货物来源、受理检查 PASS、提交后 validating 只读、填写退回原因恢复草稿、390px 无横向溢出。
+
+结果：PASS。截图：`01-draft-evidence-ready.png`、`02-validating-readonly.png`、`03-mobile-order-intake.png`。

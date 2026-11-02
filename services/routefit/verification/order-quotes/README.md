@@ -10,3 +10,7 @@
 当前只支持已审核的DR固定基础/独享/保险费用。GET实时派生有效性，保留原报价金额；客户端不能信任旧POST/幂等重放的issued状态。没有客户确认、收款、承保、地图认证或派单副作用。
 
 交接包由export-fee-baseline.py生成；精确snapshotId与归档哈希、空目录恢复结果以handoff/latest.json和restore-result.json为准，不将旧包验证结论用于新包。没有代替RF-QA-01独立验收；没有部署或推送业务代码。GitHub只同步README。
+
+## RF-PM-023 页面验收补充
+
+`prototype/browser-order-quote-acceptance.mjs` 使用合成策略、区域、订单和本机身份覆盖：已受理订单 → 已发布策略 → 生成 issued 报价 → 展示服务端明细 → 记录客户确认并回读 confirmed。截图：`01-issued-quote.png`、`02-confirmed-quote.png`。本页不自行计算金额，未接付款或派单。

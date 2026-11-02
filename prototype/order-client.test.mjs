@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createOrderClient} from './order-client.mjs';
-const reply=(status,value)=>({ok:status<400,status,json:async()=>value});
+const reply=(status,value,headers=null)=>({ok:status<400,status,json:async()=>value,headers});
 const identity={companyId:'A',principalId:'person-1',csrfToken:'synthetic-csrf'};
 test('lost response retries exactly the same frozen write, never creates a new key',async()=>{
  const writes=[];let lose=true;
@@ -33,4 +33,9 @@ test('version conflict is explicit and clears pending without retry or overwrite
  let writes=0;
  const client=createOrderClient({fetchImpl:async path=>path==='/dev/session'?reply(200,identity):(writes++,reply(412,{error:{code:'VERSION_MISMATCH'}}))});
  await client.connect();await assert.rejects(client.save({notes:'mine'},{id:'1',version:1}),{status:412});assert.equal(client.pending,false);assert.equal(writes,1);
+});
+test('idempotency replay is exposed to the page without changing the response body',async()=>{
+ const client=createOrderClient({fetchImpl:async path=>path==='/dev/session'?reply(200,identity):reply(200,{id:'quote-1',version:1},{get:name=>name==='Idempotency-Replayed'?'true':null})});
+ await client.connect();const result=await client.command('/api/ops/v1/orders/order-1/quotes',{},1);
+ assert.equal(result.replayed,true);assert.deepEqual(Object.keys(result),['id','version']);
 });

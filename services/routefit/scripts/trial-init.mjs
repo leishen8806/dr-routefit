@@ -1,0 +1,95 @@
+import {randomBytes,randomUUID} from 'node:crypto';
+import {access,chmod,readFile,stat,unlink,writeFile} from 'node:fs/promises';
+import {constants} from 'node:fs';
+import {dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import pg from 'pg';
+import {migrate} from '../db/migrate.mjs';
+
+const quoteIdentifier=value=>`"${String(value).replaceAll('"','""')}"`;
+const quoteLiteral=value=>`'${String(value).replaceAll("'","''")}'`;
+const {F_OK,W_OK}=constants;
+
+export async function configureBackupRole({client,backupRole,migrationRoles=[]}){
+ const schemas=(await client.query("SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT LIKE 'pg_%' AND schema_name <> 'information_schema' ORDER BY schema_name")).rows.map(row=>row.schema_name);
+ const roles=[...new Set(migrationRoles.length?migrationRoles:['current_user'])];
+ await client.query(`REVOKE CREATE ON SCHEMA public FROM PUBLIC`);
+ for(const schema of schemas){
+  const s=quoteIdentifier(schema),r=quoteIdentifier(backupRole);
+  await client.query(`GRANT USAGE ON SCHEMA ${s} TO ${r}`);
+  await client.query(`GRANT SELECT ON ALL TABLES IN SCHEMA ${s} TO ${r}`);
+  await client.query(`GRANT SELECT ON ALL SEQUENCES IN SCHEMA ${s} TO ${r}`);
+  for(const role of roles){const owner=role==='current_user'?'CURRENT_USER':quoteIdentifier(role);await client.query(`ALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${s} GRANT SELECT ON TABLES TO ${r}`);await client.query(`ALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${s} GRANT SELECT ON SEQUENCES TO ${r}`);}
+ }
+ return schemas;
+}
+
+const runtimePathVariables=['ROUTEFIT_TRIAL_DATABASE','ROUTEFIT_ADMIN_ENV_FILE','ROUTEFIT_TRIAL_STAFF_FILE','ROUTEFIT_TRIAL_COMPANY_FILE','ROUTEFIT_TRIAL_IMPORT_DIRECTORY','ROUTEFIT_TRIAL_SERVICE_AREAS_FILE','ROUTEFIT_TRIAL_AREA_REASON','ROUTEFIT_BACKUP_ENV_FILE','ROUTEFIT_BACKUP_DIRECTORY','ROUTEFIT_PG_BIN'];
+export function buildTrialEnv({databaseUrl,sessionFile,source=process.env,port=4180}={}){
+ const lines=[`NODE_ENV=development`,`ROUTEFIT_TRIAL=1`,`ROUTEFIT_AUTH_MODE=development`,`ROUTEFIT_DATABASE_URL=${databaseUrl}`,`ROUTEFIT_SESSION_FILE=${sessionFile}`,`ROUTEFIT_PORT=${port}`];
+ for(const name of runtimePathVariables)if(source[name])lines.push(`${name}=${source[name]}`);
+ return `${lines.join('\n')}\n`;
+}
+
+async function assertPreflightOutput(path,label){
+ try{await access(dirname(path),W_OK);}catch(error){throw Error(`${label} parent directory must already exist and be writable: ${error.message}`);}
+ try{await access(path,F_OK);throw Error(`${label} already exists; refusing to overwrite`);}catch(error){if(error?.code!=='ENOENT')throw error;}
+}
+
+async function cleanupTrialInit({admin,databaseName,created,runtimeRole,roleCreated,backupRole,backupRoleCreated,filesCreated}){
+ const failures=[];
+ const attempt=async(label,action)=>{try{await action();}catch(error){failures.push(`${label} (${error.message})`);}};
+ if(created){
+  await attempt(`数据库 ${databaseName} 的残留连接`,()=>admin.query('SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=$1 AND pid<>pg_backend_pid()',[databaseName]));
+  await attempt(`数据库 ${databaseName}`,()=>admin.query(`DROP DATABASE IF EXISTS ${quoteIdentifier(databaseName)}`));
+ }
+ if(backupRoleCreated)await attempt(`角色 ${backupRole}`,()=>admin.query(`DROP ROLE IF EXISTS ${quoteIdentifier(backupRole)}`));
+ if(roleCreated)await attempt(`角色 ${runtimeRole}`,()=>admin.query(`DROP ROLE IF EXISTS ${quoteIdentifier(runtimeRole)}`));
+ for(const file of [...filesCreated].reverse())await attempt(`文件 ${file}`,async()=>{try{await unlink(file);}catch(error){if(error?.code!=='ENOENT')throw error;}});
+ return failures;
+}
+
+export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,databaseName=process.env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial',envFile=process.env.ROUTEFIT_TRIAL_ENV_FILE||fileURLToPath(new URL('../.local/dev.env',import.meta.url)),companyFile=process.env.ROUTEFIT_TRIAL_COMPANY_FILE||fileURLToPath(new URL('../.local/trial-company.json',import.meta.url)),sessionFile=process.env.ROUTEFIT_TRIAL_SESSION_FILE||'/var/lib/routefit/sessions.json',backupEnvFile=process.env.ROUTEFIT_BACKUP_ENV_FILE||fileURLToPath(new URL('../.local/backup.env',import.meta.url)),Pool=pg.Pool,writeFileImpl=writeFile}={}){
+ if(!adminUrl)throw Error('ROUTEFIT_PG_ADMIN_URL is required');
+ await assertPreflightOutput(envFile,'ROUTEFIT_TRIAL_ENV_FILE');
+ await assertPreflightOutput(sessionFile,'ROUTEFIT_TRIAL_SESSION_FILE');
+ await assertPreflightOutput(backupEnvFile,'ROUTEFIT_BACKUP_ENV_FILE');
+ const base=new URL(adminUrl);if(!['127.0.0.1','localhost','[::1]'].includes(base.hostname))throw Error('admin URL must be local');
+ const companyText=await readFile(companyFile,'utf8'),companyMode=(await stat(companyFile)).mode&0o777;const company=JSON.parse(companyText);if(!company.name)throw Error('trial company name is required');
+ const runtimeRole=`rf_trial_${randomBytes(8).toString('hex')}`,runtimePassword=randomBytes(32).toString('hex'),backupRole=`rf_backup_${randomBytes(8).toString('hex')}`,backupPassword=randomBytes(32).toString('hex');
+ const admin=new Pool({connectionString:adminUrl});let created=false,roleCreated=false,backupRoleCreated=false,companyId,systemPrincipalId,companyFileChanged=false;const filesCreated=[];
+ try{
+  const exists=await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[databaseName]);if(exists.rowCount)throw Error(`${databaseName} already exists; refusing to overwrite`);
+  await admin.query(`CREATE DATABASE ${quoteIdentifier(databaseName)}`);created=true;
+  const target=new URL(adminUrl);target.pathname='/'+databaseName;const pool=new Pool({connectionString:target.href});
+  try{
+   await migrate(pool);
+   const client=await pool.connect();
+   try{
+   await client.query('BEGIN');
+   const id=company.id||randomUUID();companyId=id;
+   await client.query("SELECT set_config('app.company_id',$1,true)",[id]);
+   await client.query('INSERT INTO org.company(id,name,status) VALUES($1,$2,\'ACTIVE\') ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,status=\'ACTIVE\'',[id,company.name]);
+   systemPrincipalId=(await client.query("INSERT INTO org.principal(id,company_id,kind,display_name,idp_subject,status) VALUES($1,$2,'SERVICE','Trial Import Administrator','system:trial-import','ACTIVE') ON CONFLICT(company_id,idp_subject) DO UPDATE SET kind='SERVICE',display_name=EXCLUDED.display_name,status='ACTIVE' RETURNING id",[randomUUID(),id])).rows[0].id;
+   await client.query('COMMIT');
+   if(!company.id){companyFileChanged=true;await writeFileImpl(companyFile,JSON.stringify({...company,id},null,2)+'\n',{mode:0o600});await chmod(companyFile,0o600);}
+   }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
+  }finally{await pool.end();}
+  await admin.query(`CREATE ROLE ${quoteIdentifier(runtimeRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${quoteLiteral(runtimePassword)}`);roleCreated=true;
+  await admin.query(`GRANT routefit_api TO ${quoteIdentifier(runtimeRole)}`);
+  await admin.query(`CREATE ROLE ${quoteIdentifier(backupRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION BYPASSRLS PASSWORD ${quoteLiteral(backupPassword)}`);backupRoleCreated=true;
+  const grantPool=new Pool({connectionString:target.href}),backupClient=await grantPool.connect();
+  try{const owners=(await backupClient.query("SELECT DISTINCT tableowner AS role FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname <> 'information_schema'")).rows.map(row=>row.role);await configureBackupRole({client:backupClient,backupRole,migrationRoles:owners});}finally{backupClient.release();await grantPool.end();}
+  target.username=runtimeRole;target.password=runtimePassword;
+  const backupTarget=new URL(adminUrl);backupTarget.pathname='/'+databaseName;backupTarget.username=backupRole;backupTarget.password=backupPassword;
+  filesCreated.push(envFile);await writeFileImpl(envFile,buildTrialEnv({databaseUrl:target.href,sessionFile,source:process.env}),{flag:'wx',mode:0o600});
+  filesCreated.push(sessionFile);await writeFileImpl(sessionFile,'[]\n',{flag:'wx',mode:0o600});
+  filesCreated.push(backupEnvFile);await writeFileImpl(backupEnvFile,`ROUTEFIT_PG_BACKUP_URL=${backupTarget.href}\n`,{flag:'wx',mode:0o600});
+  return {databaseName,runtimeRole,backupRole,envFile,backupEnvFile,sessionFile,companyId,systemPrincipalId};
+ }catch(error){const failures=[];if(companyFileChanged){try{await writeFile(companyFile,companyText,{mode:companyMode});await chmod(companyFile,companyMode);}catch(restoreError){failures.push(`企业配置文件 (${restoreError.message})`);}}failures.push(...await cleanupTrialInit({admin,databaseName,created,runtimeRole,roleCreated,backupRole,backupRoleCreated,filesCreated}));if(failures.length)error.message=`${error.message}; 仍有残留：${failures.join('；')}`;throw error;}finally{await admin.end();}
+}
+
+if(process.argv[1]===fileURLToPath(import.meta.url)){
+ if(process.env.NODE_ENV==='production')throw Error('trial:init refuses NODE_ENV=production');
+ const result=await runTrialInit();console.log(`Created ${result.databaseName}; runtime role ${result.runtimeRole}; backup role ${result.backupRole}; applied all migrations. No passwords were printed and no demo customers or orders were inserted.`);
+}

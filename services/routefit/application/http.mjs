@@ -31,7 +31,7 @@ import {recipientRoutes} from './recipient.mjs';
 import {authorizePrepayment,readPrepayment,writePrepayment} from '../adapters/prepayment.mjs';
 import {createQuote,getQuote} from '../adapters/quotes.mjs';
 import {readIntake,writeIntake} from '../adapters/intake.mjs';
-import {getPolicy,submitPolicy,reviewOrPublishPolicy} from '../adapters/policy.mjs';
+import {getPolicy,listPublishedPolicies,submitPolicy,reviewOrPublishPolicy} from '../adapters/policy.mjs';
 import {orderQuery,authorizedCustomer,currentCustomer,getOrder,getCustomerOrder,readOrders,writeOrder,writeOrderCancel} from '../adapters/orders.mjs';
 import {caseQuery,readCases,writeCase} from '../adapters/cases.mjs';
 import {documentQuery,driverIncomeQuery,ledgerQuery,moneyOverviewQuery,readDriverIncome,readFinance,readFinanceDocuments,readFinanceTasks,readLedgerReport,readMoneyOverview,readReceipt,readReceipts,receiptQuery,reportQuery,taskQuery,writeFinanceDocument,writeFinanceTask,writeReceipt} from '../adapters/finance.mjs';
@@ -89,9 +89,16 @@ async function readBody(req){
  }
  return parseJson(Buffer.concat(chunks));
 }
+const isoDateTimeWithZone=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?(Z|[+-](?:(?:0\d|1[0-3]):[0-5]\d|14:00))$/;
+function normalizedIsoDateTime(value){
+ const match=isoDateTimeWithZone.exec(value);if(!match)return null;
+ const [year,month,day,hour,minute,second]=match.slice(1,7).map(Number),calendar=new Date(Date.UTC(year,month-1,day));
+ if(calendar.getUTCFullYear()!==year||calendar.getUTCMonth()!==month-1||calendar.getUTCDate()!==day||hour>23||minute>59||second>59)return null;
+ const timestamp=Date.parse(value);return Number.isNaN(timestamp)?null:new Date(timestamp).toISOString();
+}
 function pagination(url,kind){
  const cursor=kind==='revisions'?'afterVersion':'after';
- const allowed=['list','revisions'].includes(kind)?['limit',cursor]:[];
+ const allowed=kind==='policy-list'?['limit','after','state','effectiveAt','serviceLevel','tariffId']:['list','revisions'].includes(kind)?['limit',cursor]:[];
  for(const key of url.searchParams.keys())ensure(allowed.includes(key)&&url.searchParams.getAll(key).length===1,422,'INVALID_QUERY','查询参数不支持或重复');
  const raw=url.searchParams.get('limit')??'50';
  ensure(/^[1-9][0-9]*$/.test(raw)&&Number(raw)<=100,422,'INVALID_LIMIT','limit须为1到100');
@@ -100,7 +107,15 @@ function pagination(url,kind){
   if(kind==='revisions'){ensure(/^[1-9][0-9]*$/.test(after)&&Number(after)<=9000000000000,422,'INVALID_CURSOR','版本游标无效');after=Number(after);}
   else ensure(uuid.test(after),422,'INVALID_CURSOR','游标须为UUID');
  }
- return {limit:Number(raw),after};
+ const page={limit:Number(raw),after};
+ if(kind==='policy-list'){
+  const state=url.searchParams.get('state')??'PUBLISHED';ensure(state==='PUBLISHED',422,'INVALID_STATE_FILTER','策略列表只支持state=PUBLISHED');
+  const effectiveAt=normalizedIsoDateTime(url.searchParams.get('effectiveAt')??new Date().toISOString());ensure(effectiveAt,422,'INVALID_EFFECTIVE_AT','effectiveAt须为带时区的ISO时间');
+  const serviceLevel=url.searchParams.get('serviceLevel');if(serviceLevel)ensure(['S1','S2','S3'].includes(serviceLevel),422,'INVALID_SERVICE_LEVEL','serviceLevel无效');
+  const tariffId=url.searchParams.get('tariffId');if(tariffId)ensure(uuid.test(tariffId),422,'INVALID_TARIFF_ID','tariffId须为UUID');
+  return {...page,state,effectiveAt,serviceLevel,tariffId};
+ }
+ return page;
 }
 // Two id-ordered sources, each already limited to page.limit rows after the same cursor. After merging, anything cut off by
 // the limit is still ahead of the last returned id, so the next page (id > last) will return it; report "more" whenever either
@@ -123,14 +138,14 @@ export function databaseConflict(error){
  if(error?.code==='23505')return {code:'REQUEST_CONFLICT',message:'资源已被并发创建或已存在，请刷新后重试'};
  return null;
 }
-export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,log=()=>{}}){
+export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,requestRateLimit=120,log=()=>{}}){
  const limits=new Map();
  const publicLimits=new Map();
   const recipientLimits=new Map();
  const downloadSecret=randomBytes(32);
  const server=createServer({maxHeaderSize:16384},async(req,res)=>{
   const requestId=randomUUID();let operation='unknown';
-  const send=(status,body,headers={},cause=null)=>{const noContent=status===204;res.writeHead(status,{...(noContent?{}:{'Content-Type':'application/json; charset=utf-8'}),'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Request-Id':requestId,...headers});res.end(noContent?'':JSON.stringify(body));log({requestId,operation,status,...(cause?{cause}:{})});};
+  const send=(status,body,headers={},cause=null)=>{const noContent=status===204;res.writeHead(status,{...(noContent?{}:{'Content-Type':'application/json; charset=utf-8'}),'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Request-Id':requestId,...(status===429?{'Retry-After':'60'}:{}),...headers});res.end(noContent?'':JSON.stringify(body));log({requestId,operation,status,...(cause?{cause}:{})});};
   try{
    const url=new URL(req.url,'http://127.0.0.1');
    if(evidenceDirectory&&await serveEvidenceObject(req,res,pool,evidenceDirectory,url,downloadSecret))return;
@@ -176,9 +191,9 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evi
    const route=matches.find(r=>r.method===req.method);ensure(route,405,'METHOD_NOT_ALLOWED','请求方法不支持');operation=route.operation;
    const principal=route.service?(ensure(typeof serviceAuthenticate==='function',503,'SERVICE_AUTH_UNAVAILABLE','服务凭据认证尚未配置'),serviceAuthenticate(req)):authenticate(req);
    ensure(principal.permissions.includes(route.permission??(route.write?'pricing:write':'pricing:read')),403,'FORBIDDEN','没有执行此操作的权限');
-   rateLimit(limits,principal.companyId+':'+principal.principalId,120);
+   rateLimit(limits,principal.companyId+':'+principal.principalId,requestRateLimit);
    const id=local.match(route.pattern)[1];if(id)ensure(uuid.test(id),404,'NOT_FOUND','资源不存在');
-   const page=pricing?pagination(url,route.kind):finance?route.kind==='tasks'?taskQuery(url,principal):route.kind==='documents'?documentQuery(url,principal):['receipt','receipts'].includes(route.kind)?receiptQuery(url,principal):route.kind==='bank-transactions'?receiptQuery(url,principal,'bank-transactions'):route.kind==='cash-handovers'?cashHandoverQuery(url,principal,'ops'):route.kind==='settlement-rules'?settlementRuleQuery(url,principal):route.kind==='statements'?statementQuery(url,principal):route.kind==='settlement-accounts'?opsSettlementAccountQuery(url,principal):route.kind==='money-overview'?moneyOverviewQuery(url):route.kind==='ledger-report'?reportQuery(url,principal):ledgerQuery(url,principal):merchant?externalSubjectQuery(url,principal,'merchant-'+route.kind):partnerPortal?externalSubjectQuery(url,principal,'partner-'+route.kind):notifications?null:access?accessGrantQuery(url,principal):dispatch?dispatchQuery(url,principal):custody||delivery||integration?null:warehouse?route.kind==='queue'?orderQuery(url,'warehouse-queue',principal):route.kind.startsWith('inventory-')?null:warehouseRequestQuery(url,principal,'ops',route.kind.startsWith('inbound')?'INBOUND_NOTICE':'OUTBOUND_DELIVERY'):driver?route.kind==='cash-handovers'?cashHandoverQuery(url,principal,'driver'):route.kind==='settlement-accounts'?driverSettlementAccountQuery(url,principal):route.kind==='income'?driverIncomeQuery(url,principal):route.kind==='withdrawal-requests'?driverWithdrawalQuery(url,principal):driverQuery(url,principal):exceptions?exceptionQuery(url,principal):partners?partnerQuery(url,principal):bookings?null:customer&&route.kind==='members'?portalMemberQuery(url,principal):customer&&route.kind==='customer-statements'?customerStatementQuery(url,principal):customer&&route.kind==='customer-settlement-accounts'?customerSettlementAccountQuery(url,principal):customer&&route.kind==='customer-finance-requests'?customerFinanceRequestQuery(url,principal):customer&&route.kind==='inventory'?inventoryQuery(url,principal):customer&&route.kind.startsWith('warehouse-')?warehouseRequestQuery(url,principal,'customer',route.kind.includes('inbound')?'INBOUND_NOTICE':'OUTBOUND_DELIVERY'):customer&&route.kind==='ledger-items'?ledgerQuery(url,principal):customer&&route.kind==='ledger-report'?reportQuery(url,principal,true):customer&&route.kind==='receipts'?receiptQuery(url,principal):route.kind==='timeline'?timelineQuery(url,principal):cases?caseQuery(url,principal):evidence?null:orderQuery(url,route.kind,principal);
+   const page=policy?pagination(url,route.kind):pricing?pagination(url,route.kind):finance?route.kind==='tasks'?taskQuery(url,principal):route.kind==='documents'?documentQuery(url,principal):['receipt','receipts'].includes(route.kind)?receiptQuery(url,principal):route.kind==='bank-transactions'?receiptQuery(url,principal,'bank-transactions'):route.kind==='cash-handovers'?cashHandoverQuery(url,principal,'ops'):route.kind==='settlement-rules'?settlementRuleQuery(url,principal):route.kind==='statements'?statementQuery(url,principal):route.kind==='settlement-accounts'?opsSettlementAccountQuery(url,principal):route.kind==='money-overview'?moneyOverviewQuery(url):route.kind==='ledger-report'?reportQuery(url,principal):ledgerQuery(url,principal):merchant?externalSubjectQuery(url,principal,'merchant-'+route.kind):partnerPortal?externalSubjectQuery(url,principal,'partner-'+route.kind):notifications?null:access?accessGrantQuery(url,principal):dispatch?dispatchQuery(url,principal):custody||delivery||integration?null:warehouse?route.kind==='queue'?orderQuery(url,'warehouse-queue',principal):route.kind.startsWith('inventory-')?null:warehouseRequestQuery(url,principal,'ops',route.kind.startsWith('inbound')?'INBOUND_NOTICE':'OUTBOUND_DELIVERY'):driver?route.kind==='cash-handovers'?cashHandoverQuery(url,principal,'driver'):route.kind==='settlement-accounts'?driverSettlementAccountQuery(url,principal):route.kind==='income'?driverIncomeQuery(url,principal):route.kind==='withdrawal-requests'?driverWithdrawalQuery(url,principal):driverQuery(url,principal):exceptions?exceptionQuery(url,principal):partners?partnerQuery(url,principal):bookings?null:customer&&route.kind==='members'?portalMemberQuery(url,principal):customer&&route.kind==='customer-statements'?customerStatementQuery(url,principal):customer&&route.kind==='customer-settlement-accounts'?customerSettlementAccountQuery(url,principal):customer&&route.kind==='customer-finance-requests'?customerFinanceRequestQuery(url,principal):customer&&route.kind==='inventory'?inventoryQuery(url,principal):customer&&route.kind.startsWith('warehouse-')?warehouseRequestQuery(url,principal,'customer',route.kind.includes('inbound')?'INBOUND_NOTICE':'OUTBOUND_DELIVERY'):customer&&route.kind==='ledger-items'?ledgerQuery(url,principal):customer&&route.kind==='ledger-report'?reportQuery(url,principal,true):customer&&route.kind==='receipts'?receiptQuery(url,principal):route.kind==='timeline'?timelineQuery(url,principal):cases?caseQuery(url,principal):evidence?null:orderQuery(url,route.kind,principal);
    let body,version=null,request;
    if(req.method!=='GET'){
     const key=req.headers['idempotency-key'];ensure(typeof key==='string'&&/^[\x21-\x7e]{16,128}$/.test(key),428,'IDEMPOTENCY_REQUIRED','需要16到128位可见ASCII幂等键');
@@ -308,7 +323,7 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evi
      if(req.method==='GET')return {status:200,body:await readCases(client,principal,route.kind,id,page)};
      return idempotent(client,principal,request,async()=>{
       const data=await writeCase(client,principal,route.kind,id,body,version);validate(route.schema,data);
-      return {status:route.kind==='create'?201:200,body:data,etag:`"${data.version}"`};
+      return {status:['create','ops-create'].includes(route.kind)?201:200,body:data,etag:`"${data.version}"`};
      });
     }
     if(prepayment){
@@ -336,6 +351,7 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evi
      });
     }
     if(policy){
+     if(route.kind==='policy-list')return {status:200,body:await listPublishedPolicies(client,principal,page)};
      if(req.method==='GET')return {status:200,body:await getPolicy(client,principal,id)};
      return idempotent(client,principal,request,async()=>{
       const data=route.kind==='policy-submit'?await submitPolicy(client,principal,id,body,version):await reviewOrPublishPolicy(client,principal,id,body,version,route.kind==='policy-publish');

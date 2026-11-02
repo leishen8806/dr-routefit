@@ -1,14 +1,18 @@
 import {FeeClient} from './fee-api-client.mjs';
-import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput} from './fee-api-model.mjs';
+import {display,feeDTO,trialDTO,snapshotChanged,formatTrialInput,tariffSummary,shortId,listStatus,copyTariffId} from './fee-api-model.mjs';
+import {requiredReason} from './orders-ui-rules.mjs';
+import {policySnapshotRows} from './policy-view.mjs';
+const controlsStylesheet=document.createElement('link');controlsStylesheet.rel='stylesheet';controlsStylesheet.href='controls.css';document.head.append(controlsStylesheet);
 const $=id=>document.getElementById(id),client=new FeeClient(),form=$('fee-form');
-let catalog=[],tariffs=[],current=null,etag=null,code=null,dirty=false,busy=false,connected=false,sequence=0,nextAfter=null,historyAfter=null,historyId=null,latest=null,pendingApply=null,tab='edit',snapshot=null,createDirty=false;
+
+let catalog=[],tariffs=[],current=null,etag=null,code=null,dirty=false,busy=false,connected=false,sequence=0,nextAfter=null,historyAfter=null,historyId=null,latest=null,pendingApply=null,tab='edit',snapshot=null,createDirty=false,policy=null,policyEtag=null;
 const field=name=>form.elements.namedItem(name);
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
 const message=text=>$('status').textContent=text;
 const canWrite=()=>connected&&client.identity?.permissions.includes('pricing:write');
 const canRead=()=>connected&&client.identity?.permissions.includes('pricing:read');
 function errorsClear(){ $('errors').hidden=true;$('error-list').replaceChildren();form.querySelectorAll('[aria-invalid]').forEach(x=>{x.removeAttribute('aria-invalid');x.removeAttribute('aria-describedby');});document.title='费用设置 · DR RouteFit'; }
-const messages={VERSION_CONFLICT:'服务端版本已变化。你的输入已保留，请读取最新版本并比较。',RESULT_UNKNOWN:'连接失败或结果未知。若为保存请求，请保留输入并按原请求重试，勿重新创建。',IDENTITY_CHANGED:'开发身份已变化。已清除旧身份资源与待处理请求，请重新读取当前企业草稿。',FORBIDDEN:'无此操作权限，请联系负责人。',NOT_FOUND:'对象不可用或已无访问权限。',PENDING_OPERATION:'有一笔操作尚未确认，请先按原请求重试。',INVALID_RESPONSE:'响应无法确认，尚未显示保存成功。'};
+const messages={VERSION_CONFLICT:'服务端版本已变化。你的输入已保留，请读取最新版本并比较。',RESULT_UNKNOWN:'连接失败或结果未知。若为保存请求，请保留输入并按原请求重试，勿重新创建。',IDENTITY_CHANGED:'开发身份已变化。已清除旧身份资源与待处理请求，请重新读取当前企业草稿。',FORBIDDEN:'无此操作权限，请联系负责人。',INDEPENDENT_REVIEW_REQUIRED:'职责分离校验未通过，请使用独立的复核或发布会话。',INVALID_STATE:'策略状态不允许此操作，请先读取当前策略。',SOURCE_VERSION_CHANGED:'来源费率草稿已变化，请重新提交策略。',CAPABILITY_DISABLED:'当前费目能力未接通，不能发布策略。',BASE_FEE_REQUIRED:'发布策略前必须显式配置基础费。',INVALID_POLICY_WINDOW:'请检查策略有效期、报价有效期和服务等级。',NOT_FOUND:'对象不可用或已无访问权限。',PENDING_OPERATION:'有一笔操作尚未确认，请先按原请求重试。',INVALID_RESPONSE:'响应无法确认，尚未显示保存成功。'};
 function showError(error){
  const text=messages[error.code]||(error.status===401?'会话已失效，请重新建立本机开发会话。':error.status===403?'无此操作权限或会话校验失败，请重新连接或联系负责人。':error.status===404?'对象不可用或已无访问权限。':error.status===422?'字段或费用规则不正确，请检查输入。':error.status===429?'请求过于频繁，请稍后按原请求重试。':error.status>=500?'服务暂不可用，保存结果尚未确认。':error.message||'操作失败');
  $('errors').hidden=false;$('error-list').replaceChildren(el('p',text));
@@ -21,7 +25,8 @@ function showError(error){
 async function run(fn){if(busy)return;busy=true;errorsClear();sync();try{await fn();}catch(e){showError(e);}finally{busy=false;sync();}}
 function sync(){
  const locked=busy||!!client.pending;
- $('create').disabled=!canWrite()||locked||dirty;$('tariff').disabled=!canRead()||locked;$('more').disabled=!canRead()||locked||!nextAfter;$('refresh').disabled=!canRead()||locked||!current;
+ $('create').disabled=!canWrite()||locked||dirty;$('tariff').disabled=!canRead()||locked;$('more').disabled=!canRead()||locked||!nextAfter;$('refresh').disabled=!canRead()||locked;
+ $('more').hidden=!nextAfter;$('more').title=nextAfter?'加载下一页费用草稿':'已显示全部草稿';$('refresh').title=current?'重新读取当前草稿':'刷新费用草稿列表';$('copy-tariff-id').disabled=!current||busy||!!client.pending;
  $('fee-fields').disabled=!canWrite()||!current||!code||locked;
  $('save').disabled=!canWrite()||!dirty||locked||!!latest;$('discard').disabled=!dirty||locked;
  $('calculate').disabled=!canRead()||!current||locked||dirty;
@@ -31,6 +36,11 @@ function sync(){
  $('dirty').textContent=dirty?`${catalog.find(x=>x.code===code)?.name||'费目'} · 1项未保存`:'未修改';$('save').textContent=busy?'处理中…':'保存此费目';
  document.querySelectorAll('#create-form input,#create-form select').forEach(n=>n.disabled=!canWrite()||locked);
  $('snapshot-form').querySelector('button').disabled=!canRead()||busy;
+ $('policy-panel').hidden=!current;
+ if($('policy-load'))$('policy-load').disabled=!canRead()||locked;
+ $('policy-submit').disabled=!canWrite()||locked||!current||!!policy;
+ $('policy-review').disabled=!connected||locked||!policy||policy.state!=='SUBMITTED'||!client.identity?.permissions.includes('pricing:review');
+ $('policy-publish').disabled=!connected||locked||!policy||policy.state!=='REVIEWED'||!client.identity?.permissions.includes('pricing:publish');
  document.querySelectorAll('#fees button').forEach(n=>n.disabled=!current||locked);dynamicFields();
 }
 function leaveGuard(action){
@@ -40,16 +50,16 @@ function leaveGuard(action){
 }
 window.addEventListener('beforeunload',e=>{if(dirty||createDirty||client.pending){e.preventDefault();e.returnValue='';}});
 document.querySelector('[data-leave]').addEventListener('click',e=>{e.preventDefault();const href=e.currentTarget.href;leaveGuard(()=>location.assign(href));});
-function options(){const previous=current?.id;$('tariff').replaceChildren(new Option(tariffs.length?'请选择草稿':'本企业尚无草稿',''));for(const t of tariffs)$('tariff').add(new Option(`${t.name} · ${t.owner} / ${t.currency}`,t.id));$('tariff').value=previous||'';}
-async function list(append=false){const r=await client.get('/tariffs?limit=50'+(append&&nextAfter?'&after='+encodeURIComponent(nextAfter):''));tariffs=append?[...tariffs,...r.data.items.filter(x=>!tariffs.some(t=>t.id===x.id))]:r.data.items;nextAfter=r.data.nextAfter;options();}
+function options(loading=false){const previous=current?.id;$('tariff').replaceChildren(new Option(loading?'加载中…':(tariffs.length?'请选择草稿':'本企业尚无草稿'),'') );for(const t of tariffs){const option=new Option(`${t.name} · ${t.owner} / ${t.currency}`,t.id);option.title=t.name;$('tariff').add(option);}$('tariff').value=previous||'';$('tariff').title=current?.name||'请选择本企业费用草稿';}
+async function list(append=false){$('tariff-list-status').textContent=listStatus({connected,loading:true,hasMore:!!nextAfter,count:tariffs.length,canRead:canRead()});options(true);const r=await client.get('/tariffs?limit=50'+(append&&nextAfter?'&after='+encodeURIComponent(nextAfter):''));tariffs=append?[...tariffs,...r.data.items.filter(x=>!tariffs.some(t=>t.id===x.id))]:r.data.items;nextAfter=r.data.nextAfter;options();$('tariff-list-status').textContent=listStatus({connected,loading:false,hasMore:!!nextAfter,count:tariffs.length,canRead:canRead()});}
 async function connect(){
  await client.connect();connected=true;catalog=(await client.get('/catalog')).data;await list();$('source').textContent='本机数据库 · 开发会话';message(tariffs.length?'已连接，请选择草稿。':'已连接，本企业尚无草稿；可新建数据库草稿。');
 }
-function context(){ if(snapshot)resultView($('snapshot-result'),snapshot);$('context').textContent=current?`${current.name} · ${current.owner} / ${current.currency} · ${current.state} · v${current.version} · ${current.id} · 最近读取 ${new Date().toLocaleTimeString()}`:'尚未选中草稿';}
+function context(){ if(snapshot)resultView($('snapshot-result'),snapshot);$('context').textContent=tariffSummary(current);$('copy-tariff-id').hidden=!current;$('copy-tariff-id').textContent=current?`复制完整 ID（${shortId(current.id)}…）`:'复制完整 ID';}
 async function select(id){
- const ticket=++sequence;if(!id){current=null;etag=null;code=null;dirty=false;latest=null;form.reset();context();renderList();renderTrial();$('trial-result').replaceChildren();$('history-list').replaceChildren();historyAfter=null;historyId=null;$('comparison').hidden=true;sync();return;}
+ const ticket=++sequence;if(!id){current=null;etag=null;code=null;policy=null;policyEtag=null;dirty=false;latest=null;form.reset();context();renderList();renderTrial();$('trial-result').replaceChildren();$('history-list').replaceChildren();historyAfter=null;historyId=null;$('comparison').hidden=true;renderPolicy();sync();return;}
  const r=await client.get('/tariffs/'+encodeURIComponent(id));if(ticket!==sequence)return;
- current=r.data;etag=r.etag;dirty=false;latest=null;$('comparison').hidden=true;$('latest').hidden=true;historyAfter=null;historyId=null;$('history-list').replaceChildren();$('trial-result').replaceChildren();context();renderList();edit(catalog[0]?.code);renderTrial();message('数据库草稿已读取 · v'+current.version);options();
+ current=r.data;etag=r.etag;policy=null;policyEtag=null;dirty=false;latest=null;$('comparison').hidden=true;$('latest').hidden=true;historyAfter=null;historyId=null;$('history-list').replaceChildren();$('trial-result').replaceChildren();context();renderList();edit(catalog[0]?.code);renderTrial();renderPolicy();message('数据库草稿已读取 · v'+current.version);options();
 }
 function renderList(){
  const q=$('search').value.trim().toLowerCase(),g=$('group').value,f=$('filter').value;$('fees').replaceChildren();
@@ -73,14 +83,35 @@ function edit(next){
 }
 function formValue(){return Object.fromEntries(['method','amount','unit','included','step','scope','evidence'].map(k=>[k,field(k).value]).concat([['code',code],['enabled',field('enabled').checked],['share',field('share').checked]]));}
 form.addEventListener('input',()=>{dirty=true;sync();dynamicFields();});form.addEventListener('change',()=>{dirty=true;sync();dynamicFields();});
-async function mutate(path,body,version,apply){pendingApply=apply;const r=await client.mutate(path,body,version);pendingApply=null;await apply(r);}
+async function mutate(path,body,version,apply,permission){pendingApply=apply;const r=await client.mutate(path,body,version,permission);pendingApply=null;await apply(r);}
+const isoInput=value=>value?new Date(value+':00+07:00').toISOString():'';
+function renderPolicy(){
+ if(!$('policy-load')){const row=document.createElement('div');row.className='toolbar';row.innerHTML='<label>读取策略 ID<input id="policy-id" pattern="[0-9a-fA-F-]{36}"></label><button id="policy-load" type="button">读取策略</button>';document.querySelector('#policy-submit-form').before(row);$('policy-load').onclick=()=>run(loadPolicy);}
+ const box=$('policy-status'),snapshotBox=$('policy-snapshot');
+ if(!current){box.textContent='请选择费用草稿';snapshotBox.hidden=true;sync();return;}
+ if(!policy){box.textContent='当前草稿尚未在本页面提交策略申请';snapshotBox.hidden=true;sync();return;}
+ box.textContent=`策略 ${policy.state} · v${policy.version} · ${policy.id}`;
+ snapshotBox.hidden=false;snapshotBox.replaceChildren();
+ const table=el('table');const head=el('tr');head.append(el('th','字段'),el('th','值'));table.append(head);for(const [label,value] of policySnapshotRows(policy,x=>new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Phnom_Penh',dateStyle:'short',timeStyle:'short'}).format(new Date(x)))){const row=el('tr'),cell=el('td');if(value&&typeof value==='object'){cell.textContent=value.text;if(value.title)cell.title=value.title;}else cell.textContent=String(value);row.append(el('th',label),cell);table.append(row);}snapshotBox.append(el('h3','冻结快照与审核事实'),table);
+ sync();
+}
+async function loadPolicy(){const id=$('policy-id')?.value.trim();if(!id)throw Error('请填写策略 ID');const r=await client.get('/policy-versions/'+encodeURIComponent(id));policy=r.data;policyEtag=r.etag;renderPolicy();message(`策略已读取 · ${policy.state}`);}
+function policySubmitValue(){return {validFrom:isoInput($('policy-valid-from').value),validUntil:isoInput($('policy-valid-until').value),quoteValiditySeconds:Number($('policy-ttl').value),serviceLevels:[...document.querySelectorAll('[name="policy-level"]:checked')].map(x=>x.value),reason:$('policy-reason').value.trim()};}
+async function applyPolicy(r){policy=r.data;policyEtag=r.etag;renderPolicy();message(`策略已更新 · ${policy.state}`);}
+async function policyAction(kind){
+ const reason=$(`policy-${kind}-reason`).value.trim();
+ if(!requiredReason(reason)){$(`policy-${kind}-reason`).setAttribute('aria-invalid','true');message(kind==='review'?'请填写复核说明。':'请填写发布说明。');$(`policy-${kind}-reason`).focus();return;}
+ $(`policy-${kind}-reason`).removeAttribute('aria-invalid');
+ const permission=kind==='review'?'pricing:review':'pricing:publish';
+ await mutate(`/policy-versions/${policy.id}/actions/${kind}`,{reason:reason.trim()},policyEtag,applyPolicy,permission);
+}
 async function appliedTariff(r){current=r.data;etag=r.etag;dirty=false;latest=null;if(!tariffs.some(x=>x.id===current.id))tariffs.push(current);options();context();edit(code||catalog[0]?.code);renderTrial();message(`数据库已保存 · v${current.version}${r.replayed?' · 原操作结果重放':''}`);}
 form.onsubmit=e=>{e.preventDefault();run(async()=>{const dto=feeDTO(formValue(),catalog.find(x=>x.code===code),current.owner,current.currency);await mutate('/tariffs/'+current.id+'/actions/save-fee',dto,etag,appliedTariff);});};
 $('discard').onclick=()=>leaveGuard(()=>edit(code));
 $('create-form').onsubmit=e=>{e.preventDefault();const target=e.target,data=new FormData(target),body=Object.fromEntries(['name','owner','currency','scope'].map(k=>[k,String(data.get(k)||'').trim()]));run(async()=>{if(!body.name||!body.scope)throw Error('请填写名称和适用范围');if(dirty)throw Error('请先处理未保存修改');await mutate('/tariffs',body,null,async r=>{code=null;await appliedTariff(r);$('create-panel').open=false;createDirty=false;target.reset();});});};
 $('create-form').addEventListener('input',()=>{createDirty=true;});
 $('tariff').onchange=e=>{const id=e.target.value;e.target.value=current?.id||'';leaveGuard(()=>run(()=>select(id)));};
-$('more').onclick=()=>run(()=>list(true));$('refresh').onclick=()=>leaveGuard(()=>run(()=>select(current.id)));
+ $('more').onclick=()=>run(()=>list(true));$('refresh').onclick=()=>leaveGuard(()=>run(()=>current?select(current.id):list(false)));$('copy-tariff-id').onclick=async()=>{if(!current)return;const copied=await copyTariffId(current.id);if(copied)message('已复制完整草稿 ID。');else{$('context').textContent=`${tariffSummary(current)} · 完整 ID：${current.id}`;message('复制失败，请手动选择 ID。');}};
 $('connect').onclick=()=>run(connect);
 $('retry').onclick=()=>run(async()=>{const apply=pendingApply;const result=await client.retry();pendingApply=null;if(apply)await apply(result);});
 $('latest').onclick=()=>run(async()=>{if(!current)return;const r=await client.get('/tariffs/'+current.id);latest=r;$('comparison').hidden=false;$('compare-values').replaceChildren();for(const [title,value]of [['原已存值',current.rules.find(x=>x.code===code)||'未配置'],['我的输入',formValue()],['最新服务端值',r.data.rules.find(x=>x.code===code)||'未配置']]){const col=el('div');col.append(el('h3',title),el('pre',JSON.stringify(value,null,2)));$('compare-values').append(col);}message('最新版本已读取，原输入未变；请比较后确认编辑基线。');});
@@ -104,4 +135,7 @@ $('trial-form').onsubmit=e=>{e.preventDefault();run(async()=>{if(dirty)throw Err
 async function history(append){if(!current)return;const id=current.id,cursor=append?historyAfter:null,r=await client.get('/tariffs/'+id+'/revisions?limit=10'+(cursor?'&afterVersion='+cursor:''));if(current?.id!==id)return;if(!append||historyId!==id)$('history-list').replaceChildren();historyId=id;for(const entry of r.data.items){const d=el('details'),s=el('summary',`v${entry.version} · ${entry.createdAt}`);d.append(s,el('pre',JSON.stringify(entry.snapshot,null,2)));$('history-list').append(d);}historyAfter=r.data.nextAfterVersion;}
 $('history-load').onclick=()=>run(()=>history(false));$('history-more').onclick=()=>run(()=>history(true));
 $('snapshot-form').onsubmit=e=>{e.preventDefault();run(async()=>{const id=$('trial-id').value.trim();if(!/^[0-9a-f-]{36}$/i.test(id))throw Error('请填写有效的试算ID');const r=await client.get('/trials/'+encodeURIComponent(id));snapshot=r.data;resultView($('snapshot-result'),snapshot);message('已从数据库读取不可改试算快照。');});};
+$('policy-submit-form').onsubmit=e=>{e.preventDefault();run(async()=>{if(!current)throw Error('请先选择费用草稿');const body=policySubmitValue();if(body.serviceLevels.length===0)throw Error('至少选择一个服务等级');if(!body.validFrom||!body.validUntil||!body.reason)throw Error('请填写策略有效期、服务等级和提交依据');await mutate('/tariffs/'+current.id+'/policy-versions',body,etag,applyPolicy,'pricing:write');});};
+$('policy-review').onclick=()=>run(()=>policyAction('review'));
+$('policy-publish').onclick=()=>run(()=>policyAction('publish'));
 await run(connect);

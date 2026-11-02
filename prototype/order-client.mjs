@@ -9,6 +9,7 @@ export function createOrderClient({fetchImpl=globalThis.fetch,uuid=()=>crypto.ra
   try{response=await fetchImpl(path,{credentials:'same-origin',signal:AbortSignal.timeout(15000),...options});value=await response.json();}
   catch{throw new OrderApiError(0,'RESULT_UNKNOWN');}
   if(!response.ok)throw new OrderApiError(response.status,value.error?.code||'HTTP_ERROR',value.error?.fields||[]);
+  if(response.headers?.get?.('Idempotency-Replayed')==='true'&&value&&typeof value==='object')Object.defineProperty(value,'replayed',{value:true});
   return value;
  }
  async function connect(){
@@ -31,6 +32,12 @@ export function createOrderClient({fetchImpl=globalThis.fetch,uuid=()=>crypto.ra
  }
  return {
   connect,read:path=>request(path),get session(){return session;},get pending(){return Boolean(pending);},
+  async command(path,body,version){
+   if(pending)throw new OrderApiError(409,'UNRESOLVED_REQUEST');
+   if(!session)throw new OrderApiError(401,'UNAUTHENTICATED');
+   pending={owner:owner(session),method:'POST',path,body:JSON.stringify(body),version,key:uuid()};
+   return submit();
+  },
   async save(draft,order){
    if(pending)throw new OrderApiError(409,'UNRESOLVED_REQUEST');
    if(!session)throw new OrderApiError(401,'UNAUTHENTICATED');

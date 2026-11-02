@@ -100,7 +100,7 @@ http://127.0.0.1:4180/dev/openapi.json
 
 | 文档 | 用途 |
 | --- | --- |
-| [PRD V1.4评审稿](PRD/docs/PRD-V1.4-review.md) | 正式需求评审依据 |
+| [PRD V1.4](PRD/docs/PRD-V1.4-review.md) | 当前需求基线（2026-10-27 冻结） |
 | [设计标准](PRD/docs/design-standards.md) | 品牌、字体、颜色和界面约束 |
 | [开发标准](PRD/docs/development-standards.md) | 契约、协作、测试与交付 |
 | [系统边界](PRD/docs/system-boundaries.md) | 职责与数据权威 |
