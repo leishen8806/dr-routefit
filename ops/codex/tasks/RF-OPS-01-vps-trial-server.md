@@ -165,6 +165,12 @@
    - `ops/trial/routefit-tunnel-link.example`、`ops/trial/routefit-sudoers.conf.example`、`ops/trial/sshd_config-match.example`：`<NODE24_PATH>` 及文件内其他占位符；
    - `ops/trial/pg_hba-routefit.example`：`<RUNTIME_ROLE>`、`<BACKUP_ROLE>`（`trial:init` 输出后替换，见上文）。
 6. **备份属主：** 备份由 root 执行，文件和校验文件为 `root:rf-admin 640`。
+7. **客户名单（2026-11-03 负责人确认允许导入正式客户资料）：**
+   - `customers.csv`（表头 `name`，一行一个客户）由负责人直接放到服务器 root 私有的导入目录（目录 700、文件 600），不经聊天、不进仓库；
+   - 部署执行人不读取、不打印、不复制该文件的内容，只核对存在、权限和行数；行数由负责人确认与名单条数一致后才导入；导入后只报告客户数；
+   - 先建员工、后导入客户（导入只授权给当时已存在的启用员工）；首次导入须包含完整名单，不要重跑；
+   - 从这次起备份含真实客户资料：只拉到加密卷，报告里只写哈希值和行数；
+   - 决策签批单上的 RF-DEC-07 由负责人补签。
 
 服务器直接运行脚本时统一使用 Node 24 完整路径和 `--env-file`（不使用本地 npm 脚本的 `.local/dev.env` 默认值）。`<ADMIN_ENV>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<COMPANY_FILE>`、`<STAFF_FILE>`、`<IMPORT_DIR>`、`<AREA_FILE>`、`<BACKUP_DIR>`、`<SESSION_FILE>` 均为服务器布局占位符；`trial:init` 只读 root-only `<ADMIN_ENV>` 并按其中的 `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`、`ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>` 路径写出新文件，不能把尚不存在的 `<RUN_ENV>` 作为 `--env-file`。
 
