@@ -141,6 +141,7 @@
 2026-10-31 项目负责人决定：v0.3.0 的发布条件只要求第 7 步通过，第 8 步在发布、打标签之后执行。RF-DEC-07 签批前，部署后不录入真实客户资料；员工账号与员工名单以 RF-PM-040 决策签批单第 2、3 节（员工 SSH 账号发放、员工分工）签字为前提。
 
 - `/srv/routefit` 检出 `v0.3.0` 标签。
+- 升级到 `v0.3.1` 后首次运行 `trial:staff` 前，先在本机用 v0.3.0 数据完成一次升级演练并确认 PASS。
 - `trial:init` 建 `routefit_trial` 库，用真实员工名单执行 `trial:staff`。员工名单只存在服务器上，不进仓库。
 - 为每位员工建 `rf-tunnel` 组账号，配置其公钥。员工的私钥由员工自己生成，不经过任何人转交。
 - 用 root 将 `ops/trial/pg_hba-routefit.example` 中的 `<RUNTIME_ROLE>`、`<BACKUP_ROLE>` 替换为 `trial:init` 输出的随机角色名，插入 `pg_hba.conf` 中泛化允许规则之前；执行 `SELECT pg_reload_conf()`（或等价的 PostgreSQL reload），再核验运行角色和备份角色连接 `postgres` 均被拒绝、连接 `routefit_trial` 均正常。

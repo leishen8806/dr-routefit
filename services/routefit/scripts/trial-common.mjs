@@ -16,6 +16,22 @@ export const customerScopedRoles=Object.freeze(new Set(['order_quote','case_deci
 export const customerScopedPermissions=Object.freeze(new Set(['orders:read','cases:read']));
 export const rolesNeedCustomerAccess=roles=>Array.isArray(roles)&&roles.some(role=>customerScopedRoles.has(role));
 export const sessionNeedsCustomerAccess=session=>Array.isArray(session?.permissions)&&session.permissions.some(permission=>customerScopedPermissions.has(permission));
+export async function resolveStaffPrincipal({client,companyId,sessions=[],sshLogin,principalId,subjectCandidates=[]}={}){
+ const login=String(sshLogin||'').trim(),sessionMatches=sessions.filter(session=>session?.sshLogin===login&&session?.authType!=='service'&&session?.principalId);
+ const sessionIds=[...new Set(sessionMatches.map(session=>String(session.principalId)))];
+ if(sessionIds.length>1)throw Error(`staff lookup is ambiguous for sshLogin ${login}`);
+ if(principalId&&sessionIds.length&&String(principalId)!==sessionIds[0])throw Error(`staff lookup disagrees for sshLogin ${login}`);
+ const sessionPrincipalId=sessionIds[0]||String(principalId||'').trim()||null;
+ const bySession=sessionPrincipalId?(await client.query("SELECT id,status,idp_subject FROM org.principal WHERE company_id=$1 AND kind='STAFF' AND id=$2",[companyId,sessionPrincipalId])).rows[0]:null;
+ const subjects=[...new Set([...subjectCandidates.map(value=>`local:${String(value)}`),...(sessionPrincipalId?[`local:${sessionPrincipalId}`]:[])])].filter(value=>value!=='local:');
+ const bySubject=subjects.length?(await client.query("SELECT id,status,idp_subject FROM org.principal WHERE company_id=$1 AND kind='STAFF' AND idp_subject=ANY($2::text[])",[companyId,subjects])).rows:[];
+ const subjectIds=[...new Set(bySubject.map(row=>String(row.id)))];
+ if(subjectIds.length>1)throw Error(`staff lookup is ambiguous for sshLogin ${login}`);
+ if(bySession&&subjectIds.length&&String(bySession.id)!==subjectIds[0])throw Error(`staff lookup disagrees for sshLogin ${login}`);
+ const principal=bySession||bySubject[0]||null;
+ if(sessionMatches.length&&!principal)throw Error(`staff session principal was not found for sshLogin ${login}`);
+ return {principal,session:sessionMatches[0]||null};
+}
 export const fullStaffPermissions=Object.freeze([...new Set([...developmentPermissions])]);
 export const localFile=(url,...parts)=>fileURLToPath(new URL(parts.join('/'),url));
 export const isTrialMode=(env=process.env)=>env.ROUTEFIT_TRIAL==='1';
