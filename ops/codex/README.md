@@ -60,6 +60,7 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-038-R5](tasks/RF-PM-038-R5-deploy-gaps.md) | 试运营部署链路：证据目录、不可写启动报错、Node 24 服务器命令表（大旺＋Codex，需人类批准） | fix | 高 | RF-PM-038-R4（#74） | 已合并（PR #76 → `fc7121e`）· 审查 APPROVED（`6c0527f`）；10-30 VPS 从干净状态验证 PASS |
 | [RF-PM-038-R6](tasks/RF-PM-038-R6-start-staff-restore.md) | 试运营启动备份硬失败、员工角色严格校验、恢复失败清理（大旺＋Codex，需人类批准） | fix | 高 | RF-PM-038-R5（#76） | 已合并（PR #81 → `86a4b96`）· 审查 APPROVED（`524e128`） |
 | [RF-OPS-01](tasks/RF-OPS-01-vps-trial-server.md) | 试运营 VPS 准备与加固：只允许 SSH 访问（苏晨＋Codex，需人类批准） | ops | 高 | 第 7 步依赖 038；第 8 步依赖 v0.3.0 标签 | 第 1–7 步通过（10-30 R5 验证 PASS）；第 8 步待 11-01，发布不再依赖第 8 步 |
+| [RF-OPS-02](tasks/RF-OPS-02-daily-backup.md) | 每日自动备份定时器、备份状态检查、站外拷贝与恢复演练规程（11-04 核查：服务器无固定每日备份；大旺＋Codex 出模板，负责人 Codex 安装，需人类批准） | ops | 中 | 038-R6、OPS-01 | TODO（v0.3.x，不依赖 v0.3.1） |
 | [RF-PM-032](tasks/RF-PM-032-distance-pricing-and-change-requote.md) | 服务端需求：距离计价与仓库／货物／服务类型变更重核价（项目负责人＋Codex） | feat | 高 | 025；开工前决策 | 待决策（不进 v0.3.0） |
 | [RF-QA-02](tasks/RF-QA-02-p01-acceptance.md) | P01 独立浏览器验收，含 P01 浏览器脚本实跑与固定费等价场景（项目负责人） | test | 低 | 025、028、028-R1、030、033、034、036、037 | 已完成：第 1–5、7、8 步 PASS，第 6 步 NOT_RUN（RF-DEC-02 未签批） |
 
