@@ -189,6 +189,8 @@
 
 临时目录演练须按此表逐字执行 init→staff→import→backup-grants→backup→restore→renew→start，逐条记录退出码和脱敏输出摘要。2026-10-30 本机合成演练：init 0（临时库/角色）；staff 0（1 个合成员工）；import 0（1 个客户、1 个区域）；backup-grants 0（19 个 schema）；backup 0；restore 0（新库）；renew 0；start 1（macOS 无 Linux systemd，错误明确要求 VPS systemd）。最终以 VPS 复核为准。
 
+`trial:start` 在读取数据库前会要求 `<SESSION_FILE>` 存在且至少含一个会话；缺失或空会话明确失败并提示先执行 `trial:init`、`trial:staff`，不会自动生成身份或会话。部署清单须把该失败视为未完成开工准备。
+
 ## 不做
 
 - 除 `<SSH端口>` 外不开放任何端口（负责人另有决定的既有服务除外），不配置域名、HTTPS、反向代理。

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,rm,writeFile,mkdir} from 'node:fs/promises';
+import {mkdtemp,rm,writeFile,mkdir,readFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup} from '../scripts/trial-common.mjs';
@@ -33,6 +33,10 @@ test('trial tooling defaults all database targets to routefit_trial',()=>{
 test('trial:init writes the non-secret server paths needed by later scripts',()=>{
  const env=buildTrialEnv({databaseUrl:'postgresql://runtime@127.0.0.1/routefit_trial',sessionFile:'/srv/session.json',source:{ROUTEFIT_TRIAL_DATABASE:'routefit_trial',ROUTEFIT_ADMIN_ENV_FILE:'/root/admin.env',ROUTEFIT_TRIAL_STAFF_FILE:'/root/staff.json',ROUTEFIT_TRIAL_COMPANY_FILE:'/root/company.json',ROUTEFIT_TRIAL_IMPORT_DIRECTORY:'/root/import',ROUTEFIT_TRIAL_SERVICE_AREAS_FILE:'/root/areas.geojson',ROUTEFIT_TRIAL_AREA_REASON:'synthetic',ROUTEFIT_BACKUP_ENV_FILE:'/root/backup.env',ROUTEFIT_BACKUP_DIRECTORY:'/var/backups',ROUTEFIT_PG_BIN:'/opt/pg/bin'}});
  assert.match(env,/ROUTEFIT_ADMIN_ENV_FILE=\/root\/admin\.env/);assert.match(env,/ROUTEFIT_BACKUP_ENV_FILE=\/root\/backup\.env/);assert.match(env,/ROUTEFIT_TRIAL_SERVICE_AREAS_FILE=\/root\/areas\.geojson/);assert.match(env,/ROUTEFIT_PG_BIN=\/opt\/pg\/bin/);
+});
+test('rendered trial deployment templates contain no unresolved placeholders',async()=>{
+ const files=['routefit.service','routefit-tunnel-link.example','routefit-sudoers.conf.example','sshd_config-match.example'].map(name=>new URL(`../../../ops/trial/${name}`,import.meta.url));
+ for(const file of files){const source=await readFile(file,'utf8'),rendered=source.replace(/<[A-Z][A-Z0-9_]+>/g,'SYNTHETIC_VALUE');assert.doesNotMatch(rendered,/<[A-Z][A-Z0-9_]+>/,file.pathname);}
 });
 test('trial staff uses the configured company id instead of the first active company',async()=>{
  const root=await mkdtemp(join(tmpdir(),'routefit-staff-')),staffFile=join(root,'staff.json'),sessionsFile=join(root,'sessions.json'),companyFile=join(root,'company.json'),adminEnv=join(root,'admin.env');
@@ -156,16 +160,24 @@ test('fresh trial backups require a matching checksum and non-empty dump',async(
   const {createHash}=await import('node:crypto');await writeFile(sum,`${createHash('sha256').update('dump').digest('hex')}  ${file.split('/').pop()}\n`);assert.deepEqual(await findFreshValidBackup(dir,{now,verify:verifyBackupChecksum}),[file]);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
-test('trial start requires a backup directory and fails backup preflight errors',async()=>{
+test('fresh trial backup lookup stops after the first valid dump',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'rf038-first-valid-')),now=Date.parse('2026-11-01T01:00:00Z'),calls=[];
+ try{const first=join(dir,'routefit_trial-20261101T000000Z.dump'),second=join(dir,'routefit_trial-20261101T003000Z.dump');await writeFile(first,'first');await writeFile(second,'second');const {createHash}=await import('node:crypto');for(const [file,data] of [[first,'first'],[second,'second']])await writeFile(`${file}.sha256`,`${createHash('sha256').update(data).digest('hex')}  ${file.split('/').pop()}\n`);const found=await findFreshValidBackup(dir,{now,verify:async(...args)=>{calls.push(args[0]);return verifyBackupChecksum(...args);}});assert.deepEqual(found,[first]);assert.deepEqual(calls,[first]);}finally{await rm(dir,{recursive:true,force:true});}
+});
+test('trial start requires a non-empty session file before backup preflight',async()=>{
  const root=await mkdtemp(join(tmpdir(),'rf038-start-')),sessionFile=join(root,'sessions.json');await writeFile(sessionFile,'[]\n');
  const base={ROUTEFIT_TRIAL:'1',ROUTEFIT_DATABASE_URL:'postgresql://runtime@127.0.0.1/routefit_trial',ROUTEFIT_SESSION_FILE:sessionFile};
  try{
+  await assert.rejects(runTrialStart({env:base,Pool:class{async query(){}async end(){}}}),/ROUTEFIT_SESSION_FILE has no active sessions/);
+  await writeFile(sessionFile,'{invalid json');await assert.rejects(runTrialStart({env:base,Pool:class{async query(){}async end(){}}}),/JSON at position/);
+  await rm(sessionFile);await assert.rejects(runTrialStart({env:base,Pool:class{async query(){}async end(){}}}),/ROUTEFIT_SESSION_FILE is missing/);
+  await writeFile(sessionFile,JSON.stringify([{expiresAt:new Date(Date.now()+3600000).toISOString()}]));
   await assert.rejects(runTrialStart({env:base,Pool:class{async query(){}async end(){}}}),/ROUTEFIT_BACKUP_DIRECTORY is required/);
   const env={...base,ROUTEFIT_BACKUP_DIRECTORY:join(root,'missing')};await assert.rejects(runTrialStart({env,Pool:class{async query(){}async end(){}},now:()=>Date.parse('2026-11-01T01:00:00Z')}),/今日没有可用备份/);
  }finally{await rm(root,{recursive:true,force:true});}
 });
 test('trial start treats failed backup and unverified dumps as failures',async()=>{
- const root=await mkdtemp(join(tmpdir(),'rf038-start-fail-')),sessionFile=join(root,'sessions.json'),backupDir=join(root,'backups');await writeFile(sessionFile,'[]\n');await mkdir(backupDir);
+ const root=await mkdtemp(join(tmpdir(),'rf038-start-fail-')),sessionFile=join(root,'sessions.json'),backupDir=join(root,'backups');await writeFile(sessionFile,JSON.stringify([{expiresAt:new Date(Date.now()+3600000).toISOString()}]));await mkdir(backupDir);
  const env={ROUTEFIT_TRIAL:'1',ROUTEFIT_DATABASE_URL:'postgresql://runtime@127.0.0.1/routefit_trial',ROUTEFIT_SESSION_FILE:sessionFile,ROUTEFIT_BACKUP_DIRECTORY:backupDir};let spawned=0;
  const spawnFail=()=>({on(event,callback){if(event==='exit')setImmediate(()=>callback(1));return this;}});
  try{

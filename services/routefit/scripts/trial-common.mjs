@@ -29,14 +29,14 @@ export const trialBackupName=now=>`routefit_trial-${now.toISOString().replaceAll
 export const trialBackupChecksumName=name=>`${name}.sha256`;
 export const isTrialBackupName=name=>trialBackupPattern.test(name);
 export async function findFreshValidBackup(directory,{now=Date.now(),maxAgeMs=24*3600000,verify=async()=>true}={}){
- const entries=await readdir(directory),candidates=[];
+ const entries=await readdir(directory);
  for(const name of entries.filter(isTrialBackupName)){
   const file=resolve(directory,name),info=await stat(file);
   if(!info.isFile()||info.size<=0||now-info.mtimeMs>=maxAgeMs)continue;
   const checksum=resolve(directory,trialBackupChecksumName(name));
-  try{await access(checksum);await verify(file,checksum);candidates.push(file);}catch{}
+  try{await access(checksum);await verify(file,checksum);return [file];}catch{}
  }
- return candidates;
+ return [];
 }
 export const trialBackupCleanupNames=(entries,keep=14)=>entries.filter(isTrialBackupName).sort().slice(0,-keep).flatMap(name=>[name,trialBackupChecksumName(name)]);
 export function assertTrialBackupFileMetadata(info,uid,gid){if(info.uid!==uid||info.gid!==gid||(info.mode&0o777)!==trialBackupFileMode)throw Error('backup file ownership or mode is not routefit:rf-admin 640');}
