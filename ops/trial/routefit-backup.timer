@@ -1,0 +1,11 @@
+[Unit]
+Description=Run RouteFit daily PostgreSQL backup
+
+[Timer]
+OnCalendar=*-*-* 19:00:00 UTC
+Persistent=true
+RandomizedDelaySec=5min
+Unit=routefit-backup.service
+
+[Install]
+WantedBy=timers.target

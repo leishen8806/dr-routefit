@@ -54,7 +54,15 @@
 
 备份由 `trial:init` 创建的专用备份角色执行。该角色保留 `BYPASSRLS`，但不授予集群级 `pg_read_all_data`：初始化会在 `routefit_trial` 库内为所有业务 schema 授予 USAGE、现有表/序列 SELECT，并为实际迁移执行角色设置可重复执行的 ALTER DEFAULT PRIVILEGES；每次迁移后由 root/管理员从受控 env 文件执行 `npm run trial:backup-grants` 重新授权。`ops/trial/pg_hba-routefit.example` 同时限制运行角色和备份角色只能从 127.0.0.1/::1 连接 `routefit_trial`，其他库在 reject 规则中拒绝。连接串只写入 root 可读的 `/root/.config/routefit/backup.env`，不放在命令行或员工端环境文件中。初始化会话文件后由 root 执行 `chown routefit:routefit /var/lib/routefit/sessions.json && chmod 600 /var/lib/routefit/sessions.json`，确保 systemd 服务用户拥有会话文件且其他用户不可读。
 
-## 8. 服务区域导入
+## 8. 每日备份与站外拷贝
+
+每日 02:00（UTC+7）由 `routefit-backup.timer` 触发 `routefit-backup.service`。负责人逐条确认后安装两个模板：只替换 `<NODE24_PATH>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<BACKUP_DIR>`、`<PG_BIN>`，然后执行 `sudo systemctl daemon-reload`、`sudo systemctl enable --now routefit-backup.timer`，并用 `sudo systemctl list-timers routefit-backup.timer` 核对下一次触发。模板已设置停机补跑和不超过 5 分钟的随机延迟；失败时查看 `sudo systemctl status routefit-backup.service` 与 `sudo journalctl -u routefit-backup.service`，退出码非零即失败。
+
+每天上午由负责人指定人员把前一晚备份拉到加密卷，分别对服务器备份、校验文件和站外副本做三方 SHA-256 核对，随后卸载加密卷。站外至少保留最近 7 份；未拉取的日期必须在日报说明。日报只记录日期、哈希前 8 位、份数，不记录路径、客户内容或口令。每周把一份备份恢复到新库，做关键表行数对比，演练后删除新库，不能触碰生产库。
+
+只读状态检查：`sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-status.mjs`。输出最新备份时间（UTC+7）、距今小时数、校验文件存在及 SHA-256 是否通过、备份份数；无备份、超过 26 小时或校验失败时退出非零。备份失败或站外未拉取时，在日报标记 FAIL、通知负责人并暂停下一次发布/启动门禁，补做备份并完成核对后再恢复。
+
+## 9. 服务区域导入
 
 ### 服务器上的命令表
 
@@ -70,6 +78,7 @@
 | 员工 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-staff.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_STAFF_FILE=<STAFF_FILE>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` root-only；员工名单仅服务器 |
 | 导入 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-import.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SERVICE_AREAS_FILE=<AREA_FILE>`, `ROUTEFIT_TRIAL_AREA_REASON`, `ROUTEFIT_TRIAL_IMPORT_DIRECTORY=<IMPORT_DIR>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` root-only；真实区域文件仅服务器 |
 | 备份 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup.mjs` | `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`, `ROUTEFIT_PG_BIN`→`<RUN_ENV>` | 必须 root；`<BACKUP_ENV>` root-only；备份目录由 root 准备 |
+| 备份状态检查 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-status.mjs` | `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`→`<RUN_ENV>` | 只读；失败时退出非零 |
 | 备份授权 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-grants.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_TRIAL_DATABASE`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` 与 `<BACKUP_ENV>` root-only |
 | 恢复 | `sudo <NODE24_PATH> --env-file=<ADMIN_ENV> scripts/trial-restore.mjs <BACKUP_FILE> <NEW_DATABASE>` | `ROUTEFIT_PG_ADMIN_URL`、`ROUTEFIT_PG_BIN`→`<ADMIN_ENV>` | 必须 root；恢复直接读 root-only `<ADMIN_ENV>`，不读尚未生成的 `<RUN_ENV>` |
 | 续期 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-renew.mjs` | `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；续期后会话文件归 routefit 服务用户 |

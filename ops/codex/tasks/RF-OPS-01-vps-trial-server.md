@@ -185,12 +185,23 @@
 | 停用员工 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-disable-staff.mjs <SSH_LOGIN>` | 同员工；`ROUTEFIT_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；清理授权并移除会话 |
 | 停用客户 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-disable-customer.mjs <CUSTOMER_ID>` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；清理授权并移除会话 |
 | 备份 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup.mjs` | `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`, `ROUTEFIT_PG_BIN`→`<RUN_ENV>` | 必须 root；`<BACKUP_ENV>` 仅 root |
+| 备份状态检查 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-status.mjs` | `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`→`<RUN_ENV>` | 只读；无备份、超过 26 小时或校验失败时退出非零 |
 | 备份授权 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-grants.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_TRIAL_DATABASE`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>`、`<BACKUP_ENV>` 仅 root |
 | 恢复 | `sudo <NODE24_PATH> --env-file=<ADMIN_ENV> scripts/trial-restore.mjs <BACKUP_FILE> <NEW_DATABASE>` | `ROUTEFIT_PG_ADMIN_URL`、`ROUTEFIT_PG_BIN`→`<ADMIN_ENV>` | 必须 root；恢复读 root-only `<ADMIN_ENV>` |
 | 续期 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-renew.mjs` | `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；会话文件随后归 routefit 服务用户 |
 | 启动检查 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-start.mjs` | `ROUTEFIT_DATABASE_URL`, `ROUTEFIT_SESSION_FILE=<SESSION_FILE>`, `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`→`<RUN_ENV>` | root；systemd 实际启动服务 |
 
 临时目录演练须按此表逐字执行 init→staff→import→backup-grants→backup→restore→renew→start，逐条记录退出码和脱敏输出摘要。2026-10-30 本机合成演练：init 0（临时库/角色）；staff 0（1 个合成员工）；import 0（1 个客户、1 个区域）；backup-grants 0（19 个 schema）；backup 0；restore 0（新库）；renew 0；start 1（macOS 无 Linux systemd，错误明确要求 VPS systemd）。最终以 VPS 复核为准。
+
+### 每日备份与站外拷贝（RF-OPS-02）
+
+负责人逐条确认后，在服务器安装 `ops/trial/routefit-backup.service` 与 `ops/trial/routefit-backup.timer`：仅替换 `<NODE24_PATH>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<BACKUP_DIR>`、`<PG_BIN>`，其余内容逐字保留；安装后执行 `sudo systemctl daemon-reload`、`sudo systemctl enable --now routefit-backup.timer`，再用 `sudo systemctl list-timers routefit-backup.timer` 核对下一次触发。timer 使用 `19:00 UTC`（UTC+7 每日 02:00），允许最多 5 分钟随机延迟并在停机错过后补跑。失败时检查 `sudo systemctl status routefit-backup.service` 和 `sudo journalctl -u routefit-backup.service`，非零退出码视为失败。
+
+每天上午由负责人指定人员把前一晚备份拉到已挂载的加密卷，完成后对服务器文件、校验文件和站外副本做三方 SHA-256 核对；核对后卸载加密卷。站外至少保留最近 7 份，未拉取日期必须在日报记录。日报只写日期、哈希前 8 位和份数，不写路径、客户内容或口令。
+
+每周在新库执行一次恢复演练：使用一份备份恢复到新库，比较关键表行数与源库，记录结果后删除演练库；绝不在生产库执行恢复。只读检查可运行 `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-status.mjs`，它输出 UTC+7 最新备份时间、距今小时数、校验状态和份数；没有备份、超过 26 小时或校验失败时退出非零。
+
+备份失败或站外未拉取时，值班人员立即在日报标记 FAIL，通知负责人并暂停下一次发布/启动门禁，直到补做备份、完成三方核对并由负责人确认。
 
 **开工检查模板（RF-PM-047，全部只读，断言失败即停止）：**
 

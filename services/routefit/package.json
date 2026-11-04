@@ -28,6 +28,7 @@
     ,"trial:staff:disable": "node --env-file=.local/dev.env scripts/trial-disable-staff.mjs"
     ,"trial:customer:disable": "node --env-file=.local/dev.env scripts/trial-disable-customer.mjs"
     ,"trial:backup": "node --env-file=.local/dev.env scripts/trial-backup.mjs"
+    ,"trial:backup-status": "node scripts/trial-backup-status.mjs"
     ,"trial:backup-grants": "node scripts/trial-backup-grants.mjs"
     ,"trial:restore": "node scripts/trial-restore.mjs"
     ,"trial:start": "node --env-file=.local/dev.env scripts/trial-start.mjs"
