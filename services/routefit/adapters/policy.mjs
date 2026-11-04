@@ -3,13 +3,20 @@ import {ensure} from '../domain/errors.mjs';
 import {validatePolicy,assertIndependent} from '../domain/policy.mjs';
 import {getTariff} from './postgres.mjs';
 
+export const policyReasonSummary=value=>Array.from(String(value||'')).slice(0,80).join('');
+
 export async function getPolicy(client,principal,id){
  const company=principal.companyId;
  const row=(await client.query('SELECT * FROM pricing.policy_version WHERE company_id=$1 AND id=$2',[company,id])).rows[0];
  ensure(row,404,'NOT_FOUND','资源不存在');
  const review=(await client.query('SELECT reviewed_by,reason,created_at FROM pricing.policy_review WHERE company_id=$1 AND policy_id=$2',[company,id])).rows[0];
  const publication=(await client.query('SELECT approved_by,reason,created_at FROM pricing.policy_publication WHERE company_id=$1 AND policy_id=$2',[company,id])).rows[0];
+ const tariff=(await client.query('SELECT name FROM pricing.tariff WHERE company_id=$1 AND id=$2',[company,row.tariff_id])).rows[0];
  return {...row.snapshot,version:publication?3:review?2:1,state:publication?'PUBLISHED':review?'REVIEWED':'SUBMITTED',
+  tariffName:tariff?.name||'未命名费率',
+  preparerRoleName:'费率编制人',preparedAt:row.created_at.toISOString(),
+  reviewerRoleName:'费率复核人',reviewedAt:review?.created_at?.toISOString()||null,
+  publisherRoleName:'费率发布人',publishedAt:publication?.created_at?.toISOString()||null,
   review:review?{principalId:review.reviewed_by,reason:review.reason,createdAt:review.created_at.toISOString()}:null,
   publication:publication?{principalId:publication.approved_by,reason:publication.reason,createdAt:publication.created_at.toISOString()}:null};
 }
@@ -22,15 +29,22 @@ export async function listPublishedPolicies(client,principal,query){
  add("(pv.snapshot->>'validUntil')::timestamptz > $N::timestamptz",query.effectiveAt);
  if(query.after)add('pv.id>$N',query.after);
  const limit=Number(query.limit)+1;
- const sql=`SELECT pv.id,pv.tariff_id,pv.tariff_version,pv.snapshot,pub.created_at AS published_at
-   FROM pricing.policy_version pv LEFT JOIN pricing.policy_publication pub ON pub.company_id=pv.company_id AND pub.policy_id=pv.id
+ const sql=`SELECT pv.id,pv.tariff_id,pv.tariff_version,pv.snapshot,pv.created_at AS prepared_at,
+   t.name AS tariff_name,review.created_at AS reviewed_at,pub.created_at AS published_at
+   FROM pricing.policy_version pv
+   JOIN pricing.tariff t ON t.company_id=pv.company_id AND t.id=pv.tariff_id
+   LEFT JOIN pricing.policy_review review ON review.company_id=pv.company_id AND review.policy_id=pv.id
+   LEFT JOIN pricing.policy_publication pub ON pub.company_id=pv.company_id AND pub.policy_id=pv.id
    WHERE ${where.join(' AND ')} ORDER BY pv.id LIMIT $${values.length+1}`;
  values.push(limit);
  const rows=(await client.query(sql,values)).rows;
  const items=rows.slice(0,query.limit).map(r=>({
   id:r.id, state:'PUBLISHED', version:3, tariffId:r.tariff_id, tariffVersion:Number(r.tariff_version),
   validFrom:r.snapshot.validFrom, validUntil:r.snapshot.validUntil, serviceLevels:r.snapshot.serviceLevels,
-  publishedAt:r.published_at.toISOString()
+  tariffName:r.tariff_name, reason:policyReasonSummary(r.snapshot.reason),
+  preparerRoleName:'费率编制人', preparedAt:r.prepared_at.toISOString(),
+  reviewerRoleName:'费率复核人', reviewedAt:r.reviewed_at.toISOString(),
+  publisherRoleName:'费率发布人', publishedAt:r.published_at.toISOString()
  }));
  return {items,nextAfter:rows.length>query.limit?items.at(-1).id:null};
 }

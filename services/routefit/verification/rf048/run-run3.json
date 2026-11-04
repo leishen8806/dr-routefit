@@ -1,0 +1,15 @@
+{
+  "task": "RF-PM-048",
+  "runId": "run3",
+  "testDatabase": "stubbed-api-fixture",
+  "evidenceNote": "接口桩验证；真实本地 PostgreSQL/service chain NOT_RUN",
+  "checks": [
+    "two overlapping policies are shown",
+    "overlapping policy names are distinguishable",
+    "overlapping reasons are distinguishable",
+    "short ids are visible",
+    "overlap warning is visible",
+    "selected policy full detail is visible"
+  ],
+  "allPass": true
+}

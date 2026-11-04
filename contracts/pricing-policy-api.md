@@ -7,7 +7,7 @@
 | 操作 | 权限 | If-Match含义 | 结果 |
 |---|---|---|---|
 | POST `/api/ops/v1/pricing/tariffs/{tariffId}/policy-versions` | pricing:write | 来源tariff.version | 201 PricingPolicyVersion，version=1、SUBMITTED |
-| GET `/api/ops/v1/pricing/policy-versions` | pricing:read | `state=PUBLISHED`（默认）、`effectiveAt`、`serviceLevel`、`tariffId`、`after`、`limit` | 200 PricingPolicyVersionPage；仅返回本企业已发布且有效的摘要 |
+| GET `/api/ops/v1/pricing/policy-versions` | pricing:read | `state=PUBLISHED`（默认）、`effectiveAt`、`serviceLevel`、`tariffId`、`after`、`limit` | 200 PricingPolicyVersionPage；仅返回本企业已发布且有效的摘要，包含费率名称、提交依据前80字符、编制／复核／发布的可读角色名称与时间，不返回任何身份标识 |
 | GET `/api/ops/v1/pricing/policy-versions/{policyId}` | pricing:read | 不需要 | 当前策略投影、ETag |
 | POST `…/policy-versions/{policyId}/actions/review` | pricing:review | 策略version，初始1 | 200、version=2、REVIEWED |
 | POST `…/policy-versions/{policyId}/actions/publish` | pricing:publish | 策略version，复核后2 | 200、version=3、PUBLISHED |
@@ -21,6 +21,8 @@
 提交体：`validFrom`、`validUntil`、`quoteValiditySeconds`、`serviceLevels`、`reason`。均必填；有效期须有序且尚未结束，TTL为1–86400秒的本地开发技术上限，不预设正式报价有效期。S1/S2/S3集合不重复；范围文字保留在来源tariff.scope中，尚不等于已经完成服务区域匹配。
 
 当前仅发布DR客户收费，启用规则只允许固定base／flash／insurance，必须明确配置base，零元也须显式保存。任何启用的距离、重量、比例保险、仓储、COD等规则都会返回CAPABILITY_DISABLED，不能忽略后发布。旧试算仍支持其既有规则，本次不削减试算能力。保险不可分成继续由原计算器和数据库约束保证。
+
+策略列表摘要中的 `reason` 只截取提交依据前80个字符。提交依据必须写业务依据，不得写姓名、电话、邮箱、证件号或其他个人信息；页面只读展示该摘要。`preparerRoleName`／`preparedAt`、`reviewerRoleName`／`reviewedAt`、`publisherRoleName`／`publishedAt` 只提供职责名称和发生时间，不提供 principal、person 或 idp 标识。
 
 提交冻结整份来源草稿、费目、版本、适用期、TTL、服务等级、提交依据及贡献人。复核与发布各追加一条审核事实；业务账号没有历史记录UPDATE／DELETE权限。
 

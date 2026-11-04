@@ -2590,6 +2590,13 @@ array<[PricingCatalogEntry](fields.md#pricingcatalogentry)>
 | version | integer | 是 | ；固定值3 |
 | tariffId | string | 是 | ；format=uuid |
 | tariffVersion | integer | 是 | ；minimum=1, maximum=9000000000000 |
+| tariffName | string | 是 | ；费率草稿名称 |
+| reason | string | 是 | ；服务端取提交依据前80个字符；提交人不得填写个人信息 |
+| preparerRoleName | string | 是 | ；固定可读角色名“费率编制人”，不返回身份标识 |
+| preparedAt | string | 是 | ；format=date-time；策略提交时间 |
+| reviewerRoleName | string | 是 | ；固定可读角色名“费率复核人”，不返回身份标识 |
+| reviewedAt | string | 是 | ；format=date-time；独立复核时间 |
+| publisherRoleName | string | 是 | ；固定可读角色名“费率发布人”，不返回身份标识 |
 | validFrom | string | 是 | ；format=date-time |
 | validUntil | string | 是 | ；format=date-time |
 | serviceLevels | array<`S1` / `S2` / `S3`> | 是 | ；minItems=1, maxItems=3, uniqueItems=True |
