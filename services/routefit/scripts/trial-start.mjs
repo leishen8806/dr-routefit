@@ -11,8 +11,10 @@ import {verifyBackupChecksum} from './trial-db-cli.mjs';
 const exec=promisify(execFile);
 export async function runTrialStart({env=process.env,Pool=pg.Pool,spawnImpl=spawn,execImpl=exec,now=Date.now,verify=verifyBackupChecksum}={}){
  if(env.NODE_ENV==='production')throw Error('trial:start refuses NODE_ENV=production');
+ const sessionFile=sessionFileFor(env,import.meta.url);let sessions;
+ try{sessions=JSON.parse(await readFile(sessionFile,'utf8'));}catch(error){if(error?.code==='ENOENT')throw Error(`ROUTEFIT_SESSION_FILE is missing: ${sessionFile}; run trial:init and trial:staff first`);throw error;}
+ if(!Array.isArray(sessions)||sessions.length===0)throw Error(`ROUTEFIT_SESSION_FILE has no active sessions: ${sessionFile}; run trial:staff first`);
  const pool=new Pool({connectionString:env.ROUTEFIT_DATABASE_URL});await pool.query('SELECT 1');await pool.end();
- const sessions=JSON.parse(await readFile(sessionFileFor(env,import.meta.url),'utf8'));
  const soon=sessions.some(x=>Date.parse(x.expiresAt)-now()<2*3600000);if(soon)console.warn('Trial session expires in under 2 hours; run npm run trial:renew first.');
  if(isTrialMode(env)){
   const directory=env.ROUTEFIT_BACKUP_DIRECTORY;if(!directory)throw Error('ROUTEFIT_BACKUP_DIRECTORY is required in trial mode');

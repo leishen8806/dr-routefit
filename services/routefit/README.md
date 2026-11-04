@@ -34,7 +34,7 @@ npm run dev:bootstrap
 npm run start:dev
 ```
 
-本地浏览器验收若需要在同一进程连续跑大量请求，可显式设置 `ROUTEFIT_DEV_RATE_LIMIT`（默认 120 次/主体/分钟；仅本地开发服务读取）降低测试环境的假性限流，例如 `ROUTEFIT_DEV_RATE_LIMIT=1000 npm run start:dev`。生产部署不使用该本地开发入口。
+本地浏览器验收若需要在同一进程连续跑大量请求，可显式设置 `ROUTEFIT_DEV_RATE_LIMIT`（默认 120 次/主体/分钟）降低测试环境的假性限流，例如 `ROUTEFIT_DEV_RATE_LIMIT=1000 npm run start:dev`。该变量由 `main.mjs` 读取，因此试运营 VPS 也会读取；VPS 的 root-only `routefit.env` **不得设置**该变量，验收脚本若需提高限额只在本机临时环境显式传入。生产部署的限流配置另行受负责人批准的部署清单约束。
 
 `dev:bootstrap` 只接受本机数据库，创建一个随机命名的 `routefit_local_*` 库、独立受限登录角色和两家合成企业，应用迁移，并把开发会话和运行连接写到被 Git 忽略的 `.local/`。不会覆盖已有 `.local`，不会迁移真实业务数据。管理员需要创建库、角色及迁移权限；**运行服务不使用管理员连接**。
 
