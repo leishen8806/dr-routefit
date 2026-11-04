@@ -42,8 +42,12 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | RF-PM-041 | v0.3.0 发布说明与发布 PR（Claude） | docs | 低 | — | 发布说明初稿已合并（PR #64，未经审查），修订见 #70；发布 PR 待“发布前必须解决”关闭（未建卡，编号已占用） |
 | [RF-PM-042](tasks/RF-PM-042-test-windows-path.md) | local-browser 测试 Windows 根目录路径修复 | test | 低 | 无 | 已合并（PR #72 → `5db5849`）· 审查 APPROVED（`c2a1314`，Windows 实测 128/128） |
 | [RF-PM-043](tasks/RF-PM-043-quote-guard-flake.md) | 报价脚本未发布策略守卫间歇性超时（根因：固定窗口限流） | fix | 中 | 无 | 已合并（PR #75 → `faa6a2c`）· 审查 APPROVED（`bee9c87`）；待负责人报价复验 |
-| RF-PM-044 | 审查遗留小项：Windows 文件地址、客户端导航检查、幂等头名统一、R4/R5 小建议（大旺＋Codex） | test+fix | 低 | 无 | TODO（11-01 部署后） |
+| RF-PM-044 | 审查遗留小项：Windows 文件地址、客户端导航检查、幂等头名统一、R4/R5 小建议；11-03 追加：R5 证据目录两条单测在 Windows 上跳过并说明、部署模板 `<NODE24_PATH>` 占位符渲染校验、无会话文件时 `trial:start` 的行为（大旺＋Codex） | test+fix | 低 | 无 | TODO（v0.3.1） |
 | [RF-PM-046](tasks/RF-PM-046-ops-address-change.md) | 运营代登记改址申请与候选报价关联回读（RF-QA-02 第 4 步缺口；大旺＋Codex，需人类批准） | fix | 高 | 025、038-R6 | 已合并（PR #85 → `86846be`，夹具 #86 → `1db5f73`）· 审查 APPROVED（`fd75645`）；RF-QA-02 第 4 步复验 PASS |
+| [RF-PM-047](tasks/RF-PM-047-staff-customer-access.md) | 新增员工的客户访问授权与增量客户导入路径（11-03 部署缺口；大旺＋Codex，需人类批准） | fix | 中 | 038-R6 | TODO（v0.3.1） |
+| [RF-PM-048](tasks/RF-PM-048-policy-picker-clarity.md) | 报价页策略选择显示依据，防止选错策略（列表接口新增只读字段；大旺＋Codex，需人类批准） | fix | 中 | 037、043 | TODO（v0.3.1） |
+| [RF-PM-049](tasks/RF-PM-049-policy-retire.md) | 策略撤销／替代机制（先设计，设计批准后才实现） | feat | 高 | 048 | TODO（v0.4.0） |
+| [RF-PM-050](tasks/RF-PM-050-test-data-class.md) | 测试数据分类与隔离（先设计） | feat | 中 | 049 的设计 | TODO（v0.4.0） |
 | RF-PM-030、034、036 | 未建卡即提交的 PR：费用草稿选择区与测试库隔离（#49）、已发布策略列表接口（#55）、报价策略防护与费用页 S1 标注（#52） | — | — | — | 审查中 |
 | [RF-PM-037](tasks/RF-PM-037-p01-trial-readiness.md) | P01 试运营就绪：订单页 S1 与重放回归、报价策略选择（大旺＋Codex） | fix | 中 | 030、033、034、036 | TODO |
 | [RF-PM-038](tasks/RF-PM-038-single-machine-trial-tooling.md) | 受控试运营工具：身份续期、员工身份、主数据、备份与 VPS 登录辅助（大旺＋Codex，需人类批准） | chore | 高 | 无 | TODO（10-28 补第 7–9 项） |
@@ -80,6 +84,7 @@ Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、�
 | v0.1.0 | 截至 main `6cf5f0c` 的基线、CI、迁移修复、费用页设计与真实接线 | 已发布，标签 v0.1.0 → `6cf5f0c` |
 | v0.2.0 | RF-PM-012–016、PR #22、RF-PM-019（PR #23） | 已发布到 main（PR #24 → `beca3b1`），标签 v0.2.0 → `beca3b1` |
 | v0.3.0 | RF-PM-018 浏览器验收遗留项、RF-PM-020、RF-PM-021（PR #26）、RF-PM-026 仓库版本计划同步（PR #33）、RF-PM-027 `main` 同步回 `develop`（PR #34）；P01 订单与报价页面：受理、报价表单与明细、策略审核与正式报价（RF-PM-022–025、RF-PM-028、RF-PM-028-R1、RF-PM-033、RF-PM-033-R1、RF-QA-02）；受控试运营（RF-PM-037–040、038-R1/R2/R3/R4/R5、RF-OPS-01）；测试修复 RF-PM-042、RF-PM-043；未建卡即合并的 RF-PM-022-R1、023-R1、024-R1、029、031 | 已发布（发布 PR #87 于 2026-11-02 合并，`main` 为 `dde7e72`，标签 `v0.3.0`）；正式部署（RF-OPS-01 第 8 步）尚未执行；标签内的发布说明是旧稿，以 develop 上 #88 合并后的版本为准；已知限制见 [v0.3.0 发布说明](releases/v0.3.0.md) |
-| v0.4.0 | P02 付款准入页面：预付财务表单、核销撤销入口、公共入口改接数据库 | 待拆卡 |
+| v0.3.1 | 试运营加固补丁：RF-PM-044、RF-PM-047、RF-PM-048 | 计划中（11-03 部署后确定；目标在合成策略到期前的 2026-11-10 合并） |
+| v0.4.0 | P02 付款准入页面：预付财务表单、核销撤销入口、公共入口改接数据库；RF-PM-032 距离计价；RF-PM-049 策略撤销／替代设计；RF-PM-050 测试数据分类设计 | 待拆卡 |
 
 大版本完成标准：版本内所有任务卡已合进 `develop`，`develop` CI 全绿，发布 PR 写明变更、PASS/FAIL/NOT_RUN 与已知限制，跨端验收按分工文档由另一方完成。发布说明底稿放在 `releases/vX.Y.0.md`，已知限制随决策即时登记。
