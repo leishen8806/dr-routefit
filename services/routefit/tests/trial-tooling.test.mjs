@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,rm,writeFile,mkdir} from 'node:fs/promises';
+import {mkdtemp,rm,writeFile,mkdir,utimes,readFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup,rolesNeedCustomerAccess,sessionNeedsCustomerAccess} from '../scripts/trial-common.mjs';
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup,rolesNeedCustomerAccess,sessionNeedsCustomerAccess,resolveStaffPrincipal} from '../scripts/trial-common.mjs';
 import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
 import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
 import {runBackup} from '../scripts/trial-backup.mjs';
@@ -11,6 +13,7 @@ import {runRestore} from '../scripts/trial-restore.mjs';
 import {runTrialStart} from '../scripts/trial-start.mjs';
 import {buildTrialEnv,configureBackupRole,scramSha256Verifier,runTrialInit} from '../scripts/trial-init.mjs';
 import {runTrialStaff} from '../scripts/trial-staff.mjs';
+import {runBackupStatus} from '../scripts/trial-backup-status.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
@@ -28,6 +31,11 @@ test('trial staff role permissions are least privilege and distinct',()=>{
 });
 test('customer scope is limited to order and case roles',()=>{
  assert.equal(rolesNeedCustomerAccess(['order_quote']),true);assert.equal(rolesNeedCustomerAccess(['case_decider']),true);assert.equal(rolesNeedCustomerAccess(['policy_author']),false);assert.equal(rolesNeedCustomerAccess(['policy_reviewer']),false);assert.equal(sessionNeedsCustomerAccess({permissions:['pricing:read']}),false);assert.equal(sessionNeedsCustomerAccess({permissions:['orders:read']}),true);assert.equal(sessionNeedsCustomerAccess({permissions:['cases:read']}),true);
+});
+test('legacy staff lookup accepts v0.3.0 sessions and rejects disagreement',async()=>{
+ const principalId='11111111-1111-4111-8111-111111111111',otherId='22222222-2222-4222-8222-222222222222',calls=[];const client={query:async(sql,params)=>{calls.push({sql,params});if(sql.includes('id=$2'))return {rows:[{id:principalId,status:'ACTIVE',idp_subject:`local:${principalId}`}]};return {rows:[]};}};
+ const resolved=await resolveStaffPrincipal({client,companyId:'33333333-3333-4333-8333-333333333333',sessions:[{companyId:'33333333-3333-4333-8333-333333333333',principalId,sshLogin:'legacy',tokenHash:'a',csrfHash:'b',permissions:[],expiresAt:'2099-01-01T00:00:00Z'}],sshLogin:'legacy'});assert.equal(resolved.principal.id,principalId);assert.equal(resolved.session.authType,undefined);
+ const disagreeClient={query:async(sql,params)=>sql.includes('id=$2')?{rows:[{id:principalId,status:'ACTIVE',idp_subject:'local:other'}]}:{rows:[{id:otherId,status:'ACTIVE',idp_subject:`local:${principalId}`}]}};await assert.rejects(()=>resolveStaffPrincipal({client:disagreeClient,companyId:'33333333-3333-4333-8333-333333333333',sessions:[{principalId,sshLogin:'legacy'}],sshLogin:'legacy'}),/staff lookup disagrees/);assert.ok(calls.length>0);
 });
 test('trial tooling defaults all database targets to routefit_trial',()=>{
  assert.equal(trialDatabaseName({}),'routefit_trial');
@@ -52,6 +60,17 @@ test('trial:init redacts role credentials from a create-role failure',async()=>{
   async end(){}
  }
  try{await assert.rejects(runTrialInit({adminUrl:'postgresql://127.0.0.1/postgres',databaseName:'routefit_redaction',envFile,companyFile,sessionFile,backupEnvFile,Pool:FakePool,migrateImpl:async()=>{}}),error=>!error.message.includes('SCRAM-SHA-256')&&!/[0-9a-f]{64}/.test(error.message))}finally{await rm(root,{recursive:true,force:true});}
+});
+test('trial:init refuses a missing output parent before any database work',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'routefit-init-parent-')),companyFile=join(root,'company.json'),sessionFile=join(root,'sessions.json'),backupEnvFile=join(root,'backup.env'),missingEnv=join(root,'missing','dev.env');let poolCreated=false;
+ await writeFile(companyFile,JSON.stringify({name:'Synthetic Company'}));await writeFile(sessionFile,'[]\n');await writeFile(backupEnvFile,'existing backup\n');
+ class NoDatabasePool{constructor(){poolCreated=true;}}
+ try{await assert.rejects(runTrialInit({adminUrl:'postgresql://127.0.0.1/postgres',envFile:missingEnv,companyFile,sessionFile,backupEnvFile,Pool:NoDatabasePool}),/parent directory must already exist/);assert.equal(poolCreated,false);}finally{await rm(root,{recursive:true,force:true});}
+});
+test('rendered trial deployment templates contain no unresolved placeholders',async()=>{
+ const replacements={NODE24_PATH:'/opt/node-v24/bin/node',RUNTIME_ROLE:'rf_trial_synthetic',BACKUP_ROLE:'rf_backup_synthetic',ADMIN_ENV:'/root/.config/routefit/admin.env',RUN_ENV:'/etc/routefit/routefit.env',BACKUP_ENV:'/etc/routefit/backup.env',COMPANY_FILE:'/root/.config/routefit/company.json',STAFF_FILE:'/root/.config/routefit/staff.json',IMPORT_DIR:'/root/.config/routefit/import',AREA_FILE:'/root/.config/routefit/areas.geojson',BACKUP_DIR:'/var/backups/routefit',SESSION_FILE:'/var/lib/routefit/sessions.json'};
+ const files=['routefit.service','routefit-tunnel-link.example','routefit-sudoers.conf.example','sshd_config-match.example'].map(name=>new URL(`../../../ops/trial/${name}`,import.meta.url));
+ for(const file of files){const source=await readFile(file,'utf8'),placeholders=[...source.matchAll(/<([A-Z][A-Z0-9_]+)>/g)].map(match=>match[1]);assert.ok(placeholders.length>0,`template must declare placeholders: ${file.pathname}`);const rendered=source.replace(/<([A-Z][A-Z0-9_]+)>/g,(_,name)=>replacements[name]??`UNMAPPED_${name}`);assert.doesNotMatch(rendered,/<[A-Z][A-Z0-9_]+>/,file.pathname);assert.ok(!rendered.includes('UNMAPPED_'),file.pathname);}
 });
 test('trial staff uses the configured company id instead of the first active company',async()=>{
  const root=await mkdtemp(join(tmpdir(),'routefit-staff-')),staffFile=join(root,'staff.json'),sessionsFile=join(root,'sessions.json'),companyFile=join(root,'company.json'),adminEnv=join(root,'admin.env');
@@ -89,6 +108,9 @@ test('renewal invalidates the old token hash while preserving service sessions',
 });
 test('staff role conflict is rejected before any database writes',()=>{
  assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'h1',roles:['policy_author','policy_reviewer']}]),/同一人/);
+ assert.throws(()=>validateStaffAssignments([{humanId:'h2',sshLogin:'h2',roles:['order_quote','case_decider']}]),error=>/录单报价与案件决定/.test(error.message)&&!error.message.includes('h2'));
+ assert.throws(()=>validateStaffAssignments([{humanId:'same',sshLogin:'quote',roles:['order_quote']},{humanId:'same',sshLogin:'decider',roles:['case_decider']}]),error=>/录单报价与案件决定/.test(error.message)&&!error.message.includes('same'));
+ assert.doesNotThrow(()=>validateStaffAssignments([{humanId:'quote-person',sshLogin:'quote',roles:['order_quote']},{humanId:'decider-person',sshLogin:'decider',roles:['case_decider']}]))
 });
 test('staff SSH logins are required and unique',()=>{
  assert.throws(()=>validateStaffAssignments([{humanId:'h1',roles:['order_quote']}]),/sshLogin/);
@@ -121,6 +143,27 @@ test('trial backup names, modes and cleanup only cover generated files',()=>{
  assert.equal(oldest,'routefit_trial-20261101T010203Z.dump');assert.equal(trialBackupChecksumName(oldest),'routefit_trial-20261101T010203Z.dump.sha256');assert.equal(trialBackupUmask,0o027);assert.equal(trialBackupFileMode,0o640);
  assert.doesNotThrow(()=>assertTrialBackupFileMetadata({uid:1001,gid:1002,mode:0o100640},1001,1002));assert.throws(()=>assertTrialBackupFileMetadata({uid:1001,gid:1003,mode:0o100640},1001,1002),/ownership or mode/);assert.throws(()=>assertTrialBackupFileMetadata({uid:1001,gid:1002,mode:0o100600},1001,1002),/ownership or mode/);
  assert.deepEqual(trialBackupCleanupNames(names),[oldest,trialBackupChecksumName(oldest)]);
+});
+test('backup systemd templates have a complete placeholder replacement table',async()=>{
+ const files=['routefit-backup.service','routefit-backup.timer','routefit.service','routefit-tunnel-link.example','routefit-sudoers.conf.example','sshd_config-match.example'];
+ const replacement={NODE24_PATH:'/usr/bin/node',RUN_ENV:'/root/run.env',BACKUP_ENV:'/root/backup.env',BACKUP_DIR:'/var/backups/routefit',PG_BIN:'/usr/lib/postgresql/bin'};
+ for(const name of files){const text=await readFile(new URL(`../../../ops/trial/${name}`,import.meta.url),'utf8'),tokens=[...text.matchAll(/<([A-Z0-9_]+)>/g)].map(match=>match[1]);for(const token of tokens)assert.ok(replacement[token],`${name} has no replacement for ${token}`);const rendered=text.replaceAll(/<([A-Z0-9_]+)>/g,(_,token)=>replacement[token]);assert.doesNotMatch(rendered,/<[A-Z0-9_]+>/,`${name} leaves an unresolved placeholder`);}
+});
+test('rendered backup systemd templates pass systemd-analyze when available',async t=>{
+ if(process.platform!=='linux'){t.skip('Linux systemd verification is not applicable');return;}
+ try{execFileSync('systemd-analyze',['--version'],{stdio:'ignore'});}catch{t.skip('systemd-analyze is unavailable');return;}
+ const root=await mkdtemp(join(tmpdir(),'routefit-systemd-')),replacement={NODE24_PATH:process.execPath,RUN_ENV:'/var/lib/routefit/run.env',BACKUP_ENV:'/etc/routefit/backup.env',BACKUP_DIR:'/var/lib/routefit/backups',PG_BIN:'/usr/lib/postgresql/bin'};
+ try{const files=['routefit-backup.service','routefit-backup.timer'];for(const name of files){const text=await readFile(new URL(`../../../ops/trial/${name}`,import.meta.url),'utf8'),rendered=text.replaceAll(/<([A-Z0-9_]+)>/g,(_,token)=>replacement[token]),path=join(root,name);await writeFile(path,rendered);}execFileSync('systemd-analyze',['verify',join(root,'routefit-backup.service'),join(root,'routefit-backup.timer')],{stdio:'pipe'});}finally{await rm(root,{recursive:true,force:true});}
+});
+test('trial backup status reports fresh, expired, checksum failure and no-backup states',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'rf038-status-')),file=join(root,'routefit_trial-20261104T010000Z.dump'),sum=`${file}.sha256`,dump='synthetic dump',stamp=Date.parse('2026-11-04T01:00:00Z');
+ try{
+  await writeFile(file,dump);await writeFile(sum,`${createHash('sha256').update(dump).digest('hex')}  ${file.split('/').pop()}\n`);await utimes(file,stamp/1000,stamp/1000);
+  const fresh=await runBackupStatus({directory:root,now:stamp+2*3600000});assert.equal(fresh.ok,true);assert.equal(fresh.checksumValid,true);assert.equal(fresh.backupCount,1);assert.match(fresh.latestBackupAtUtc7,/2026-11-04/);
+  await assert.rejects(runBackupStatus({directory:root,now:stamp+27*3600000}),error=>error.status?.ageHours>26);
+  await writeFile(sum,`${'0'.repeat(64)}  ${file.split('/').pop()}\n`);await assert.rejects(runBackupStatus({directory:root,now:stamp+2*3600000}),error=>error.status?.checksumExists===true&&error.status?.checksumValid===false);
+  await rm(file);await rm(sum);await assert.rejects(runBackupStatus({directory:root,now:stamp+2*3600000}),error=>error.status?.backupCount===0&&error.status?.latestBackupAtUtc7===null);
+ }finally{await rm(root,{recursive:true,force:true});}
 });
 test('SSH login helper maps only registered staff names and ignores command injection',()=>{
  const people=[{principalId:'p1',sshLogin:'ops-one'},{principalId:'p2',sshLogin:'reviewer'}];
@@ -175,16 +218,24 @@ test('fresh trial backups require a matching checksum and non-empty dump',async(
   const {createHash}=await import('node:crypto');await writeFile(sum,`${createHash('sha256').update('dump').digest('hex')}  ${file.split('/').pop()}\n`);assert.deepEqual(await findFreshValidBackup(dir,{now,verify:verifyBackupChecksum}),[file]);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
-test('trial start requires a backup directory and fails backup preflight errors',async()=>{
+test('fresh trial backup lookup sorts newest first before validating',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'rf038-first-valid-')),now=Date.parse('2026-11-01T01:00:00Z'),calls=[];
+ try{const older=join(dir,'routefit_trial-20261101T000000Z.dump'),newer=join(dir,'routefit_trial-20261101T003000Z.dump');await writeFile(older,'older');await writeFile(newer,'newer');const {createHash}=await import('node:crypto');for(const [file,data] of [[older,'older'],[newer,'newer']])await writeFile(`${file}.sha256`,`${createHash('sha256').update(data).digest('hex')}  ${file.split('/').pop()}\n`);const found=await findFreshValidBackup(dir,{now,verify:async(...args)=>{calls.push(args[0]);return verifyBackupChecksum(...args);}});assert.deepEqual(found,[newer]);assert.deepEqual(calls,[newer]);}finally{await rm(dir,{recursive:true,force:true});}
+});
+test('trial start requires a non-empty session file before backup preflight',async()=>{
  const root=await mkdtemp(join(tmpdir(),'rf038-start-')),sessionFile=join(root,'sessions.json');await writeFile(sessionFile,'[]\n');
  const base={ROUTEFIT_TRIAL:'1',ROUTEFIT_DATABASE_URL:'postgresql://runtime@127.0.0.1/routefit_trial',ROUTEFIT_SESSION_FILE:sessionFile};
  try{
+  await assert.rejects(runTrialStart({env:base,Pool:class{async query(){}async end(){}}}),/ROUTEFIT_SESSION_FILE has no active sessions/);
+  await writeFile(sessionFile,'{invalid json');await assert.rejects(runTrialStart({env:base,Pool:class{async query(){}async end(){}}}),/JSON at position/);
+  await rm(sessionFile);await assert.rejects(runTrialStart({env:base,Pool:class{async query(){}async end(){}}}),/ROUTEFIT_SESSION_FILE is missing/);
+  await writeFile(sessionFile,JSON.stringify([{expiresAt:new Date(Date.now()+3600000).toISOString()}]));
   await assert.rejects(runTrialStart({env:base,Pool:class{async query(){}async end(){}}}),/ROUTEFIT_BACKUP_DIRECTORY is required/);
   const env={...base,ROUTEFIT_BACKUP_DIRECTORY:join(root,'missing')};await assert.rejects(runTrialStart({env,Pool:class{async query(){}async end(){}},now:()=>Date.parse('2026-11-01T01:00:00Z')}),/今日没有可用备份/);
  }finally{await rm(root,{recursive:true,force:true});}
 });
 test('trial start treats failed backup and unverified dumps as failures',async()=>{
- const root=await mkdtemp(join(tmpdir(),'rf038-start-fail-')),sessionFile=join(root,'sessions.json'),backupDir=join(root,'backups');await writeFile(sessionFile,'[]\n');await mkdir(backupDir);
+ const root=await mkdtemp(join(tmpdir(),'rf038-start-fail-')),sessionFile=join(root,'sessions.json'),backupDir=join(root,'backups');await writeFile(sessionFile,JSON.stringify([{expiresAt:new Date(Date.now()+3600000).toISOString()}]));await mkdir(backupDir);
  const env={ROUTEFIT_TRIAL:'1',ROUTEFIT_DATABASE_URL:'postgresql://runtime@127.0.0.1/routefit_trial',ROUTEFIT_SESSION_FILE:sessionFile,ROUTEFIT_BACKUP_DIRECTORY:backupDir};let spawned=0;
  const spawnFail=()=>({on(event,callback){if(event==='exit')setImmediate(()=>callback(1));return this;}});
  try{
