@@ -4,6 +4,8 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 
 ## 工作流
 
+派单与执行细则见 [DISPATCH.md](DISPATCH.md)：任务以 GitHub Issues 为准，只执行负责人创建并指派的 issue。
+
 1. Claude 在 `ops/codex/tasks/` 发布任务卡，并在下方看板登记。
 2. Codex 领取：把卡片状态改为 `IN_PROGRESS`，按卡片里的“基线 SHA”开分支。
 3. Codex 完成：推送独立分支、开 PR，PR 描述按卡片“交付证据”逐项填写；卡片状态改为 `IN_REVIEW`。
