@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,rm,writeFile,mkdir,readFile} from 'node:fs/promises';
+import {mkdtemp,rm,writeFile,mkdir,utimes,readFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup,rolesNeedCustomerAccess,sessionNeedsCustomerAccess,resolveStaffPrincipal} from '../scripts/trial-common.mjs';
 import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
 import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
@@ -11,6 +13,7 @@ import {runRestore} from '../scripts/trial-restore.mjs';
 import {runTrialStart} from '../scripts/trial-start.mjs';
 import {buildTrialEnv,configureBackupRole,runTrialInit} from '../scripts/trial-init.mjs';
 import {runTrialStaff} from '../scripts/trial-staff.mjs';
+import {runBackupStatus} from '../scripts/trial-backup-status.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(rolePermissions.order_quote.includes('quotes:create'));
@@ -124,6 +127,27 @@ test('trial backup names, modes and cleanup only cover generated files',()=>{
  assert.equal(oldest,'routefit_trial-20261101T010203Z.dump');assert.equal(trialBackupChecksumName(oldest),'routefit_trial-20261101T010203Z.dump.sha256');assert.equal(trialBackupUmask,0o027);assert.equal(trialBackupFileMode,0o640);
  assert.doesNotThrow(()=>assertTrialBackupFileMetadata({uid:1001,gid:1002,mode:0o100640},1001,1002));assert.throws(()=>assertTrialBackupFileMetadata({uid:1001,gid:1003,mode:0o100640},1001,1002),/ownership or mode/);assert.throws(()=>assertTrialBackupFileMetadata({uid:1001,gid:1002,mode:0o100600},1001,1002),/ownership or mode/);
  assert.deepEqual(trialBackupCleanupNames(names),[oldest,trialBackupChecksumName(oldest)]);
+});
+test('backup systemd templates have a complete placeholder replacement table',async()=>{
+ const files=['routefit-backup.service','routefit-backup.timer','routefit.service','routefit-tunnel-link.example','routefit-sudoers.conf.example','sshd_config-match.example'];
+ const replacement={NODE24_PATH:'/usr/bin/node',RUN_ENV:'/root/run.env',BACKUP_ENV:'/root/backup.env',BACKUP_DIR:'/var/backups/routefit',PG_BIN:'/usr/lib/postgresql/bin'};
+ for(const name of files){const text=await readFile(new URL(`../../../ops/trial/${name}`,import.meta.url),'utf8'),tokens=[...text.matchAll(/<([A-Z0-9_]+)>/g)].map(match=>match[1]);for(const token of tokens)assert.ok(replacement[token],`${name} has no replacement for ${token}`);const rendered=text.replaceAll(/<([A-Z0-9_]+)>/g,(_,token)=>replacement[token]);assert.doesNotMatch(rendered,/<[A-Z0-9_]+>/,`${name} leaves an unresolved placeholder`);}
+});
+test('rendered backup systemd templates pass systemd-analyze when available',async t=>{
+ if(process.platform!=='linux'){t.skip('Linux systemd verification is not applicable');return;}
+ try{execFileSync('systemd-analyze',['--version'],{stdio:'ignore'});}catch{t.skip('systemd-analyze is unavailable');return;}
+ const root=await mkdtemp(join(tmpdir(),'routefit-systemd-')),replacement={NODE24_PATH:process.execPath,RUN_ENV:'/var/lib/routefit/run.env',BACKUP_ENV:'/etc/routefit/backup.env',BACKUP_DIR:'/var/lib/routefit/backups',PG_BIN:'/usr/lib/postgresql/bin'};
+ try{const files=['routefit-backup.service','routefit-backup.timer'];for(const name of files){const text=await readFile(new URL(`../../../ops/trial/${name}`,import.meta.url),'utf8'),rendered=text.replaceAll(/<([A-Z0-9_]+)>/g,(_,token)=>replacement[token]),path=join(root,name);await writeFile(path,rendered);}execFileSync('systemd-analyze',['verify',join(root,'routefit-backup.service'),join(root,'routefit-backup.timer')],{stdio:'pipe'});}finally{await rm(root,{recursive:true,force:true});}
+});
+test('trial backup status reports fresh, expired, checksum failure and no-backup states',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'rf038-status-')),file=join(root,'routefit_trial-20261104T010000Z.dump'),sum=`${file}.sha256`,dump='synthetic dump',stamp=Date.parse('2026-11-04T01:00:00Z');
+ try{
+  await writeFile(file,dump);await writeFile(sum,`${createHash('sha256').update(dump).digest('hex')}  ${file.split('/').pop()}\n`);await utimes(file,stamp/1000,stamp/1000);
+  const fresh=await runBackupStatus({directory:root,now:stamp+2*3600000});assert.equal(fresh.ok,true);assert.equal(fresh.checksumValid,true);assert.equal(fresh.backupCount,1);assert.match(fresh.latestBackupAtUtc7,/2026-11-04/);
+  await assert.rejects(runBackupStatus({directory:root,now:stamp+27*3600000}),error=>error.status?.ageHours>26);
+  await writeFile(sum,`${'0'.repeat(64)}  ${file.split('/').pop()}\n`);await assert.rejects(runBackupStatus({directory:root,now:stamp+2*3600000}),error=>error.status?.checksumExists===true&&error.status?.checksumValid===false);
+  await rm(file);await rm(sum);await assert.rejects(runBackupStatus({directory:root,now:stamp+2*3600000}),error=>error.status?.backupCount===0&&error.status?.latestBackupAtUtc7===null);
+ }finally{await rm(root,{recursive:true,force:true});}
 });
 test('SSH login helper maps only registered staff names and ignores command injection',()=>{
  const people=[{principalId:'p1',sshLogin:'ops-one'},{principalId:'p2',sshLogin:'reviewer'}];
