@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,rm,writeFile,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup,rolesNeedCustomerAccess,sessionNeedsCustomerAccess} from '../scripts/trial-common.mjs';
+import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup,rolesNeedCustomerAccess,sessionNeedsCustomerAccess,resolveStaffPrincipal} from '../scripts/trial-common.mjs';
 import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
 import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
 import {runBackup} from '../scripts/trial-backup.mjs';
@@ -28,6 +28,11 @@ test('trial staff role permissions are least privilege and distinct',()=>{
 });
 test('customer scope is limited to order and case roles',()=>{
  assert.equal(rolesNeedCustomerAccess(['order_quote']),true);assert.equal(rolesNeedCustomerAccess(['case_decider']),true);assert.equal(rolesNeedCustomerAccess(['policy_author']),false);assert.equal(rolesNeedCustomerAccess(['policy_reviewer']),false);assert.equal(sessionNeedsCustomerAccess({permissions:['pricing:read']}),false);assert.equal(sessionNeedsCustomerAccess({permissions:['orders:read']}),true);assert.equal(sessionNeedsCustomerAccess({permissions:['cases:read']}),true);
+});
+test('legacy staff lookup accepts v0.3.0 sessions and rejects disagreement',async()=>{
+ const principalId='11111111-1111-4111-8111-111111111111',otherId='22222222-2222-4222-8222-222222222222',calls=[];const client={query:async(sql,params)=>{calls.push({sql,params});if(sql.includes('id=$2'))return {rows:[{id:principalId,status:'ACTIVE',idp_subject:`local:${principalId}`}]};return {rows:[]};}};
+ const resolved=await resolveStaffPrincipal({client,companyId:'33333333-3333-4333-8333-333333333333',sessions:[{companyId:'33333333-3333-4333-8333-333333333333',principalId,sshLogin:'legacy',tokenHash:'a',csrfHash:'b',permissions:[],expiresAt:'2099-01-01T00:00:00Z'}],sshLogin:'legacy'});assert.equal(resolved.principal.id,principalId);assert.equal(resolved.session.authType,undefined);
+ const disagreeClient={query:async(sql,params)=>sql.includes('id=$2')?{rows:[{id:principalId,status:'ACTIVE',idp_subject:'local:other'}]}:{rows:[{id:otherId,status:'ACTIVE',idp_subject:`local:${principalId}`}]}};await assert.rejects(()=>resolveStaffPrincipal({client:disagreeClient,companyId:'33333333-3333-4333-8333-333333333333',sessions:[{principalId,sshLogin:'legacy'}],sshLogin:'legacy'}),/staff lookup disagrees/);assert.ok(calls.length>0);
 });
 test('trial tooling defaults all database targets to routefit_trial',()=>{
  assert.equal(trialDatabaseName({}),'routefit_trial');
