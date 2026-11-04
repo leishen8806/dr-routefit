@@ -1,4 +1,4 @@
-import {randomBytes,randomUUID} from 'node:crypto';
+import {createHash,createHmac,pbkdf2Sync,randomBytes,randomUUID} from 'node:crypto';
 import {access,chmod,readFile,stat,unlink,writeFile} from 'node:fs/promises';
 import {constants} from 'node:fs';
 import {dirname} from 'node:path';
@@ -8,6 +8,19 @@ import {migrate} from '../db/migrate.mjs';
 
 const quoteIdentifier=value=>`"${String(value).replaceAll('"','""')}"`;
 const quoteLiteral=value=>`'${String(value).replaceAll("'","''")}'`;
+export function scramSha256Verifier(password,{salt=randomBytes(16),iterations=4096}={}){
+ if(!Buffer.isBuffer(salt)||salt.length!==16)throw Error('SCRAM salt must be 16 bytes');
+ const salted=pbkdf2Sync(String(password),salt,iterations,32,'sha256');
+ const clientKey=createHmac('sha256',salted).update('Client Key').digest();
+ const storedKey=createHash('sha256').update(clientKey).digest();
+ const serverKey=createHmac('sha256',salted).update('Server Key').digest();
+ return `SCRAM-SHA-256$${iterations}:${salt.toString('base64')}$${storedKey.toString('base64')}:${serverKey.toString('base64')}`;
+}
+function redactSecrets(error,secrets){
+ const message=String(error?.message||error);
+ for(const secret of secrets.filter(Boolean))error.message=String(error.message||message).replaceAll(secret,'[REDACTED]');
+ return error;
+}
 const {F_OK,W_OK}=constants;
 
 export async function configureBackupRole({client,backupRole,migrationRoles=[]}){
@@ -49,21 +62,21 @@ async function cleanupTrialInit({admin,databaseName,created,runtimeRole,roleCrea
  return failures;
 }
 
-export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,databaseName=process.env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial',envFile=process.env.ROUTEFIT_TRIAL_ENV_FILE||fileURLToPath(new URL('../.local/dev.env',import.meta.url)),companyFile=process.env.ROUTEFIT_TRIAL_COMPANY_FILE||fileURLToPath(new URL('../.local/trial-company.json',import.meta.url)),sessionFile=process.env.ROUTEFIT_TRIAL_SESSION_FILE||'/var/lib/routefit/sessions.json',backupEnvFile=process.env.ROUTEFIT_BACKUP_ENV_FILE||fileURLToPath(new URL('../.local/backup.env',import.meta.url)),Pool=pg.Pool,writeFileImpl=writeFile}={}){
+export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,databaseName=process.env.ROUTEFIT_TRIAL_DATABASE||'routefit_trial',envFile=process.env.ROUTEFIT_TRIAL_ENV_FILE||fileURLToPath(new URL('../.local/dev.env',import.meta.url)),companyFile=process.env.ROUTEFIT_TRIAL_COMPANY_FILE||fileURLToPath(new URL('../.local/trial-company.json',import.meta.url)),sessionFile=process.env.ROUTEFIT_TRIAL_SESSION_FILE||'/var/lib/routefit/sessions.json',backupEnvFile=process.env.ROUTEFIT_BACKUP_ENV_FILE||fileURLToPath(new URL('../.local/backup.env',import.meta.url)),Pool=pg.Pool,writeFileImpl=writeFile,migrateImpl=migrate}={}){
  if(!adminUrl)throw Error('ROUTEFIT_PG_ADMIN_URL is required');
  await assertPreflightOutput(envFile,'ROUTEFIT_TRIAL_ENV_FILE');
  await assertPreflightOutput(sessionFile,'ROUTEFIT_TRIAL_SESSION_FILE');
  await assertPreflightOutput(backupEnvFile,'ROUTEFIT_BACKUP_ENV_FILE');
  const base=new URL(adminUrl);if(!['127.0.0.1','localhost','[::1]'].includes(base.hostname))throw Error('admin URL must be local');
  const companyText=await readFile(companyFile,'utf8'),companyMode=(await stat(companyFile)).mode&0o777;const company=JSON.parse(companyText);if(!company.name)throw Error('trial company name is required');
- const runtimeRole=`rf_trial_${randomBytes(8).toString('hex')}`,runtimePassword=randomBytes(32).toString('hex'),backupRole=`rf_backup_${randomBytes(8).toString('hex')}`,backupPassword=randomBytes(32).toString('hex');
+ const runtimeRole=`rf_trial_${randomBytes(8).toString('hex')}`,runtimePassword=randomBytes(32).toString('hex'),backupRole=`rf_backup_${randomBytes(8).toString('hex')}`,backupPassword=randomBytes(32).toString('hex'),runtimeVerifier=scramSha256Verifier(runtimePassword),backupVerifier=scramSha256Verifier(backupPassword);
  const admin=new Pool({connectionString:adminUrl});let created=false,roleCreated=false,backupRoleCreated=false,companyId,systemPrincipalId,companyFileChanged=false;const filesCreated=[];
  try{
   const exists=await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[databaseName]);if(exists.rowCount)throw Error(`${databaseName} already exists; refusing to overwrite`);
   await admin.query(`CREATE DATABASE ${quoteIdentifier(databaseName)}`);created=true;
   const target=new URL(adminUrl);target.pathname='/'+databaseName;const pool=new Pool({connectionString:target.href});
   try{
-   await migrate(pool);
+   await migrateImpl(pool);
    const client=await pool.connect();
    try{
    await client.query('BEGIN');
@@ -75,9 +88,9 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
    if(!company.id){companyFileChanged=true;await writeFileImpl(companyFile,JSON.stringify({...company,id},null,2)+'\n',{mode:0o600});await chmod(companyFile,0o600);}
    }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
   }finally{await pool.end();}
-  await admin.query(`CREATE ROLE ${quoteIdentifier(runtimeRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${quoteLiteral(runtimePassword)}`);roleCreated=true;
+  await admin.query(`CREATE ROLE ${quoteIdentifier(runtimeRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${quoteLiteral(runtimeVerifier)}`);roleCreated=true;
   await admin.query(`GRANT routefit_api TO ${quoteIdentifier(runtimeRole)}`);
-  await admin.query(`CREATE ROLE ${quoteIdentifier(backupRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION BYPASSRLS PASSWORD ${quoteLiteral(backupPassword)}`);backupRoleCreated=true;
+  await admin.query(`CREATE ROLE ${quoteIdentifier(backupRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION BYPASSRLS PASSWORD ${quoteLiteral(backupVerifier)}`);backupRoleCreated=true;
   const grantPool=new Pool({connectionString:target.href}),backupClient=await grantPool.connect();
   try{const owners=(await backupClient.query("SELECT DISTINCT tableowner AS role FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname <> 'information_schema'")).rows.map(row=>row.role);await configureBackupRole({client:backupClient,backupRole,migrationRoles:owners});}finally{backupClient.release();await grantPool.end();}
   target.username=runtimeRole;target.password=runtimePassword;
@@ -86,7 +99,7 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
   filesCreated.push(sessionFile);await writeFileImpl(sessionFile,'[]\n',{flag:'wx',mode:0o600});
   filesCreated.push(backupEnvFile);await writeFileImpl(backupEnvFile,`ROUTEFIT_PG_BACKUP_URL=${backupTarget.href}\n`,{flag:'wx',mode:0o600});
   return {databaseName,runtimeRole,backupRole,envFile,backupEnvFile,sessionFile,companyId,systemPrincipalId};
- }catch(error){const failures=[];if(companyFileChanged){try{await writeFile(companyFile,companyText,{mode:companyMode});await chmod(companyFile,companyMode);}catch(restoreError){failures.push(`企业配置文件 (${restoreError.message})`);}}failures.push(...await cleanupTrialInit({admin,databaseName,created,runtimeRole,roleCreated,backupRole,backupRoleCreated,filesCreated}));if(failures.length)error.message=`${error.message}; 仍有残留：${failures.join('；')}`;throw error;}finally{await admin.end();}
+ }catch(error){const failures=[];if(companyFileChanged){try{await writeFile(companyFile,companyText,{mode:companyMode});await chmod(companyFile,companyMode);}catch(restoreError){failures.push(`企业配置文件 (${restoreError.message})`);}}failures.push(...await cleanupTrialInit({admin,databaseName,created,runtimeRole,roleCreated,backupRole,backupRoleCreated,filesCreated}));if(failures.length)error.message=`${error.message}; 仍有残留：${failures.join('；')}`;throw redactSecrets(error,[runtimePassword,backupPassword,runtimeVerifier,backupVerifier]);}finally{await admin.end();}
 }
 
 if(process.argv[1]===fileURLToPath(import.meta.url)){
