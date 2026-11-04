@@ -84,8 +84,8 @@ test('renewal invalidates the old token hash while preserving service sessions',
 });
 test('staff role conflict is rejected before any database writes',()=>{
  assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'h1',roles:['policy_author','policy_reviewer']}]),/同一人/);
- assert.throws(()=>validateStaffAssignments([{humanId:'h2',sshLogin:'h2',roles:['order_quote','case_decider']}]),/录单报价与案件决定/);
- assert.throws(()=>validateStaffAssignments([{humanId:'same',sshLogin:'quote',roles:['order_quote']},{humanId:'same',sshLogin:'decider',roles:['case_decider']}]),/录单报价与案件决定/);
+ assert.throws(()=>validateStaffAssignments([{humanId:'h2',sshLogin:'h2',roles:['order_quote','case_decider']}]),error=>/录单报价与案件决定/.test(error.message)&&!error.message.includes('h2'));
+ assert.throws(()=>validateStaffAssignments([{humanId:'same',sshLogin:'quote',roles:['order_quote']},{humanId:'same',sshLogin:'decider',roles:['case_decider']}]),error=>/录单报价与案件决定/.test(error.message)&&!error.message.includes('same'));
  assert.doesNotThrow(()=>validateStaffAssignments([{humanId:'quote-person',sshLogin:'quote',roles:['order_quote']},{humanId:'decider-person',sshLogin:'decider',roles:['case_decider']}]))
 });
 test('staff SSH logins are required and unique',()=>{
