@@ -56,7 +56,7 @@
 
 ## 8. 每日备份与站外拷贝
 
-每日 02:00（UTC+7）由 `routefit-backup.timer` 触发 `routefit-backup.service`。负责人逐条确认后安装两个模板：只替换 `<NODE24_PATH>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<BACKUP_DIR>`、`<PG_BIN>`，然后执行 `sudo systemctl daemon-reload`、`sudo systemctl enable --now routefit-backup.timer`，并用 `sudo systemctl list-timers routefit-backup.timer` 核对下一次触发。模板已设置停机补跑和不超过 5 分钟的随机延迟；失败时查看 `sudo systemctl status routefit-backup.service` 与 `sudo journalctl -u routefit-backup.service`，退出码非零即失败。
+每日 02:00（UTC+7）由 `routefit-backup.timer` 触发 `routefit-backup.service`。负责人逐条确认后安装两个模板：只替换 `<NODE24_PATH>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<BACKUP_DIR>`、`<PG_BIN>`，然后执行 `sudo systemctl daemon-reload`、`sudo systemctl enable --now routefit-backup.timer`、`sudo systemctl start routefit-backup.service`，并用 `sudo systemctl list-timers routefit-backup.timer` 核对下一次触发。模板已设置停机补跑和不超过 5 分钟的随机延迟；失败时查看 `sudo systemctl status routefit-backup.service` 与 `sudo journalctl -u routefit-backup.service`，退出码非零即失败。服务模板保留 `ProtectHome=read-only`，因此 root-only 环境文件可位于 `/root`，而服务仍禁止写入用户主目录。
 
 每天上午由负责人指定人员把前一晚备份拉到加密卷，分别对服务器备份、校验文件和站外副本做三方 SHA-256 核对，随后卸载加密卷。站外至少保留最近 7 份；未拉取的日期必须在日报说明。日报只记录日期、哈希前 8 位、份数，不记录路径、客户内容或口令。每周把一份备份恢复到新库，做关键表行数对比，演练后删除新库，不能触碰生产库。
 

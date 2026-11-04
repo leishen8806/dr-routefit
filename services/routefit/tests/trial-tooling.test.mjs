@@ -4,6 +4,7 @@ import {mkdtemp,rm,writeFile,mkdir,utimes,readFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup,rolesNeedCustomerAccess,sessionNeedsCustomerAccess} from '../scripts/trial-common.mjs';
 import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
 import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
@@ -112,6 +113,12 @@ test('backup systemd templates have a complete placeholder replacement table',as
  const files=['routefit-backup.service','routefit-backup.timer','routefit.service','routefit-tunnel-link.example','routefit-sudoers.conf.example','sshd_config-match.example'];
  const replacement={NODE24_PATH:'/usr/bin/node',RUN_ENV:'/root/run.env',BACKUP_ENV:'/root/backup.env',BACKUP_DIR:'/var/backups/routefit',PG_BIN:'/usr/lib/postgresql/bin'};
  for(const name of files){const text=await readFile(new URL(`../../../ops/trial/${name}`,import.meta.url),'utf8'),tokens=[...text.matchAll(/<([A-Z0-9_]+)>/g)].map(match=>match[1]);for(const token of tokens)assert.ok(replacement[token],`${name} has no replacement for ${token}`);const rendered=text.replaceAll(/<([A-Z0-9_]+)>/g,(_,token)=>replacement[token]);assert.doesNotMatch(rendered,/<[A-Z0-9_]+>/,`${name} leaves an unresolved placeholder`);}
+});
+test('rendered backup systemd templates pass systemd-analyze when available',async t=>{
+ if(process.platform!=='linux'){t.skip('Linux systemd verification is not applicable');return;}
+ try{execFileSync('systemd-analyze',['--version'],{stdio:'ignore'});}catch{t.skip('systemd-analyze is unavailable');return;}
+ const root=await mkdtemp(join(tmpdir(),'routefit-systemd-')),replacement={NODE24_PATH:'/usr/bin/node',RUN_ENV:'/var/lib/routefit/run.env',BACKUP_ENV:'/etc/routefit/backup.env',BACKUP_DIR:'/var/lib/routefit/backups',PG_BIN:'/usr/lib/postgresql/bin'};
+ try{const files=['routefit-backup.service','routefit-backup.timer'];for(const name of files){const text=await readFile(new URL(`../../../ops/trial/${name}`,import.meta.url),'utf8'),rendered=text.replaceAll(/<([A-Z0-9_]+)>/g,(_,token)=>replacement[token]),path=join(root,name);await writeFile(path,rendered);}execFileSync('systemd-analyze',['verify',join(root,'routefit-backup.service'),join(root,'routefit-backup.timer')],{stdio:'pipe'});}finally{await rm(root,{recursive:true,force:true});}
 });
 test('trial backup status reports fresh, expired, checksum failure and no-backup states',async()=>{
  const root=await mkdtemp(join(tmpdir(),'rf038-status-')),file=join(root,'routefit_trial-20261104T010000Z.dump'),sum=`${file}.sha256`,dump='synthetic dump',stamp=Date.parse('2026-11-04T01:00:00Z');

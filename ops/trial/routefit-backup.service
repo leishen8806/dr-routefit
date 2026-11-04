@@ -1,7 +1,7 @@
 [Unit]
 Description=RouteFit daily PostgreSQL backup
-After=network-online.target
-Wants=network-online.target
+After=network-online.target postgresql.service
+Wants=network-online.target postgresql.service
 
 [Service]
 Type=oneshot
@@ -16,13 +16,9 @@ NoNewPrivileges=true
 PrivateTmp=true
 PrivateDevices=true
 ProtectSystem=strict
-ProtectHome=true
+ProtectHome=read-only
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
 RestrictSUIDSGID=true
-CapabilityBoundingSet=
 ReadWritePaths=<BACKUP_DIR>
-
-[Install]
-WantedBy=multi-user.target

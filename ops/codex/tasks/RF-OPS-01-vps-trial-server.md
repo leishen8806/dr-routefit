@@ -195,7 +195,7 @@
 
 ### 每日备份与站外拷贝（RF-OPS-02）
 
-负责人逐条确认后，在服务器安装 `ops/trial/routefit-backup.service` 与 `ops/trial/routefit-backup.timer`：仅替换 `<NODE24_PATH>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<BACKUP_DIR>`、`<PG_BIN>`，其余内容逐字保留；安装后执行 `sudo systemctl daemon-reload`、`sudo systemctl enable --now routefit-backup.timer`，再用 `sudo systemctl list-timers routefit-backup.timer` 核对下一次触发。timer 使用 `19:00 UTC`（UTC+7 每日 02:00），允许最多 5 分钟随机延迟并在停机错过后补跑。失败时检查 `sudo systemctl status routefit-backup.service` 和 `sudo journalctl -u routefit-backup.service`，非零退出码视为失败。
+负责人逐条确认后，在服务器安装 `ops/trial/routefit-backup.service` 与 `ops/trial/routefit-backup.timer`：仅替换 `<NODE24_PATH>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<BACKUP_DIR>`、`<PG_BIN>`，其余内容逐字保留；安装后执行 `sudo systemctl daemon-reload`、`sudo systemctl enable --now routefit-backup.timer`、`sudo systemctl start routefit-backup.service`，再用 `sudo systemctl list-timers routefit-backup.timer` 核对下一次触发。service 只由 timer 拉起，不单独 enable；模板使用 `ProtectHome=read-only` 以允许 root-only env 文件位于 `/root`，并保留最小写入目录。timer 使用 `19:00 UTC`（UTC+7 每日 02:00），允许最多 5 分钟随机延迟并在停机错过后补跑。失败时检查 `sudo systemctl status routefit-backup.service` 和 `sudo journalctl -u routefit-backup.service`，非零退出码视为失败。
 
 每天上午由负责人指定人员把前一晚备份拉到已挂载的加密卷，完成后对服务器文件、校验文件和站外副本做三方 SHA-256 核对；核对后卸载加密卷。站外至少保留最近 7 份，未拉取日期必须在日报记录。日报只写日期、哈希前 8 位和份数，不写路径、客户内容或口令。
 
