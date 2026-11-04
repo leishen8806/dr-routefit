@@ -4,6 +4,8 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 
 ## 工作流
 
+派单与执行细则见 [DISPATCH.md](DISPATCH.md)：任务以 GitHub Issues 为准，只执行负责人创建并指派的 issue。
+
 1. Claude 在 `ops/codex/tasks/` 发布任务卡，并在下方看板登记。
 2. Codex 领取：把卡片状态改为 `IN_PROGRESS`，按卡片里的“基线 SHA”开分支。
 3. Codex 完成：推送独立分支、开 PR，PR 描述按卡片“交付证据”逐项填写；卡片状态改为 `IN_REVIEW`。
@@ -44,8 +46,9 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-043](tasks/RF-PM-043-quote-guard-flake.md) | 报价脚本未发布策略守卫间歇性超时（根因：固定窗口限流） | fix | 中 | 无 | 已合并（PR #75 → `faa6a2c`）· 审查 APPROVED（`bee9c87`）；待负责人报价复验 |
 | RF-PM-044 | 审查遗留小项：Windows 文件地址、客户端导航检查、幂等头名统一、R4/R5 小建议；11-03 追加：R5 证据目录两条单测在 Windows 上跳过并说明、部署模板 `<NODE24_PATH>` 占位符渲染校验、无会话文件时 `trial:start` 的行为（大旺＋Codex） | test+fix | 低 | 无 | TODO（v0.3.1） |
 | [RF-PM-046](tasks/RF-PM-046-ops-address-change.md) | 运营代登记改址申请与候选报价关联回读（RF-QA-02 第 4 步缺口；大旺＋Codex，需人类批准） | fix | 高 | 025、038-R6 | 已合并（PR #85 → `86846be`，夹具 #86 → `1db5f73`）· 审查 APPROVED（`fd75645`）；RF-QA-02 第 4 步复验 PASS |
-| [RF-PM-047](tasks/RF-PM-047-staff-customer-access.md) | 新增员工的客户访问授权与增量客户导入路径（11-03 部署缺口；大旺＋Codex，需人类批准） | fix | 中 | 038-R6 | TODO（v0.3.1） |
-| [RF-PM-048](tasks/RF-PM-048-policy-picker-clarity.md) | 报价页策略选择显示依据，防止选错策略（列表接口新增只读字段；大旺＋Codex，需人类批准） | fix | 中 | 037、043 | TODO（v0.3.1） |
+| [RF-PM-047](tasks/RF-PM-047-staff-customer-access.md) | 新增员工的客户访问授权与增量客户导入路径（11-03 部署缺口；大旺＋Codex，需人类批准） | fix | 中 | 038-R6 | 已合并（PR #94 → `e40fc3d`，2026-11-04）· 审查 APPROVED（`901c680`）；非阻塞跟进：导入授权依赖会话文件的说明、错误提示去掉 synthetic；合并后待本机升级演练（v0.3.0 → develop） |
+| [RF-PM-048](tasks/RF-PM-048-policy-picker-clarity.md) | 报价页策略选择显示依据，防止选错策略（列表接口新增只读字段；大旺＋Codex，需人类批准） | fix | 中 | 037、043 | 已合并（PR #93 → `0aee3a9`，2026-11-04）· 审查 APPROVED（`0477be4`）；浏览器验收为接口桩，真实链路待本机验收 |
+| [RF-PM-051](tasks/RF-PM-051-init-scram-verifier.md) | `trial:init` 建角色改用 SCRAM 校验值，不向 PostgreSQL 发送明文口令（从 RF-PM-044 拆出；大旺＋Codex，需人类批准） | fix | 中 | 038-R4 | TODO（v0.3.x，不阻塞 v0.3.1；#95 合并后再同步） |
 | [RF-PM-049](tasks/RF-PM-049-policy-retire.md) | 策略撤销／替代机制（先设计，设计批准后才实现） | feat | 高 | 048 | TODO（v0.4.0） |
 | [RF-PM-050](tasks/RF-PM-050-test-data-class.md) | 测试数据分类与隔离（先设计） | feat | 中 | 049 的设计 | TODO（v0.4.0） |
 | RF-PM-030、034、036 | 未建卡即提交的 PR：费用草稿选择区与测试库隔离（#49）、已发布策略列表接口（#55）、报价策略防护与费用页 S1 标注（#52） | — | — | — | 审查中 |
@@ -84,7 +87,7 @@ Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、�
 | v0.1.0 | 截至 main `6cf5f0c` 的基线、CI、迁移修复、费用页设计与真实接线 | 已发布，标签 v0.1.0 → `6cf5f0c` |
 | v0.2.0 | RF-PM-012–016、PR #22、RF-PM-019（PR #23） | 已发布到 main（PR #24 → `beca3b1`），标签 v0.2.0 → `beca3b1` |
 | v0.3.0 | RF-PM-018 浏览器验收遗留项、RF-PM-020、RF-PM-021（PR #26）、RF-PM-026 仓库版本计划同步（PR #33）、RF-PM-027 `main` 同步回 `develop`（PR #34）；P01 订单与报价页面：受理、报价表单与明细、策略审核与正式报价（RF-PM-022–025、RF-PM-028、RF-PM-028-R1、RF-PM-033、RF-PM-033-R1、RF-QA-02）；受控试运营（RF-PM-037–040、038-R1/R2/R3/R4/R5、RF-OPS-01）；测试修复 RF-PM-042、RF-PM-043；未建卡即合并的 RF-PM-022-R1、023-R1、024-R1、029、031 | 已发布（发布 PR #87 于 2026-11-02 合并，`main` 为 `dde7e72`，标签 `v0.3.0`）；正式部署（RF-OPS-01 第 8 步）尚未执行；标签内的发布说明是旧稿，以 develop 上 #88 合并后的版本为准；已知限制见 [v0.3.0 发布说明](releases/v0.3.0.md) |
-| v0.3.1 | 试运营加固补丁：RF-PM-044、RF-PM-047、RF-PM-048 | 计划中（11-03 部署后确定；目标在合成策略到期前的 2026-11-10 合并） |
+| v0.3.1 | 试运营加固补丁：RF-PM-044、RF-PM-047、RF-PM-048（047、048 已于 11-04 合并；044 为 #95，审查中）；RF-PM-051 从 044 拆出，不阻塞本版 | 计划中（目标在合成策略到期前的 2026-11-10 合并） |
 | v0.4.0 | P02 付款准入页面：预付财务表单、核销撤销入口、公共入口改接数据库；RF-PM-032 距离计价；RF-PM-049 策略撤销／替代设计；RF-PM-050 测试数据分类设计 | 待拆卡 |
 
 大版本完成标准：版本内所有任务卡已合进 `develop`，`develop` CI 全绿，发布 PR 写明变更、PASS/FAIL/NOT_RUN 与已知限制，跨端验收按分工文档由另一方完成。发布说明底稿放在 `releases/vX.Y.0.md`，已知限制随决策即时登记。
