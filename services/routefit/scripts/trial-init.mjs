@@ -1,4 +1,4 @@
-import {createHash,createHmac,pbkdf2Sync,randomBytes,randomUUID} from 'node:crypto';
+import {randomBytes,randomUUID} from 'node:crypto';
 import {access,chmod,readFile,stat,unlink,writeFile} from 'node:fs/promises';
 import {constants} from 'node:fs';
 import {dirname} from 'node:path';
@@ -8,7 +8,6 @@ import {migrate} from '../db/migrate.mjs';
 
 const quoteIdentifier=value=>`"${String(value).replaceAll('"','""')}"`;
 const quoteLiteral=value=>`'${String(value).replaceAll("'","''")}'`;
-export function scramSha256Verifier(password,{salt=randomBytes(16),iterations=4096}={}){const salted=pbkdf2Sync(String(password),salt,iterations,32,'sha256'),clientKey=createHmac('sha256',salted).update('Client Key').digest(),stored=createHash('sha256').update(clientKey).digest(),server=createHmac('sha256',salted).update('Server Key').digest();return `SCRAM-SHA-256$${iterations}:${salt.toString('base64')}$${stored.toString('base64')}:${server.toString('base64')}`;}
 const {F_OK,W_OK}=constants;
 
 export async function configureBackupRole({client,backupRole,migrationRoles=[]}){
@@ -76,9 +75,9 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
    if(!company.id){companyFileChanged=true;await writeFileImpl(companyFile,JSON.stringify({...company,id},null,2)+'\n',{mode:0o600});await chmod(companyFile,0o600);}
    }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
   }finally{await pool.end();}
-  await admin.query(`CREATE ROLE ${quoteIdentifier(runtimeRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${quoteLiteral(scramSha256Verifier(runtimePassword))}`);roleCreated=true;
+  await admin.query(`CREATE ROLE ${quoteIdentifier(runtimeRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${quoteLiteral(runtimePassword)}`);roleCreated=true;
   await admin.query(`GRANT routefit_api TO ${quoteIdentifier(runtimeRole)}`);
-  await admin.query(`CREATE ROLE ${quoteIdentifier(backupRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION BYPASSRLS PASSWORD ${quoteLiteral(scramSha256Verifier(backupPassword))}`);backupRoleCreated=true;
+  await admin.query(`CREATE ROLE ${quoteIdentifier(backupRole)} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION BYPASSRLS PASSWORD ${quoteLiteral(backupPassword)}`);backupRoleCreated=true;
   const grantPool=new Pool({connectionString:target.href}),backupClient=await grantPool.connect();
   try{const owners=(await backupClient.query("SELECT DISTINCT tableowner AS role FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname <> 'information_schema'")).rows.map(row=>row.role);await configureBackupRole({client:backupClient,backupRole,migrationRoles:owners});}finally{backupClient.release();await grantPool.end();}
   target.username=runtimeRole;target.password=runtimePassword;

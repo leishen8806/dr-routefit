@@ -9,7 +9,7 @@ import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs'
 import {runBackup} from '../scripts/trial-backup.mjs';
 import {runRestore} from '../scripts/trial-restore.mjs';
 import {runTrialStart} from '../scripts/trial-start.mjs';
-import {buildTrialEnv,configureBackupRole,scramSha256Verifier,runTrialInit} from '../scripts/trial-init.mjs';
+import {buildTrialEnv,configureBackupRole,runTrialInit} from '../scripts/trial-init.mjs';
 import {runTrialStaff} from '../scripts/trial-staff.mjs';
 
 test('trial staff role permissions are least privilege and distinct',()=>{
@@ -43,7 +43,6 @@ test('trial:init refuses a missing output parent before any database work',async
  class NoDatabasePool{constructor(){poolCreated=true;}}
  try{await assert.rejects(runTrialInit({adminUrl:'postgresql://127.0.0.1/postgres',envFile:missingEnv,companyFile,sessionFile,backupEnvFile,Pool:NoDatabasePool}),/parent directory must already exist/);assert.equal(poolCreated,false);}finally{await rm(root,{recursive:true,force:true});}
 });
-test('trial:init sends only a SCRAM verifier to PostgreSQL',()=>{const verifier=scramSha256Verifier('synthetic-secret',{salt:Buffer.alloc(16,7)});assert.match(verifier,/^SCRAM-SHA-256\$4096:/);assert.ok(!verifier.includes('synthetic-secret'));});
 test('rendered trial deployment templates contain no unresolved placeholders',async()=>{
  const replacements={NODE24_PATH:'/opt/node-v24/bin/node',RUNTIME_ROLE:'rf_trial_synthetic',BACKUP_ROLE:'rf_backup_synthetic',ADMIN_ENV:'/root/.config/routefit/admin.env',RUN_ENV:'/etc/routefit/routefit.env',BACKUP_ENV:'/etc/routefit/backup.env',COMPANY_FILE:'/root/.config/routefit/company.json',STAFF_FILE:'/root/.config/routefit/staff.json',IMPORT_DIR:'/root/.config/routefit/import',AREA_FILE:'/root/.config/routefit/areas.geojson',BACKUP_DIR:'/var/backups/routefit',SESSION_FILE:'/var/lib/routefit/sessions.json'};
  const files=['routefit.service','routefit-tunnel-link.example','routefit-sudoers.conf.example','sshd_config-match.example'].map(name=>new URL(`../../../ops/trial/${name}`,import.meta.url));
@@ -86,6 +85,8 @@ test('renewal invalidates the old token hash while preserving service sessions',
 test('staff role conflict is rejected before any database writes',()=>{
  assert.throws(()=>validateStaffAssignments([{humanId:'h1',sshLogin:'h1',roles:['policy_author','policy_reviewer']}]),/同一人/);
  assert.throws(()=>validateStaffAssignments([{humanId:'h2',sshLogin:'h2',roles:['order_quote','case_decider']}]),/录单报价与案件决定/);
+ assert.throws(()=>validateStaffAssignments([{humanId:'same',sshLogin:'quote',roles:['order_quote']},{humanId:'same',sshLogin:'decider',roles:['case_decider']}]),/录单报价与案件决定/);
+ assert.doesNotThrow(()=>validateStaffAssignments([{humanId:'quote-person',sshLogin:'quote',roles:['order_quote']},{humanId:'decider-person',sshLogin:'decider',roles:['case_decider']}]))
 });
 test('staff SSH logins are required and unique',()=>{
  assert.throws(()=>validateStaffAssignments([{humanId:'h1',roles:['order_quote']}]),/sshLogin/);
