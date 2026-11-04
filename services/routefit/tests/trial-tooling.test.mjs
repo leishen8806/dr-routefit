@@ -136,7 +136,7 @@ test('backup systemd templates have a complete placeholder replacement table',as
 test('rendered backup systemd templates pass systemd-analyze when available',async t=>{
  if(process.platform!=='linux'){t.skip('Linux systemd verification is not applicable');return;}
  try{execFileSync('systemd-analyze',['--version'],{stdio:'ignore'});}catch{t.skip('systemd-analyze is unavailable');return;}
- const root=await mkdtemp(join(tmpdir(),'routefit-systemd-')),replacement={NODE24_PATH:'/usr/bin/node',RUN_ENV:'/var/lib/routefit/run.env',BACKUP_ENV:'/etc/routefit/backup.env',BACKUP_DIR:'/var/lib/routefit/backups',PG_BIN:'/usr/lib/postgresql/bin'};
+ const root=await mkdtemp(join(tmpdir(),'routefit-systemd-')),replacement={NODE24_PATH:process.execPath,RUN_ENV:'/var/lib/routefit/run.env',BACKUP_ENV:'/etc/routefit/backup.env',BACKUP_DIR:'/var/lib/routefit/backups',PG_BIN:'/usr/lib/postgresql/bin'};
  try{const files=['routefit-backup.service','routefit-backup.timer'];for(const name of files){const text=await readFile(new URL(`../../../ops/trial/${name}`,import.meta.url),'utf8'),rendered=text.replaceAll(/<([A-Z0-9_]+)>/g,(_,token)=>replacement[token]),path=join(root,name);await writeFile(path,rendered);}execFileSync('systemd-analyze',['verify',join(root,'routefit-backup.service'),join(root,'routefit-backup.timer')],{stdio:'pipe'});}finally{await rm(root,{recursive:true,force:true});}
 });
 test('trial backup status reports fresh, expired, checksum failure and no-backup states',async()=>{
