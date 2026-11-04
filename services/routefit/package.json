@@ -25,6 +25,8 @@
     ,"trial:renew": "node --env-file=.local/dev.env scripts/trial-renew.mjs"
     ,"trial:staff": "node --env-file=.local/dev.env scripts/trial-staff.mjs"
     ,"trial:import": "node --env-file=.local/dev.env scripts/trial-import.mjs"
+    ,"trial:staff:disable": "node --env-file=.local/dev.env scripts/trial-disable-staff.mjs"
+    ,"trial:customer:disable": "node --env-file=.local/dev.env scripts/trial-disable-customer.mjs"
     ,"trial:backup": "node --env-file=.local/dev.env scripts/trial-backup.mjs"
     ,"trial:backup-grants": "node scripts/trial-backup-grants.mjs"
     ,"trial:restore": "node scripts/trial-restore.mjs"

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,rm,writeFile,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup} from '../scripts/trial-common.mjs';
+import {rolePermissions,newSession,parseCsv,rowsToObjects,validateStaffAssignments,assertBackupDirectoryOutsideRepo,assertRestoreDatabase,renewSessions,assertTrialBackupFileMetadata,requireExistingBackupDirectory,trialBackupChecksumName,trialBackupCleanupNames,trialBackupFileMode,trialBackupName,trialBackupUmask,trialDatabaseName,findFreshValidBackup,rolesNeedCustomerAccess,sessionNeedsCustomerAccess} from '../scripts/trial-common.mjs';
 import {resolveStaffActor,parseEnvironment} from '../scripts/trial-ssh-link.mjs';
 import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs';
 import {runBackup} from '../scripts/trial-backup.mjs';
@@ -25,6 +25,9 @@ test('trial staff role permissions are least privilege and distinct',()=>{
  assert.ok(!rolePermissions.policy_publisher.includes('cases:decide'));
  assert.ok(!rolePermissions.policy_reviewer.includes('pricing:write'));
  assert.ok(!rolePermissions.policy_publisher.includes('pricing:review'));
+});
+test('customer scope is limited to order and case roles',()=>{
+ assert.equal(rolesNeedCustomerAccess(['order_quote']),true);assert.equal(rolesNeedCustomerAccess(['case_decider']),true);assert.equal(rolesNeedCustomerAccess(['policy_author']),false);assert.equal(rolesNeedCustomerAccess(['policy_reviewer']),false);assert.equal(sessionNeedsCustomerAccess({permissions:['pricing:read']}),false);assert.equal(sessionNeedsCustomerAccess({permissions:['orders:read']}),true);assert.equal(sessionNeedsCustomerAccess({permissions:['cases:read']}),true);
 });
 test('trial tooling defaults all database targets to routefit_trial',()=>{
  assert.equal(trialDatabaseName({}),'routefit_trial');

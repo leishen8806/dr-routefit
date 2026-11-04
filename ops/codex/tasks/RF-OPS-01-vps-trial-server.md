@@ -167,8 +167,9 @@
 6. **备份属主：** 备份由 root 执行，文件和校验文件为 `root:rf-admin 640`。
 7. **客户名单（2026-11-03 负责人确认允许导入正式客户资料）：**
    - `customers.csv`（表头 `name`，一行一个客户）由负责人直接放到服务器 root 私有的导入目录（目录 700、文件 600），不经聊天、不进仓库；
-   - 部署执行人不读取、不打印、不复制该文件的内容，只核对存在、权限和行数；行数由负责人确认与名单条数一致后才导入；导入后只报告客户数；
-   - 先建员工、后导入客户（导入只授权给当时已存在的启用员工）；首次导入须包含完整名单，不要重跑；
+   - 部署执行人不读取、不打印、不复制该文件的内容，只核对存在、权限和行数；行数由负责人确认与名单条数一致后才导入；导入后只报告数量；
+   - `trial:import` 可安全重跑：企业内客户名称精确匹配的行跳过，服务区域精确重复项跳过，不重复发布；新增客户只授权给当时已存在、状态为 ACTIVE 且会话含 `orders:read` 或 `cases:read` 的员工；不执行手工 SQL；
+   - 同名客户只按企业内精确名称去重；如业务上存在同名不同客户，先列入“待负责人确认”，不得用脚本猜测或改名；
    - 从这次起备份含真实客户资料：只拉到加密卷，报告里只写哈希值和行数；
    - 决策签批单上的 RF-DEC-07 由负责人补签。
 
@@ -179,8 +180,10 @@
 | 操作 | 完整命令 | 显式环境变量名 | root 要求 |
 | --- | --- | --- | --- |
 | 初始化 | `sudo <NODE24_PATH> --env-file=<ADMIN_ENV> scripts/trial-init.mjs` | `ROUTEFIT_PG_ADMIN_URL`→`<ADMIN_ENV>`；`ROUTEFIT_TRIAL_DATABASE`, `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`, `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`→`<ADMIN_ENV>` | 必须 root；`<ADMIN_ENV>` 仅 root |
-| 员工 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-staff.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_STAFF_FILE=<STAFF_FILE>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` 仅 root |
+| 员工及显式授权 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-staff.mjs --grant-customer-access` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_STAFF_FILE=<STAFF_FILE>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` 仅 root；只给 `order_quote`/`case_decider`，输出授权数量 |
 | 导入 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-import.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SERVICE_AREAS_FILE=<AREA_FILE>`, `ROUTEFIT_TRIAL_AREA_REASON`, `ROUTEFIT_TRIAL_IMPORT_DIRECTORY=<IMPORT_DIR>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` 仅 root；真实区域文件仅服务器 |
+| 停用员工 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-disable-staff.mjs <SSH_LOGIN>` | 同员工；`ROUTEFIT_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；清理授权并移除会话 |
+| 停用客户 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-disable-customer.mjs <CUSTOMER_ID>` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；清理授权并移除会话 |
 | 备份 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup.mjs` | `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`, `ROUTEFIT_PG_BIN`→`<RUN_ENV>` | 必须 root；`<BACKUP_ENV>` 仅 root |
 | 备份授权 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-grants.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_TRIAL_DATABASE`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>`、`<BACKUP_ENV>` 仅 root |
 | 恢复 | `sudo <NODE24_PATH> --env-file=<ADMIN_ENV> scripts/trial-restore.mjs <BACKUP_FILE> <NEW_DATABASE>` | `ROUTEFIT_PG_ADMIN_URL`、`ROUTEFIT_PG_BIN`→`<ADMIN_ENV>` | 必须 root；恢复读 root-only `<ADMIN_ENV>` |
@@ -188,6 +191,37 @@
 | 启动检查 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-start.mjs` | `ROUTEFIT_DATABASE_URL`, `ROUTEFIT_SESSION_FILE=<SESSION_FILE>`, `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`→`<RUN_ENV>` | root；systemd 实际启动服务 |
 
 临时目录演练须按此表逐字执行 init→staff→import→backup-grants→backup→restore→renew→start，逐条记录退出码和脱敏输出摘要。2026-10-30 本机合成演练：init 0（临时库/角色）；staff 0（1 个合成员工）；import 0（1 个客户、1 个区域）；backup-grants 0（19 个 schema）；backup 0；restore 0（新库）；renew 0；start 1（macOS 无 Linux systemd，错误明确要求 VPS systemd）。最终以 VPS 复核为准。
+
+**开工检查模板（RF-PM-047，全部只读，断言失败即停止）：**
+
+1. 从 root-only 会话文件列出状态为 ACTIVE、且权限含 `orders:read` 或 `cases:read` 的员工 principal ID；不要把会话内容写入日志。
+2. 对上述员工执行：
+   ```sql
+   SELECT count(*)::int AS grants_to_disabled
+   FROM party.customer_access a
+   JOIN party.customer c ON c.id = a.customer_id AND c.company_id = a.company_id
+   JOIN org.principal p ON p.id = a.principal_id AND p.company_id = a.company_id
+   WHERE a.company_id = '<COMPANY_ID>' AND p.kind = 'STAFF' AND p.status = 'ACTIVE'
+     AND c.status = 'DISABLED';
+   ```
+   **断言：`grants_to_disabled = 0`。**
+3. 对每个需要客户范围的 ACTIVE 员工执行：
+   ```sql
+   SELECT p.id,
+          count(DISTINCT a.customer_id)::int AS visible_enabled_customers,
+          (SELECT count(*)::int FROM party.customer
+             WHERE company_id = '<COMPANY_ID>' AND status = 'ACTIVE') AS enabled_customer_total
+   FROM org.principal p
+   LEFT JOIN party.customer_access a
+     ON a.company_id = p.company_id AND a.principal_id = p.id
+   LEFT JOIN party.customer c
+     ON c.company_id = a.company_id AND c.id = a.customer_id AND c.status = 'ACTIVE'
+   WHERE p.company_id = '<COMPANY_ID>' AND p.kind = 'STAFF' AND p.status = 'ACTIVE'
+     AND p.id IN (<ACTIVE_CUSTOMER_SCOPED_PRINCIPAL_IDS>)
+   GROUP BY p.id;
+   ```
+   **断言：每一行 `visible_enabled_customers = enabled_customer_total`；返回 0 行表示通过。**
+4. 若断言失败，先运行 `trial:staff --grant-customer-access` 或停用命令按实际原因修复；不得手工改授权表。
 
 ## 不做
 
