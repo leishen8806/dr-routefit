@@ -77,3 +77,15 @@ test('trial init reports cleanup failures, restores company config, and removes 
  const admin=new pg.Pool({connectionString:process.env.ROUTEFIT_TEST_DATABASE_URL});
  try{const writeFileImpl=async(file,...args)=>{if(file===backupEnvFile)throw Error('injected final write failure');return writeFile(file,...args);};const before=Number((await admin.query("SELECT count(*) FROM pg_roles WHERE rolname LIKE 'rf_trial_%' OR rolname LIKE 'rf_backup_%'")).rows[0].count);await assert.rejects(()=>runTrialInit({adminUrl:process.env.ROUTEFIT_TEST_DATABASE_URL,databaseName,envFile,companyFile,sessionFile,backupEnvFile,writeFileImpl}),/injected final write failure/);await assert.rejects(()=>access(envFile));assert.equal(await readFile(companyFile,'utf8'),companyText);assert.equal((await stat(companyFile)).mode&0o777,0o644);assert.equal((await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[databaseName])).rowCount,0);assert.equal(Number((await admin.query("SELECT count(*) FROM pg_roles WHERE rolname LIKE 'rf_trial_%' OR rolname LIKE 'rf_backup_%'")).rows[0].count),before);}finally{await admin.end();await rm(root,{recursive:true,force:true});}
 });
+
+test('trial init cleans files created before an EEXIST write failure without deleting pre-existing files',async t=>{
+ if(!process.env.ROUTEFIT_TEST_DATABASE_URL){t.skip('ROUTEFIT_TEST_DATABASE_URL is required');return;}
+ const root=await mkdtemp(join(tmpdir(),'routefit-init-eexist-')),companyFile=join(root,'trial-company.json'),envFile=join(root,'dev.env'),sessionFile=join(root,'sessions.json'),backupEnvFile=join(root,'backup.env');
+ const databaseName=`routefit_eexist_${randomUUID().replaceAll('-','').slice(0,12)}`;await writeFile(companyFile,JSON.stringify({name:'EEXIST Company'}));
+ const admin=new pg.Pool({connectionString:process.env.ROUTEFIT_TEST_DATABASE_URL});
+ try{
+  const writeFileImpl=async(file,...args)=>{if(file===sessionFile){await writeFile(file,...args);throw Object.assign(Error('injected session EEXIST'),{code:'EEXIST'});}return writeFile(file,...args);};
+  await assert.rejects(()=>runTrialInit({adminUrl:process.env.ROUTEFIT_TEST_DATABASE_URL,databaseName,envFile,companyFile,sessionFile,backupEnvFile,writeFileImpl}),/injected session EEXIST/);
+  await assert.rejects(()=>access(envFile));await assert.rejects(()=>access(sessionFile));await assert.rejects(()=>access(backupEnvFile));assert.equal((await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[databaseName])).rowCount,0);
+ }finally{await admin.end();await rm(root,{recursive:true,force:true});}
+});
