@@ -1,7 +1,8 @@
 {
   "task": "RF-PM-048",
   "runId": "run3",
-  "testDatabase": "synthetic-browser-fixture",
+  "testDatabase": "stubbed-api-fixture",
+  "evidenceNote": "接口桩验证；真实本地 PostgreSQL/service chain NOT_RUN",
   "checks": [
     "two overlapping policies are shown",
     "overlapping policy names are distinguishable",

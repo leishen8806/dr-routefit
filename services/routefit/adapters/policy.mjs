@@ -3,13 +3,20 @@ import {ensure} from '../domain/errors.mjs';
 import {validatePolicy,assertIndependent} from '../domain/policy.mjs';
 import {getTariff} from './postgres.mjs';
 
+export const policyReasonSummary=value=>Array.from(String(value||'')).slice(0,80).join('');
+
 export async function getPolicy(client,principal,id){
  const company=principal.companyId;
  const row=(await client.query('SELECT * FROM pricing.policy_version WHERE company_id=$1 AND id=$2',[company,id])).rows[0];
  ensure(row,404,'NOT_FOUND','资源不存在');
  const review=(await client.query('SELECT reviewed_by,reason,created_at FROM pricing.policy_review WHERE company_id=$1 AND policy_id=$2',[company,id])).rows[0];
  const publication=(await client.query('SELECT approved_by,reason,created_at FROM pricing.policy_publication WHERE company_id=$1 AND policy_id=$2',[company,id])).rows[0];
+ const tariff=(await client.query('SELECT name FROM pricing.tariff WHERE company_id=$1 AND id=$2',[company,row.tariff_id])).rows[0];
  return {...row.snapshot,version:publication?3:review?2:1,state:publication?'PUBLISHED':review?'REVIEWED':'SUBMITTED',
+  tariffName:tariff?.name||'未命名费率',
+  preparerRoleName:'费率编制人',preparedAt:row.created_at.toISOString(),
+  reviewerRoleName:'费率复核人',reviewedAt:review?.created_at?.toISOString()||null,
+  publisherRoleName:'费率发布人',publishedAt:publication?.created_at?.toISOString()||null,
   review:review?{principalId:review.reviewed_by,reason:review.reason,createdAt:review.created_at.toISOString()}:null,
   publication:publication?{principalId:publication.approved_by,reason:publication.reason,createdAt:publication.created_at.toISOString()}:null};
 }
@@ -34,7 +41,7 @@ export async function listPublishedPolicies(client,principal,query){
  const items=rows.slice(0,query.limit).map(r=>({
   id:r.id, state:'PUBLISHED', version:3, tariffId:r.tariff_id, tariffVersion:Number(r.tariff_version),
   validFrom:r.snapshot.validFrom, validUntil:r.snapshot.validUntil, serviceLevels:r.snapshot.serviceLevels,
-  tariffName:r.tariff_name, reason:String(r.snapshot.reason||'').slice(0,80),
+  tariffName:r.tariff_name, reason:policyReasonSummary(r.snapshot.reason),
   preparerRoleName:'费率编制人', preparedAt:r.prepared_at.toISOString(),
   reviewerRoleName:'费率复核人', reviewedAt:r.reviewed_at.toISOString(),
   publisherRoleName:'费率发布人', publishedAt:r.published_at.toISOString()

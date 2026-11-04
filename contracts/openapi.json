@@ -40222,6 +40222,53 @@
             "minLength": 1,
             "maxLength": 1000
           },
+          "tariffName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "费率草稿名称，供报价页显示"
+          },
+          "preparerRoleName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "preparedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reviewerRoleName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "reviewedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "publisherRoleName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "publishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"

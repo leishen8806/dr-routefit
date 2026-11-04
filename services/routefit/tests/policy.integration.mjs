@@ -50,6 +50,7 @@ test('real PostgreSQL policy approval HTTP lifecycle',async t=>{
    assert.deepEqual((await req(path+'/actions/review',{body:decision,version:1,actor:1,key})).data,review.data);
    for(const actor of [0,1])assert.equal((await req(path+'/actions/publish',{body:decision,version:2,actor})).status,403);
    published=await req(path+'/actions/publish',{body:decision,version:2,actor:2});assert.equal(published.status,200);assert.equal(published.data.state,'PUBLISHED');assert.equal(published.data.version,3);
+   assert.equal(published.data.tariffName,tariff.name);assert.equal(published.data.reason,submitBody.reason);assert.equal(published.data.preparerRoleName,'费率编制人');assert.equal(published.data.reviewerRoleName,'费率复核人');assert.equal(published.data.publisherRoleName,'费率发布人');assert.match(published.data.publishedAt,/^20/);assert.equal(Object.keys(published.data).some(key=>/identity|idp/i.test(key)),false);
    assert.equal(published.data.tariff.rules.find(r=>r.code==='insurance').share,false);
    assert.equal((await req(path+'/actions/publish',{body:decision,version:2,actor:2})).status,412);
    const list=await req('/policy-versions?state=PUBLISHED&serviceLevel=S2&effectiveAt='+encodeURIComponent(new Date().toISOString()),{actor:0});
@@ -73,7 +74,7 @@ test('real PostgreSQL policy approval HTTP lifecycle',async t=>{
   });
   await t.test('published source remains immutable after later draft edits and restart',async()=>{
    tariff=(await req(`/tariffs/${tariff.id}/actions/save-fee`,{body:{...base,amount:999},version:tariff.version})).data;
-   const view=await req('/policy-versions/'+policy.id);assert.deepEqual(view.data,published.data);assert.equal(view.data.tariff.rules.find(r=>r.code==='base').amount,200);
+   const view=await req('/policy-versions/'+policy.id);assert.deepEqual(view.data,published.data);assert.equal(view.data.tariffName,tariff.name);assert.equal(view.data.publishedAt,published.data.publishedAt);assert.equal(view.data.reason,published.data.reason);assert.equal(view.data.tariff.rules.find(r=>r.code==='base').amount,200);
    await stop();await start();assert.deepEqual((await req('/policy-versions/'+policy.id)).data,published.data);
    const replay=await req(`/tariffs/${tariff.id}/policy-versions`,{body:submitBody,version:policy.tariffVersion,key:submitKey});assert.deepEqual(replay.data,policy);assert.equal(replay.headers.get('Idempotency-Replayed'),'true');
   });
