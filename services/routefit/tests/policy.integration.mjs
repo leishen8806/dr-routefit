@@ -54,6 +54,12 @@ test('real PostgreSQL policy approval HTTP lifecycle',async t=>{
    assert.equal((await req(path+'/actions/publish',{body:decision,version:2,actor:2})).status,412);
    const list=await req('/policy-versions?state=PUBLISHED&serviceLevel=S2&effectiveAt='+encodeURIComponent(new Date().toISOString()),{actor:0});
    assert.equal(list.status,200,JSON.stringify(list.data));assert.equal(list.data.items.length,1);assert.equal(list.data.items[0].id,policy.id);assert.equal(list.data.items[0].state,'PUBLISHED');
+   const summary=list.data.items[0];assert.equal(summary.tariffName,tariff.name);assert.equal(summary.reason,submitBody.reason);assert.equal(summary.reason.length<=80,true);assert.equal(summary.preparerRoleName,'费率编制人');assert.equal(summary.reviewerRoleName,'费率复核人');assert.equal(summary.publisherRoleName,'费率发布人');for(const key of ['preparedAt','reviewedAt','publishedAt'])assert.match(summary[key],/^20/);assert.equal(Object.keys(summary).some(key=>/principal|person|identity|idp/i.test(key)),false);
+   tariff=(await req(`/tariffs/${tariff.id}/actions/save-fee`,{body:{...base,amount:225},version:tariff.version})).data;
+   const overlapping=(await req(`/tariffs/${tariff.id}/policy-versions`,{body:{...submitBody,reason:'DEMO overlapping policy with a different operational basis'},version:tariff.version})).data;
+   await req(`/policy-versions/${overlapping.id}/actions/review`,{body:decision,version:1,actor:1});
+   await req(`/policy-versions/${overlapping.id}/actions/publish`,{body:decision,version:2,actor:2});
+   const overlapList=await req('/policy-versions?serviceLevel=S2&effectiveAt='+encodeURIComponent(new Date().toISOString()),{actor:0});assert.equal(overlapList.data.items.length,2);assert.notEqual(overlapList.data.items[0].reason,overlapList.data.items[1].reason);
    const atStart=await req('/policy-versions?effectiveAt='+encodeURIComponent(policy.validFrom),{actor:0});assert.equal(atStart.data.items.some(x=>x.id===policy.id),true);
    const atEnd=await req('/policy-versions?effectiveAt='+encodeURIComponent(policy.validUntil),{actor:0});assert.equal(atEnd.data.items.some(x=>x.id===policy.id),false);
    const beforeStart=await req('/policy-versions?effectiveAt='+encodeURIComponent(new Date(Date.parse(policy.validFrom)-1).toISOString()),{actor:0});assert.equal(beforeStart.data.items.some(x=>x.id===policy.id),false);

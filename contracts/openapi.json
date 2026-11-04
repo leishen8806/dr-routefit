@@ -40380,6 +40380,41 @@
             "minimum": 1,
             "maximum": 9000000000000
           },
+          "tariffName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "费率草稿名称"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "description": "提交依据摘要；由服务端截取前80个字符，提交人不得填写个人信息"
+          },
+          "preparerRoleName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "preparedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reviewerRoleName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "publisherRoleName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
           "validFrom": {
             "type": "string",
             "format": "date-time"
@@ -40412,6 +40447,13 @@
           "version",
           "tariffId",
           "tariffVersion",
+          "tariffName",
+          "reason",
+          "preparerRoleName",
+          "preparedAt",
+          "reviewerRoleName",
+          "reviewedAt",
+          "publisherRoleName",
           "validFrom",
           "validUntil",
           "serviceLevels",

@@ -22,15 +22,22 @@ export async function listPublishedPolicies(client,principal,query){
  add("(pv.snapshot->>'validUntil')::timestamptz > $N::timestamptz",query.effectiveAt);
  if(query.after)add('pv.id>$N',query.after);
  const limit=Number(query.limit)+1;
- const sql=`SELECT pv.id,pv.tariff_id,pv.tariff_version,pv.snapshot,pub.created_at AS published_at
-   FROM pricing.policy_version pv LEFT JOIN pricing.policy_publication pub ON pub.company_id=pv.company_id AND pub.policy_id=pv.id
+ const sql=`SELECT pv.id,pv.tariff_id,pv.tariff_version,pv.snapshot,pv.created_at AS prepared_at,
+   t.name AS tariff_name,review.created_at AS reviewed_at,pub.created_at AS published_at
+   FROM pricing.policy_version pv
+   JOIN pricing.tariff t ON t.company_id=pv.company_id AND t.id=pv.tariff_id
+   LEFT JOIN pricing.policy_review review ON review.company_id=pv.company_id AND review.policy_id=pv.id
+   LEFT JOIN pricing.policy_publication pub ON pub.company_id=pv.company_id AND pub.policy_id=pv.id
    WHERE ${where.join(' AND ')} ORDER BY pv.id LIMIT $${values.length+1}`;
  values.push(limit);
  const rows=(await client.query(sql,values)).rows;
  const items=rows.slice(0,query.limit).map(r=>({
   id:r.id, state:'PUBLISHED', version:3, tariffId:r.tariff_id, tariffVersion:Number(r.tariff_version),
   validFrom:r.snapshot.validFrom, validUntil:r.snapshot.validUntil, serviceLevels:r.snapshot.serviceLevels,
-  publishedAt:r.published_at.toISOString()
+  tariffName:r.tariff_name, reason:String(r.snapshot.reason||'').slice(0,80),
+  preparerRoleName:'费率编制人', preparedAt:r.prepared_at.toISOString(),
+  reviewerRoleName:'费率复核人', reviewedAt:r.reviewed_at.toISOString(),
+  publisherRoleName:'费率发布人', publishedAt:r.published_at.toISOString()
  }));
  return {items,nextAfter:rows.length>query.limit?items.at(-1).id:null};
 }
