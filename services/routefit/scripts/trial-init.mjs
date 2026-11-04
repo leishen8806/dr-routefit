@@ -82,9 +82,10 @@ export async function runTrialInit({adminUrl=process.env.ROUTEFIT_PG_ADMIN_URL,d
   try{const owners=(await backupClient.query("SELECT DISTINCT tableowner AS role FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname <> 'information_schema'")).rows.map(row=>row.role);await configureBackupRole({client:backupClient,backupRole,migrationRoles:owners});}finally{backupClient.release();await grantPool.end();}
   target.username=runtimeRole;target.password=runtimePassword;
   const backupTarget=new URL(adminUrl);backupTarget.pathname='/'+databaseName;backupTarget.username=backupRole;backupTarget.password=backupPassword;
-  filesCreated.push(envFile);await writeFileImpl(envFile,buildTrialEnv({databaseUrl:target.href,sessionFile,source:process.env}),{flag:'wx',mode:0o600});
-  filesCreated.push(sessionFile);await writeFileImpl(sessionFile,'[]\n',{flag:'wx',mode:0o600});
-  filesCreated.push(backupEnvFile);await writeFileImpl(backupEnvFile,`ROUTEFIT_PG_BACKUP_URL=${backupTarget.href}\n`,{flag:'wx',mode:0o600});
+  const writeTracked=async(file,data,options)=>{let existed=false;try{await access(file);existed=true;}catch(error){if(error.code!=='ENOENT')throw error;}try{await writeFileImpl(file,data,options);filesCreated.push(file);}catch(error){if(!existed){try{await access(file);filesCreated.push(file);}catch{}}throw error;}};
+  await writeTracked(envFile,buildTrialEnv({databaseUrl:target.href,sessionFile,source:process.env}),{flag:'wx',mode:0o600});
+  await writeTracked(sessionFile,'[]\n',{flag:'wx',mode:0o600});
+  await writeTracked(backupEnvFile,`ROUTEFIT_PG_BACKUP_URL=${backupTarget.href}\n`,{flag:'wx',mode:0o600});
   return {databaseName,runtimeRole,backupRole,envFile,backupEnvFile,sessionFile,companyId,systemPrincipalId};
  }catch(error){const failures=[];if(companyFileChanged){try{await writeFile(companyFile,companyText,{mode:companyMode});await chmod(companyFile,companyMode);}catch(restoreError){failures.push(`企业配置文件 (${restoreError.message})`);}}failures.push(...await cleanupTrialInit({admin,databaseName,created,runtimeRole,roleCreated,backupRole,backupRoleCreated,filesCreated}));if(failures.length)error.message=`${error.message}; 仍有残留：${failures.join('；')}`;throw error;}finally{await admin.end();}
 }

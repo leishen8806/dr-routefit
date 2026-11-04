@@ -13,7 +13,7 @@
 | 服务器 | 负责人提供的 Linux VPS。**真实地址不写进本仓库**，文中用 `<VPS>` 代替 |
 | 依赖 | 第 1–6 步无依赖；第 7 步依赖 RF-PM-038 合并；第 8 步依赖 v0.3.0 发布并打标签（发布不再依赖第 8 步，2026-10-31 决定） |
 | 需人类批准 | **是**：每一步改动服务器前，由项目负责人在场确认 |
-| 状态 | 第 1–7 步通过（第 7 步 2026-10-30 R5 从干净状态验证 PASS）；第 8 步待 11-01，在发布并打标签后执行 |
+| 状态 | 第 1–7 步通过（第 7 步 2026-10-30 R5 从干净状态验证 PASS）；第 8 步核心部署 2026-11-03 已执行，真实业务未开始 |
 
 ## 背景
 
@@ -141,6 +141,7 @@
 2026-10-31 项目负责人决定：v0.3.0 的发布条件只要求第 7 步通过，第 8 步在发布、打标签之后执行。RF-DEC-07 签批前，部署后不录入真实客户资料；员工账号与员工名单以 RF-PM-040 决策签批单第 2、3 节（员工 SSH 账号发放、员工分工）签字为前提。
 
 - `/srv/routefit` 检出 `v0.3.0` 标签。
+- 升级到 `v0.3.1` 后首次运行 `trial:staff` 前，先在本机用 v0.3.0 数据完成一次升级演练并确认 PASS。
 - `trial:init` 建 `routefit_trial` 库，用真实员工名单执行 `trial:staff`。员工名单只存在服务器上，不进仓库。
 - 为每位员工建 `rf-tunnel` 组账号，配置其公钥。员工的私钥由员工自己生成，不经过任何人转交。
 - 用 root 将 `ops/trial/pg_hba-routefit.example` 中的 `<RUNTIME_ROLE>`、`<BACKUP_ROLE>` 替换为 `trial:init` 输出的随机角色名，插入 `pg_hba.conf` 中泛化允许规则之前；执行 `SELECT pg_reload_conf()`（或等价的 PostgreSQL reload），再核验运行角色和备份角色连接 `postgres` 均被拒绝、连接 `routefit_trial` 均正常。
@@ -165,6 +166,13 @@
    - `ops/trial/routefit-tunnel-link.example`、`ops/trial/routefit-sudoers.conf.example`、`ops/trial/sshd_config-match.example`：`<NODE24_PATH>` 及文件内其他占位符；
    - `ops/trial/pg_hba-routefit.example`：`<RUNTIME_ROLE>`、`<BACKUP_ROLE>`（`trial:init` 输出后替换，见上文）。
 6. **备份属主：** 备份由 root 执行，文件和校验文件为 `root:rf-admin 640`。
+7. **客户名单（2026-11-03 负责人确认允许导入正式客户资料）：**
+   - `customers.csv`（表头 `name`，一行一个客户）由负责人直接放到服务器 root 私有的导入目录（目录 700、文件 600），不经聊天、不进仓库；
+   - 部署执行人不读取、不打印、不复制该文件的内容，只核对存在、权限和行数；行数由负责人确认与名单条数一致后才导入；导入后只报告数量；
+   - `trial:import` 可安全重跑：企业内客户名称精确匹配的行跳过，服务区域精确重复项跳过，不重复发布；新增客户只授权给当时已存在、状态为 ACTIVE 且会话含 `orders:read` 或 `cases:read` 的员工；不执行手工 SQL；
+   - 同名客户只按企业内精确名称去重；如业务上存在同名不同客户，先列入“待负责人确认”，不得用脚本猜测或改名；
+   - 从这次起备份含真实客户资料：只拉到加密卷，报告里只写哈希值和行数；
+   - 决策签批单上的 RF-DEC-07 由负责人补签。
 
 服务器直接运行脚本时统一使用 Node 24 完整路径和 `--env-file`（不使用本地 npm 脚本的 `.local/dev.env` 默认值）。`<ADMIN_ENV>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<COMPANY_FILE>`、`<STAFF_FILE>`、`<IMPORT_DIR>`、`<AREA_FILE>`、`<BACKUP_DIR>`、`<SESSION_FILE>` 均为服务器布局占位符；`trial:init` 只读 root-only `<ADMIN_ENV>` 并按其中的 `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`、`ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>` 路径写出新文件，不能把尚不存在的 `<RUN_ENV>` 作为 `--env-file`。
 
@@ -173,15 +181,61 @@
 | 操作 | 完整命令 | 显式环境变量名 | root 要求 |
 | --- | --- | --- | --- |
 | 初始化 | `sudo <NODE24_PATH> --env-file=<ADMIN_ENV> scripts/trial-init.mjs` | `ROUTEFIT_PG_ADMIN_URL`→`<ADMIN_ENV>`；`ROUTEFIT_TRIAL_DATABASE`, `ROUTEFIT_TRIAL_ENV_FILE=<RUN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`, `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`→`<ADMIN_ENV>` | 必须 root；`<ADMIN_ENV>` 仅 root |
-| 员工 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-staff.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_STAFF_FILE=<STAFF_FILE>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` 仅 root |
+| 员工及显式授权 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-staff.mjs --grant-customer-access` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_STAFF_FILE=<STAFF_FILE>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` 仅 root；只给 `order_quote`/`case_decider`，输出授权数量 |
 | 导入 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-import.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_TRIAL_SERVICE_AREAS_FILE=<AREA_FILE>`, `ROUTEFIT_TRIAL_AREA_REASON`, `ROUTEFIT_TRIAL_IMPORT_DIRECTORY=<IMPORT_DIR>`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>` 仅 root；真实区域文件仅服务器 |
+| 停用员工 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-disable-staff.mjs <SSH_LOGIN>` | 同员工；`ROUTEFIT_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；清理授权并移除会话 |
+| 停用客户 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-disable-customer.mjs <CUSTOMER_ID>` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_TRIAL_COMPANY_FILE=<COMPANY_FILE>`, `ROUTEFIT_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；清理授权并移除会话 |
 | 备份 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup.mjs` | `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`, `ROUTEFIT_PG_BIN`→`<RUN_ENV>` | 必须 root；`<BACKUP_ENV>` 仅 root |
+| 备份状态检查 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-status.mjs` | `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`→`<RUN_ENV>` | 只读；无备份、超过 26 小时或校验失败时退出非零 |
 | 备份授权 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-grants.mjs` | `ROUTEFIT_ADMIN_ENV_FILE=<ADMIN_ENV>`, `ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>`, `ROUTEFIT_TRIAL_DATABASE`→`<RUN_ENV>` | 必须 root；`<ADMIN_ENV>`、`<BACKUP_ENV>` 仅 root |
 | 恢复 | `sudo <NODE24_PATH> --env-file=<ADMIN_ENV> scripts/trial-restore.mjs <BACKUP_FILE> <NEW_DATABASE>` | `ROUTEFIT_PG_ADMIN_URL`、`ROUTEFIT_PG_BIN`→`<ADMIN_ENV>` | 必须 root；恢复读 root-only `<ADMIN_ENV>` |
 | 续期 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-renew.mjs` | `ROUTEFIT_TRIAL_SESSION_FILE=<SESSION_FILE>`→`<RUN_ENV>` | 必须 root；会话文件随后归 routefit 服务用户 |
 | 启动检查 | `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-start.mjs` | `ROUTEFIT_DATABASE_URL`, `ROUTEFIT_SESSION_FILE=<SESSION_FILE>`, `ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>`→`<RUN_ENV>` | root；systemd 实际启动服务 |
 
 临时目录演练须按此表逐字执行 init→staff→import→backup-grants→backup→restore→renew→start，逐条记录退出码和脱敏输出摘要。2026-10-30 本机合成演练：init 0（临时库/角色）；staff 0（1 个合成员工）；import 0（1 个客户、1 个区域）；backup-grants 0（19 个 schema）；backup 0；restore 0（新库）；renew 0；start 1（macOS 无 Linux systemd，错误明确要求 VPS systemd）。最终以 VPS 复核为准。
+
+### 每日备份与站外拷贝（RF-OPS-02）
+
+负责人逐条确认后，在服务器安装 `ops/trial/routefit-backup.service` 与 `ops/trial/routefit-backup.timer`：仅替换 `<NODE24_PATH>`、`<RUN_ENV>`、`<BACKUP_ENV>`、`<BACKUP_DIR>`、`<PG_BIN>`，其余内容逐字保留；安装后执行 `sudo systemctl daemon-reload`、`sudo systemctl enable --now routefit-backup.timer`、`sudo systemctl start routefit-backup.service`，再用 `sudo systemctl list-timers routefit-backup.timer` 核对下一次触发。service 只由 timer 拉起，不单独 enable；模板使用 `ProtectHome=read-only` 以允许 root-only env 文件位于 `/root`，并保留最小写入目录。timer 使用 `19:00 UTC`（UTC+7 每日 02:00），允许最多 5 分钟随机延迟并在停机错过后补跑。失败时检查 `sudo systemctl status routefit-backup.service` 和 `sudo journalctl -u routefit-backup.service`，非零退出码视为失败。
+
+每天上午由负责人指定人员把前一晚备份拉到已挂载的加密卷，完成后对服务器文件、校验文件和站外副本做三方 SHA-256 核对；核对后卸载加密卷。站外至少保留最近 7 份，未拉取日期必须在日报记录。日报只写日期、哈希前 8 位和份数，不写路径、客户内容或口令。
+
+每周在新库执行一次恢复演练：使用一份备份恢复到新库，比较关键表行数与源库，记录结果后删除演练库；绝不在生产库执行恢复。只读检查可运行 `sudo <NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup-status.mjs`，它输出 UTC+7 最新备份时间、距今小时数、校验状态和份数；没有备份、超过 26 小时或校验失败时退出非零。
+
+备份失败或站外未拉取时，值班人员立即在日报标记 FAIL，通知负责人并暂停下一次发布/启动门禁，直到补做备份、完成三方核对并由负责人确认。
+
+**开工检查模板（RF-PM-047，全部只读，断言失败即停止）：**
+
+1. 从 root-only 会话文件列出状态为 ACTIVE、且权限含 `orders:read` 或 `cases:read` 的员工 principal ID；不要把会话内容写入日志。
+2. 对上述员工执行：
+   ```sql
+   SELECT count(*)::int AS grants_to_disabled
+   FROM party.customer_access a
+   JOIN party.customer c ON c.id = a.customer_id AND c.company_id = a.company_id
+   JOIN org.principal p ON p.id = a.principal_id AND p.company_id = a.company_id
+   WHERE a.company_id = '<COMPANY_ID>' AND p.kind = 'STAFF' AND p.status = 'ACTIVE'
+     AND c.status = 'DISABLED';
+   ```
+   **断言：`grants_to_disabled = 0`。**
+3. 对每个需要客户范围的 ACTIVE 员工执行：
+   ```sql
+   SELECT p.id,
+          count(DISTINCT a.customer_id)::int AS visible_enabled_customers,
+          (SELECT count(*)::int FROM party.customer
+             WHERE company_id = '<COMPANY_ID>' AND status = 'ACTIVE') AS enabled_customer_total
+   FROM org.principal p
+   LEFT JOIN party.customer_access a
+     ON a.company_id = p.company_id AND a.principal_id = p.id
+   LEFT JOIN party.customer c
+     ON c.company_id = a.company_id AND c.id = a.customer_id AND c.status = 'ACTIVE'
+   WHERE p.company_id = '<COMPANY_ID>' AND p.kind = 'STAFF' AND p.status = 'ACTIVE'
+     AND p.id IN (<ACTIVE_CUSTOMER_SCOPED_PRINCIPAL_IDS>)
+   GROUP BY p.id;
+   ```
+   **断言：每一行 `visible_enabled_customers = enabled_customer_total`；返回 0 行表示通过。**
+4. 若断言失败，先运行 `trial:staff --grant-customer-access` 或停用命令按实际原因修复；不得手工改授权表。
+
+`trial:start` 在读取数据库前会要求 `<SESSION_FILE>` 存在且至少含一个会话；缺失或空会话明确失败并提示先执行 `trial:init`、`trial:staff`，不会自动生成身份或会话。停用最后一个员工后会话文件可能为空，下一次重启会失败；必须先重新登记获授权员工并重跑 `trial:staff`，再启动服务。部署清单须把该失败视为未完成开工准备。
 
 ## 不做
 

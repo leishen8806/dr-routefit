@@ -12,6 +12,26 @@ export const token=()=>randomBytes(32).toString('hex');
 export const newSession=(principal,permissions,expiresAt)=>{const raw=token(),csrf=token();return [{...principal,tokenHash:digest(raw),csrfHash:digest(csrf),permissions,expiresAt},raw,csrf];};
 export const poolFor=url=>new pg.Pool({connectionString:url,max:3});
 export const rolePermissions=Object.freeze({order_quote:['orders:read','orders:create','orders:edit','orders:verify','orders:submit','areas:read','quotes:read','quotes:create','quotes:confirm','pricing:read','cases:read','cases:create'],case_decider:['cases:read','cases:decide','orders:read','quotes:read','areas:read'],policy_author:['pricing:read','pricing:write'],policy_reviewer:['pricing:read','pricing:review'],policy_publisher:['pricing:read','pricing:publish']});
+export const customerScopedRoles=Object.freeze(new Set(['order_quote','case_decider']));
+export const customerScopedPermissions=Object.freeze(new Set(['orders:read','cases:read']));
+export const rolesNeedCustomerAccess=roles=>Array.isArray(roles)&&roles.some(role=>customerScopedRoles.has(role));
+export const sessionNeedsCustomerAccess=session=>Array.isArray(session?.permissions)&&session.permissions.some(permission=>customerScopedPermissions.has(permission));
+export async function resolveStaffPrincipal({client,companyId,sessions=[],sshLogin,principalId,subjectCandidates=[]}={}){
+ const login=String(sshLogin||'').trim(),sessionMatches=sessions.filter(session=>session?.sshLogin===login&&session?.authType!=='service'&&session?.principalId);
+ const sessionIds=[...new Set(sessionMatches.map(session=>String(session.principalId)))];
+ if(sessionIds.length>1)throw Error(`staff lookup is ambiguous for sshLogin ${login}`);
+ if(principalId&&sessionIds.length&&String(principalId)!==sessionIds[0])throw Error(`staff lookup disagrees for sshLogin ${login}`);
+ const sessionPrincipalId=sessionIds[0]||String(principalId||'').trim()||null;
+ const bySession=sessionPrincipalId?(await client.query("SELECT id,status,idp_subject FROM org.principal WHERE company_id=$1 AND kind='STAFF' AND id=$2",[companyId,sessionPrincipalId])).rows[0]:null;
+ const subjects=[...new Set([...subjectCandidates.map(value=>`local:${String(value)}`),...(sessionPrincipalId?[`local:${sessionPrincipalId}`]:[])])].filter(value=>value!=='local:');
+ const bySubject=subjects.length?(await client.query("SELECT id,status,idp_subject FROM org.principal WHERE company_id=$1 AND kind='STAFF' AND idp_subject=ANY($2::text[])",[companyId,subjects])).rows:[];
+ const subjectIds=[...new Set(bySubject.map(row=>String(row.id)))];
+ if(subjectIds.length>1)throw Error(`staff lookup is ambiguous for sshLogin ${login}`);
+ if(bySession&&subjectIds.length&&String(bySession.id)!==subjectIds[0])throw Error(`staff lookup disagrees for sshLogin ${login}`);
+ const principal=bySession||bySubject[0]||null;
+ if(sessionMatches.length&&!principal)throw Error(`staff session principal was not found for sshLogin ${login}`);
+ return {principal,session:sessionMatches[0]||null};
+}
 export const fullStaffPermissions=Object.freeze([...new Set([...developmentPermissions])]);
 export const localFile=(url,...parts)=>fileURLToPath(new URL(parts.join('/'),url));
 export const isTrialMode=(env=process.env)=>env.ROUTEFIT_TRIAL==='1';
@@ -19,7 +39,7 @@ export const trialDatabaseName=(env=process.env)=>env.ROUTEFIT_TRIAL_DATABASE||'
 export const sessionFileFor=(env=process.env,url=import.meta.url)=>env.ROUTEFIT_SESSION_FILE||(isTrialMode(env)?'/var/lib/routefit/sessions.json':localFile(url,'../.local/sessions.json'));
 export function parseCsv(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const ch=text[i],next=text[i+1];if(quoted){if(ch==='"'&&next==='"'){cell+='"';i++;}else if(ch==='"')quoted=false;else cell+=ch;}else if(ch==='"'&&cell===''){quoted=true;}else if(ch===','){row.push(cell.trim());cell='';}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&next==='\n')i++;row.push(cell.trim());if(row.some(Boolean))rows.push(row);row=[];cell='';}else cell+=ch;}if(quoted)throw Error('CSV contains an unterminated quote');if(cell||row.length){row.push(cell.trim());rows.push(row);}return rows;}
 export function rowsToObjects(rows,name='CSV'){if(!rows.length)return [];const [head,...data]=rows;if(head.some(x=>!x)||data.some(row=>row.length!==head.length))throw Error(`${name}: invalid row width`);return data.map(row=>Object.fromEntries(head.map((key,i)=>[key,row[i]||''])));}
-export function validateStaffAssignments(people){if(!Array.isArray(people)||!people.length)throw Error('trial-staff requires a non-empty trial-staff.json');const conflicting=new Set(['policy_author','policy_reviewer','policy_publisher']);const knownRoles=new Set(Object.keys(rolePermissions)),byHuman=new Map(),logins=new Set();for(const person of people){if(!person.humanId)throw Error('trial staff humanId is required');if(!person.sshLogin||logins.has(person.sshLogin))throw Error('trial staff sshLogin is required and must be unique');logins.add(person.sshLogin);if(!Array.isArray(person.roles)||!person.roles.length)throw Error(`trial staff roles must be a non-empty array: ${person.humanId}/${person.sshLogin}`);const unknown=person.roles.find(role=>!knownRoles.has(role));if(unknown)throw Error(`unknown trial staff role ${unknown}: ${person.humanId}/${person.sshLogin}`);const roles=person.roles;const prior=byHuman.get(person.humanId)||[];if(roles.filter(r=>conflicting.has(r)).length+prior.filter(r=>conflicting.has(r)).length>1)throw Error(`同一人不能兼任编制、复核、发布：${person.humanId}`);byHuman.set(person.humanId,[...prior,...roles]);}return people;}
+export function validateStaffAssignments(people){if(!Array.isArray(people)||!people.length)throw Error('trial-staff requires a non-empty trial-staff.json');const conflicting=new Set(['policy_author','policy_reviewer','policy_publisher']);const knownRoles=new Set(Object.keys(rolePermissions)),byHuman=new Map(),logins=new Set();for(const person of people){if(!person.humanId)throw Error('trial staff humanId is required');if(!person.sshLogin||logins.has(person.sshLogin))throw Error('trial staff sshLogin is required and must be unique');logins.add(person.sshLogin);if(!Array.isArray(person.roles)||!person.roles.length)throw Error(`trial staff roles must be a non-empty array: ${person.humanId}/${person.sshLogin}`);const unknown=person.roles.find(role=>!knownRoles.has(role));if(unknown)throw Error(`unknown trial staff role ${unknown}: ${person.humanId}/${person.sshLogin}`);const roles=person.roles,prior=byHuman.get(person.humanId)||[],all=[...prior,...roles];if(all.filter(r=>conflicting.has(r)).length>1)throw Error('同一人不能兼任费率编制、费率复核、费率发布角色');if(all.includes('order_quote')&&all.includes('case_decider'))throw Error('同一人不能同时负责录单报价与案件决定');byHuman.set(person.humanId,all);}return people;}
 export function assertBackupDirectoryOutsideRepo(repo,dir){const root=resolve(repo),target=resolve(dir);if(target===root||target.startsWith(root+sep))throw Error('backup directory must be outside the repository');return target;}
 export const trialBackupDirectory='/var/backups/routefit';
 export const trialBackupUmask=0o027;
@@ -29,14 +49,14 @@ export const trialBackupName=now=>`routefit_trial-${now.toISOString().replaceAll
 export const trialBackupChecksumName=name=>`${name}.sha256`;
 export const isTrialBackupName=name=>trialBackupPattern.test(name);
 export async function findFreshValidBackup(directory,{now=Date.now(),maxAgeMs=24*3600000,verify=async()=>true}={}){
- const entries=await readdir(directory),candidates=[];
- for(const name of entries.filter(isTrialBackupName)){
+ const entries=await readdir(directory);
+ for(const name of entries.filter(isTrialBackupName).sort((a,b)=>b.localeCompare(a))){
   const file=resolve(directory,name),info=await stat(file);
   if(!info.isFile()||info.size<=0||now-info.mtimeMs>=maxAgeMs)continue;
   const checksum=resolve(directory,trialBackupChecksumName(name));
-  try{await access(checksum);await verify(file,checksum);candidates.push(file);}catch{}
+  try{await access(checksum);await verify(file,checksum);return [file];}catch{}
  }
- return candidates;
+ return [];
 }
 export const trialBackupCleanupNames=(entries,keep=14)=>entries.filter(isTrialBackupName).sort().slice(0,-keep).flatMap(name=>[name,trialBackupChecksumName(name)]);
 export function assertTrialBackupFileMetadata(info,uid,gid){if(info.uid!==uid||info.gid!==gid||(info.mode&0o777)!==trialBackupFileMode)throw Error('backup file ownership or mode is not routefit:rf-admin 640');}

@@ -1,0 +1,24 @@
+[Unit]
+Description=RouteFit daily PostgreSQL backup
+After=network-online.target postgresql.service
+Wants=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/srv/routefit/services/routefit
+Environment=ROUTEFIT_BACKUP_ENV_FILE=<BACKUP_ENV>
+Environment=ROUTEFIT_BACKUP_DIRECTORY=<BACKUP_DIR>
+Environment=ROUTEFIT_PG_BIN=<PG_BIN>
+ExecStart=<NODE24_PATH> --env-file=<RUN_ENV> scripts/trial-backup.mjs
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=<BACKUP_DIR>
