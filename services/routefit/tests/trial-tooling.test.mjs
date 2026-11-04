@@ -169,9 +169,9 @@ test('fresh trial backups require a matching checksum and non-empty dump',async(
   const {createHash}=await import('node:crypto');await writeFile(sum,`${createHash('sha256').update('dump').digest('hex')}  ${file.split('/').pop()}\n`);assert.deepEqual(await findFreshValidBackup(dir,{now,verify:verifyBackupChecksum}),[file]);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
-test('fresh trial backup lookup stops after the first valid dump',async()=>{
+test('fresh trial backup lookup sorts newest first before validating',async()=>{
  const dir=await mkdtemp(join(tmpdir(),'rf038-first-valid-')),now=Date.parse('2026-11-01T01:00:00Z'),calls=[];
- try{const first=join(dir,'routefit_trial-20261101T000000Z.dump'),second=join(dir,'routefit_trial-20261101T003000Z.dump');await writeFile(first,'first');await writeFile(second,'second');const {createHash}=await import('node:crypto');for(const [file,data] of [[first,'first'],[second,'second']])await writeFile(`${file}.sha256`,`${createHash('sha256').update(data).digest('hex')}  ${file.split('/').pop()}\n`);const found=await findFreshValidBackup(dir,{now,verify:async(...args)=>{calls.push(args[0]);return verifyBackupChecksum(...args);}});assert.deepEqual(found,[first]);assert.deepEqual(calls,[first]);}finally{await rm(dir,{recursive:true,force:true});}
+ try{const older=join(dir,'routefit_trial-20261101T000000Z.dump'),newer=join(dir,'routefit_trial-20261101T003000Z.dump');await writeFile(older,'older');await writeFile(newer,'newer');const {createHash}=await import('node:crypto');for(const [file,data] of [[older,'older'],[newer,'newer']])await writeFile(`${file}.sha256`,`${createHash('sha256').update(data).digest('hex')}  ${file.split('/').pop()}\n`);const found=await findFreshValidBackup(dir,{now,verify:async(...args)=>{calls.push(args[0]);return verifyBackupChecksum(...args);}});assert.deepEqual(found,[newer]);assert.deepEqual(calls,[newer]);}finally{await rm(dir,{recursive:true,force:true});}
 });
 test('trial start requires a non-empty session file before backup preflight',async()=>{
  const root=await mkdtemp(join(tmpdir(),'rf038-start-')),sessionFile=join(root,'sessions.json');await writeFile(sessionFile,'[]\n');

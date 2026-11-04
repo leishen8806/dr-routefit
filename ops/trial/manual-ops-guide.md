@@ -77,7 +77,7 @@
 
 `--env-file` 是 Node 24 的参数；上述命令是服务器直接调用脚本的写法，不改本地 npm 脚本。`trial:import` 的 `ROUTEFIT_TRIAL_AREA_REASON` 必须由值班人员在 root-only env 中提供，未提供会拒绝运行。
 
-`trial:start` 要求 `ROUTEFIT_SESSION_FILE` 存在且至少包含一个会话；缺失文件或空会话会明确失败并提示先执行 `trial:init`、`trial:staff`，不会自动生成身份或会话。这样可以避免服务已启动但没有任何可用员工会话。
+`trial:start` 要求 `ROUTEFIT_SESSION_FILE` 存在且至少包含一个会话；缺失文件或空会话会明确失败并提示先执行 `trial:init`、`trial:staff`，不会自动生成身份或会话。停用最后一个员工后，会话文件可能变为空；下一次重启会因此失败，必须先重新启用/登记获授权员工并重跑 `trial:staff`，再启动服务。这样可以避免服务已启动但没有任何可用员工会话。
 
 #### 临时目录演练记录（合成值）
 

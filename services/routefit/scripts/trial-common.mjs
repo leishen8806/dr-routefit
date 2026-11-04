@@ -30,7 +30,7 @@ export const trialBackupChecksumName=name=>`${name}.sha256`;
 export const isTrialBackupName=name=>trialBackupPattern.test(name);
 export async function findFreshValidBackup(directory,{now=Date.now(),maxAgeMs=24*3600000,verify=async()=>true}={}){
  const entries=await readdir(directory);
- for(const name of entries.filter(isTrialBackupName)){
+ for(const name of entries.filter(isTrialBackupName).sort((a,b)=>b.localeCompare(a))){
   const file=resolve(directory,name),info=await stat(file);
   if(!info.isFile()||info.size<=0||now-info.mtimeMs>=maxAgeMs)continue;
   const checksum=resolve(directory,trialBackupChecksumName(name));
