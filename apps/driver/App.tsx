@@ -49,7 +49,6 @@ export default function App() {
   const [deviceId, setDeviceId] = useState('');
   const [pendingEvents, setPendingEvents] = useState(0);
   const [quarantinedEvents, setQuarantinedEvents] = useState(0);
-  const [queueReady, setQueueReady] = useState(false);
   const [queueFailed, setQueueFailed] = useState(false);
   const [syncBusy, setSyncBusy] = useState(false);
   const actionInFlight = useRef(false);
@@ -72,7 +71,6 @@ export default function App() {
       .then((queue) => {
         if (!active) return;
         queueRef.current = queue;
-        setQueueReady(true);
         refreshQueue(queue);
       })
       .catch(() => {
@@ -172,8 +170,8 @@ export default function App() {
     }
   }
 
-  async function recordArrival() {
-    if (!queueRef.current || !detail || !order?.delivery.point) return;
+  async function recordArrival(observedPoint: DriverArrivedEvent['payload']['point']) {
+    if (!queueRef.current || !detail) return;
     setError('');
     setNotice('');
     try {
@@ -184,7 +182,7 @@ export default function App() {
         planVersion: detail.assignment.planVersion,
         observedAt: new Date().toISOString(),
         type: 'ARRIVED',
-        payload: { point: order.delivery.point, evidenceFileIds: [] },
+        payload: { point: observedPoint, evidenceFileIds: [] },
       });
       refreshQueue();
       setNotice(t('arrivalQueued'));
@@ -217,7 +215,6 @@ export default function App() {
   const credentialsReady = token.trim().length >= 32 && csrfToken.trim().length >= 32;
   const deviceReady = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(deviceId.trim());
   const actionAvailable = detail?.assignment.state === 'offered';
-  const arrivalAvailable = detail?.assignment.state === 'in_transit' && Boolean(order?.delivery.point) && queueReady;
   const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
   return (
@@ -375,14 +372,6 @@ export default function App() {
                   {t('quarantinedPrefix')} {quarantinedEvents} {t('quarantinedSuffix')}
                 </Text>
               ) : null}
-              <Pressable
-                accessibilityRole="button"
-                disabled={!arrivalAvailable || syncBusy}
-                onPress={recordArrival}
-                style={[styles.secondaryButton, (!arrivalAvailable || syncBusy) && styles.buttonDisabled]}
-              >
-                <Text style={styles.secondaryButtonText}>{t('recordArrival')}</Text>
-              </Pressable>
               <Pressable
                 accessibilityRole="button"
                 disabled={!credentialsReady || !deviceReady || pendingEvents === 0 || syncBusy}
