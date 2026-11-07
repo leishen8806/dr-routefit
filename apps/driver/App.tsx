@@ -26,7 +26,7 @@ import {
   type DriverLanguage,
   type DriverOrderDetail,
 } from './src/driver-api';
-import { languageOptions, text } from './src/messages';
+import { errorText, languageOptions, text, type MessageKey } from './src/messages';
 import { rejectConfirmationStep } from './src/task-actions.mjs';
 
 export default function App() {
@@ -47,6 +47,13 @@ export default function App() {
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
   const auth = () => developmentSessionAuth(token, csrfToken);
 
+  function displayError(cause: unknown, fallback: MessageKey) {
+    if (cause instanceof DriverApiError) {
+      return errorText(language, cause.code) ?? cause.serverMessage ?? t(fallback);
+    }
+    return cause instanceof Error ? cause.message : t(fallback);
+  }
+
   async function refreshAssignments(clearError = true) {
     setLoading('list');
     if (clearError) setError('');
@@ -55,7 +62,7 @@ export default function App() {
       setAssignments(page.items);
     } catch (cause) {
       setAssignments(null);
-      setError(cause instanceof Error ? cause.message : t('taskReadFailed'));
+      setError(displayError(cause, 'taskReadFailed'));
     } finally {
       setLoading('');
     }
@@ -74,7 +81,7 @@ export default function App() {
     } catch (cause) {
       setDetail(null);
       setOrder(null);
-      setError(cause instanceof Error ? cause.message : t('taskReadFailed'));
+      setError(displayError(cause, 'taskReadFailed'));
     } finally {
       setLoading('');
     }
@@ -96,7 +103,7 @@ export default function App() {
       const updated = await actOnAssignment(
         auth(),
         language,
-        detail.assignment,
+        detail,
         action,
         rejectReason.trim(),
       );
@@ -108,7 +115,7 @@ export default function App() {
       setNotice(t(action === 'accept' ? 'accepted' : 'rejected'));
     } catch (cause) {
       const stale = cause instanceof DriverApiError && (cause.status === 409 || cause.status === 412);
-      setError(cause instanceof Error ? cause.message : t('taskReadFailed'));
+      setError(displayError(cause, 'taskActionFailed'));
       if (stale) await openDetails(detail.assignment.id, false);
     } finally {
       actionInFlight.current = false;
@@ -116,12 +123,8 @@ export default function App() {
     }
   }
 
-  async function navigate() {
-    const point = order?.delivery.point;
-    if (!point) {
-      setError(t('navigationUnavailable'));
-      return;
-    }
+  async function navigate(point: DriverOrderDetail['pickup']['point']) {
+    if (!point) return;
     const url = Platform.OS === 'ios'
       ? `https://maps.apple.com/?daddr=${point.lat},${point.lng}`
       : `geo:${point.lat},${point.lng}?q=${point.lat},${point.lng}`;
@@ -222,9 +225,14 @@ export default function App() {
             <Text>{t('contact')} {order.delivery.contactName}</Text>
             <Text>{t('phone')} {order.delivery.phone}</Text>
             <Text>{t('itemCount')} {itemCount}</Text>
-            <Pressable accessibilityRole="button" onPress={navigate} style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>{t('navigate')}</Text>
+            <Pressable accessibilityRole="button" disabled={!order.pickup.point} onPress={() => navigate(order.pickup.point)} style={[styles.secondaryButton, !order.pickup.point && styles.buttonDisabled]}>
+              <Text style={styles.secondaryButtonText}>{t('navigatePickup')}</Text>
             </Pressable>
+            {!order.pickup.point ? <Text style={styles.caption}>{t('coordinatesUnavailable')}</Text> : null}
+            <Pressable accessibilityRole="button" disabled={!order.delivery.point} onPress={() => navigate(order.delivery.point)} style={[styles.secondaryButton, !order.delivery.point && styles.buttonDisabled]}>
+              <Text style={styles.secondaryButtonText}>{t('navigateDelivery')}</Text>
+            </Pressable>
+            {!order.delivery.point ? <Text style={styles.caption}>{t('coordinatesUnavailable')}</Text> : null}
 
             <View style={styles.actions}>
               <Pressable

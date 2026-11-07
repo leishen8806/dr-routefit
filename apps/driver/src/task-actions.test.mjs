@@ -4,11 +4,12 @@ import test from 'node:test';
 import {
   TASK_CHANGED,
   TASK_NOT_FOUND,
-  actionErrorMessage,
+  actionErrorCode,
   createActionPlan,
   rejectConfirmationStep,
   sendWithNetworkRetry,
 } from './task-actions.mjs';
+import { errorText } from './messages.ts';
 
 const assignment = { id: 'assignment-1', version: 7, planVersion: 4 };
 
@@ -33,10 +34,20 @@ test('action plan uses assignment version for If-Match', () => {
   assert.deepEqual(plan.body, { planVersion: 4 });
 });
 
+test('action plan prefers the response ETag over the assignment version', () => {
+  const plan = createActionPlan({ action: 'accept', assignment, etag: '"server-etag"', keyFactory: () => 'idem-key-00000001' });
+  assert.equal(plan.ifMatch, '"server-etag"');
+});
+
 test('stale and hidden tasks have stable messages', () => {
-  assert.equal(actionErrorMessage(409), TASK_CHANGED);
-  assert.equal(actionErrorMessage(412), TASK_CHANGED);
-  assert.equal(actionErrorMessage(404), TASK_NOT_FOUND);
+  assert.equal(actionErrorCode(409), TASK_CHANGED);
+  assert.equal(actionErrorCode(412), TASK_CHANGED);
+  assert.equal(actionErrorCode(404), TASK_NOT_FOUND);
+});
+
+test('English UI localizes 404 and 412 error codes', () => {
+  assert.equal(errorText('en', actionErrorCode(404)), 'Assignment is unavailable or no longer belongs to you');
+  assert.equal(errorText('en', actionErrorCode(412)), 'Assignment has changed');
 });
 
 test('reject requires a second confirmation', () => {

@@ -1,8 +1,11 @@
 import type { DriverAuth } from './development-auth';
 import {
-  actionErrorMessage,
+  actionErrorCode,
   createActionPlan,
+  ORDER_READ_FAILED,
   sendWithNetworkRetry,
+  TASK_ACTION_FAILED,
+  TASK_READ_FAILED,
 } from './task-actions.mjs';
 
 const LOCAL_DEVELOPMENT_ORIGIN = 'http://127.0.0.1:4180';
@@ -53,12 +56,16 @@ interface AssignmentPage {
 }
 
 export class DriverApiError extends Error {
-  constructor(public readonly status: number, message: string) {
-    super(message);
+  constructor(
+    public readonly status: number,
+    public readonly code: string,
+    public readonly serverMessage: string | null,
+  ) {
+    super(code);
   }
 }
 
-function message(value: unknown, fallback: string): string {
+function serverMessage(value: unknown): string | null {
   if (
     value &&
     typeof value === 'object' &&
@@ -70,7 +77,7 @@ function message(value: unknown, fallback: string): string {
   ) {
     return value.error.message;
   }
-  return fallback;
+  return null;
 }
 
 async function body(response: Response): Promise<unknown> {
@@ -89,7 +96,9 @@ export async function listAssignments(
     headers: readHeaders(auth, language),
   });
   const value = await body(response);
-  if (!response.ok) throw new DriverApiError(response.status, message(value, '任务读取失败'));
+  if (!response.ok) {
+    throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_READ_FAILED), serverMessage(value));
+  }
   return value as AssignmentPage;
 }
 
@@ -104,7 +113,7 @@ export async function getAssignment(
   );
   const value = await body(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, actionErrorMessage(response.status, message(value, '任务读取失败')));
+    throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_READ_FAILED), serverMessage(value));
   }
   const assignment = value as DriverAssignment;
   return { assignment, etag: response.headers.get('etag') ?? `"${assignment.version}"` };
@@ -121,7 +130,7 @@ export async function getDriverOrder(
   );
   const value = await body(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, actionErrorMessage(response.status, message(value, '订单读取失败')));
+    throw new DriverApiError(response.status, actionErrorCode(response.status, ORDER_READ_FAILED), serverMessage(value));
   }
   return value as DriverOrderDetail;
 }
@@ -129,11 +138,11 @@ export async function getDriverOrder(
 export async function actOnAssignment(
   auth: DriverAuth,
   language: DriverLanguage,
-  assignment: DriverAssignment,
+  detail: AssignmentDetail,
   action: DriverAction,
   reason = '',
 ): Promise<DriverAssignment> {
-  const plan = createActionPlan({ action, assignment, reason });
+  const plan = createActionPlan({ action, assignment: detail.assignment, etag: detail.etag, reason });
   const response = await sendWithNetworkRetry(plan, (attempt: {
     action: DriverAction;
     assignmentId: string;
@@ -158,7 +167,7 @@ export async function actOnAssignment(
   );
   const value = await body(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, actionErrorMessage(response.status, message(value, '任务操作失败')));
+    throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_ACTION_FAILED), serverMessage(value));
   }
   return value as DriverAssignment;
 }
