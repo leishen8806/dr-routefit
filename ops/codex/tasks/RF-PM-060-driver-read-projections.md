@@ -9,7 +9,7 @@
 | 分支 | `feat/RF-PM-060-driver-read-projections`，PR 目标 `develop` |
 | 依赖 | 无；完成后解除 RF-PM-058 要做 1、2、5 的阻塞 |
 | 需人类批准 | 是：契约变更；合并前须负责人侧 Claude 审查，并由作者以外的人批准最终 head |
-| 状态 | IN_REVIEW |
+| 状态 | IN_PROGRESS |
 
 ## 背景
 
