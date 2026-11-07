@@ -36,6 +36,7 @@ export interface DriverOrderItem {
   id: string;
   name: string;
   quantity: number;
+  packageIds: string[];
 }
 
 export interface DriverOrderDetail {
@@ -53,6 +54,28 @@ export interface AssignmentDetail {
 interface AssignmentPage {
   items: DriverAssignment[];
   nextCursor: string | null;
+}
+
+export interface DriverArrivedEvent {
+  eventId: string;
+  sequence: number;
+  assignmentId: string;
+  assignmentVersion: number;
+  planVersion: number;
+  observedAt: string;
+  type: 'ARRIVED';
+  payload: {
+    point: { lat: number; lng: number };
+    evidenceFileIds: string[];
+  };
+}
+
+export interface DriverSyncResult {
+  eventId: string;
+  result: 'APPLIED' | 'DUPLICATE' | 'REJECTED' | 'NEEDS_REVIEW';
+  resourceId: string | null;
+  resourceVersion: number | null;
+  errorCode: string | null;
 }
 
 export class DriverApiError extends Error {
@@ -170,4 +193,31 @@ export async function actOnAssignment(
     throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_ACTION_FAILED), serverMessage(value));
   }
   return value as DriverAssignment;
+}
+
+export async function syncDriverEvent(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  deviceId: string,
+  event: DriverArrivedEvent,
+): Promise<DriverSyncResult> {
+  const response = await fetch(`${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/sync/events`, {
+    method: 'POST',
+    headers: {
+      ...auth.writeHeaders(),
+      'Accept-Language': language,
+      'Content-Type': 'application/json',
+      'Idempotency-Key': event.eventId,
+    },
+    body: JSON.stringify({ deviceId, events: [event] }),
+  });
+  const value = await body(response);
+  if (!response.ok) {
+    throw new DriverApiError(response.status, 'SYNC_FAILED', serverMessage(value));
+  }
+  const result = (value as { results?: DriverSyncResult[] }).results?.[0];
+  if (!result || result.eventId !== event.eventId) {
+    throw new DriverApiError(502, 'SYNC_RESULT_INVALID', null);
+  }
+  return result;
 }

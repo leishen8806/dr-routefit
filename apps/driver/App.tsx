@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
@@ -20,13 +20,17 @@ import {
   getAssignment,
   getDriverOrder,
   listAssignments,
+  syncDriverEvent,
   type AssignmentDetail,
+  type DriverArrivedEvent,
   type DriverAction,
   type DriverAssignment,
   type DriverLanguage,
   type DriverOrderDetail,
 } from './src/driver-api';
 import { errorText, languageOptions, text, type MessageKey } from './src/messages';
+import { openOfflineEventQueue } from './src/offline-queue.mjs';
+import { createOfflineQueueStore } from './src/offline-store';
 import { rejectConfirmationStep } from './src/task-actions.mjs';
 
 export default function App() {
@@ -42,10 +46,41 @@ export default function App() {
   const [actionBusy, setActionBusy] = useState(false);
   const [rejectArmed, setRejectArmed] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+  const [pendingEvents, setPendingEvents] = useState(0);
+  const [quarantinedEvents, setQuarantinedEvents] = useState(0);
+  const [queueFailed, setQueueFailed] = useState(false);
+  const [syncBusy, setSyncBusy] = useState(false);
   const actionInFlight = useRef(false);
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queueRef = useRef<Awaited<ReturnType<typeof openOfflineEventQueue>> | null>(null);
 
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
   const auth = () => developmentSessionAuth(token, csrfToken);
+
+  function refreshQueue(queue = queueRef.current) {
+    if (!queue) return;
+    const snapshot = queue.snapshot();
+    setPendingEvents(snapshot.events.length);
+    setQuarantinedEvents(snapshot.quarantined.length);
+  }
+
+  useEffect(() => {
+    let active = true;
+    openOfflineEventQueue(createOfflineQueueStore())
+      .then((queue) => {
+        if (!active) return;
+        queueRef.current = queue;
+        refreshQueue(queue);
+      })
+      .catch(() => {
+        if (active) setQueueFailed(true);
+      });
+    return () => {
+      active = false;
+      if (retryTimer.current) clearTimeout(retryTimer.current);
+    };
+  }, []);
 
   function displayError(cause: unknown, fallback: MessageKey) {
     if (cause instanceof DriverApiError) {
@@ -135,7 +170,50 @@ export default function App() {
     }
   }
 
+  async function recordArrival(observedPoint: DriverArrivedEvent['payload']['point']) {
+    if (!queueRef.current || !detail) return;
+    setError('');
+    setNotice('');
+    try {
+      await queueRef.current.enqueue({
+        eventId: globalThis.crypto.randomUUID(),
+        assignmentId: detail.assignment.id,
+        assignmentVersion: detail.assignment.version,
+        planVersion: detail.assignment.planVersion,
+        observedAt: new Date().toISOString(),
+        type: 'ARRIVED',
+        payload: { point: observedPoint, evidenceFileIds: [] },
+      });
+      refreshQueue();
+      setNotice(t('arrivalQueued'));
+    } catch {
+      setError(t('queueWriteFailed'));
+    }
+  }
+
+  async function syncEvents() {
+    if (!queueRef.current || syncBusy) return;
+    setSyncBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const result = await queueRef.current.replay((event: DriverArrivedEvent) =>
+        syncDriverEvent(auth(), language, deviceId.trim(), event));
+      refreshQueue();
+      setNotice(t(result.delayed ? 'syncDelayed' : 'syncFinished'));
+      if (result.delayed) {
+        if (retryTimer.current) clearTimeout(retryTimer.current);
+        retryTimer.current = setTimeout(syncEvents, result.retryAfterMs);
+      }
+    } catch (cause) {
+      setError(displayError(cause, 'syncFailed'));
+    } finally {
+      setSyncBusy(false);
+    }
+  }
+
   const credentialsReady = token.trim().length >= 32 && csrfToken.trim().length >= 32;
+  const deviceReady = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(deviceId.trim());
   const actionAvailable = detail?.assignment.state === 'offered';
   const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
@@ -200,6 +278,7 @@ export default function App() {
         </View>
 
         {loading ? <ActivityIndicator accessibilityLabel={loading === 'list' ? t('loadingTasks') : t('loadingDetails')} size="large" /> : null}
+        {queueFailed ? <Text accessibilityRole="alert" style={styles.error}>{t('queueLoadFailed')}</Text> : null}
         {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
         {notice ? <Text accessibilityRole="alert" style={styles.notice}>{notice}</Text> : null}
 
@@ -225,6 +304,14 @@ export default function App() {
             <Text>{t('contact')} {order.delivery.contactName}</Text>
             <Text>{t('phone')} {order.delivery.phone}</Text>
             <Text>{t('itemCount')} {itemCount}</Text>
+            <Text style={styles.label}>{t('packageDetails')}</Text>
+            {order.items.map((item) => (
+              <View key={item.id} style={styles.packageRow}>
+                <Text>{t('itemId')} {item.id}</Text>
+                <Text>{t('packageIds')} {item.packageIds.length ? item.packageIds.join(', ') : t('noPackages')}</Text>
+              </View>
+            ))}
+            <Text style={styles.caption}>{t('executionContractBlocked')}</Text>
             <Pressable accessibilityRole="button" disabled={!order.pickup.point} onPress={() => navigate(order.pickup.point)} style={[styles.secondaryButton, !order.pickup.point && styles.buttonDisabled]}>
               <Text style={styles.secondaryButtonText}>{t('navigatePickup')}</Text>
             </Pressable>
@@ -265,6 +352,34 @@ export default function App() {
                   <Text style={styles.linkText}>{t('cancelReject')}</Text>
                 </Pressable>
               ) : null}
+            </View>
+
+            <View style={styles.offline}>
+              <Text style={styles.sectionTitle}>{t('offlineEvents')}</Text>
+              <Text style={styles.label}>{t('deviceId')}</Text>
+              <TextInput
+                accessibilityLabel={t('deviceId')}
+                autoCapitalize="none"
+                autoCorrect={false}
+                onChangeText={setDeviceId}
+                placeholder={t('deviceIdPlaceholder')}
+                style={styles.input}
+                value={deviceId}
+              />
+              <Text>{t('pendingEvents')} {pendingEvents}</Text>
+              {quarantinedEvents > 0 ? (
+                <Text accessibilityRole="alert" style={styles.error}>
+                  {t('quarantinedPrefix')} {quarantinedEvents} {t('quarantinedSuffix')}
+                </Text>
+              ) : null}
+              <Pressable
+                accessibilityRole="button"
+                disabled={!credentialsReady || !deviceReady || pendingEvents === 0 || syncBusy}
+                onPress={syncEvents}
+                style={[styles.button, (!credentialsReady || !deviceReady || pendingEvents === 0 || syncBusy) && styles.buttonDisabled]}
+              >
+                <Text style={styles.buttonText}>{syncBusy ? t('syncWorking') : t('syncEvents')}</Text>
+              </Pressable>
             </View>
           </View>
         ) : assignments ? (
@@ -315,6 +430,8 @@ const styles = StyleSheet.create({
   detail: { backgroundColor: '#ffffff', borderRadius: 16, gap: 8, padding: 18 },
   sectionTitle: { color: '#13233a', fontSize: 20, fontWeight: '700', marginTop: 10 },
   actions: { gap: 10, marginTop: 12 },
+  offline: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
+  packageRow: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 4, padding: 10 },
   secondaryButton: { alignItems: 'center', borderColor: '#153a63', borderRadius: 10, borderWidth: 1, marginTop: 10, padding: 12 },
   secondaryButtonText: { color: '#153a63', fontWeight: '700' },
   rejectButton: { alignItems: 'center', borderColor: '#b91c1c', borderRadius: 10, borderWidth: 1, padding: 12 },
