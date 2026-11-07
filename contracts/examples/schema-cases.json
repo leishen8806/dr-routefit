@@ -8626,5 +8626,53 @@
       "amountMinor": 1
     },
     "valid": false
+  },
+  {
+    "id": "DriverCustodyTransferItem-valid",
+    "schema": "DriverCustodyTransferItem",
+    "value": {"itemId": "item-demo", "packageIds": ["package-demo"]},
+    "valid": true
+  },
+  {
+    "id": "DriverCustodyTransferItem-invalid",
+    "schema": "DriverCustodyTransferItem",
+    "value": {"itemId": "item-demo", "packageIds": []},
+    "valid": false
+  },
+  {
+    "id": "DriverCustodyTransfer-valid",
+    "schema": "DriverCustodyTransfer",
+    "value": {"id": "transfer-demo", "version": 2, "status": "partially_signed", "items": [{"itemId": "item-demo", "packageIds": ["package-demo"]}], "initiatedAt": "2026-11-07T00:00:00Z"},
+    "valid": true
+  },
+  {
+    "id": "DriverCustodyTransfer-invalid",
+    "schema": "DriverCustodyTransfer",
+    "value": {"id": "transfer-demo", "version": 2, "status": "confirmed", "items": [], "initiatedAt": "2026-11-07T00:00:00Z"},
+    "valid": false
+  },
+  {
+    "id": "DriverCustodyTransferPage-valid",
+    "schema": "DriverCustodyTransferPage",
+    "value": {"items": []},
+    "valid": true
+  },
+  {
+    "id": "DriverCustodyTransferPage-invalid",
+    "schema": "DriverCustodyTransferPage",
+    "value": {"items": [], "nextCursor": null},
+    "valid": false
+  },
+  {
+    "id": "DepartureReadiness-valid",
+    "schema": "DepartureReadiness",
+    "value": {"ready": false, "reasons": ["CUSTODY_NOT_READY"]},
+    "valid": true
+  },
+  {
+    "id": "DepartureReadiness-invalid",
+    "schema": "DepartureReadiness",
+    "value": {"ready": false, "reasons": ["UNKNOWN"]},
+    "valid": false
   }
 ]
