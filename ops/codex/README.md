@@ -63,6 +63,10 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-OPS-02](tasks/RF-OPS-02-daily-backup.md) | 每日自动备份定时器、备份状态检查、站外拷贝与恢复演练规程（11-04 核查：服务器无固定每日备份；大旺＋Codex 出模板，负责人 Codex 安装，需人类批准） | ops | 中 | 038-R6、OPS-01 | 已合并（PR #109 → `b45d7be`，2026-11-04）· 审查 APPROVED（`e0ad551`）；服务器安装与手动触发待做 |
 | [RF-PM-032](tasks/RF-PM-032-distance-pricing-and-change-requote.md) | 服务端需求：距离计价与仓库／货物／服务类型变更重核价（项目负责人＋Codex） | feat | 高 | 025；开工前决策 | 待决策（不进 v0.3.0） |
 | [RF-QA-02](tasks/RF-QA-02-p01-acceptance.md) | P01 独立浏览器验收，含 P01 浏览器脚本实跑与固定费等价场景（项目负责人） | test | 低 | 025、028、028-R1、030、033、034、036、037 | 已完成：第 1–5、7、8 步 PASS，第 6 步 NOT_RUN（RF-DEC-02 未签批） |
+| [RF-PM-052](tasks/RF-PM-052-open-check-script.md) | 部署开工检查脚本入库并参数化：自动取最新备份、显式声明 SSH 连接依赖、期望值参数化（11-07 部署后续；大旺＋Codex，需人类批准） | chore+test | 中 | 无 | TODO（v0.3.2） |
+| [RF-PM-053](tasks/RF-PM-053-legacy-customer-access.md) | 非客户范围员工的遗留客户授权收口（先设计，批准后实现；大旺＋Codex，需人类批准） | fix | 高 | 047、047-R1 | TODO（v0.3.2，先设计） |
+| [RF-PM-054](tasks/RF-PM-054-remote-exec-standard.md) | 运维文档补充远端执行标准写法（PowerShell → ssh → sudo；大旺＋Codex） | docs | 低 | 无 | TODO（v0.3.2） |
+| [RF-OPS-03](tasks/RF-OPS-03-import-list-missing.md) | 试运营服务器 11-03 正式客户导入名单缺失调查（只读；负责人＋Claude） | ops | 中 | 无 | TODO |
 
 2026-10-28 项目负责人把 7 天目标定为受控试运营，方案见 [P01 受控试运营方案](../trial/p01-controlled-trial-plan.md)。
 
