@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "RouteFit Driver",
+    "slug": "routefit-driver",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "edgeToEdgeEnabled": true
+    }
+  }
+}

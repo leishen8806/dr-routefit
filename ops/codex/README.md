@@ -50,6 +50,7 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-047-R1](tasks/RF-PM-047-R1-legacy-staff-compat.md) | 新员工命令兼容 v0.3.0 创建的员工数据（11-04 升级演练 FAIL：重跑 `trial:staff` 重复建员工；大旺＋Codex，需人类批准） | fix | 高 | 047 | TODO（v0.3.1，**部署门禁**） |
 | [RF-PM-048](tasks/RF-PM-048-policy-picker-clarity.md) | 报价页策略选择显示依据，防止选错策略（列表接口新增只读字段；大旺＋Codex，需人类批准） | fix | 中 | 037、043 | 已合并（PR #93 → `0aee3a9`，2026-11-04）· 审查 APPROVED（`0477be4`）；11-04 本机真实链路浏览器验收：七个场景六个 PASS，到期标灰为瞬时状态未观察到（自动重读已移除过期项，卡片取"或"），判定 PASS |
 | [RF-PM-051](tasks/RF-PM-051-init-scram-verifier.md) | `trial:init` 建角色改用 SCRAM 校验值，不向 PostgreSQL 发送明文口令（从 RF-PM-044 拆出；大旺＋Codex，需人类批准） | fix | 中 | 038-R4 | TODO（v0.3.x，不阻塞 v0.3.1；#95 合并后再同步） |
+| [RF-PM-056](tasks/RF-PM-056-driver-app-skeleton.md) | 司机 App 技术选型与 React Native（Expo）工程骨架（苏晨＋Codex，需人类批准） | feat | 中 | RF-PM-055 设计 | IN_REVIEW（草稿 PR） |
 | [RF-PM-049](tasks/RF-PM-049-policy-retire.md) | 策略撤销／替代机制（先设计，设计批准后才实现） | feat | 高 | 048 | TODO（v0.4.0） |
 | [RF-PM-050](tasks/RF-PM-050-test-data-class.md) | 测试数据分类与隔离（先设计） | feat | 中 | 049 的设计 | TODO（v0.4.0） |
 | RF-PM-030、034、036 | 未建卡即提交的 PR：费用草稿选择区与测试库隔离（#49）、已发布策略列表接口（#55）、报价策略防护与费用页 S1 标注（#52） | — | — | — | 审查中 |
