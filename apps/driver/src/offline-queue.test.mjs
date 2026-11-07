@@ -29,6 +29,24 @@ test('deduplicates an eventId and rejects conflicting content', () => {
   );
 });
 
+test('deduplicates equivalent nested content with different field order', () => {
+  const queue = createOfflineEventQueue();
+  const first = queue.enqueue({
+    ...input('event-1'),
+    payload: { location: { latitude: 11.5, longitude: 104.9 }, evidence: { id: 'evidence-1', kind: 'PHOTO' } },
+  });
+  const duplicate = queue.enqueue({
+    payload: { evidence: { kind: 'PHOTO', id: 'evidence-1' }, location: { longitude: 104.9, latitude: 11.5 } },
+    observedAt: '2026-11-07T00:00:00.000Z',
+    type: 'ARRIVED',
+    assignmentId: 'assignment-1',
+    eventId: 'event-1',
+  });
+
+  assert.deepEqual(duplicate, first);
+  assert.equal(queue.snapshot().events.length, 1);
+});
+
 test('keeps unsent events after a network failure and replays them in order', async () => {
   const queue = createOfflineEventQueue();
   queue.enqueue(input('event-1'));

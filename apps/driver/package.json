@@ -8,7 +8,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "lint": "expo lint",
-    "test": "node --test src/*.test.mjs"
+    "test": "node --test src/*.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "build:check": "node scripts/export-check.mjs"
   },
   "dependencies": {
     "expo": "~58.0.23",

@@ -178,5 +178,9 @@ jobs:
       - run: npm ci
       - name: Driver app lint
         run: npm run lint
+      - name: Driver app type check
+        run: npm run typecheck
       - name: Driver app offline queue unit tests
         run: npm test
+      - name: Driver app Android export check
+        run: npm run build:check

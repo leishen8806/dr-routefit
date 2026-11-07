@@ -77,7 +77,7 @@ Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、�
 自 2026-10-26 16:07 起，小改动不再逐个合进 `main`：
 
 - 日常任务卡从最新 `origin/develop` 开分支，PR 目标为 `develop`。
-- 合进 `develop` 前须同时满足看板 `APPROVED` 与当前 head 的 CI 三项全部 completed/success（2026-10-27 PR #35–#37 未经审查即合并，已事后补审，缺口统一进 RF-PM-028；同日 #40、#41、#43、#44 在审查 CHANGES_REQUESTED 后未改即合并，缺口进 RF-PM-033；此后仍按本条执行，CHANGES_REQUESTED 须改完并重新审查通过才能合并）；普通任务可由 Codex 普通 merge，不 squash、不 rebase、不强推。标注“需人类批准”的高风险任务仍须负责人批准。
+- 合进 `develop` 前须同时满足看板 `APPROVED` 与当前 head 的 CI 六项（`prototype`、`service-integration`、`service-unit`、`trial-tooling-macos`、`trial-tooling-windows`、`driver-app`）全部 completed/success（2026-10-27 PR #35–#37 未经审查即合并，已事后补审，缺口统一进 RF-PM-028；同日 #40、#41、#43、#44 在审查 CHANGES_REQUESTED 后未改即合并，缺口进 RF-PM-033；此后仍按本条执行，CHANGES_REQUESTED 须改完并重新审查通过才能合并）；普通任务可由 Codex 普通 merge，不 squash、不 rebase、不强推。标注“需人类批准”的高风险任务仍须负责人批准。
 - 大版本完成后由 Claude 发布 `develop → main` 版本发布 PR；需要 CI 全绿、Claude 版本评审 APPROVED、负责人在 GitHub 点 Approve 后由负责人合并，并打 `vX.Y.0` 标签。
 - `main` 规则集要求三项必需检查、分支与 main 同步（strict）及 1 个审批；`develop` 规则集要求三项必需检查和 1 个非作者审批，并自 2026-10-30 起开启“推送新提交后作废已有批准”。高风险任务合并前，须负责人侧 Claude 审查通过，且由作者以外的人批准最终 head；有未解决的 CHANGES_REQUESTED 时不得发合并指令。
 

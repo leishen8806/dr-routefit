@@ -28,12 +28,15 @@ npm run ios
 ```powershell
 npm run lint
 npm test
+npm run typecheck
+npm run build:check
 ```
 
 ## 本卡运行结果
 
-- lint 与离线队列单元测试：见 PR CI。
-- Android 模拟器：NOT_RUN；当前验收机未连接可用的 Android 模拟器或设备。
+- lint、类型检查、离线队列单元测试与 Android export 构建检查：见 PR CI。
+- Android 模拟器：PASS；Windows 上以 API 30 模拟器连接本机开发服务，使用合成司机身份，任务列表正常显示空列表提示。脱敏截图：`E:\RouteFit-QA\evidence\RF-PM-056\android-empty-list.png`。
 - iOS 模拟器：NOT_RUN；Windows 不能运行 Xcode 与 iOS Simulator。
 - 真机后台定位、拍照、推送、外部导航返回、签名构建与分发：NOT_RUN；不在本骨架范围，且需要真机、权限与负责人批准。
 - `/sync/events` 真实上报：NOT_RUN；本卡只定义并测试队列行为，避免在正式登录和持久化方案批准前形成错误客户端契约。
+- 永久拒收隔离：NOT_RUN；当前永久拒收事件会阻塞队首，接入 `/sync/events` 时须按服务端结果隔离并提示司机或调度。
