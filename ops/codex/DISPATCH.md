@@ -26,7 +26,7 @@ gh issue list -R leishen8806/dr-routefit --assignee zhangdaowang3-code --state o
 
 ## 三、怎么做
 
-1. 新任务：从**最新 `develop`** 切分支，分支名 `<类型>/<任务编号>-<简述>`，例如 `fix/RF-PM-048-policy-picker-clarity`。一张卡一个分支、一个 PR。提交信息以任务编号开头。
+1. 新任务：从**最新 `develop`** 切分支，分支名 `<类型>/<任务编号>-<简述>`，例如 `fix/RF-PM-048-policy-picker-clarity`。一个 issue 一个分支、一个 PR；issue 里列了多张卡（合并任务）时，分支名用第一张卡的编号，例如 `chore/RF-PM-052-054-ops-tooling`，提交信息以对应的卡号开头，PR 描述按卡逐项写验收结果。
 2. 返工：在**原分支**追加提交，不要新开 PR，不要强推改写历史。
 3. 先开**草稿 PR**。PR 描述按任务卡"验收"逐项写 **PASS / FAIL / NOT_RUN**，NOT_RUN 必须写原因；返工时逐条写每条意见的处理结果。
 4. 范围外发现的问题，写进 PR 的"发现但未处理"，不要顺手改。
