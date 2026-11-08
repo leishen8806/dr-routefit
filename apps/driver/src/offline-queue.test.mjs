@@ -31,6 +31,34 @@ test('does not mutate memory when the transactional save fails', async () => {
   assert.equal(queue.snapshot().nextSequence, 1);
 });
 
+test('serializes enqueue while replay is in progress across memory, storage, and restart', async () => {
+  let stored = null;
+  const store = { load: async () => stored, save: async (value) => { stored = structuredClone(value); } };
+  const queue = await openOfflineEventQueue(store);
+  await queue.enqueue(input('event-1'));
+
+  let releaseSend;
+  let markSendStarted;
+  const sendStarted = new Promise((resolve) => { markSendStarted = resolve; });
+  const sendReleased = new Promise((resolve) => { releaseSend = resolve; });
+  const replaying = queue.replay(async (event) => {
+    markSendStarted();
+    await sendReleased;
+    return { eventId: event.eventId, result: 'APPLIED', errorCode: null };
+  });
+  await sendStarted;
+  const enqueuing = queue.enqueue(input('event-2'));
+  releaseSend();
+  await Promise.all([replaying, enqueuing]);
+
+  const expected = queue.snapshot();
+  assert.deepEqual(expected.events.map(({ eventId, sequence }) => ({ eventId, sequence })), [
+    { eventId: 'event-2', sequence: 2 },
+  ]);
+  assert.deepEqual(stored, expected);
+  assert.deepEqual((await openOfflineEventQueue(store)).snapshot(), expected);
+});
+
 test('dequeues APPLIED and DUPLICATE results in sequence order', async () => {
   const queue = createOfflineEventQueue();
   await queue.enqueue(input('event-1'));
@@ -70,6 +98,24 @@ test('keeps a non-advancing server rejection at the head', async () => {
   assert.deepEqual(result, { accepted: 0, quarantined: 0, delayed: true, retryAfterMs: 1000 });
   assert.equal(queue.snapshot().events.length, 1);
   assert.equal(queue.snapshot().quarantined.length, 0);
+});
+
+test('requires dispatch help after five consecutive sequence rejections', async () => {
+  let currentTime = 0;
+  const queue = createOfflineEventQueue(undefined, { now: () => currentTime, baseDelayMs: 1 });
+  await queue.enqueue(input('event-1'));
+  let result;
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    result = await queue.replay(async (event) => ({
+      eventId: event.eventId,
+      result: 'REJECTED',
+      errorCode: 'SYNC_SEQUENCE_INVALID',
+    }));
+    if (attempt < 5) assert.equal(result.dispatchRequired, undefined);
+    currentTime += result.retryAfterMs;
+  }
+  assert.equal(result.dispatchRequired, true);
+  assert.equal(queue.snapshot().retries['event-1'].attempts, 5);
 });
 
 test('keeps a temporary failure at the head and applies exponential backoff', async () => {

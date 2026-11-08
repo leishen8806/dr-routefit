@@ -46,6 +46,7 @@ export default function App() {
   const [actionBusy, setActionBusy] = useState(false);
   const [rejectArmed, setRejectArmed] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  // shortcut: manual device ID is development-only, remove after RF-PM-055 batch 5 registers devices.
   const [deviceId, setDeviceId] = useState('');
   const [pendingEvents, setPendingEvents] = useState(0);
   const [quarantinedEvents, setQuarantinedEvents] = useState(0);
@@ -200,7 +201,8 @@ export default function App() {
       const result = await queueRef.current.replay((event: DriverArrivedEvent) =>
         syncDriverEvent(auth(), language, deviceId.trim(), event));
       refreshQueue();
-      setNotice(t(result.delayed ? 'syncDelayed' : 'syncFinished'));
+      if (result.dispatchRequired) setError(t('syncSequenceInvalid'));
+      else setNotice(t(result.delayed ? 'syncDelayed' : 'syncFinished'));
       if (result.delayed) {
         if (retryTimer.current) clearTimeout(retryTimer.current);
         retryTimer.current = setTimeout(syncEvents, result.retryAfterMs);
@@ -366,6 +368,7 @@ export default function App() {
                 style={styles.input}
                 value={deviceId}
               />
+              <Text style={styles.caption}>{t('deviceIdLifecycle')}</Text>
               <Text>{t('pendingEvents')} {pendingEvents}</Text>
               {quarantinedEvents > 0 ? (
                 <Text accessibilityRole="alert" style={styles.error}>
