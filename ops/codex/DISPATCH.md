@@ -30,14 +30,14 @@ gh issue list -R leishen8806/dr-routefit --assignee zhangdaowang3-code --state o
 2. 返工：在**原分支**追加提交，不要新开 PR，不要强推改写历史。
 3. 先开**草稿 PR**。PR 描述按任务卡"验收"逐项写 **PASS / FAIL / NOT_RUN**，NOT_RUN 必须写原因；返工时逐条写每条意见的处理结果。
 4. 范围外发现的问题，写进 PR 的"发现但未处理"，不要顺手改。
-5. 环境：Node 24；PostgreSQL 集成测试用 `ROUTEFIT_TEST_DATABASE_URL` 指向本机一次性合成库。CI 六项（`prototype`、`service-integration`、`service-unit`、`trial-tooling-macos`、`trial-tooling-windows`、`driver-app`）必须全绿。
+5. 环境：Node 24；PostgreSQL 集成测试用 `ROUTEFIT_TEST_DATABASE_URL` 指向本机一次性合成库。CI 七项（`prototype`、`service-integration`、`service-unit`、`trial-tooling-macos`、`trial-tooling-windows`、`driver-app`、`customer-app`）必须全绿。
 6. 浏览器验收：用真实的页面与服务链路。用接口桩的验证必须在 PR 里写明"接口桩"，不能标成真实库；检查项必须是真实断言，不能只数元素，也不能用内容相同的截图。
 
 ## 四、什么时候可以标 Ready
 
 同时满足：
 
-1. CI 六项全绿；
+1. CI 七项全绿；
 2. PR 描述与最终 head 一致；
 3. issue 里每一条意见都有处理结果；
 4. 没有未解决的审查意见。

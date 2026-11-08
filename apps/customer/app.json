@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "DR RouteFit Customer",
+    "slug": "routefit-customer",
+    "version": "0.0.1",
+    "scheme": "routefit-customer",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "plugins": ["expo-router"],
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    }
+  }
+}
