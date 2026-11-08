@@ -6,5 +6,5 @@
   <circle cx="120" cy="395" r="32" fill="#13C29B"/>
   <rect x="172" y="197" width="88" height="64" rx="14" fill="#F5A623"/>
   <text x="410" y="270" fill="#0B2545" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="800">DR RouteFit</text>
-  <text x="414" y="340" fill="#5B6B7F" font-family="Inter, Arial, sans-serif" font-size="34">The right vehicle. The right route. On time</text>
+  <text x="414" y="340" fill="#5B6B7F" font-family="Inter, Arial, sans-serif" font-size="34">The right vehicle. The right route. On time.</text>
 </svg>

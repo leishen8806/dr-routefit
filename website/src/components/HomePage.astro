@@ -11,8 +11,8 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
       <h1>{copy.hero.title}</h1>
       <p class="lead">{copy.hero.body}</p>
       <div class="button-row">
-        <a class="button" href="#process">{copy.hero.primary}</a>
-        <a class="button button-secondary" href={`/${lang}/contact/`}>{copy.hero.secondary}</a>
+        <a class="button" href={`/${lang}/contact/`}>{copy.hero.primary}</a>
+        <a class="button button-secondary" href={`/${lang}/drivers/`}>{copy.hero.secondary}</a>
       </div>
       <p class="slogan">{copy.hero.note}</p>
     </div>
@@ -33,7 +33,7 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
 <section class="quick-section section-tight">
   <div class="shell quick-grid">
     {copy.quick.map((item, index) => (
-      <article class:list={['quick-card', { muted: item.badge }]}>
+      <article id={item.badge ? 'track' : undefined} class:list={['quick-card', { muted: item.badge }]}>
         <div class="quick-number">0{index + 1}</div>
         <h2>{item.title}</h2><p>{item.body}</p>
         {item.badge ? <span class="badge">{item.badge}</span> : <a href={withLang(item.href)}>{item.action}<span aria-hidden="true"> →</span></a>}
@@ -42,7 +42,7 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
   </div>
 </section>
 
-<section class="section values-section">
+<section id="services" class="section values-section">
   <div class="shell">
     <div class="section-heading"><p class="eyebrow">{copy.values.eyebrow}</p><h2>{copy.values.title}</h2></div>
     <div class="value-grid">
@@ -62,18 +62,18 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
 
 <section class="section coverage-section">
   <div class="shell coverage-card">
-    <div><p class="eyebrow">{copy.coverage.eyebrow}</p><h2>{copy.coverage.title}</h2><p>{copy.coverage.body}</p><a class="text-link" href={`/${lang}/help/`}>{copy.coverage.action} →</a></div>
+    <div><p class="eyebrow">{copy.coverage.eyebrow}</p><h2>{copy.coverage.title}</h2><p>{copy.coverage.body}</p><a class="text-link" href={`/${lang}/contact/`}>{copy.coverage.action} →</a></div>
     <div class="coverage-map" aria-hidden="true"><span></span><span></span><span></span><span></span><strong>DR</strong></div>
   </div>
 </section>
 
-<section class="section audience-section">
+<section id="about" class="section audience-section">
   <div class="shell audience-grid">
     {copy.audiences.map((item, index) => <article class={index === 0 ? 'dark-card' : 'light-card'}><p class="eyebrow">{item.eyebrow}</p><h2>{item.title}</h2><p>{item.body}</p><a class={index === 0 ? 'button button-light' : 'button'} href={withLang(item.href)}>{item.action}</a></article>)}
   </div>
 </section>
 
-<section class="section faq-section">
+<section id="help" class="section faq-section">
   <div class="shell faq-grid">
     <div class="section-heading"><p class="eyebrow">{copy.faq.eyebrow}</p><h2>{copy.faq.title}</h2></div>
     <div class="faq-list">{copy.faq.items.map((item, index) => <details open={index === 0}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div>

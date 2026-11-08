@@ -10,7 +10,7 @@ Static Astro website for the public-facing RouteFit pages. It contains no backen
 - Build and verify: `npm test`
 - Static output: `dist/`
 
-`PUBLIC_SITE_ORIGIN` must be set by the hosting platform to the approved public origin before production build. The repository default is deliberately non-routable. `robots.txt` blocks all indexing until the launch owner explicitly approves indexing.
+`PUBLIC_SITE_ORIGIN` can override the approved public origin. The repository fallback is the approved website origin. `robots.txt` blocks all indexing until the launch owner explicitly approves indexing.
 
 ## Static hosting
 
@@ -26,4 +26,4 @@ Routes use `/km/`, `/en/` and `/zh/`. The root page prefers an explicit local ch
 
 ## Evidence
 
-The browser verification creates a 390 px Khmer screenshot and a 1440 px Chinese screenshot in `evidence/`. These are synthetic static pages and contain no visitor or business data.
+The browser verification creates a 390 px Khmer screenshot and a 1440 px Chinese screenshot outside the repository. Set `EVIDENCE_DIR` to the intended evidence directory; otherwise the system temporary directory is used. These are synthetic static pages and contain no visitor or business data.

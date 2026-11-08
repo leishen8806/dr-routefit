@@ -13,7 +13,10 @@ const title = 'DR RouteFit';
   <body>
     <p><a href="/km/">ខ្មែរ</a> · <a href="/en/">English</a> · <a href="/zh/">中文</a></p>
     <script is:inline>
-      const saved = localStorage.getItem('routefit-language');
+      let saved = null;
+      try {
+        saved = localStorage.getItem('routefit-language');
+      } catch {}
       const supported = ['km', 'en', 'zh'];
       const browser = navigator.language.toLowerCase();
       const detected = browser.startsWith('zh') ? 'zh' : browser.startsWith('en') ? 'en' : 'km';

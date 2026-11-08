@@ -6,17 +6,19 @@ interface Props { lang: Language; pathname: string }
 const { lang, pathname } = Astro.props;
 const copy = content[lang];
 const links = [
-  [copy.nav.home, `/${lang}/`],
-  [copy.nav.drivers, `/${lang}/drivers/`],
-  [copy.nav.pricing, `/${lang}/pricing/`],
-  [copy.nav.about, `/${lang}/about/`]
+  { label: copy.nav.services, href: `/${lang}/#services` },
+  { label: copy.nav.pricing, href: `/${lang}/pricing/` },
+  { label: copy.nav.drivers, href: `/${lang}/drivers/` },
+  { label: copy.nav.track, href: `/${lang}/#track`, disabled: true },
+  { label: copy.nav.about, href: `/${lang}/#about` },
+  { label: copy.nav.help, href: `/${lang}/#help` }
 ];
 ---
 <header class="site-header">
   <div class="shell header-row">
     <a class="brand" href={`/${lang}/`} aria-label={`DR RouteFit · ${copy.nav.home}`}><img src="/logo.svg" alt="DR RouteFit" /></a>
     <nav class="desktop-nav" aria-label="Primary navigation">
-      {links.map(([label, href]) => <a href={href} aria-current={pathname === href ? 'page' : undefined}>{label}</a>)}
+      {links.map(({ label, href, disabled }) => disabled ? <span class="nav-disabled" aria-disabled="true">{label}</span> : <a href={href} aria-current={pathname === href ? 'page' : undefined}>{label}</a>)}
     </nav>
     <div class="desktop-actions">
       <div class="language-switcher" aria-label={copy.nav.language}>
@@ -28,7 +30,7 @@ const links = [
       <summary aria-label={copy.nav.menu}><span></span><span></span><span></span></summary>
       <div class="mobile-menu-panel">
         <nav aria-label="Primary navigation">
-          {links.map(([label, href]) => <a href={href} aria-current={pathname === href ? 'page' : undefined}>{label}</a>)}
+          {links.map(({ label, href, disabled }) => disabled ? <span class="nav-disabled" aria-disabled="true">{label}</span> : <a href={href} aria-current={pathname === href ? 'page' : undefined}>{label}</a>)}
           <a href={`/${lang}/contact/`}>{copy.nav.contact}</a>
         </nav>
         <div class="language-switcher" aria-label={copy.nav.language}>
@@ -43,7 +45,9 @@ const links = [
   document.querySelectorAll<HTMLAnchorElement>('.language-link').forEach((link) => {
     link.addEventListener('click', () => {
       const language = link.getAttribute('lang');
-      if (language) localStorage.setItem('routefit-language', language);
+      try {
+        if (language) localStorage.setItem('routefit-language', language);
+      } catch {}
     });
   });
 </script>

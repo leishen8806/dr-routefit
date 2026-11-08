@@ -1,11 +1,12 @@
 import { mkdir } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { chromium } from '@playwright/test';
 import { baseURL, startPreview, stopPreview } from './preview-server.mjs';
 
 const server = await startPreview();
 const browser = await chromium.launch();
-const evidence = process.env.EVIDENCE_DIR || path.resolve('evidence');
+const evidence = process.env.EVIDENCE_DIR || path.join(os.tmpdir(), 'routefit-website-evidence');
 await mkdir(evidence, { recursive: true });
 
 try {
@@ -28,6 +29,20 @@ try {
   const wide = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   await wide.goto(`${baseURL}/zh/`);
   if (await wide.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error('zh: horizontal overflow at 1440px');
+  const navigation = await wide.locator('.desktop-nav > *').evaluateAll((nodes) => nodes.map((node) => node.textContent?.trim()));
+  if (JSON.stringify(navigation) !== JSON.stringify(['服务', '价格说明', '司机与车队', '查单', '关于我们', '帮助中心'])) throw new Error('zh: navigation does not match approved design');
+  if (await wide.locator('.desktop-nav .nav-disabled[aria-disabled="true"]').textContent() !== '查单') throw new Error('zh: track navigation is not visibly unavailable');
+  const pageText = await wide.locator('body').textContent();
+  for (const fact of ['金边及周边', '确认报价后先付款', '企业客户按月结算', '系统会重新报价', '基础货损保障', '商业保险']) {
+    if (!pageText?.includes(fact)) throw new Error(`zh: missing approved fact: ${fact}`);
+  }
+  const paymentFaq = wide.locator('.faq-list details').filter({ hasText: '什么时候付款？' });
+  await paymentFaq.locator('summary').click();
+  if (!(await paymentFaq.locator('p').isVisible())) throw new Error('zh: payment FAQ answer is not visible after click');
+  if (!(await paymentFaq.locator('p').innerText()).includes('确认报价后先付款')) throw new Error('zh: payment FAQ answer does not contain approved copy');
+  if (!(await wide.locator('meta[property="og:image"]').getAttribute('content'))?.endsWith('/og-card.png')) throw new Error('zh: social image is not PNG');
+  if (await wide.locator('meta[property="og:image:width"]').getAttribute('content') !== '1200') throw new Error('zh: wrong social image width');
+  if (await wide.locator('meta[property="og:image:height"]').getAttribute('content') !== '630') throw new Error('zh: wrong social image height');
   await wide.screenshot({ path: path.join(evidence, 'home-zh-1440.png'), fullPage: true });
   await wide.goto(`${baseURL}/zh/pricing/`);
   await wide.locator('a.language-link[lang="en"]').first().click();
@@ -41,13 +56,28 @@ try {
   await redirect.goto(`${baseURL}/`);
   await redirect.waitForURL('**/zh/');
 
+  const blockedStorage = await browser.newPage();
+  await blockedStorage.addInitScript(() => {
+    Storage.prototype.getItem = () => { throw new Error('storage blocked'); };
+    Storage.prototype.setItem = () => { throw new Error('storage blocked'); };
+    Object.defineProperty(navigator, 'language', { get: () => 'en-US' });
+  });
+  await blockedStorage.goto(`${baseURL}/`);
+  await blockedStorage.waitForURL('**/en/');
+  await blockedStorage.locator('a.language-link[lang="zh"]').first().click();
+  await blockedStorage.waitForURL('**/zh/');
+
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await mobile.goto(`${baseURL}/zh/`);
   await mobile.locator('.mobile-menu > summary').focus();
   await mobile.keyboard.press('Enter');
   if (!(await mobile.locator('.mobile-menu').getAttribute('open') !== null)) throw new Error('mobile menu is not keyboard operable');
 
-  console.log('BROWSER_CHECK=PASS LANGUAGES=3 VIEWPORTS=2');
+  const sitemap = await (await wide.request.get(`${baseURL}/sitemap.xml`)).text();
+  const sitemapUrls = [...sitemap.matchAll(/<loc>/g)].length;
+  if (sitemapUrls !== 3 || sitemap.includes('/pricing/')) throw new Error('sitemap includes unavailable pages');
+
+  console.log('BROWSER_CHECK=PASS LANGUAGES=3 VIEWPORTS=2 SITEMAP_URLS=3 STORAGE_FAILURES=2');
 } finally {
   await browser.close();
   await stopPreview(server);

@@ -40,8 +40,9 @@ html[lang="km"] .eyebrow { font-size: .9rem; letter-spacing: .04em; }
 .brand { flex: 0 0 auto; display: grid; place-items: center; min-height: 48px; }
 .brand img { width: 180px; height: auto; }
 .desktop-nav { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-.desktop-nav a { display: grid; place-items: center; min-height: 44px; padding: 0 12px; color: var(--muted); font-size: .92rem; font-weight: 700; border-radius: 8px; }
+.desktop-nav a, .desktop-nav .nav-disabled { display: grid; place-items: center; min-height: 44px; padding: 0 12px; color: var(--muted); font-size: .92rem; font-weight: 700; border-radius: 8px; }
 .desktop-nav a:hover, .desktop-nav a[aria-current="page"] { color: var(--navy); background: var(--surface); }
+.desktop-nav .nav-disabled, .mobile-menu-panel .nav-disabled { color: #8996a6; cursor: not-allowed; }
 .desktop-actions { display: flex; align-items: center; gap: 16px; }
 .language-switcher { display: flex; align-items: center; gap: 4px; }
 .language-switcher a { display: grid; min-height: 44px; place-items: center; padding: 0 8px; color: var(--muted); font-size: .78rem; border-radius: 7px; }
@@ -57,7 +58,7 @@ html[lang="km"] .eyebrow { font-size: .9rem; letter-spacing: .04em; }
 .mobile-menu > summary span { width: 22px; height: 2px; background: var(--navy); }
 .mobile-menu-panel { position: absolute; right: 0; top: 58px; width: min(310px, calc(100vw - 32px)); padding: 18px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
 .mobile-menu-panel nav { display: grid; }
-.mobile-menu-panel nav a { min-height: 48px; display: flex; align-items: center; padding: 0 12px; border-bottom: 1px solid var(--line); font-weight: 700; }
+.mobile-menu-panel nav a, .mobile-menu-panel nav .nav-disabled { min-height: 48px; display: flex; align-items: center; padding: 0 12px; border-bottom: 1px solid var(--line); font-weight: 700; }
 .mobile-menu-panel .language-switcher { margin-top: 14px; justify-content: space-between; }
 
 .hero { overflow: hidden; padding-top: 88px; background: var(--surface); border-bottom: 1px solid var(--line); }

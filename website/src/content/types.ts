@@ -3,7 +3,7 @@ export type Language = 'km' | 'en' | 'zh';
 export type SiteCopy = {
   localeName: string;
   meta: { title: string; description: string };
-  nav: { home: string; drivers: string; pricing: string; about: string; help: string; contact: string; menu: string; language: string; skip: string };
+  nav: { home: string; services: string; drivers: string; pricing: string; track: string; about: string; help: string; contact: string; menu: string; language: string; skip: string };
   pages: { drivers: string; pricing: string; about: string; help: string; contact: string; terms: string; privacy: string };
   hero: { eyebrow: string; title: string; body: string; primary: string; secondary: string; note: string };
   quick: Array<{ title: string; body: string; action: string; href: string; badge?: string }>;
