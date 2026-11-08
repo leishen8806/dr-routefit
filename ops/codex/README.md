@@ -54,7 +54,8 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-056](tasks/RF-PM-056-driver-app-skeleton.md) | 司机 App 技术选型与 React Native（Expo）工程骨架（苏晨＋Codex，需人类批准） | feat | 中 | RF-PM-055 设计 | IN_REVIEW（草稿 PR） |
 | [RF-PM-057](tasks/RF-PM-057-driver-app-task-actions.md) | 司机 App 任务查看与接单／拒单（苏晨＋Codex，需人类批准） | feat | 中 | RF-PM-056 | IN_PROGRESS |
 | [RF-WEB-01](tasks/RF-WEB-01-website-foundation.md) | 官网批次 1：站点框架、三语切换、首页（苏晨＋Codex，需人类批准） | feat | 低 | 无 | DONE（#129 已合并；未部署） |
-| [RF-PM-062](tasks/RF-PM-062-one-codebase.md) | 一套代码覆盖司机 App、Telegram Mini App 和 H5（批次 1：客户端网页骨架；苏晨＋Codex，需人类批准） | feat+refactor | 中 | 无 | IN_REVIEW（批次 1，#131）；批次 2 待 #127、#128 合并 |
+| [RF-PM-062](tasks/RF-PM-062-one-codebase.md) | 一套代码覆盖司机 App、Telegram Mini App 和 H5（批次 1：客户端网页骨架；苏晨＋Codex，需人类批准） | feat+refactor | 中 | 无 | 批次 1 DONE（#131 已合并）；批次 2 待 #127、#128 合并 |
+| [RF-PM-060](tasks/RF-PM-060-driver-read-projections.md) | 司机端只读投影补齐：待签交接、出发就绪、开发夹具设备与当班（苏晨＋Codex，需人类批准） | feat | 中 | 无 | IN_REVIEW（#128） |
 | [RF-PM-049](tasks/RF-PM-049-policy-retire.md) | 策略撤销／替代机制（先设计，设计批准后才实现） | feat | 高 | 048 | TODO（v0.4.0） |
 | [RF-PM-050](tasks/RF-PM-050-test-data-class.md) | 测试数据分类与隔离（先设计） | feat | 中 | 049 的设计 | TODO（v0.4.0） |
 | RF-PM-030、034、036 | 未建卡即提交的 PR：费用草稿选择区与测试库隔离（#49）、已发布策略列表接口（#55）、报价策略防护与费用页 S1 标注（#52） | — | — | — | 审查中 |
