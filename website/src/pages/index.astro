@@ -1,0 +1,24 @@
+---
+const title = 'DR RouteFit';
+---
+<!doctype html>
+<html lang="km">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+    <noscript><meta http-equiv="refresh" content="0;url=/km/" /></noscript>
+  </head>
+  <body>
+    <p><a href="/km/">ខ្មែរ</a> · <a href="/en/">English</a> · <a href="/zh/">中文</a></p>
+    <script is:inline>
+      const saved = localStorage.getItem('routefit-language');
+      const supported = ['km', 'en', 'zh'];
+      const browser = navigator.language.toLowerCase();
+      const detected = browser.startsWith('zh') ? 'zh' : browser.startsWith('en') ? 'en' : 'km';
+      const language = supported.includes(saved) ? saved : detected;
+      location.replace(`/${language}/`);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+---
+import { content } from '../lib/site';
+import type { Language } from '../content/types';
+interface Props { lang: Language }
+const { lang } = Astro.props;
+const copy = content[lang];
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div class="footer-brand">
+      <img src="/logo.svg" alt="DR RouteFit" />
+      <p>{copy.footer.summary}</p>
+    </div>
+    <div><h2>{copy.footer.product}</h2><a href={`/${lang}/pricing/`}>{copy.nav.pricing}</a><a href={`/${lang}/drivers/`}>{copy.nav.drivers}</a></div>
+    <div><h2>{copy.footer.company}</h2><a href={`/${lang}/about/`}>{copy.nav.about}</a><a href={`/${lang}/contact/`}>{copy.nav.contact}</a></div>
+    <div><h2>{copy.footer.support}</h2><a href={`/${lang}/help/`}>{copy.nav.help}</a><a href={`/${lang}/contact/`}>{copy.nav.contact}</a></div>
+    <div><h2>{copy.footer.legal}</h2><a href={`/${lang}/terms/`}>{copy.footer.terms}</a><a href={`/${lang}/privacy/`}>{copy.footer.privacy}</a></div>
+  </div>
+  <div class="shell footer-bottom"><span>© {year} DR RouteFit. {copy.footer.rights}</span><span>The right vehicle. The right route. On time</span></div>
+</footer>
