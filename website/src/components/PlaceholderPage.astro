@@ -1,0 +1,14 @@
+---
+import type { SiteCopy, Language } from '../content/types';
+interface Props { lang: Language; copy: SiteCopy; label: string }
+const { lang, copy, label } = Astro.props;
+---
+<section class="section placeholder-section">
+  <div class="shell placeholder-card">
+    <p class="eyebrow">{copy.placeholder.eyebrow}</p>
+    <p class="placeholder-label">{label}</p>
+    <h1>{copy.placeholder.title}</h1>
+    <p class="lead">{copy.placeholder.body}</p>
+    <a class="button" href={`/${lang}/`}>{copy.placeholder.back}</a>
+  </div>
+</section>

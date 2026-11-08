@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="DR RouteFit">
+  <rect width="1200" height="630" fill="#F7FAFC"/>
+  <circle cx="1050" cy="80" r="260" fill="#13C29B" opacity=".12"/>
+  <circle cx="1110" cy="590" r="210" fill="#F5A623" opacity=".15"/>
+  <path d="M120 395 V175 A22 22 0 0 1 142 153 H258 A76 76 0 0 1 334 229 A76 76 0 0 1 258 305 H178 L294 395" fill="none" stroke="#0B2545" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="120" cy="395" r="32" fill="#13C29B"/>
+  <rect x="172" y="197" width="88" height="64" rx="14" fill="#F5A623"/>
+  <text x="410" y="270" fill="#0B2545" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="800">DR RouteFit</text>
+  <text x="414" y="340" fill="#5B6B7F" font-family="Inter, Arial, sans-serif" font-size="34">The right vehicle. The right route. On time.</text>
+</svg>
