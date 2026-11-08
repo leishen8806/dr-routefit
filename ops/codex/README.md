@@ -54,6 +54,9 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-056](tasks/RF-PM-056-driver-app-skeleton.md) | 司机 App 技术选型与 React Native（Expo）工程骨架（苏晨＋Codex，需人类批准） | feat | 中 | RF-PM-055 设计 | IN_REVIEW（草稿 PR） |
 | [RF-PM-057](tasks/RF-PM-057-driver-app-task-actions.md) | 司机 App 任务查看与接单／拒单（苏晨＋Codex，需人类批准） | feat | 中 | RF-PM-056 | IN_PROGRESS |
 | [RF-PM-058](tasks/RF-PM-058-driver-app-execution.md) | 司机 App 履约执行：交接签认、出发、离线持久化与补传（苏晨＋Codex，需人类批准） | feat | 高 | RF-PM-057 | IN_PROGRESS |
+| [RF-WEB-01](tasks/RF-WEB-01-website-foundation.md) | 官网批次 1：站点框架、三语切换、首页（苏晨＋Codex，需人类批准） | feat | 低 | 无 | DONE（#129 已合并；未部署） |
+| [RF-PM-062](tasks/RF-PM-062-one-codebase.md) | 一套代码覆盖司机 App、Telegram Mini App 和 H5（批次 1：客户端网页骨架；苏晨＋Codex，需人类批准） | feat+refactor | 中 | 无 | 批次 1 DONE（#131 已合并）；批次 2 待 #127、#128 合并 |
+| [RF-PM-060](tasks/RF-PM-060-driver-read-projections.md) | 司机端只读投影补齐：待签交接、出发就绪、开发夹具设备与当班（苏晨＋Codex，需人类批准） | feat | 中 | 无 | IN_REVIEW（#128） |
 | [RF-PM-049](tasks/RF-PM-049-policy-retire.md) | 策略撤销／替代机制（先设计，设计批准后才实现） | feat | 高 | 048 | TODO（v0.4.0） |
 | [RF-PM-050](tasks/RF-PM-050-test-data-class.md) | 测试数据分类与隔离（先设计） | feat | 中 | 049 的设计 | TODO（v0.4.0） |
 | RF-PM-030、034、036 | 未建卡即提交的 PR：费用草稿选择区与测试库隔离（#49）、已发布策略列表接口（#55）、报价策略防护与费用页 S1 标注（#52） | — | — | — | 审查中 |
@@ -84,7 +87,7 @@ Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、�
 自 2026-10-26 16:07 起，小改动不再逐个合进 `main`：
 
 - 日常任务卡从最新 `origin/develop` 开分支，PR 目标为 `develop`。
-- 合进 `develop` 前须同时满足看板 `APPROVED` 与当前 head 的 CI 六项（`prototype`、`service-integration`、`service-unit`、`trial-tooling-macos`、`trial-tooling-windows`、`driver-app`）全部 completed/success（2026-10-27 PR #35–#37 未经审查即合并，已事后补审，缺口统一进 RF-PM-028；同日 #40、#41、#43、#44 在审查 CHANGES_REQUESTED 后未改即合并，缺口进 RF-PM-033；此后仍按本条执行，CHANGES_REQUESTED 须改完并重新审查通过才能合并）；普通任务可由 Codex 普通 merge，不 squash、不 rebase、不强推。标注“需人类批准”的高风险任务仍须负责人批准。
+- 合进 `develop` 前须同时满足看板 `APPROVED` 与当前 head 的 CI 八项（`prototype`、`service-integration`、`service-unit`、`trial-tooling-macos`、`trial-tooling-windows`、`driver-app`、`website`、`customer-app`）全部 completed/success（2026-10-27 PR #35–#37 未经审查即合并，已事后补审，缺口统一进 RF-PM-028；同日 #40、#41、#43、#44 在审查 CHANGES_REQUESTED 后未改即合并，缺口进 RF-PM-033；此后仍按本条执行，CHANGES_REQUESTED 须改完并重新审查通过才能合并）；普通任务可由 Codex 普通 merge，不 squash、不 rebase、不强推。标注“需人类批准”的高风险任务仍须负责人批准。
 - 大版本完成后由 Claude 发布 `develop → main` 版本发布 PR；需要 CI 全绿、Claude 版本评审 APPROVED、负责人在 GitHub 点 Approve 后由负责人合并，并打 `vX.Y.0` 标签。
 - `main` 规则集要求三项必需检查、分支与 main 同步（strict）及 1 个审批；`develop` 规则集要求三项必需检查和 1 个非作者审批，并自 2026-10-30 起开启“推送新提交后作废已有批准”。高风险任务合并前，须负责人侧 Claude 审查通过，且由作者以外的人批准最终 head；有未解决的 CHANGES_REQUESTED 时不得发合并指令。
 

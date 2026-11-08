@@ -2192,6 +2192,36 @@ GeoJSON Polygon，[经度,纬度]；闭合环/自交由几何校验；禁送区�
 | items | array<[Assignment](fields.md#assignment)> | 是 | ；minItems=0, maxItems=100 |
 | nextCursor | string 或 null | 是 | ； |
 
+## DriverCustodyTransferItem
+
+| 字段 | 类型 | 必填 | 约束和用途 |
+|---|---|---|---|
+| itemId | [Id](fields.md#id) | 是 | ； |
+| packageIds | array<[Id](fields.md#id)> | 是 | ；minItems=1, maxItems=100 |
+
+## DriverCustodyTransfer
+
+| 字段 | 类型 | 必填 | 约束和用途 |
+|---|---|---|---|
+| id | [Id](fields.md#id) | 是 | ； |
+| version | integer | 是 | 交接聚合乐观锁版本；minimum=1, maximum=9000000000000 |
+| status | string | 是 | ； |
+| items | array<[DriverCustodyTransferItem](fields.md#drivercustodytransferitem)> | 是 | ；minItems=1, maxItems=100 |
+| initiatedAt | [Timestamp](fields.md#timestamp) | 是 | ； |
+
+## DriverCustodyTransferPage
+
+| 字段 | 类型 | 必填 | 约束和用途 |
+|---|---|---|---|
+| items | array<[DriverCustodyTransfer](fields.md#drivercustodytransfer)> | 是 | ；minItems=0, maxItems=100 |
+
+## DepartureReadiness
+
+| 字段 | 类型 | 必填 | 约束和用途 |
+|---|---|---|---|
+| ready | boolean | 是 | ； |
+| reasons | array<string> | 是 | ；minItems=0, maxItems=4, uniqueItems=True |
+
 ## SyncResultPage
 
 稳定排序的游标分页；只包含授权数据

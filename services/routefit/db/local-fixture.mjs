@@ -31,7 +31,7 @@ export async function localFixture(adminUrl){
   await ensureApiRole(admin);owner=new pg.Pool({connectionString:url.href,max:2});await migrate(owner);
   await admin.query(`CREATE ROLE "${role}" LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD '${password}'`);roleCreated=true;
   await owner.query(`GRANT routefit_api TO "${role}"`);
-  const principals=[],customers=[];
+  const principals=[],customers=[];let driver;
   for(const label of ['A','B']){
    const companyId=randomUUID(),principalId=randomUUID(),personId=randomUUID();
    await owner.query('INSERT INTO org.company(id,name,status) VALUES($1,$2,$3)',[companyId,`DEMO Company ${label}`,'ACTIVE']);
@@ -42,7 +42,12 @@ export async function localFixture(adminUrl){
    await owner.query('INSERT INTO party.customer_access(company_id,customer_id,principal_id) VALUES($1,$2,$3)',[companyId,customerId,principalId]);customers.push(customerId);
    for(const currency of ['USD','KHR'])await owner.query('INSERT INTO finance.receiving_account(id,company_id,label,currency) VALUES($1,$2,$3,$4)',[randomUUID(),companyId,'DEMO company bank '+currency,currency]);
   }
+  const companyId=principals[0].companyId,principalId=randomUUID(),personId=randomUUID(),deviceId=randomUUID(),shiftId=randomUUID();
+  await owner.query("INSERT INTO org.principal(id,company_id,kind,display_name,idp_subject,status,person_id) VALUES($1,$2,'DRIVER','DEMO Driver',$3,'ACTIVE',$4)",[principalId,companyId,'local:'+principalId,personId]);
+  await owner.query("INSERT INTO mobile.device(id,company_id,driver_id,state) VALUES($1,$2,$3,'ACTIVE')",[deviceId,companyId,principalId]);
+  await owner.query("INSERT INTO mobile.shift(id,company_id,device_id,driver_id,starts_at,ends_at,state) VALUES($1,$2,$3,$4,clock_timestamp()-interval '12 hours',clock_timestamp()+interval '12 hours','ACTIVE')",[shiftId,companyId,deviceId,principalId]);
+  driver={companyId,principalId,deviceId,shiftId};
   url.username=role;url.password=password;
-  return {database,role,owner,admin,principals,customers,runtimeUrl:url.href,cleanup};
+  return {database,role,owner,admin,principals,customers,driver,runtimeUrl:url.href,cleanup};
  }catch(error){await cleanup();throw error;}
 }
