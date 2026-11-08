@@ -11,7 +11,7 @@ import {pgCliConnection,verifyBackupChecksum} from '../scripts/trial-db-cli.mjs'
 import {runBackup} from '../scripts/trial-backup.mjs';
 import {runRestore} from '../scripts/trial-restore.mjs';
 import {runTrialStart} from '../scripts/trial-start.mjs';
-import {buildTrialEnv,configureBackupRole,runTrialInit} from '../scripts/trial-init.mjs';
+import {buildTrialEnv,configureBackupRole,scramSha256Verifier,runTrialInit} from '../scripts/trial-init.mjs';
 import {runTrialStaff} from '../scripts/trial-staff.mjs';
 import {runBackupStatus} from '../scripts/trial-backup-status.mjs';
 
@@ -44,6 +44,22 @@ test('trial tooling defaults all database targets to routefit_trial',()=>{
 test('trial:init writes the non-secret server paths needed by later scripts',()=>{
  const env=buildTrialEnv({databaseUrl:'postgresql://runtime@127.0.0.1/routefit_trial',sessionFile:'/srv/session.json',source:{ROUTEFIT_TRIAL_DATABASE:'routefit_trial',ROUTEFIT_ADMIN_ENV_FILE:'/root/admin.env',ROUTEFIT_TRIAL_STAFF_FILE:'/root/staff.json',ROUTEFIT_TRIAL_COMPANY_FILE:'/root/company.json',ROUTEFIT_TRIAL_IMPORT_DIRECTORY:'/root/import',ROUTEFIT_TRIAL_SERVICE_AREAS_FILE:'/root/areas.geojson',ROUTEFIT_TRIAL_AREA_REASON:'synthetic',ROUTEFIT_BACKUP_ENV_FILE:'/root/backup.env',ROUTEFIT_BACKUP_DIRECTORY:'/var/backups',ROUTEFIT_PG_BIN:'/opt/pg/bin'}});
  assert.match(env,/ROUTEFIT_ADMIN_ENV_FILE=\/root\/admin\.env/);assert.match(env,/ROUTEFIT_BACKUP_ENV_FILE=\/root\/backup\.env/);assert.match(env,/ROUTEFIT_TRIAL_SERVICE_AREAS_FILE=\/root\/areas\.geojson/);assert.match(env,/ROUTEFIT_PG_BIN=\/opt\/pg\/bin/);
+});
+test('trial:init generates a fixed SCRAM verifier without the plaintext',()=>{
+ const verifier=scramSha256Verifier('synthetic-secret',{salt:Buffer.alloc(16,7)});
+ assert.equal(verifier,'SCRAM-SHA-256$4096:BwcHBwcHBwcHBwcHBwcHBw==$qh6r/RbPXrWmRrQB8wKIAuKMBsyNMRZuFEZ/95AhaSw=:QBOZP5pwK1leHxg5XgRmXZZcjIV2H07DLwKsjVMp+UQ=');
+ assert.ok(!verifier.includes('synthetic-secret'));
+});
+test('trial:init redacts role credentials from a create-role failure',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'routefit-init-redaction-')),companyFile=join(root,'company.json'),envFile=join(root,'dev.env'),sessionFile=join(root,'sessions.json'),backupEnvFile=join(root,'backup.env');
+ await writeFile(companyFile,JSON.stringify({name:'Synthetic Company'}));
+ class FakePool{
+  constructor(config){this.config=config;}
+  async query(sql){if(sql.startsWith('SELECT 1 FROM pg_database'))return {rowCount:0,rows:[]};if(sql.startsWith('CREATE ROLE'))throw Error(sql);return {rowCount:0,rows:[]};}
+  async connect(){return {query:async sql=>sql.startsWith('INSERT INTO org.principal')?{rows:[{id:'system-principal'}]}:{rows:[]},release(){}};}
+  async end(){}
+ }
+ try{await assert.rejects(runTrialInit({adminUrl:'postgresql://127.0.0.1/postgres',databaseName:'routefit_redaction',envFile,companyFile,sessionFile,backupEnvFile,Pool:FakePool,migrateImpl:async()=>{}}),error=>!error.message.includes('SCRAM-SHA-256')&&!/[0-9a-f]{64}/.test(error.message))}finally{await rm(root,{recursive:true,force:true});}
 });
 test('trial:init refuses a missing output parent before any database work',async()=>{
  const root=await mkdtemp(join(tmpdir(),'routefit-init-parent-')),companyFile=join(root,'company.json'),sessionFile=join(root,'sessions.json'),backupEnvFile=join(root,'backup.env'),missingEnv=join(root,'missing','dev.env');let poolCreated=false;
