@@ -16,15 +16,21 @@ import {
 import { developmentSessionAuth } from './src/development-auth';
 import {
   actOnAssignment,
+  confirmCustodyTransfer,
+  departAssignment,
   DriverApiError,
+  getDepartureReadiness,
   getAssignment,
   getDriverOrder,
+  listCustodyTransfers,
   listAssignments,
   syncDriverEvent,
   type AssignmentDetail,
+  type DepartureReadiness,
   type DriverArrivedEvent,
   type DriverAction,
   type DriverAssignment,
+  type DriverCustodyTransfer,
   type DriverLanguage,
   type DriverOrderDetail,
 } from './src/driver-api';
@@ -40,12 +46,16 @@ export default function App() {
   const [assignments, setAssignments] = useState<DriverAssignment[] | null>(null);
   const [detail, setDetail] = useState<AssignmentDetail | null>(null);
   const [order, setOrder] = useState<DriverOrderDetail | null>(null);
+  const [custodyTransfers, setCustodyTransfers] = useState<DriverCustodyTransfer[] | null>(null);
+  const [departureReadiness, setDepartureReadiness] = useState<DepartureReadiness | null>(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState<'list' | 'detail' | ''>('');
   const [actionBusy, setActionBusy] = useState(false);
   const [rejectArmed, setRejectArmed] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [executionReason, setExecutionReason] = useState('');
+  const [evidenceFileId, setEvidenceFileId] = useState('');
   // shortcut: manual device ID is development-only, remove after RF-PM-055 batch 5 registers devices.
   const [deviceId, setDeviceId] = useState('');
   const [pendingEvents, setPendingEvents] = useState(0);
@@ -111,15 +121,52 @@ export default function App() {
     setRejectArmed(false);
     try {
       const nextDetail = await getAssignment(auth(), language, assignmentId);
-      const nextOrder = await getDriverOrder(auth(), language, nextDetail.assignment.orderId);
+      const [nextOrder, nextTransfers, nextReadiness] = await Promise.all([
+        getDriverOrder(auth(), language, nextDetail.assignment.orderId),
+        nextDetail.assignment.state === 'accepted'
+          ? listCustodyTransfers(auth(), language, assignmentId)
+          : Promise.resolve(null),
+        nextDetail.assignment.state === 'accepted'
+          ? getDepartureReadiness(auth(), language, assignmentId)
+          : Promise.resolve(null),
+      ]);
       setDetail(nextDetail);
       setOrder(nextOrder);
+      setCustodyTransfers(nextTransfers);
+      setDepartureReadiness(nextReadiness);
     } catch (cause) {
       setDetail(null);
       setOrder(null);
+      setCustodyTransfers(null);
+      setDepartureReadiness(null);
       setError(displayError(cause, 'taskReadFailed'));
     } finally {
       setLoading('');
+    }
+  }
+
+  async function submitExecution(action: 'custody' | 'depart', transfer?: DriverCustodyTransfer) {
+    if (!detail || actionInFlight.current || !executionReason.trim() || !evidenceReady) return;
+    actionInFlight.current = true;
+    setActionBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      if (action === 'custody' && transfer) {
+        await confirmCustodyTransfer(auth(), language, transfer, executionReason.trim(), evidenceFileId.trim());
+      } else if (action === 'depart') {
+        await departAssignment(auth(), language, detail, executionReason.trim(), evidenceFileId.trim());
+      }
+      await openDetails(detail.assignment.id, false);
+      setExecutionReason('');
+      setNotice(t(action === 'custody' ? 'custodyConfirmed' : 'departed'));
+    } catch (cause) {
+      const stale = cause instanceof DriverApiError && (cause.status === 409 || cause.status === 412);
+      setError(displayError(cause, 'taskActionFailed'));
+      if (stale) await openDetails(detail.assignment.id, false);
+    } finally {
+      actionInFlight.current = false;
+      setActionBusy(false);
     }
   }
 
@@ -216,6 +263,7 @@ export default function App() {
 
   const credentialsReady = token.trim().length >= 32 && csrfToken.trim().length >= 32;
   const deviceReady = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(deviceId.trim());
+  const evidenceReady = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(evidenceFileId.trim());
   const actionAvailable = detail?.assignment.state === 'offered';
   const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
@@ -286,7 +334,7 @@ export default function App() {
 
         {detail && order ? (
           <View style={styles.detail}>
-            <Pressable accessibilityRole="button" onPress={() => { setDetail(null); setOrder(null); }} style={styles.linkButton}>
+            <Pressable accessibilityRole="button" onPress={() => { setDetail(null); setOrder(null); setCustodyTransfers(null); setDepartureReadiness(null); }} style={styles.linkButton}>
               <Text style={styles.linkText}>{t('backToList')}</Text>
             </Pressable>
             <Text style={styles.sectionTitle}>{t('assignmentDetails')}</Text>
@@ -313,7 +361,63 @@ export default function App() {
                 <Text>{t('packageIds')} {item.packageIds.length ? item.packageIds.join(', ') : t('noPackages')}</Text>
               </View>
             ))}
-            <Text style={styles.caption}>{t('executionContractBlocked')}</Text>
+            {detail.assignment.state === 'accepted' ? (
+              <View style={styles.execution}>
+                <Text style={styles.sectionTitle}>{t('custodyTransfers')}</Text>
+                {custodyTransfers?.length === 0 ? <Text style={styles.caption}>{t('custodyEmpty')}</Text> : null}
+                {custodyTransfers?.map((transfer) => (
+                  <View key={transfer.id} style={styles.packageRow}>
+                    <Text>{t('custodyInitiated')} {new Date(transfer.initiatedAt).toLocaleString()}</Text>
+                    {transfer.items.map((item) => (
+                      <View key={item.itemId}>
+                        <Text>{t('itemId')} {item.itemId}</Text>
+                        <Text>{t('packageIds')} {item.packageIds.join(', ')}</Text>
+                      </View>
+                    ))}
+                    <Pressable
+                      accessibilityRole="button"
+                      disabled={actionBusy || !evidenceReady || !executionReason.trim()}
+                      onPress={() => submitExecution('custody', transfer)}
+                      style={[styles.secondaryButton, (actionBusy || !evidenceReady || !executionReason.trim()) && styles.buttonDisabled]}
+                    >
+                      <Text style={styles.secondaryButtonText}>{t('confirmCustody')}</Text>
+                    </Pressable>
+                  </View>
+                ))}
+                <Text style={styles.label}>{t('executionReason')}</Text>
+                <TextInput
+                  accessibilityLabel={t('executionReason')}
+                  onChangeText={setExecutionReason}
+                  placeholder={t('executionReasonPlaceholder')}
+                  style={styles.input}
+                  value={executionReason}
+                />
+                <Text style={styles.label}>{t('evidenceFileId')}</Text>
+                <TextInput
+                  accessibilityLabel={t('evidenceFileId')}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onChangeText={setEvidenceFileId}
+                  placeholder={t('evidenceFileIdPlaceholder')}
+                  style={styles.input}
+                  value={evidenceFileId}
+                />
+                <Text style={styles.caption}>{t('evidenceFileIdHelp')}</Text>
+                <Text style={styles.sectionTitle}>{t('departureReadiness')}</Text>
+                <Text>{departureReadiness?.ready ? t('departureReady') : t('departureBlocked')}</Text>
+                {departureReadiness?.reasons.map((reason) => (
+                  <Text key={reason} style={styles.caption}>{errorText(language, reason) ?? reason}</Text>
+                ))}
+                <Pressable
+                  accessibilityRole="button"
+                  disabled={actionBusy || !departureReadiness?.ready || !evidenceReady || !executionReason.trim()}
+                  onPress={() => submitExecution('depart')}
+                  style={[styles.button, (actionBusy || !departureReadiness?.ready || !evidenceReady || !executionReason.trim()) && styles.buttonDisabled]}
+                >
+                  <Text style={styles.buttonText}>{actionBusy ? t('actionWorking') : t('depart')}</Text>
+                </Pressable>
+              </View>
+            ) : null}
             <Pressable accessibilityRole="button" disabled={!order.pickup.point} onPress={() => navigate(order.pickup.point)} style={[styles.secondaryButton, !order.pickup.point && styles.buttonDisabled]}>
               <Text style={styles.secondaryButtonText}>{t('navigatePickup')}</Text>
             </Pressable>
@@ -433,6 +537,7 @@ const styles = StyleSheet.create({
   detail: { backgroundColor: '#ffffff', borderRadius: 16, gap: 8, padding: 18 },
   sectionTitle: { color: '#13233a', fontSize: 20, fontWeight: '700', marginTop: 10 },
   actions: { gap: 10, marginTop: 12 },
+  execution: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
   offline: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
   packageRow: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 4, padding: 10 },
   secondaryButton: { alignItems: 'center', borderColor: '#153a63', borderRadius: 10, borderWidth: 1, marginTop: 10, padding: 12 },

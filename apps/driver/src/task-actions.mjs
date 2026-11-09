@@ -19,6 +19,14 @@ export function createActionPlan({ action, assignment, etag, reason = '', keyFac
   };
 }
 
+export function createEvidenceActionPlan({ resource, etag, reason, evidenceFileId, keyFactory = createIdempotencyKey }) {
+  return {
+    idempotencyKey: keyFactory(),
+    ifMatch: etag || `"${resource.version}"`,
+    body: { reason, evidenceFileIds: [evidenceFileId] },
+  };
+}
+
 export async function sendWithNetworkRetry(plan, send) {
   try {
     return await send(plan);
