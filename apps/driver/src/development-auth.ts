@@ -1,9 +1,6 @@
-export type AuthHeaders = Record<string, string>;
+import type { RequestAuth } from '@routefit/shared';
 
-export interface DriverAuth {
-  readHeaders(): AuthHeaders;
-  writeHeaders(): AuthHeaders;
-}
+export type DriverAuth = RequestAuth;
 
 const LOCAL_DEVELOPMENT_ORIGIN = 'http://127.0.0.1:4180';
 

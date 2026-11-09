@@ -8,7 +8,7 @@ Use Node 24:
 
 ```text
 npm ci
-npm start
+npm start --workspace @routefit/customer-app
 ```
 
 Open the printed local URL. `/` contains four empty-state tabs; `/track` is a delivery-tracking placeholder that reads no order.
@@ -16,16 +16,16 @@ Open the printed local URL. `/` contains four empty-state tabs; `/track` is a de
 ## Checks
 
 ```text
-npm run lint
-npm run typecheck
-npm test
-npm run build:web
+npm run lint --workspace @routefit/customer-app
+npm run typecheck --workspace @routefit/customer-app
+npm test --workspace @routefit/customer-app
+npm run build:web --workspace @routefit/customer-app
 ```
 
 Browser evidence requires a local Chrome installation and a repository-external directory:
 
 ```text
-ROUTEFIT_EVIDENCE_DIRECTORY=<outside-repository> npm run test:browser
+ROUTEFIT_EVIDENCE_DIRECTORY=<outside-repository> npm run test:browser --workspace @routefit/customer-app
 ```
 
 The browser check covers H5 language/tab behavior at 390 px and a mocked Telegram WebApp at 1440 px. Real Telegram is **NOT_RUN** because no Bot or public address exists.

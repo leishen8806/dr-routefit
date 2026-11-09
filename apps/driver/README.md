@@ -7,10 +7,9 @@ RF-PM-056 的 React Native（Expo + TypeScript）工程骨架，RF-PM-057 增加
 要求 Node 24、npm、Android Studio。服务端必须在本机 `127.0.0.1:4180` 运行并配置开发司机身份。
 
 ```powershell
-cd apps/driver
 npm ci
 adb reverse tcp:4180 tcp:4180
-npm run android
+npm run android --workspace @routefit/driver-app
 ```
 
 Android 模拟器通过 `adb reverse` 把模拟器内的 `127.0.0.1:4180` 映射到开发机；App 不接受远端服务地址。启动后同时输入本机开发会话的原始令牌和 CSRF 令牌，两者只保存在当前进程内，不写磁盘、不进日志。写操作固定携带精确的本机 Origin 和 CSRF 请求头；这是开发占位，RF-PM-055 批次 5 正式会话上线后删除。
@@ -20,18 +19,17 @@ Android 模拟器通过 `adb reverse` 把模拟器内的 `127.0.0.1:4180` 映射
 iOS 模拟器须在安装了 Xcode 的 macOS 上运行：
 
 ```bash
-cd apps/driver
 npm ci
-npm run ios
+npm run ios --workspace @routefit/driver-app
 ```
 
 ## 检查
 
 ```powershell
-npm run lint
-npm test
-npm run typecheck
-npm run build:check
+npm run lint --workspace @routefit/driver-app
+npm test --workspace @routefit/driver-app
+npm run typecheck --workspace @routefit/driver-app
+npm run build:check --workspace @routefit/driver-app
 ```
 
 ## 本卡运行结果

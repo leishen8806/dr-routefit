@@ -9,7 +9,7 @@
 | 分支 | 批次 1：`feat/RF-PM-062-customer-web-skeleton`；批次 2：`feat/RF-PM-062-shared-packages`；PR 目标都是 `develop` |
 | 依赖 | 批次 1 无依赖，现在开始；**批次 2 必须等 #127（RF-PM-058）和 #128（RF-PM-060）都合并后才开始** |
 | 需人类批准 | 是：每个 PR 合并前须负责人侧 Claude 审查，并由作者以外的人批准最终 head |
-| 状态 | IN_PROGRESS（批次 1） |
+| 状态 | IN_PROGRESS（批次 2） |
 
 ## 背景
 

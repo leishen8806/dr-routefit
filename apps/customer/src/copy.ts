@@ -1,9 +1,11 @@
+import { languageLabels, message } from '@routefit/shared';
+
 export type Language = 'km' | 'en' | 'zh';
 
 export const languageOptions: readonly { code: Language; label: string }[] = [
-  { code: 'km', label: 'ខ្មែរ' },
-  { code: 'en', label: 'English' },
-  { code: 'zh', label: '中文' },
+  { code: 'km', label: languageLabels.km },
+  { code: 'en', label: languageLabels.en },
+  { code: 'zh', label: languageLabels.zh },
 ];
 
 export const copy = {
@@ -87,5 +89,5 @@ export const copy = {
 export type CopyKey = keyof typeof copy.en;
 
 export function text(language: Language, key: CopyKey) {
-  return copy[language][key];
+  return message(copy, language, key);
 }
