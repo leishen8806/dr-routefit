@@ -19,7 +19,7 @@ RF-PM-058 的代码已审查通过，但 Android 模拟器完整链路没跑成�
 
 1. **演示场景脚本** `services/routefit/scripts/driver-scenario.mjs`，`package.json` 增加 `scenario:driver`（`node --env-file=.local/dev.env scripts/driver-scenario.mjs`）：
    - 前提：本机已 `dev:bootstrap` 并 `start:dev`；脚本只连 `127.0.0.1`，发现目标不是本机地址就拒绝运行；
-   - **只走现有业务接口**造数据（参考 `scripts/policy-smoke.mjs` 的现有链路：策略 → 订单 → 报价 → 付款准入 → 调度 → 装载复核 → 指派给夹具司机），不直接写业务表、不关闭触发器；
+   - 策略、订单、报价、付款准入、装载复核、指派与交接只走现有业务接口；经负责人批准，车辆与路线计划仅可由开发夹具层直接写入 `fleet.vehicle`、`dispatch.route_plan`、`dispatch.route_plan_version`、`dispatch.route_stop`，不得关闭触发器或写其他业务表；
    - 参数 `--stage` 选择停在哪一步：`offered`（待接单）、`custody-pending`（已接单、仓库已签、等司机签）、`ready-to-depart`（司机已签、可出发）；默认 `custody-pending`；
    - 每次运行生成一套新的合成数据（名称带 `DEMO` 前缀），不改已有数据，可重复运行；
    - 输出：订单 ID、指派 ID、设备 ID、当班 ID、一个已上传完成的合成证据文件 ID；司机开发会话令牌和 CSRF 只写到 `services/routefit/.local/driver-scenario.json`（已被 git 忽略），终端里不打印令牌。
@@ -49,3 +49,7 @@ RF-PM-058 的代码已审查通过，但 Android 模拟器完整链路没跑成�
 ## 审查记录
 
 （待填）
+
+## 发现但未处理
+
+- 现有业务接口不能创建车辆与路线计划；本卡只为本机开发场景提供受限夹具，正式能力须在调度排线功能中补齐。

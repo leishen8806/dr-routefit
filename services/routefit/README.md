@@ -93,6 +93,18 @@ npm run test:integration
 
 RF-QA-01交接见[验收步骤与待办](../../PRD/docs/tasks/fee-integration-qa-v0.1.md)。费用三个POST入口已拒绝重复JSON字段和非法UTF-8；续轮测试与修复前失败证据见[技术复核](verification/rf-api-01-followup/README.md)。
 
+## 本机司机演示场景
+
+先完成 `npm run dev:bootstrap` 并另开终端运行 `npm run start:dev`，再选择一个合成阶段：
+
+```powershell
+npm run scenario:driver -- --stage offered
+npm run scenario:driver -- --stage custody-pending
+npm run scenario:driver -- --stage ready-to-depart
+```
+
+脚本只接受本机服务和本机 PostgreSQL，策略、订单、报价、付款准入、装载复核、指派与交接均走现有业务接口；车辆和路线计划由受限开发夹具创建。每次运行生成独立 `DEMO` 数据，终端只输出业务对象 ID 和状态。司机令牌与 CSRF 只写入被忽略的 `.local/driver-scenario.json`，不要复制到日志、截图或提交中。该脚本不被试运营初始化引用。
+
 ## 尚未实现
 
 独立订单页面已接通：完成开发会话激活后访问`http://127.0.0.1:4180/prototype/orders.html`，可创建、回读、编辑数据库草稿，见[页面契约](../../prototype/ORDER-ENTRY-CONTRACT.md)与[验证](verification/order-entry-ui/README.md)。共享工作台与费用页面仍使用原有浏览器演示状态，不能把两种数据混为一套。
