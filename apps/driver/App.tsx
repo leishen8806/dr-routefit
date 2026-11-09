@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
@@ -16,17 +16,27 @@ import {
 import { developmentSessionAuth } from './src/development-auth';
 import {
   actOnAssignment,
+  confirmCustodyTransfer,
+  departAssignment,
   DriverApiError,
+  getDepartureReadiness,
   getAssignment,
   getDriverOrder,
+  listCustodyTransfers,
   listAssignments,
+  syncDriverEvent,
   type AssignmentDetail,
+  type DepartureReadiness,
+  type DriverArrivedEvent,
   type DriverAction,
   type DriverAssignment,
+  type DriverCustodyTransfer,
   type DriverLanguage,
   type DriverOrderDetail,
 } from './src/driver-api';
 import { errorText, languageOptions, text, type MessageKey } from './src/messages';
+import { openOfflineEventQueue } from './src/offline-queue.mjs';
+import { createOfflineQueueStore } from './src/offline-store';
 import { rejectConfirmationStep } from './src/task-actions.mjs';
 
 export default function App() {
@@ -36,16 +46,52 @@ export default function App() {
   const [assignments, setAssignments] = useState<DriverAssignment[] | null>(null);
   const [detail, setDetail] = useState<AssignmentDetail | null>(null);
   const [order, setOrder] = useState<DriverOrderDetail | null>(null);
+  const [custodyTransfers, setCustodyTransfers] = useState<DriverCustodyTransfer[] | null>(null);
+  const [departureReadiness, setDepartureReadiness] = useState<DepartureReadiness | null>(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState<'list' | 'detail' | ''>('');
   const [actionBusy, setActionBusy] = useState(false);
   const [rejectArmed, setRejectArmed] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [executionReason, setExecutionReason] = useState('');
+  const [evidenceFileId, setEvidenceFileId] = useState('');
+  // shortcut: manual device ID is development-only, remove after RF-PM-055 batch 5 registers devices.
+  const [deviceId, setDeviceId] = useState('');
+  const [pendingEvents, setPendingEvents] = useState(0);
+  const [quarantinedEvents, setQuarantinedEvents] = useState(0);
+  const [queueFailed, setQueueFailed] = useState(false);
+  const [syncBusy, setSyncBusy] = useState(false);
   const actionInFlight = useRef(false);
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queueRef = useRef<Awaited<ReturnType<typeof openOfflineEventQueue>> | null>(null);
 
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
   const auth = () => developmentSessionAuth(token, csrfToken);
+
+  function refreshQueue(queue = queueRef.current) {
+    if (!queue) return;
+    const snapshot = queue.snapshot();
+    setPendingEvents(snapshot.events.length);
+    setQuarantinedEvents(snapshot.quarantined.length);
+  }
+
+  useEffect(() => {
+    let active = true;
+    openOfflineEventQueue(createOfflineQueueStore())
+      .then((queue) => {
+        if (!active) return;
+        queueRef.current = queue;
+        refreshQueue(queue);
+      })
+      .catch(() => {
+        if (active) setQueueFailed(true);
+      });
+    return () => {
+      active = false;
+      if (retryTimer.current) clearTimeout(retryTimer.current);
+    };
+  }, []);
 
   function displayError(cause: unknown, fallback: MessageKey) {
     if (cause instanceof DriverApiError) {
@@ -75,15 +121,52 @@ export default function App() {
     setRejectArmed(false);
     try {
       const nextDetail = await getAssignment(auth(), language, assignmentId);
-      const nextOrder = await getDriverOrder(auth(), language, nextDetail.assignment.orderId);
+      const [nextOrder, nextTransfers, nextReadiness] = await Promise.all([
+        getDriverOrder(auth(), language, nextDetail.assignment.orderId),
+        nextDetail.assignment.state === 'accepted'
+          ? listCustodyTransfers(auth(), language, assignmentId)
+          : Promise.resolve(null),
+        nextDetail.assignment.state === 'accepted'
+          ? getDepartureReadiness(auth(), language, assignmentId)
+          : Promise.resolve(null),
+      ]);
       setDetail(nextDetail);
       setOrder(nextOrder);
+      setCustodyTransfers(nextTransfers);
+      setDepartureReadiness(nextReadiness);
     } catch (cause) {
       setDetail(null);
       setOrder(null);
+      setCustodyTransfers(null);
+      setDepartureReadiness(null);
       setError(displayError(cause, 'taskReadFailed'));
     } finally {
       setLoading('');
+    }
+  }
+
+  async function submitExecution(action: 'custody' | 'depart', transfer?: DriverCustodyTransfer) {
+    if (!detail || actionInFlight.current || !executionReason.trim() || !evidenceReady) return;
+    actionInFlight.current = true;
+    setActionBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      if (action === 'custody' && transfer) {
+        await confirmCustodyTransfer(auth(), language, transfer, executionReason.trim(), evidenceFileId.trim());
+      } else if (action === 'depart') {
+        await departAssignment(auth(), language, detail, executionReason.trim(), evidenceFileId.trim());
+      }
+      await openDetails(detail.assignment.id, false);
+      setExecutionReason('');
+      setNotice(t(action === 'custody' ? 'custodyConfirmed' : 'departed'));
+    } catch (cause) {
+      const stale = cause instanceof DriverApiError && (cause.status === 409 || cause.status === 412);
+      setError(displayError(cause, 'taskActionFailed'));
+      if (stale) await openDetails(detail.assignment.id, false);
+    } finally {
+      actionInFlight.current = false;
+      setActionBusy(false);
     }
   }
 
@@ -135,7 +218,52 @@ export default function App() {
     }
   }
 
+  async function recordArrival(observedPoint: DriverArrivedEvent['payload']['point']) {
+    if (!queueRef.current || !detail) return;
+    setError('');
+    setNotice('');
+    try {
+      await queueRef.current.enqueue({
+        eventId: globalThis.crypto.randomUUID(),
+        assignmentId: detail.assignment.id,
+        assignmentVersion: detail.assignment.version,
+        planVersion: detail.assignment.planVersion,
+        observedAt: new Date().toISOString(),
+        type: 'ARRIVED',
+        payload: { point: observedPoint, evidenceFileIds: [] },
+      });
+      refreshQueue();
+      setNotice(t('arrivalQueued'));
+    } catch {
+      setError(t('queueWriteFailed'));
+    }
+  }
+
+  async function syncEvents() {
+    if (!queueRef.current || syncBusy) return;
+    setSyncBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const result = await queueRef.current.replay((event: DriverArrivedEvent) =>
+        syncDriverEvent(auth(), language, deviceId.trim(), event));
+      refreshQueue();
+      if (result.dispatchRequired) setError(t('syncSequenceInvalid'));
+      else setNotice(t(result.delayed ? 'syncDelayed' : 'syncFinished'));
+      if (result.delayed) {
+        if (retryTimer.current) clearTimeout(retryTimer.current);
+        retryTimer.current = setTimeout(syncEvents, result.retryAfterMs);
+      }
+    } catch (cause) {
+      setError(displayError(cause, 'syncFailed'));
+    } finally {
+      setSyncBusy(false);
+    }
+  }
+
   const credentialsReady = token.trim().length >= 32 && csrfToken.trim().length >= 32;
+  const deviceReady = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(deviceId.trim());
+  const evidenceReady = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(evidenceFileId.trim());
   const actionAvailable = detail?.assignment.state === 'offered';
   const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
@@ -200,12 +328,13 @@ export default function App() {
         </View>
 
         {loading ? <ActivityIndicator accessibilityLabel={loading === 'list' ? t('loadingTasks') : t('loadingDetails')} size="large" /> : null}
+        {queueFailed ? <Text accessibilityRole="alert" style={styles.error}>{t('queueLoadFailed')}</Text> : null}
         {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
         {notice ? <Text accessibilityRole="alert" style={styles.notice}>{notice}</Text> : null}
 
         {detail && order ? (
           <View style={styles.detail}>
-            <Pressable accessibilityRole="button" onPress={() => { setDetail(null); setOrder(null); }} style={styles.linkButton}>
+            <Pressable accessibilityRole="button" onPress={() => { setDetail(null); setOrder(null); setCustodyTransfers(null); setDepartureReadiness(null); }} style={styles.linkButton}>
               <Text style={styles.linkText}>{t('backToList')}</Text>
             </Pressable>
             <Text style={styles.sectionTitle}>{t('assignmentDetails')}</Text>
@@ -225,6 +354,70 @@ export default function App() {
             <Text>{t('contact')} {order.delivery.contactName}</Text>
             <Text>{t('phone')} {order.delivery.phone}</Text>
             <Text>{t('itemCount')} {itemCount}</Text>
+            <Text style={styles.label}>{t('packageDetails')}</Text>
+            {order.items.map((item) => (
+              <View key={item.id} style={styles.packageRow}>
+                <Text>{t('itemId')} {item.id}</Text>
+                <Text>{t('packageIds')} {item.packageIds.length ? item.packageIds.join(', ') : t('noPackages')}</Text>
+              </View>
+            ))}
+            {detail.assignment.state === 'accepted' ? (
+              <View style={styles.execution}>
+                <Text style={styles.sectionTitle}>{t('custodyTransfers')}</Text>
+                {custodyTransfers?.length === 0 ? <Text style={styles.caption}>{t('custodyEmpty')}</Text> : null}
+                {custodyTransfers?.map((transfer) => (
+                  <View key={transfer.id} style={styles.packageRow}>
+                    <Text>{t('custodyInitiated')} {new Date(transfer.initiatedAt).toLocaleString()}</Text>
+                    {transfer.items.map((item) => (
+                      <View key={item.itemId}>
+                        <Text>{t('itemId')} {item.itemId}</Text>
+                        <Text>{t('packageIds')} {item.packageIds.join(', ')}</Text>
+                      </View>
+                    ))}
+                    <Pressable
+                      accessibilityRole="button"
+                      disabled={actionBusy || !evidenceReady || !executionReason.trim()}
+                      onPress={() => submitExecution('custody', transfer)}
+                      style={[styles.secondaryButton, (actionBusy || !evidenceReady || !executionReason.trim()) && styles.buttonDisabled]}
+                    >
+                      <Text style={styles.secondaryButtonText}>{t('confirmCustody')}</Text>
+                    </Pressable>
+                  </View>
+                ))}
+                <Text style={styles.label}>{t('executionReason')}</Text>
+                <TextInput
+                  accessibilityLabel={t('executionReason')}
+                  onChangeText={setExecutionReason}
+                  placeholder={t('executionReasonPlaceholder')}
+                  style={styles.input}
+                  value={executionReason}
+                />
+                <Text style={styles.label}>{t('evidenceFileId')}</Text>
+                <TextInput
+                  accessibilityLabel={t('evidenceFileId')}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onChangeText={setEvidenceFileId}
+                  placeholder={t('evidenceFileIdPlaceholder')}
+                  style={styles.input}
+                  value={evidenceFileId}
+                />
+                <Text style={styles.caption}>{t('evidenceFileIdHelp')}</Text>
+                <Text style={styles.sectionTitle}>{t('departureReadiness')}</Text>
+                <Text>{departureReadiness?.ready ? t('departureReady') : t('departureBlocked')}</Text>
+                {departureReadiness?.reasons.map((reason) => (
+                  <Text key={reason} style={styles.caption}>{errorText(language, reason) ?? reason}</Text>
+                ))}
+                <Pressable
+                  accessibilityRole="button"
+                  disabled={actionBusy || !departureReadiness?.ready || !evidenceReady || !executionReason.trim()}
+                  onPress={() => submitExecution('depart')}
+                  style={[styles.button, (actionBusy || !departureReadiness?.ready || !evidenceReady || !executionReason.trim()) && styles.buttonDisabled]}
+                >
+                  <Text style={styles.buttonText}>{actionBusy ? t('actionWorking') : t('depart')}</Text>
+                </Pressable>
+              </View>
+            ) : null}
             <Pressable accessibilityRole="button" disabled={!order.pickup.point} onPress={() => navigate(order.pickup.point)} style={[styles.secondaryButton, !order.pickup.point && styles.buttonDisabled]}>
               <Text style={styles.secondaryButtonText}>{t('navigatePickup')}</Text>
             </Pressable>
@@ -265,6 +458,35 @@ export default function App() {
                   <Text style={styles.linkText}>{t('cancelReject')}</Text>
                 </Pressable>
               ) : null}
+            </View>
+
+            <View style={styles.offline}>
+              <Text style={styles.sectionTitle}>{t('offlineEvents')}</Text>
+              <Text style={styles.label}>{t('deviceId')}</Text>
+              <TextInput
+                accessibilityLabel={t('deviceId')}
+                autoCapitalize="none"
+                autoCorrect={false}
+                onChangeText={setDeviceId}
+                placeholder={t('deviceIdPlaceholder')}
+                style={styles.input}
+                value={deviceId}
+              />
+              <Text style={styles.caption}>{t('deviceIdLifecycle')}</Text>
+              <Text>{t('pendingEvents')} {pendingEvents}</Text>
+              {quarantinedEvents > 0 ? (
+                <Text accessibilityRole="alert" style={styles.error}>
+                  {t('quarantinedPrefix')} {quarantinedEvents} {t('quarantinedSuffix')}
+                </Text>
+              ) : null}
+              <Pressable
+                accessibilityRole="button"
+                disabled={!credentialsReady || !deviceReady || pendingEvents === 0 || syncBusy}
+                onPress={syncEvents}
+                style={[styles.button, (!credentialsReady || !deviceReady || pendingEvents === 0 || syncBusy) && styles.buttonDisabled]}
+              >
+                <Text style={styles.buttonText}>{syncBusy ? t('syncWorking') : t('syncEvents')}</Text>
+              </Pressable>
             </View>
           </View>
         ) : assignments ? (
@@ -315,6 +537,9 @@ const styles = StyleSheet.create({
   detail: { backgroundColor: '#ffffff', borderRadius: 16, gap: 8, padding: 18 },
   sectionTitle: { color: '#13233a', fontSize: 20, fontWeight: '700', marginTop: 10 },
   actions: { gap: 10, marginTop: 12 },
+  execution: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
+  offline: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
+  packageRow: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 4, padding: 10 },
   secondaryButton: { alignItems: 'center', borderColor: '#153a63', borderRadius: 10, borderWidth: 1, marginTop: 10, padding: 12 },
   secondaryButtonText: { color: '#153a63', fontWeight: '700' },
   rejectButton: { alignItems: 'center', borderColor: '#b91c1c', borderRadius: 10, borderWidth: 1, padding: 12 },

@@ -6,6 +6,7 @@ import {
   TASK_NOT_FOUND,
   actionErrorCode,
   createActionPlan,
+  createEvidenceActionPlan,
   rejectConfirmationStep,
   sendWithNetworkRetry,
 } from './task-actions.mjs';
@@ -37,6 +38,22 @@ test('action plan uses assignment version for If-Match', () => {
 test('action plan prefers the response ETag over the assignment version', () => {
   const plan = createActionPlan({ action: 'accept', assignment, etag: '"server-etag"', keyFactory: () => 'idem-key-00000001' });
   assert.equal(plan.ifMatch, '"server-etag"');
+});
+
+test('evidence action keeps the resource version and evidence together', () => {
+  const plan = createEvidenceActionPlan({
+    resource: { version: 3 },
+    etag: '"server-etag"',
+    reason: 'synthetic custody confirmation',
+    evidenceFileId: '11111111-1111-4111-8111-111111111111',
+    keyFactory: () => 'idem-key-00000001',
+  });
+  assert.equal(plan.ifMatch, '"server-etag"');
+  assert.equal(plan.idempotencyKey, 'idem-key-00000001');
+  assert.deepEqual(plan.body, {
+    reason: 'synthetic custody confirmation',
+    evidenceFileIds: ['11111111-1111-4111-8111-111111111111'],
+  });
 });
 
 test('stale and hidden tasks have stable messages', () => {

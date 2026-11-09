@@ -2,6 +2,7 @@ import type { DriverAuth } from './development-auth';
 import {
   actionErrorCode,
   createActionPlan,
+  createEvidenceActionPlan,
   ORDER_READ_FAILED,
   sendWithNetworkRetry,
   TASK_ACTION_FAILED,
@@ -36,6 +37,7 @@ export interface DriverOrderItem {
   id: string;
   name: string;
   quantity: number;
+  packageIds: string[];
 }
 
 export interface DriverOrderDetail {
@@ -50,9 +52,44 @@ export interface AssignmentDetail {
   etag: string;
 }
 
+export interface DriverCustodyTransfer {
+  id: string;
+  version: number;
+  status: 'partially_signed';
+  items: { itemId: string; packageIds: string[] }[];
+  initiatedAt: string;
+}
+
+export interface DepartureReadiness {
+  ready: boolean;
+  reasons: string[];
+}
+
 interface AssignmentPage {
   items: DriverAssignment[];
   nextCursor: string | null;
+}
+
+export interface DriverArrivedEvent {
+  eventId: string;
+  sequence: number;
+  assignmentId: string;
+  assignmentVersion: number;
+  planVersion: number;
+  observedAt: string;
+  type: 'ARRIVED';
+  payload: {
+    point: { lat: number; lng: number };
+    evidenceFileIds: string[];
+  };
+}
+
+export interface DriverSyncResult {
+  eventId: string;
+  result: 'APPLIED' | 'DUPLICATE' | 'REJECTED' | 'NEEDS_REVIEW';
+  resourceId: string | null;
+  resourceVersion: number | null;
+  errorCode: string | null;
 }
 
 export class DriverApiError extends Error {
@@ -76,6 +113,21 @@ function serverMessage(value: unknown): string | null {
     typeof value.error.message === 'string'
   ) {
     return value.error.message;
+  }
+  return null;
+}
+
+function serverCode(value: unknown): string | null {
+  if (
+    value &&
+    typeof value === 'object' &&
+    'error' in value &&
+    value.error &&
+    typeof value.error === 'object' &&
+    'code' in value.error &&
+    typeof value.error.code === 'string'
+  ) {
+    return value.error.code;
   }
   return null;
 }
@@ -135,6 +187,106 @@ export async function getDriverOrder(
   return value as DriverOrderDetail;
 }
 
+export async function listCustodyTransfers(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  assignmentId: string,
+): Promise<DriverCustodyTransfer[]> {
+  const response = await fetch(
+    `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(assignmentId)}/custody-transfers`,
+    { headers: readHeaders(auth, language) },
+  );
+  const value = await body(response);
+  if (!response.ok) {
+    throw new DriverApiError(response.status, actionErrorCode(response.status, 'CUSTODY_READ_FAILED'), serverMessage(value));
+  }
+  return (value as { items: DriverCustodyTransfer[] }).items;
+}
+
+export async function getDepartureReadiness(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  assignmentId: string,
+): Promise<DepartureReadiness> {
+  const response = await fetch(
+    `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(assignmentId)}/departure-readiness`,
+    { headers: readHeaders(auth, language) },
+  );
+  const value = await body(response);
+  if (!response.ok) {
+    throw new DriverApiError(response.status, actionErrorCode(response.status, 'DEPARTURE_READ_FAILED'), serverMessage(value));
+  }
+  return value as DepartureReadiness;
+}
+
+async function postEvidenceAction(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  path: string,
+  resource: { version: number },
+  etag: string,
+  reason: string,
+  evidenceFileId: string,
+): Promise<unknown> {
+  const plan = createEvidenceActionPlan({ resource, etag, reason, evidenceFileId });
+  const response = await sendWithNetworkRetry(plan, (attempt: {
+    body: unknown;
+    idempotencyKey: string;
+    ifMatch: string;
+  }) => fetch(`${LOCAL_DEVELOPMENT_ORIGIN}${path}`, {
+    method: 'POST',
+    headers: {
+      ...auth.writeHeaders(),
+      'Accept-Language': language,
+      'Content-Type': 'application/json',
+      'Idempotency-Key': attempt.idempotencyKey,
+      'If-Match': attempt.ifMatch,
+    },
+    body: JSON.stringify(attempt.body),
+  }));
+  const value = await body(response);
+  if (!response.ok) {
+    throw new DriverApiError(response.status, serverCode(value) ?? actionErrorCode(response.status), serverMessage(value));
+  }
+  return value;
+}
+
+export async function confirmCustodyTransfer(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  transfer: DriverCustodyTransfer,
+  reason: string,
+  evidenceFileId: string,
+): Promise<void> {
+  await postEvidenceAction(
+    auth,
+    language,
+    `/api/driver/v1/custody-transfers/${encodeURIComponent(transfer.id)}/actions/confirm`,
+    transfer,
+    `"${transfer.version}"`,
+    reason,
+    evidenceFileId,
+  );
+}
+
+export async function departAssignment(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  detail: AssignmentDetail,
+  reason: string,
+  evidenceFileId: string,
+): Promise<DriverAssignment> {
+  return await postEvidenceAction(
+    auth,
+    language,
+    `/api/driver/v1/assignments/${encodeURIComponent(detail.assignment.id)}/actions/depart`,
+    detail.assignment,
+    detail.etag,
+    reason,
+    evidenceFileId,
+  ) as DriverAssignment;
+}
+
 export async function actOnAssignment(
   auth: DriverAuth,
   language: DriverLanguage,
@@ -170,4 +322,31 @@ export async function actOnAssignment(
     throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_ACTION_FAILED), serverMessage(value));
   }
   return value as DriverAssignment;
+}
+
+export async function syncDriverEvent(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  deviceId: string,
+  event: DriverArrivedEvent,
+): Promise<DriverSyncResult> {
+  const response = await fetch(`${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/sync/events`, {
+    method: 'POST',
+    headers: {
+      ...auth.writeHeaders(),
+      'Accept-Language': language,
+      'Content-Type': 'application/json',
+      'Idempotency-Key': event.eventId,
+    },
+    body: JSON.stringify({ deviceId, events: [event] }),
+  });
+  const value = await body(response);
+  if (!response.ok) {
+    throw new DriverApiError(response.status, 'SYNC_FAILED', serverMessage(value));
+  }
+  const result = (value as { results?: DriverSyncResult[] }).results?.[0];
+  if (!result || result.eventId !== event.eventId) {
+    throw new DriverApiError(502, 'SYNC_RESULT_INVALID', null);
+  }
+  return result;
 }
