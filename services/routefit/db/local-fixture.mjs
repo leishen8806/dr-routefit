@@ -27,7 +27,7 @@ export async function localFixture(adminUrl){
   await admin.end();
  }
  try{
-  await admin.query(`CREATE DATABASE "${database}"`);created=true;url.pathname='/'+database;
+  await admin.query(`CREATE DATABASE "${database}"`);created=true;url.pathname='/'+database;const fixtureUrl=url.href;
   await ensureApiRole(admin);owner=new pg.Pool({connectionString:url.href,max:2});await migrate(owner);
   await admin.query(`CREATE ROLE "${role}" LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD '${password}'`);roleCreated=true;
   await owner.query(`GRANT routefit_api TO "${role}"`);
@@ -48,6 +48,6 @@ export async function localFixture(adminUrl){
   await owner.query("INSERT INTO mobile.shift(id,company_id,device_id,driver_id,starts_at,ends_at,state) VALUES($1,$2,$3,$4,clock_timestamp()-interval '12 hours',clock_timestamp()+interval '12 hours','ACTIVE')",[shiftId,companyId,deviceId,principalId]);
   driver={companyId,principalId,deviceId,shiftId};
   url.username=role;url.password=password;
-  return {database,role,owner,admin,principals,customers,driver,runtimeUrl:url.href,cleanup};
+  return {database,role,owner,admin,principals,customers,driver,fixtureUrl,runtimeUrl:url.href,cleanup};
  }catch(error){await cleanup();throw error;}
 }

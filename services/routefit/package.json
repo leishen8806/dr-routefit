@@ -13,6 +13,7 @@
     "smoke": "node scripts/smoke.mjs",
     "smoke:orders": "node scripts/orders-smoke.mjs",
     "smoke:policy": "node --env-file=.local/dev.env scripts/policy-smoke.mjs",
+    "scenario:driver": "node --env-file=.local/dev.env scripts/driver-scenario.mjs",
     "session:link": "node --env-file=.local/dev.env scripts/browser-session.mjs",
     "migrate": "node db/migrate.mjs",
     "test": "node --test tests/*.test.mjs",

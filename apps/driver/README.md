@@ -59,3 +59,13 @@ npm run build:check
 - 交接签认、出发：NOT_RUN；当前司机读取接口不返回待交接记录 ID、版本或“全部件已保管”状态，无法在不修改后端／`openapi.json` 的前提下安全调用确认或显示出发按钮。
 - Android 模拟器完整履约与真实补传：NOT_RUN；开发夹具没有受控设备和有效当班数据，且受上述待交接读取缺口阻塞。未修改开发夹具。
 - iOS、真机：NOT_RUN；Windows 无 iOS Simulator，本卡也未申请真机权限或签名。
+
+## 本机演示场景
+
+在服务端完成本机 bootstrap 并启动开发服务后，可从 `services/routefit` 运行 `npm run scenario:driver -- --stage <offered|custody-pending|ready-to-depart>`。脚本输出的业务 ID 可用于核对列表和详情；开发司机会话材料只保存在服务端 `.local/driver-scenario.json`，输入 App 时不得打印、截图或提交。
+
+- `offered`：验证列表、详情与接单。
+- `custody-pending`：验证待签交接、签认、出发就绪与出发。
+- `ready-to-depart`：验证签认完成后的出发就绪投影。
+
+Android 模拟器继续使用 `adb reverse tcp:4180 tcp:4180`。脚本拒绝远端服务或数据库；它只适用于本机合成开发数据。
