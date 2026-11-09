@@ -10,13 +10,14 @@ import {
   actionErrorCode,
   createActionPlan,
   createEvidenceActionPlan,
+  createIdempotencyKey,
   ORDER_READ_FAILED,
-  sendWithNetworkRetry,
   TASK_ACTION_FAILED,
   TASK_READ_FAILED,
 } from './task-actions.mjs';
 
 const LOCAL_DEVELOPMENT_ORIGIN = 'http://127.0.0.1:4180';
+const REQUEST_TIMEOUT_MS = 15_000;
 
 export type DriverLanguage = 'zh-Hans' | 'en' | 'km';
 export type DriverAction = 'accept' | 'reject';
@@ -31,7 +32,6 @@ export interface DriverAssignment {
   expiresAt: string;
   planVersion: number;
 }
-
 export interface DriverLocation {
   address: string;
   contactName: string;
@@ -48,7 +48,7 @@ export interface DriverOrderItem {
 }
 
 export interface DriverOrderDetail {
-  order: { id: string; orderNo: string; state: string; serviceLevel: string };
+  order: { id: string; orderNo: string; state: string; serviceLevel: string; version: number; fulfillmentStage: string };
   pickup: DriverLocation;
   delivery: DriverLocation;
   items: DriverOrderItem[];
@@ -70,6 +70,37 @@ export interface DriverCustodyTransfer {
 export interface DepartureReadiness {
   ready: boolean;
   reasons: string[];
+}
+
+export interface RecipientAuthorization {
+  id: string;
+  orderId: string;
+  orderVersion: number;
+  expiresAt: string;
+  state: string;
+}
+
+export interface UploadTicket {
+  id: string;
+  version: number;
+  uploadUrl: string;
+  method: 'PUT';
+  expiresAt: string;
+}
+
+export interface EvidenceFile {
+  id: string;
+  state: string;
+  version: number;
+}
+
+export interface DeliveryRequest {
+  deliveredPackageIds: string[];
+  remainingPackageIds: string[];
+  recipientAuthorizationId: string;
+  observedAt: string;
+  evidenceFileIds: string[];
+  reason?: string;
 }
 
 interface AssignmentPage {
@@ -101,6 +132,24 @@ export interface DriverSyncResult {
 
 export class DriverApiError extends ApiError {}
 
+export async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+  timeoutMs = REQUEST_TIMEOUT_MS,
+  fetcher: typeof fetch = fetch,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetcher(input, { ...init, signal: controller.signal });
+  } catch (cause) {
+    if (controller.signal.aborted) throw new DriverApiError(503, 'REQUEST_TIMEOUT', null);
+    throw cause;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function readHeaders(auth: DriverAuth, language: DriverLanguage): Record<string, string> {
   return localizedHeaders(auth.readHeaders(), language);
 }
@@ -109,7 +158,7 @@ export async function listAssignments(
   auth: DriverAuth,
   language: DriverLanguage,
 ): Promise<AssignmentPage> {
-  const response = await fetch(`${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments`, {
+  const response = await fetchWithTimeout(`${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments`, {
     headers: readHeaders(auth, language),
   });
   const value = await responseBody(response);
@@ -124,7 +173,7 @@ export async function getAssignment(
   language: DriverLanguage,
   assignmentId: string,
 ): Promise<AssignmentDetail> {
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(assignmentId)}`,
     { headers: readHeaders(auth, language) },
   );
@@ -141,7 +190,7 @@ export async function getDriverOrder(
   language: DriverLanguage,
   orderId: string,
 ): Promise<DriverOrderDetail> {
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/orders/${encodeURIComponent(orderId)}`,
     { headers: readHeaders(auth, language) },
   );
@@ -157,7 +206,7 @@ export async function listCustodyTransfers(
   language: DriverLanguage,
   assignmentId: string,
 ): Promise<DriverCustodyTransfer[]> {
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(assignmentId)}/custody-transfers`,
     { headers: readHeaders(auth, language) },
   );
@@ -173,7 +222,7 @@ export async function getDepartureReadiness(
   language: DriverLanguage,
   assignmentId: string,
 ): Promise<DepartureReadiness> {
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(assignmentId)}/departure-readiness`,
     { headers: readHeaders(auth, language) },
   );
@@ -194,21 +243,17 @@ async function postEvidenceAction(
   evidenceFileId: string,
 ): Promise<unknown> {
   const plan = createEvidenceActionPlan({ resource, etag, reason, evidenceFileId });
-  const response = await sendWithNetworkRetry(plan, (attempt: {
-    body: unknown;
-    idempotencyKey: string;
-    ifMatch: string;
-  }) => fetch(`${LOCAL_DEVELOPMENT_ORIGIN}${path}`, {
+  const response = await fetchWithTimeout(`${LOCAL_DEVELOPMENT_ORIGIN}${path}`, {
     method: 'POST',
     headers: {
       ...auth.writeHeaders(),
       'Accept-Language': language,
       'Content-Type': 'application/json',
-      'Idempotency-Key': attempt.idempotencyKey,
-      'If-Match': attempt.ifMatch,
+      'Idempotency-Key': plan.idempotencyKey,
+      'If-Match': plan.ifMatch,
     },
-    body: JSON.stringify(attempt.body),
-  }));
+    body: JSON.stringify(plan.body),
+  });
   const value = await responseBody(response);
   if (!response.ok) {
     throw new DriverApiError(response.status, serverErrorCode(value) ?? actionErrorCode(response.status), serverErrorMessage(value));
@@ -260,27 +305,19 @@ export async function actOnAssignment(
   reason = '',
 ): Promise<DriverAssignment> {
   const plan = createActionPlan({ action, assignment: detail.assignment, etag: detail.etag, reason });
-  const response = await sendWithNetworkRetry(plan, (attempt: {
-    action: DriverAction;
-    assignmentId: string;
-    body: unknown;
-    idempotencyKey: string;
-    ifMatch: string;
-  }) =>
-    fetch(
-      `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(attempt.assignmentId)}/actions/${attempt.action}`,
-      {
-        method: 'POST',
-        headers: {
-          ...auth.writeHeaders(),
-          'Accept-Language': language,
-          'Content-Type': 'application/json',
-          'Idempotency-Key': attempt.idempotencyKey,
-          'If-Match': attempt.ifMatch,
-        },
-        body: JSON.stringify(attempt.body),
+  const response = await fetchWithTimeout(
+    `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(plan.assignmentId)}/actions/${plan.action}`,
+    {
+      method: 'POST',
+      headers: {
+        ...auth.writeHeaders(),
+        'Accept-Language': language,
+        'Content-Type': 'application/json',
+        'Idempotency-Key': plan.idempotencyKey,
+        'If-Match': plan.ifMatch,
       },
-    ),
+      body: JSON.stringify(plan.body),
+    },
   );
   const value = await responseBody(response);
   if (!response.ok) {
@@ -295,7 +332,7 @@ export async function syncDriverEvent(
   deviceId: string,
   event: DriverArrivedEvent,
 ): Promise<DriverSyncResult> {
-  const response = await fetch(`${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/sync/events`, {
+  const response = await fetchWithTimeout(`${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/sync/events`, {
     method: 'POST',
     headers: {
       ...auth.writeHeaders(),
@@ -314,4 +351,97 @@ export async function syncDriverEvent(
     throw new DriverApiError(502, 'SYNC_RESULT_INVALID', null);
   }
   return result;
+}
+
+export async function getRecipientAuthorization(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  orderId: string,
+): Promise<RecipientAuthorization | null> {
+  const response = await fetchWithTimeout(
+    `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/orders/${encodeURIComponent(orderId)}/recipient-authorization`,
+    { headers: readHeaders(auth, language) },
+  );
+  const value = await responseBody(response);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new DriverApiError(response.status, serverErrorCode(value) ?? 'RECIPIENT_AUTHORIZATION_READ_FAILED', serverErrorMessage(value));
+  return value as RecipientAuthorization;
+}
+
+export async function createDriverUpload(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  request: { purpose: 'HANDOVER' | 'DELIVERY'; resourceId: string; mimeType: 'image/jpeg' | 'image/png'; sizeBytes: number; sha256: string },
+): Promise<UploadTicket> {
+  const response = await fetchWithTimeout(`${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/uploads`, {
+    method: 'POST',
+    headers: {
+      ...auth.writeHeaders(),
+      'Accept-Language': language,
+      'Content-Type': 'application/json',
+      'Idempotency-Key': createIdempotencyKey(),
+    },
+    body: JSON.stringify({ ...request, resourceType: 'ORDER' }),
+  });
+  const value = await responseBody(response);
+  if (!response.ok) throw new DriverApiError(response.status, serverErrorCode(value) ?? 'EVIDENCE_UPLOAD_CREATE_FAILED', serverErrorMessage(value));
+  return value as UploadTicket;
+}
+
+export async function uploadDriverEvidence(ticket: UploadTicket, body: Blob): Promise<void> {
+  const response = await fetchWithTimeout(ticket.uploadUrl, {
+    method: ticket.method,
+    headers: { 'Content-Type': body.type },
+    body,
+  });
+  if (!response.ok) throw new DriverApiError(response.status, 'EVIDENCE_UPLOAD_FAILED', null);
+}
+
+export async function completeDriverUpload(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  ticket: UploadTicket,
+): Promise<EvidenceFile> {
+  const response = await fetchWithTimeout(
+    `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/uploads/${encodeURIComponent(ticket.id)}/actions/complete`,
+    {
+      method: 'POST',
+      headers: {
+        ...auth.writeHeaders(),
+        'Accept-Language': language,
+        'Content-Type': 'application/json',
+        'Idempotency-Key': createIdempotencyKey(),
+        'If-Match': `"${ticket.version + 1}"`,
+      },
+      body: '{}',
+    },
+  );
+  const value = await responseBody(response);
+  if (!response.ok) throw new DriverApiError(response.status, serverErrorCode(value) ?? 'EVIDENCE_UPLOAD_COMPLETE_FAILED', serverErrorMessage(value));
+  return value as EvidenceFile;
+}
+
+export async function recordDriverDelivery(
+  auth: DriverAuth,
+  language: DriverLanguage,
+  order: DriverOrderDetail['order'],
+  request: DeliveryRequest,
+): Promise<DriverOrderDetail['order']> {
+  const response = await fetchWithTimeout(
+    `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/orders/${encodeURIComponent(order.id)}/delivery-records`,
+    {
+      method: 'POST',
+      headers: {
+        ...auth.writeHeaders(),
+        'Accept-Language': language,
+        'Content-Type': 'application/json',
+        'Idempotency-Key': createIdempotencyKey(),
+        'If-Match': `"${order.version}"`,
+      },
+      body: JSON.stringify(request),
+    },
+  );
+  const value = await responseBody(response);
+  if (!response.ok) throw new DriverApiError(response.status, serverErrorCode(value) ?? 'DELIVERY_RECORD_FAILED', serverErrorMessage(value));
+  return value as DriverOrderDetail['order'];
 }

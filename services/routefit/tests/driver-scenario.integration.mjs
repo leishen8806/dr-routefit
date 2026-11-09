@@ -17,7 +17,7 @@ import {createDriverScenario} from '../scripts/driver-scenario.mjs';
 
 if(!process.env.ROUTEFIT_TEST_DATABASE_URL)throw Error('ROUTEFIT_TEST_DATABASE_URL must point to a local disposable PostgreSQL cluster administrator');
 
-test('driver scenario creates all three real development stages',async()=>{
+test('driver scenario creates all four real development stages',async()=>{
  const fixture=await localFixture(process.env.ROUTEFIT_TEST_DATABASE_URL),dir=await mkdtemp(join(tmpdir(),'routefit-driver-scenario-')),sessionsFile=join(dir,'sessions.json');
  let pool,server;
  const previous={NODE_ENV:process.env.NODE_ENV,ROUTEFIT_AUTH_MODE:process.env.ROUTEFIT_AUTH_MODE};
@@ -30,14 +30,15 @@ test('driver scenario creates all three real development stages',async()=>{
    fixture.principals.push({companyId,principalId});
   }
   const sessions=fixture.principals.map((principal,index)=>{const token=randomBytes(32).toString('hex'),csrf=randomBytes(32).toString('hex');return {...principal,tokenHash:digest(token),csrfHash:digest(csrf),permissions:permissionSets[index],expiresAt:new Date(Date.now()+3600000).toISOString()};});
-  {const token=randomBytes(32).toString('hex'),csrf=randomBytes(32).toString('hex');sessions.push({...fixture.driver,tokenHash:digest(token),csrfHash:digest(csrf),permissions:['driver:tasks:read','driver:tasks:accept','driver:tasks:reject','driver:tasks:execute','driver:locations','driver:delivery:record','driver:custody:confirm','driver:sync'],expiresAt:new Date(Date.now()+3600000).toISOString()});}
+  {const token=randomBytes(32).toString('hex'),csrf=randomBytes(32).toString('hex');sessions.push({...fixture.driver,tokenHash:digest(token),csrfHash:digest(csrf),permissions:['driver:tasks:read','driver:tasks:accept','driver:tasks:reject','driver:tasks:execute','driver:locations','driver:delivery:record','driver:custody:confirm','driver:evidence:create','driver:evidence:read','driver:sync'],expiresAt:new Date(Date.now()+3600000).toISOString()});}
   await writeFile(sessionsFile,JSON.stringify(sessions),{mode:0o600});
   pool=new pg.Pool({connectionString:fixture.runtimeUrl,max:5});await assertRuntimeRole(pool);
   let auth,access;server=apiServer({pool,authenticate:Object.assign(request=>auth(request),{revoke:principal=>auth.revoke(principal)}),localAccess:(...args)=>access(...args),evidenceDirectory:dir});server.listen(0,'127.0.0.1');await once(server,'listening');const origin=`http://127.0.0.1:${server.address().port}`;auth=developmentAuth(sessions,origin);access=localBrowser({origin,root:fileURLToPath(new URL('../../../',import.meta.url)),sessionsFile,authenticate:auth,pool});
   process.env.NODE_ENV='development';process.env.ROUTEFIT_AUTH_MODE='development';
-  for(const expected of [{stage:'offered',assignmentState:'offered',pendingCustody:0,ready:false},{stage:'custody-pending',assignmentState:'accepted',pendingCustody:1,ready:false},{stage:'ready-to-depart',assignmentState:'accepted',pendingCustody:0,ready:true}]){
+  for(const expected of [{stage:'offered',assignmentState:'offered',pendingCustody:0,ready:false},{stage:'custody-pending',assignmentState:'accepted',pendingCustody:1,ready:false},{stage:'ready-to-depart',assignmentState:'accepted',pendingCustody:0,ready:true},{stage:'delivery-ready',assignmentState:'accepted',pendingCustody:0,ready:false}]){
    const scenarioFile=join(dir,expected.stage+'.json'),actual=await createDriverScenario({stage:expected.stage,origin,databaseUrl:fixture.runtimeUrl,fixtureUrl:fixture.fixtureUrl,sessionsFile,scenarioFile});
    assert.deepEqual({stage:actual.stage,assignmentState:actual.assignmentState,pendingCustody:actual.pendingCustody,ready:actual.ready},expected);
+   if(expected.stage==='delivery-ready')assert.match(actual.recipientAuthorizationId,/^[0-9a-f-]{36}$/);
    if(process.platform!=='win32')assert.equal((await stat(scenarioFile)).mode&0o777,0o600);const secret=JSON.parse(await readFile(scenarioFile,'utf8'));assert.ok(secret.token&&secret.csrfToken&&secret.deviceId&&secret.shiftId);
   }
  }finally{

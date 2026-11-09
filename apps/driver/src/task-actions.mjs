@@ -27,15 +27,6 @@ export function createEvidenceActionPlan({ resource, etag, reason, evidenceFileI
   };
 }
 
-export async function sendWithNetworkRetry(plan, send) {
-  try {
-    return await send(plan);
-  } catch (error) {
-    if (!(error instanceof TypeError)) throw error;
-    return send(plan);
-  }
-}
-
 export function actionErrorCode(status, fallback = TASK_ACTION_FAILED) {
   if (status === 404) return TASK_NOT_FOUND;
   if (status === 409 || status === 412) return TASK_CHANGED;
