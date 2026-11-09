@@ -1,3 +1,4 @@
+import { languageLabels, message, type MessageCatalog } from '@routefit/shared';
 import type { DriverLanguage } from './driver-api';
 import {
   ORDER_READ_FAILED,
@@ -51,16 +52,16 @@ const en: typeof zh = {
   taskNotFound: 'Assignment is unavailable or no longer belongs to you', taskChanged: 'Assignment has changed', taskReadFailed: 'Unable to load tasks', orderReadFailed: 'Unable to load order', taskActionFailed: 'Unable to update assignment', custodyReadFailed: 'Unable to load custody transfers', departureReadFailed: 'Unable to load departure readiness', navigationUnavailable: 'Unable to open the system map', kmPending: 'Khmer copy is pending owner approval',
 };
 
-const messages = { 'zh-Hans': zh, en, km: en } satisfies Record<DriverLanguage, typeof zh>;
+const messages = { 'zh-Hans': zh, en, km: en } satisfies MessageCatalog<DriverLanguage, typeof zh>;
 export const languageOptions: { code: DriverLanguage; label: string }[] = [
-  { code: 'zh-Hans', label: '中文' },
-  { code: 'en', label: 'English' },
-  { code: 'km', label: 'ខ្មែរ' },
+  { code: 'zh-Hans', label: languageLabels['zh-Hans'] },
+  { code: 'en', label: languageLabels.en },
+  { code: 'km', label: languageLabels.km },
 ];
 export type MessageKey = keyof typeof zh;
 
 export function text(language: DriverLanguage, key: MessageKey): string {
-  return messages[language][key];
+  return message(messages, language, key);
 }
 
 const errorKeys: Record<string, MessageKey> = {

@@ -1,3 +1,10 @@
+import {
+  ApiError,
+  localizedHeaders,
+  responseBody,
+  serverErrorCode,
+  serverErrorMessage,
+} from '@routefit/shared';
 import type { DriverAuth } from './development-auth';
 import {
   actionErrorCode,
@@ -92,52 +99,10 @@ export interface DriverSyncResult {
   errorCode: string | null;
 }
 
-export class DriverApiError extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly code: string,
-    public readonly serverMessage: string | null,
-  ) {
-    super(code);
-  }
-}
-
-function serverMessage(value: unknown): string | null {
-  if (
-    value &&
-    typeof value === 'object' &&
-    'error' in value &&
-    value.error &&
-    typeof value.error === 'object' &&
-    'message' in value.error &&
-    typeof value.error.message === 'string'
-  ) {
-    return value.error.message;
-  }
-  return null;
-}
-
-function serverCode(value: unknown): string | null {
-  if (
-    value &&
-    typeof value === 'object' &&
-    'error' in value &&
-    value.error &&
-    typeof value.error === 'object' &&
-    'code' in value.error &&
-    typeof value.error.code === 'string'
-  ) {
-    return value.error.code;
-  }
-  return null;
-}
-
-async function body(response: Response): Promise<unknown> {
-  return response.json().catch(() => null);
-}
+export class DriverApiError extends ApiError {}
 
 function readHeaders(auth: DriverAuth, language: DriverLanguage): Record<string, string> {
-  return { ...auth.readHeaders(), 'Accept-Language': language };
+  return localizedHeaders(auth.readHeaders(), language);
 }
 
 export async function listAssignments(
@@ -147,9 +112,9 @@ export async function listAssignments(
   const response = await fetch(`${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments`, {
     headers: readHeaders(auth, language),
   });
-  const value = await body(response);
+  const value = await responseBody(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_READ_FAILED), serverMessage(value));
+    throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_READ_FAILED), serverErrorMessage(value));
   }
   return value as AssignmentPage;
 }
@@ -163,9 +128,9 @@ export async function getAssignment(
     `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(assignmentId)}`,
     { headers: readHeaders(auth, language) },
   );
-  const value = await body(response);
+  const value = await responseBody(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_READ_FAILED), serverMessage(value));
+    throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_READ_FAILED), serverErrorMessage(value));
   }
   const assignment = value as DriverAssignment;
   return { assignment, etag: response.headers.get('etag') ?? `"${assignment.version}"` };
@@ -180,9 +145,9 @@ export async function getDriverOrder(
     `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/orders/${encodeURIComponent(orderId)}`,
     { headers: readHeaders(auth, language) },
   );
-  const value = await body(response);
+  const value = await responseBody(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, actionErrorCode(response.status, ORDER_READ_FAILED), serverMessage(value));
+    throw new DriverApiError(response.status, actionErrorCode(response.status, ORDER_READ_FAILED), serverErrorMessage(value));
   }
   return value as DriverOrderDetail;
 }
@@ -196,9 +161,9 @@ export async function listCustodyTransfers(
     `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(assignmentId)}/custody-transfers`,
     { headers: readHeaders(auth, language) },
   );
-  const value = await body(response);
+  const value = await responseBody(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, actionErrorCode(response.status, 'CUSTODY_READ_FAILED'), serverMessage(value));
+    throw new DriverApiError(response.status, actionErrorCode(response.status, 'CUSTODY_READ_FAILED'), serverErrorMessage(value));
   }
   return (value as { items: DriverCustodyTransfer[] }).items;
 }
@@ -212,9 +177,9 @@ export async function getDepartureReadiness(
     `${LOCAL_DEVELOPMENT_ORIGIN}/api/driver/v1/assignments/${encodeURIComponent(assignmentId)}/departure-readiness`,
     { headers: readHeaders(auth, language) },
   );
-  const value = await body(response);
+  const value = await responseBody(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, actionErrorCode(response.status, 'DEPARTURE_READ_FAILED'), serverMessage(value));
+    throw new DriverApiError(response.status, actionErrorCode(response.status, 'DEPARTURE_READ_FAILED'), serverErrorMessage(value));
   }
   return value as DepartureReadiness;
 }
@@ -244,9 +209,9 @@ async function postEvidenceAction(
     },
     body: JSON.stringify(attempt.body),
   }));
-  const value = await body(response);
+  const value = await responseBody(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, serverCode(value) ?? actionErrorCode(response.status), serverMessage(value));
+    throw new DriverApiError(response.status, serverErrorCode(value) ?? actionErrorCode(response.status), serverErrorMessage(value));
   }
   return value;
 }
@@ -317,9 +282,9 @@ export async function actOnAssignment(
       },
     ),
   );
-  const value = await body(response);
+  const value = await responseBody(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_ACTION_FAILED), serverMessage(value));
+    throw new DriverApiError(response.status, actionErrorCode(response.status, TASK_ACTION_FAILED), serverErrorMessage(value));
   }
   return value as DriverAssignment;
 }
@@ -340,9 +305,9 @@ export async function syncDriverEvent(
     },
     body: JSON.stringify({ deviceId, events: [event] }),
   });
-  const value = await body(response);
+  const value = await responseBody(response);
   if (!response.ok) {
-    throw new DriverApiError(response.status, 'SYNC_FAILED', serverMessage(value));
+    throw new DriverApiError(response.status, 'SYNC_FAILED', serverErrorMessage(value));
   }
   const result = (value as { results?: DriverSyncResult[] }).results?.[0];
   if (!result || result.eventId !== event.eventId) {
