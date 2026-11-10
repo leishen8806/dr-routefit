@@ -97,6 +97,40 @@ try {
   if (await fullpage.locator('[data-screen]').count() !== 6) throw new Error('preview: expected six screens');
   if (await fullpage.locator('.fullpage-dots a').count() !== 6) throw new Error('preview: expected six accessible section links');
   if (await fullpage.locator('.panel-scene img').count() !== 0) throw new Error('preview: code-drawn scenes unexpectedly use raster images');
+  const buttonContrast = await fullpage.locator('[data-contrast-button]').evaluateAll((nodes) => {
+    const luminance = (color) => {
+      const channels = color.match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? [];
+      if (channels.length !== 3) return null;
+      return channels.map((value) => value / 255).map((value) => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4)
+        .reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0);
+    };
+    return nodes.map((node) => {
+      const style = getComputedStyle(node);
+      const foreground = luminance(style.color);
+      const background = luminance(style.backgroundColor);
+      const ratio = foreground === null || background === null ? 0 : (Math.max(foreground, background) + .05) / (Math.min(foreground, background) + .05);
+      return { label: node.textContent?.trim(), ratio };
+    });
+  });
+  const lowContrastButton = buttonContrast.find(({ ratio }) => ratio < 4.5);
+  if (lowContrastButton) throw new Error(`preview: button contrast below 4.5:1 (${lowContrastButton.label}, ${lowContrastButton.ratio.toFixed(2)})`);
+  const topbarLayout = await fullpage.evaluate(() => {
+    const topbar = document.querySelector('.fullpage-topbar')?.getBoundingClientRect();
+    const shell = document.querySelector('#screen-1 .panel-shell')?.getBoundingClientRect();
+    return { height: topbar?.height ?? Infinity, overlaps: (topbar?.bottom ?? Infinity) > (shell?.top ?? -Infinity) };
+  });
+  if (topbarLayout.height > 64 || topbarLayout.overlaps) throw new Error('preview: fixed topbar exceeds 64px or covers first-screen content');
+  const progressGap = await fullpage.evaluate(() => {
+    const dots = document.querySelector('.fullpage-dots')?.getBoundingClientRect();
+    if (!dots) return -Infinity;
+    return Math.min(...[...document.querySelectorAll('.panel-scene')].map((scene) => {
+      const rect = scene.getBoundingClientRect();
+      const restingRight = rect.right - new DOMMatrixReadOnly(getComputedStyle(scene).transform).m41;
+      return dots.left - restingRight;
+    }));
+  });
+  if (progressGap < 24) throw new Error(`preview: progress dots are only ${progressGap.toFixed(1)}px from a scene`);
+  if (await fullpage.locator('#screen-1 [data-motion="truck"] .vehicle-wheel').count() !== 2) throw new Error('preview: first-screen truck does not use two circular wheels');
   const desktopSnap = await fullpage.locator('html').evaluate((node) => getComputedStyle(node).scrollSnapType);
   if (!desktopSnap.includes('mandatory')) throw new Error('preview: desktop scroll snap is not mandatory');
   await fullpage.locator('.fullpage-dots a').last().click();
@@ -108,6 +142,12 @@ try {
   const mobileSnap = await previewMobile.locator('html').evaluate((node) => getComputedStyle(node).scrollSnapType);
   if (mobileSnap !== 'none') throw new Error(`preview: mobile scroll snap should be disabled, got ${mobileSnap}`);
   if (await previewMobile.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error('preview: horizontal overflow at 390px');
+  const mobileTitle = await previewMobile.locator('#screen-1-title').evaluate((title) => ({
+    lines: title.querySelectorAll('.title-line').length,
+    nowrap: getComputedStyle(title.querySelector('.nowrap')).whiteSpace,
+    overflows: [...title.querySelectorAll('.title-line')].some((line) => line.scrollWidth > line.clientWidth + 1)
+  }));
+  if (mobileTitle.lines !== 2 || mobileTitle.nowrap !== 'nowrap' || mobileTitle.overflows) throw new Error('preview: first-screen mobile title does not preserve the approved two-line break');
 
   const reduced = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   const reducedPage = await reduced.newPage();

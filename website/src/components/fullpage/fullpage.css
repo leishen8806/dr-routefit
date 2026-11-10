@@ -10,6 +10,7 @@
   --fp-fast: 460ms;
   --fp-medium: 720ms;
   --fp-slow: 980ms;
+  --fp-header-height: 60px;
   font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif;
   color: var(--fp-ink);
   background: #eef3f2;
@@ -36,19 +37,64 @@
 }
 .fullpage-skip:focus { transform: translateY(0); }
 
+.fullpage-topbar {
+  position: fixed;
+  z-index: 30;
+  inset: 0 0 auto;
+  height: var(--fp-header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid rgb(11 37 69 / .12);
+  background: rgb(247 250 249 / .94);
+  backdrop-filter: blur(14px);
+}
+.topbar-mark {
+  width: 44px;
+  height: 44px;
+  display: block;
+  overflow: hidden;
+}
+.topbar-mark img { width: auto; max-width: none; height: 44px; }
+.topbar-actions { display: flex; align-items: center; gap: 6px; }
+.topbar-language,
+.topbar-contact {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: .88rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.topbar-language {
+  min-width: 42px;
+  padding: 0 10px;
+  color: var(--fp-navy);
+  background: #eef3f2;
+}
+.topbar-language.is-active,
+.fullpage-body .topbar-contact {
+  color: var(--fp-white);
+  background: var(--fp-navy);
+}
+.topbar-contact { margin-left: 6px; padding: 0 16px; }
+
 .fullpage-preview { overflow: clip; }
 .fullpage-panel {
   position: relative;
   display: grid;
   min-height: 100svh;
   align-items: center;
-  padding: clamp(56px, 7vh, 92px) 0;
+  padding: calc(clamp(56px, 7vh, 92px) + var(--fp-header-height)) 0 clamp(56px, 7vh, 92px);
   overflow: hidden;
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
 .panel-shell {
-  width: min(1280px, calc(100% - 96px));
+  width: min(1280px, calc(100% - 200px));
   margin-inline: auto;
   display: grid;
   grid-template-columns: minmax(360px, .82fr) minmax(520px, 1.18fr);
@@ -78,6 +124,8 @@
   text-wrap: balance;
 }
 .panel-copy h2 { font-size: clamp(3rem, 5vw, 5.7rem); }
+.title-line { display: block; white-space: nowrap; }
+.nowrap { white-space: nowrap; }
 .panel-lead {
   max-width: 600px;
   margin: 28px 0 0;
@@ -107,7 +155,7 @@
   border-radius: 8px;
   font-weight: 650;
 }
-.fullpage-body .panel-button-secondary { color: var(--fp-navy); background: transparent; }
+.fullpage-body .panel-button-secondary { color: var(--fp-navy); background: #f4f7f5; }
 .panel-scene { position: relative; width: 100%; filter: saturate(.95); }
 .panel-scene svg { border-radius: 36px; box-shadow: 0 34px 70px rgb(11 37 69 / .16); }
 
@@ -135,7 +183,7 @@
   color: var(--fp-white);
   border: 1px solid rgb(255 255 255 / .24);
   border-radius: 10px;
-  background: rgb(255 255 255 / .06);
+  background: #203a56;
 }
 .entry-grid strong { font-size: 1rem; }
 .entry-grid span { margin-top: 6px; color: #aebfcd; font-size: .8rem; }
@@ -191,7 +239,7 @@
 
 @media (max-width: 1023px), (max-height: 699px) {
   .fullpage-html { scroll-snap-type: none; }
-  .fullpage-panel { min-height: auto; padding: 88px 0; scroll-snap-align: none; }
+  .fullpage-panel { min-height: auto; padding: calc(88px + var(--fp-header-height)) 0 88px; scroll-snap-align: none; }
   .panel-shell,
   .panel-shell-reverse,
   .panel-shell-final { width: min(920px, calc(100% - 48px)); grid-template-columns: 1fr; gap: 46px; }
@@ -205,14 +253,20 @@
 }
 
 @media (max-width: 600px) {
-  .fullpage-panel { padding: 68px 0; }
+  :root { --fp-header-height: 56px; }
+  .fullpage-topbar { padding: 0 12px; }
+  .topbar-mark { width: 40px; height: 40px; }
+  .topbar-mark img { height: 40px; }
+  .topbar-actions { gap: 3px; }
+  .topbar-language { min-width: 34px; min-height: 38px; padding: 0 7px; font-size: .78rem; }
+  .topbar-contact { min-height: 38px; margin-left: 3px; padding: 0 10px; font-size: .8rem; }
+  .fullpage-panel { padding: calc(68px + var(--fp-header-height)) 0 68px; }
   .panel-shell,
   .panel-shell-reverse,
   .panel-shell-final { width: min(100% - 32px, 520px); gap: 34px; }
   .panel-copy h1,
   .panel-copy h2,
-  .panel-copy-final h2 { font-size: clamp(2.6rem, 13vw, 4rem); letter-spacing: -.035em; }
-  .panel-copy br { display: none; }
+  .panel-copy-final h2 { font-size: clamp(2rem, 9vw, 2.4rem); letter-spacing: -.035em; }
   .panel-lead { margin-top: 22px; font-size: 1rem; }
   .panel-actions { display: grid; grid-template-columns: 1fr; margin-top: 28px; }
   .panel-button { width: 100%; }
