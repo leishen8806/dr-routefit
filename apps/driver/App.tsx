@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as Crypto from 'expo-crypto';
 import { useNetworkState } from 'expo-network';
 import { useEffect, useRef, useState } from 'react';
+import { designTokens } from '@routefit/shared';
 import {
   ActivityIndicator,
   Linking,
@@ -757,16 +758,16 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f4f6f8' },
-  content: { padding: 24 },
+  screen: { flex: 1, backgroundColor: designTokens.color.background },
+  content: { padding: designTokens.space.x6 },
   header: { gap: 6, marginBottom: 24 },
   eyebrow: { color: '#0f766e', fontSize: 12, fontWeight: '700', letterSpacing: 1.5 },
-  title: { color: '#13233a', fontSize: 32, fontWeight: '700' },
+  title: { color: designTokens.color.ink, fontSize: designTokens.type.size.title, fontWeight: '700' },
   caption: { color: '#526174', fontSize: 14, lineHeight: 20 },
   languages: { flexDirection: 'row', gap: 8, marginTop: 8 },
   language: { backgroundColor: '#e8edf3', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 },
   languageActive: { backgroundColor: '#99f6e4' },
-  login: { backgroundColor: '#ffffff', borderRadius: 16, gap: 12, marginBottom: 20, padding: 18 },
+  login: { backgroundColor: designTokens.color.surface, borderRadius: designTokens.radius.large, gap: 12, marginBottom: 20, padding: 18 },
   label: { color: '#13233a', fontSize: 14, fontWeight: '600', marginTop: 6 },
   input: { borderColor: '#c8d1dc', borderRadius: 10, borderWidth: 1, color: '#13233a', padding: 12 },
   button: { alignItems: 'center', backgroundColor: '#153a63', borderRadius: 10, padding: 14 },
@@ -780,7 +781,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: '#ffffff', borderRadius: 14, gap: 5, padding: 16 },
   cardTitle: { color: '#13233a', fontSize: 17, fontWeight: '700' },
   cardMeta: { color: '#526174', fontSize: 14 },
-  detail: { backgroundColor: '#ffffff', borderRadius: 16, gap: 8, padding: 18 },
+  detail: { backgroundColor: designTokens.color.surface, borderRadius: designTokens.radius.large, gap: 8, padding: 18 },
   sectionTitle: { color: '#13233a', fontSize: 20, fontWeight: '700', marginTop: 10 },
   actions: { gap: 10, marginTop: 12 },
   execution: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
