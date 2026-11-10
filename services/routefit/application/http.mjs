@@ -28,7 +28,6 @@ import {accessRoutes} from './access.mjs';
 import {merchantRoutes,partnerPortalRoutes} from './external-subjects.mjs';
 import {exportRoutes} from './exports.mjs';
 import {recipientRoutes} from './recipient.mjs';
-import {backend1Routes} from './backend1.mjs';
 import {authorizePrepayment,readPrepayment,writePrepayment} from '../adapters/prepayment.mjs';
 import {createQuote,getQuote} from '../adapters/quotes.mjs';
 import {readIntake,writeIntake} from '../adapters/intake.mjs';
@@ -186,8 +185,8 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evi
     }
     send(result.status,result.body,{...(result.etag?{ETag:result.etag}:{}),...(result.replayed!==undefined?{'Idempotent-Replayed':String(result.replayed)}:{})});return;
    }
-   const backend1=backend1Routes.some(r=>r.pattern.test(url.pathname)),finance=financeRoutes.some(r=>r.pattern.test(url.pathname)),exporting=exportRoutes.some(r=>r.pattern.test(url.pathname)),notifications=notificationRoutes.some(r=>r.pattern.test(url.pathname)),access=accessRoutes.some(r=>r.pattern.test(url.pathname)),merchant=merchantRoutes.some(r=>r.pattern.test(url.pathname)),partnerPortal=partnerPortalRoutes.some(r=>r.pattern.test(url.pathname)),dispatch=dispatchRoutes.some(r=>r.pattern.test(url.pathname)),custody=custodyRoutes.some(r=>r.pattern.test(url.pathname)),delivery=deliveryRoutes.some(r=>r.pattern.test(url.pathname)),returns=returnRoutes.some(r=>r.pattern.test(url.pathname)),integration=integrationRoutes.some(r=>r.pattern.test(url.pathname)),warehouse=warehouseRoutes.some(r=>r.pattern.test(url.pathname)),driver=driverRoutes.some(r=>r.pattern.test(url.pathname)),evidence=evidenceRoutes.some(r=>r.pattern.test(url.pathname)),exceptions=exceptionRoutes.some(r=>r.pattern.test(url.pathname)),partners=partnerRoutes.some(r=>r.pattern.test(url.pathname)),bookings=bookingRoutes.some(r=>r.pattern.test(url.pathname)),cases=caseRoutes.some(r=>r.pattern.test(url.pathname)),customer=customerRoutes.some(r=>r.pattern.test(url.pathname)),prepayment=prepaymentRoutes.some(r=>r.pattern.test(url.pathname)),quote=quoteRoutes.some(r=>r.pattern.test(url.pathname)),intake=intakeRoutes.some(r=>r.pattern.test(url.pathname)),policy=policyRoutes.some(r=>r.pattern.test(url.pathname)),pricing=!policy&&url.pathname.startsWith(base+'/');
-   const local=pricing?url.pathname.slice(base.length):url.pathname,matches=(backend1?backend1Routes:finance?financeRoutes:exporting?exportRoutes:notifications?notificationRoutes:access?accessRoutes:merchant?merchantRoutes:partnerPortal?partnerPortalRoutes:dispatch?dispatchRoutes:custody?custodyRoutes:delivery?deliveryRoutes:returns?returnRoutes:integration?integrationRoutes:warehouse?warehouseRoutes:driver?driverRoutes:evidence?evidenceRoutes:exceptions?exceptionRoutes:partners?partnerRoutes:bookings?bookingRoutes:cases?caseRoutes:customer?customerRoutes:prepayment?prepaymentRoutes:quote?quoteRoutes:intake?intakeRoutes:policy?policyRoutes:pricing?routes:orderRoutes).filter(r=>r.pattern.test(local));
+   const finance=financeRoutes.some(r=>r.pattern.test(url.pathname)),exporting=exportRoutes.some(r=>r.pattern.test(url.pathname)),notifications=notificationRoutes.some(r=>r.pattern.test(url.pathname)),access=accessRoutes.some(r=>r.pattern.test(url.pathname)),merchant=merchantRoutes.some(r=>r.pattern.test(url.pathname)),partnerPortal=partnerPortalRoutes.some(r=>r.pattern.test(url.pathname)),dispatch=dispatchRoutes.some(r=>r.pattern.test(url.pathname)),custody=custodyRoutes.some(r=>r.pattern.test(url.pathname)),delivery=deliveryRoutes.some(r=>r.pattern.test(url.pathname)),returns=returnRoutes.some(r=>r.pattern.test(url.pathname)),integration=integrationRoutes.some(r=>r.pattern.test(url.pathname)),warehouse=warehouseRoutes.some(r=>r.pattern.test(url.pathname)),driver=driverRoutes.some(r=>r.pattern.test(url.pathname)),evidence=evidenceRoutes.some(r=>r.pattern.test(url.pathname)),exceptions=exceptionRoutes.some(r=>r.pattern.test(url.pathname)),partners=partnerRoutes.some(r=>r.pattern.test(url.pathname)),bookings=bookingRoutes.some(r=>r.pattern.test(url.pathname)),cases=caseRoutes.some(r=>r.pattern.test(url.pathname)),customer=customerRoutes.some(r=>r.pattern.test(url.pathname)),prepayment=prepaymentRoutes.some(r=>r.pattern.test(url.pathname)),quote=quoteRoutes.some(r=>r.pattern.test(url.pathname)),intake=intakeRoutes.some(r=>r.pattern.test(url.pathname)),policy=policyRoutes.some(r=>r.pattern.test(url.pathname)),pricing=!policy&&url.pathname.startsWith(base+'/');
+   const local=pricing?url.pathname.slice(base.length):url.pathname,matches=(finance?financeRoutes:exporting?exportRoutes:notifications?notificationRoutes:access?accessRoutes:merchant?merchantRoutes:partnerPortal?partnerPortalRoutes:dispatch?dispatchRoutes:custody?custodyRoutes:delivery?deliveryRoutes:returns?returnRoutes:integration?integrationRoutes:warehouse?warehouseRoutes:driver?driverRoutes:evidence?evidenceRoutes:exceptions?exceptionRoutes:partners?partnerRoutes:bookings?bookingRoutes:cases?caseRoutes:customer?customerRoutes:prepayment?prepaymentRoutes:quote?quoteRoutes:intake?intakeRoutes:policy?policyRoutes:pricing?routes:orderRoutes).filter(r=>r.pattern.test(local));
    ensure(matches.length,404,'NOT_FOUND','资源不存在');
    const route=matches.find(r=>r.method===req.method);ensure(route,405,'METHOD_NOT_ALLOWED','请求方法不支持');operation=route.operation;
    const principal=route.service?(ensure(typeof serviceAuthenticate==='function',503,'SERVICE_AUTH_UNAVAILABLE','服务凭据认证尚未配置'),serviceAuthenticate(req)):authenticate(req);
@@ -351,16 +350,15 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evi
       return {status:['area-create','intake-evidence'].includes(route.kind)?201:200,body:data,etag:`"${data.version??data.order?.version??data.orderVersion}"`};
      });
     }
-   if(policy){
-    if(route.kind==='policy-list')return {status:200,body:await listPublishedPolicies(client,principal,page)};
-    if(req.method==='GET')return {status:200,body:await getPolicy(client,principal,id)};
-    return idempotent(client,principal,request,async()=>{
+    if(policy){
+     if(route.kind==='policy-list')return {status:200,body:await listPublishedPolicies(client,principal,page)};
+     if(req.method==='GET')return {status:200,body:await getPolicy(client,principal,id)};
+     return idempotent(client,principal,request,async()=>{
       const data=route.kind==='policy-submit'?await submitPolicy(client,principal,id,body,version):await reviewOrPublishPolicy(client,principal,id,body,version,route.kind==='policy-publish');
       validate(route.schema,data);return {status:route.kind==='policy-submit'?201:200,body:data,etag:`"${data.version}"`};
-    });
-   }
-   if(backend1)throw new ApiError(501,'BACKEND1_REPOSITORY_PENDING','Backend1 repository wiring is pending');
-   if(!pricing){
+     });
+    }
+    if(!pricing){
      if(req.method==='GET')return {status:200,body:route.kind==='session'?await customerSession(client,principal):route.kind==='timeline'?await customerTimeline(client,principal,id,page):await readOrders(client,principal,route.kind,id,page)};
      if(route.kind!=='order-cancel')await authorizedCustomer(client,principal,body.customerId);
      if(id)await getOrder(client,principal,id);
