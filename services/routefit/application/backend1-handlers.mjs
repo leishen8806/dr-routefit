@@ -1,4 +1,5 @@
 import {ApiError} from '../domain/errors.mjs';
+import {createCouponBatch} from '../adapters/backend1.mjs';
 
 const definitions={
  createRouteQuote:{status:201},
@@ -26,3 +27,5 @@ export function createBackend1Handlers(repositories){
   return {status,body:await repository(context,body)};
  }]));
 }
+
+export const backend1Handlers=createBackend1Handlers({createCouponBatch});

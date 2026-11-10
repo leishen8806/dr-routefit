@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBackend1Handlers} from '../application/backend1-handlers.mjs';
+import {backend1Handlers,createBackend1Handlers} from '../application/backend1-handlers.mjs';
 import {createCouponBatch} from '../adapters/backend1.mjs';
 
 test('Backend1 handlers pass authenticated context and validated input to their repository boundary', async () => {
@@ -29,4 +29,11 @@ test('coupon batch repository stores integer budget in the company scope and ret
  assert.match(calls[0].sql,/INSERT INTO marketing\.coupon_batch/);
  assert.equal(calls[0].params[1],'00000000-0000-0000-0000-000000000001');
  assert.equal(calls[0].params[6],1000);
+});
+
+test('default Backend1 coupon batch handler uses the module repository', async () => {
+ const client={query:async()=>({rows:[{id:'00000000-0000-0000-0000-000000000010',version:'1',budget_minor:'1000'}]})};
+ const result=await backend1Handlers.createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001'},{code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-10T00:00:00Z',endsAt:'2026-11-11T00:00:00Z'});
+ assert.equal(result.status,201);
+ assert.equal(result.body.budgetMinor,1000);
 });
