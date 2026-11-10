@@ -12,6 +12,16 @@
     "android": {
       "edgeToEdgeEnabled": true
     },
-    "plugins": ["expo-sqlite"]
+    "plugins": [
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": false,
+          "cameraPermission": "Allow RouteFit Driver to take delivery evidence photos.",
+          "microphonePermission": false
+        }
+      ]
+    ]
   }
 }
