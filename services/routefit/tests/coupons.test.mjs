@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {lockCoupon,redeemCoupon,releaseCoupon} from '../domain/coupons.mjs';
+import {assessCouponRisk,lockCoupon,redeemCoupon,releaseCoupon} from '../domain/coupons.mjs';
 
 const coupon={id:'coupon-1',amountMinor:300,minimumSpendMinor:1000,budgetRemainingMinor:1000,approved:true};
 const order={id:'order-1',merchandiseMinor:1200,codMinor:400,insuranceMinor:100,paymentMethod:'PREPAID'};
@@ -46,4 +46,11 @@ test('coupon rule 8: coupon lock records anti-fraud review and requires approved
  assert.equal(locked.fraudReviewRequired,true);
  assert.throws(()=>lockCoupon({coupon:{...coupon,approved:false},order}),{code:'COUPON_NOT_APPROVED'});
  assert.throws(()=>lockCoupon({coupon:{...coupon,budgetRemainingMinor:299},order}),{code:'COUPON_BUDGET_EXCEEDED'});
+});
+
+test('coupon rule 8: repeated device or phone accounts pause redemption without storing raw phone data',()=>{
+ const risk=assessCouponRisk({deviceId:'device-hash',phoneHash:'phone-hash',accountIds:['account-1','account-2','account-3']});
+ assert.deepEqual(risk,{state:'PAUSED',reason:'MULTI_ACCOUNT_DEVICE_OR_PHONE',accountCount:3});
+ assert.throws(()=>lockCoupon({coupon,order,risk}),{code:'COUPON_REDEMPTION_PAUSED'});
+ assert.deepEqual(assessCouponRisk({deviceId:'device-hash',phoneHash:'phone-hash',accountIds:['account-1','account-2']}),{state:'CLEAR',reason:null,accountCount:2});
 });
