@@ -9,3 +9,11 @@ export async function createCouponBatch({client,companyId},{discountType,amountM
  const row=result.rows[0];
  return {id:row.id,version:Number(row.version),budgetMinor:Number(row.budget_minor)};
 }
+
+export async function listCoupons({client,companyId}){
+ const result=await client.query(`SELECT id,state
+  FROM marketing.coupon
+  WHERE company_id=$1 AND state <> 'VOID'
+  ORDER BY id`,[companyId]);
+ return {items:result.rows.map(row=>({id:row.id,state:row.state==='ISSUED'?'AVAILABLE':row.state}))};
+}

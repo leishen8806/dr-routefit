@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {backend1Handlers,createBackend1Handlers} from '../application/backend1-handlers.mjs';
-import {createCouponBatch} from '../adapters/backend1.mjs';
+import {createCouponBatch,listCoupons} from '../adapters/backend1.mjs';
 
 test('Backend1 handlers pass authenticated context and validated input to their repository boundary', async () => {
  const calls=[];
@@ -29,6 +29,24 @@ test('coupon batch repository stores integer budget in the company scope and ret
  assert.match(calls[0].sql,/INSERT INTO marketing\.coupon_batch/);
  assert.equal(calls[0].params[1],'00000000-0000-0000-0000-000000000001');
  assert.equal(calls[0].params[6],1000);
+});
+
+test('coupon list repository scopes results to the company and maps issued coupons to available', async () => {
+ const calls=[];
+ const client={query:async(sql,params)=>{
+  calls.push({sql,params});
+  return {rows:[
+   {id:'00000000-0000-0000-0000-000000000011',state:'ISSUED'},
+   {id:'00000000-0000-0000-0000-000000000012',state:'LOCKED'}
+  ]};
+ }};
+ const result=await listCoupons({client,companyId:'00000000-0000-0000-0000-000000000001'});
+ assert.deepEqual(result,{items:[
+  {id:'00000000-0000-0000-0000-000000000011',state:'AVAILABLE'},
+  {id:'00000000-0000-0000-0000-000000000012',state:'LOCKED'}
+ ]});
+ assert.match(calls[0].sql,/WHERE company_id=\$1/);
+ assert.deepEqual(calls[0].params,['00000000-0000-0000-0000-000000000001']);
 });
 
 test('default Backend1 coupon batch handler uses the module repository', async () => {
