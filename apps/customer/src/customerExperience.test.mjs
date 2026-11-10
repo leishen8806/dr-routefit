@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createCustomerExperience } from './customerExperience.mjs';
+import { createCustomerExperience, createPromotionSequence } from './customerExperience.mjs';
 
 test('provides an example-only customer journey without a real payment action', () => {
   const experience = createCustomerExperience();
@@ -56,4 +56,16 @@ test('labels the payment confirmation as an example-only frontend action', () =>
   assert.equal(intent.isExample, true);
   assert.equal(intent.requiresConfirmation, true);
   assert.equal(intent.action, 'frontend_only');
+});
+
+test('sequences the example startup ad before the home popup and keeps one promotion visible', () => {
+  const sequence = createPromotionSequence();
+
+  assert.deepEqual(sequence.getVisiblePromotion(), { startupAd: true, homePopup: false });
+
+  sequence.dismissStartupAd();
+  assert.deepEqual(sequence.getVisiblePromotion(), { startupAd: false, homePopup: true });
+
+  sequence.dismissHomePopup();
+  assert.deepEqual(sequence.getVisiblePromotion(), { startupAd: false, homePopup: false });
 });

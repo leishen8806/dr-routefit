@@ -6,7 +6,7 @@ import { designTokens } from '@routefit/shared';
 import { CopyKey, Language, languageOptions } from '../src/copy';
 import { useLanguage } from '../src/LanguageContext';
 import { useRuntime } from '../src/RuntimeContext';
-import { createCustomerExperience } from '../src/customerExperience.mjs';
+import { createCustomerExperience, createPromotionSequence } from '../src/customerExperience.mjs';
 
 type Tab = 'send' | 'orders' | 'messages' | 'profile';
 
@@ -47,14 +47,14 @@ function TabIcon({ tab, selected }: { tab: Tab; selected: boolean }) {
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<Tab>('send');
   const [sendMode, setSendMode] = useState<'single' | 'bulk'>('single');
-  const [startupVisible, setStartupVisible] = useState(true);
-  const [promotionVisible, setPromotionVisible] = useState(false);
   const [paymentConfirmationOpen, setPaymentConfirmationOpen] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const runtime = useRuntime();
   const { width } = useWindowDimensions();
   const experience = useMemo(() => createCustomerExperience(), []);
+  const promotionSequence = useMemo(() => createPromotionSequence(), []);
+  const [promotionVisibility, setPromotionVisibility] = useState(() => promotionSequence.getVisiblePromotion());
   const overview = experience.getOverview();
   const orderDetail = experience.findOrderDetail(overview.order.id);
   const paymentIntent = experience.getExamplePaymentConfirmation();
@@ -113,24 +113,24 @@ export default function HomePage() {
 
         <Text style={[styles.reviewNote, face]}>{t('reviewPending')}</Text>
 
-        {startupVisible && overview.startupAd.kind === 'example' ? (
+        {promotionVisibility.startupAd && overview.startupAd.kind === 'example' ? (
           <View accessibilityLiveRegion="polite" style={styles.startupAd} testID="example-startup-ad">
             <Text style={[styles.startupTitle, face]}>{t('promotion')}</Text>
             <Text style={[styles.startupBody, face]}>{t('example')}</Text>
-            <Pressable accessibilityRole="button" onPress={() => { setStartupVisible(false); setPromotionVisible(true); }} style={styles.confirmButton} testID="dismiss-startup-ad">
+            <Pressable accessibilityRole="button" onPress={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.confirmButton} testID="dismiss-startup-ad">
               <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
             </Pressable>
           </View>
         ) : null}
 
-        {promotionVisible && overview.homePopup.kind === 'example' ? (
+        {promotionVisibility.homePopup && overview.homePopup.kind === 'example' ? (
           <View accessibilityLiveRegion="polite" style={styles.promotion} testID="example-promotion">
             <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
             <View style={styles.promotionCopy}>
               <Text style={[styles.promotionTitle, face]}>{t('promotion')}</Text>
               <Text style={[styles.promotionBody, face]}>{t('intro')}</Text>
             </View>
-            <Pressable accessibilityLabel={t('back')} onPress={() => setPromotionVisible(false)} style={styles.dismissButton} testID="dismiss-promotion">
+            <Pressable accessibilityLabel={t('back')} onPress={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.dismissButton} testID="dismiss-promotion">
               <Text style={[styles.dismissText, face]}>×</Text>
             </Pressable>
           </View>
@@ -154,7 +154,7 @@ export default function HomePage() {
                 <Text style={[styles.flowText, face]}>{t('payment')}</Text>
                 <Text style={[styles.flowText, face]}>{t('cod')}</Text>
               </View>
-              <Pressable accessibilityRole="button" onPress={() => { setPromotionVisible(false); setPaymentConfirmationOpen(true); }} style={styles.confirmButton} testID="confirm-example-payment">
+              <Pressable accessibilityRole="button" onPress={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); setPaymentConfirmationOpen(true); }} style={styles.confirmButton} testID="confirm-example-payment">
                 <Text style={[styles.confirmText, face]}>{paymentConfirmed ? t('payment') : t('confirm')}</Text>
               </Pressable>
             </>

@@ -76,3 +76,19 @@ export function createCustomerExperience() {
     },
   });
 }
+
+export function createPromotionSequence() {
+  let visible = { startupAd: true, homePopup: false };
+
+  return Object.freeze({
+    getVisiblePromotion() {
+      return { ...visible };
+    },
+    dismissStartupAd() {
+      visible = { startupAd: false, homePopup: true };
+    },
+    dismissHomePopup() {
+      visible = { startupAd: false, homePopup: false };
+    },
+  });
+}
