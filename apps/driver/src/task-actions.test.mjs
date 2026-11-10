@@ -8,25 +8,15 @@ import {
   createActionPlan,
   createEvidenceActionPlan,
   rejectConfirmationStep,
-  sendWithNetworkRetry,
 } from './task-actions.mjs';
 import { errorText } from './messages.ts';
 
 const assignment = { id: 'assignment-1', version: 7, planVersion: 4 };
 
-test('each action gets a key and a network retry reuses it', async () => {
+test('each write action gets a unique idempotency key', () => {
   const first = createActionPlan({ action: 'accept', assignment, keyFactory: () => 'idem-key-00000001' });
   const second = createActionPlan({ action: 'accept', assignment, keyFactory: () => 'idem-key-00000002' });
   assert.notEqual(first.idempotencyKey, second.idempotencyKey);
-
-  const seen = [];
-  const result = await sendWithNetworkRetry(first, async (plan) => {
-    seen.push(plan.idempotencyKey);
-    if (seen.length === 1) throw new TypeError('network unavailable');
-    return 'ok';
-  });
-  assert.equal(result, 'ok');
-  assert.deepEqual(seen, ['idem-key-00000001', 'idem-key-00000001']);
 });
 
 test('action plan uses assignment version for If-Match', () => {

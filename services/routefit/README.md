@@ -101,6 +101,7 @@ RF-QA-01交接见[验收步骤与待办](../../PRD/docs/tasks/fee-integration-qa
 npm run scenario:driver -- --stage offered
 npm run scenario:driver -- --stage custody-pending
 npm run scenario:driver -- --stage ready-to-depart
+npm run scenario:driver -- --stage delivery-ready
 ```
 
 脚本只接受本机服务和本机 PostgreSQL，策略、订单、报价、付款准入、装载复核、指派与交接均走现有业务接口；车辆和路线计划由受限开发夹具创建。每次运行生成独立 `DEMO` 数据，终端只输出业务对象 ID 和状态。司机令牌与 CSRF 只写入被忽略的 `.local/driver-scenario.json`，不要复制到日志、截图或提交中。该脚本不被试运营初始化引用。

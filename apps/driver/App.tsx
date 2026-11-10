@@ -1,4 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
+import * as Crypto from 'expo-crypto';
+import { useNetworkState } from 'expo-network';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -19,12 +21,17 @@ import {
   confirmCustodyTransfer,
   departAssignment,
   DriverApiError,
+  completeDriverUpload,
+  createDriverUpload,
   getDepartureReadiness,
   getAssignment,
   getDriverOrder,
+  getRecipientAuthorization,
   listCustodyTransfers,
   listAssignments,
+  recordDriverDelivery,
   syncDriverEvent,
+  uploadDriverEvidence,
   type AssignmentDetail,
   type DepartureReadiness,
   type DriverArrivedEvent,
@@ -33,7 +40,11 @@ import {
   type DriverCustodyTransfer,
   type DriverLanguage,
   type DriverOrderDetail,
+  type RecipientAuthorization,
+  type UploadTicket,
 } from './src/driver-api';
+import { deleteDeliveryPhoto, deliveryPhotoBlob, captureDeliveryPhoto, type DeliveryPhoto } from './src/delivery-photo';
+import { deliveryConfirmationStep, packageSelection, uploadTicketForPhoto } from './src/delivery.mjs';
 import { errorText, languageOptions, text, type MessageKey } from './src/messages';
 import { openOfflineEventQueue } from './src/offline-queue.mjs';
 import { createOfflineQueueStore } from './src/offline-store';
@@ -56,6 +67,15 @@ export default function App() {
   const [rejectReason, setRejectReason] = useState('');
   const [executionReason, setExecutionReason] = useState('');
   const [evidenceFileId, setEvidenceFileId] = useState('');
+  const [photo, setPhoto] = useState<DeliveryPhoto | null>(null);
+  const [uploadTicket, setUploadTicket] = useState<UploadTicket | null>(null);
+  const [cameraDenied, setCameraDenied] = useState(false);
+  const [recipientAuthorization, setRecipientAuthorization] = useState<RecipientAuthorization | null>(null);
+  const [packageChoices, setPackageChoices] = useState<Record<string, 'delivered' | 'remaining'>>({});
+  const [deliveryReason, setDeliveryReason] = useState('');
+  const [deliveryArmed, setDeliveryArmed] = useState(false);
+  const [deliveryOutcome, setDeliveryOutcome] = useState('');
+  const [now, setNow] = useState(Date.now());
   // shortcut: manual device ID is development-only, remove after RF-PM-055 batch 5 registers devices.
   const [deviceId, setDeviceId] = useState('');
   const [pendingEvents, setPendingEvents] = useState(0);
@@ -65,6 +85,7 @@ export default function App() {
   const actionInFlight = useRef(false);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const queueRef = useRef<Awaited<ReturnType<typeof openOfflineEventQueue>> | null>(null);
+  const networkState = useNetworkState();
 
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
   const auth = () => developmentSessionAuth(token, csrfToken);
@@ -93,6 +114,11 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   function displayError(cause: unknown, fallback: MessageKey) {
     if (cause instanceof DriverApiError) {
       return errorText(language, cause.code) ?? cause.serverMessage ?? t(fallback);
@@ -119,29 +145,113 @@ export default function App() {
     if (clearError) setError('');
     setNotice('');
     setRejectArmed(false);
+    setDeliveryArmed(false);
+    setDeliveryOutcome('');
     try {
       const nextDetail = await getAssignment(auth(), language, assignmentId);
-      const [nextOrder, nextTransfers, nextReadiness] = await Promise.all([
-        getDriverOrder(auth(), language, nextDetail.assignment.orderId),
+      const nextOrder = await getDriverOrder(auth(), language, nextDetail.assignment.orderId);
+      const [nextTransfers, nextReadiness, nextAuthorization] = await Promise.all([
         nextDetail.assignment.state === 'accepted'
           ? listCustodyTransfers(auth(), language, assignmentId)
           : Promise.resolve(null),
         nextDetail.assignment.state === 'accepted'
           ? getDepartureReadiness(auth(), language, assignmentId)
           : Promise.resolve(null),
+        nextDetail.assignment.state === 'accepted' && nextOrder.order.fulfillmentStage === 'in_transit'
+          ? getRecipientAuthorization(auth(), language, nextDetail.assignment.orderId)
+          : Promise.resolve(null),
       ]);
       setDetail(nextDetail);
       setOrder(nextOrder);
       setCustodyTransfers(nextTransfers);
       setDepartureReadiness(nextReadiness);
+      setRecipientAuthorization(nextAuthorization);
+      setPackageChoices({});
     } catch (cause) {
       setDetail(null);
       setOrder(null);
       setCustodyTransfers(null);
       setDepartureReadiness(null);
+      setRecipientAuthorization(null);
       setError(displayError(cause, 'taskReadFailed'));
     } finally {
       setLoading('');
+    }
+  }
+
+  async function takePhoto() {
+    if (actionBusy) return;
+    setError('');
+    setNotice('');
+    try {
+      const captured = await captureDeliveryPhoto();
+      setCameraDenied(captured.denied);
+      if (!captured.photo) return;
+      deleteDeliveryPhoto(photo);
+      setPhoto(captured.photo);
+      setUploadTicket(null);
+      setEvidenceFileId('');
+      setNotice(t('photoReady'));
+    } catch (cause) {
+      setError(displayError(cause, 'photoFailed'));
+    }
+  }
+
+  async function uploadPhoto() {
+    if (!photo || !order || !online || actionBusy) return;
+    setActionBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const ticket = await uploadTicketForPhoto(uploadTicket, () => createDriverUpload(auth(), language, {
+        purpose: order.order.fulfillmentStage === 'in_transit' ? 'DELIVERY' : 'HANDOVER',
+        resourceId: order.order.id,
+        mimeType: photo.mimeType,
+        sizeBytes: photo.sizeBytes,
+        sha256: photo.sha256,
+      }));
+      setUploadTicket(ticket);
+      await uploadDriverEvidence(ticket, deliveryPhotoBlob(photo));
+      const completed = await completeDriverUpload(auth(), language, ticket);
+      setEvidenceFileId(completed.id);
+      deleteDeliveryPhoto(photo);
+      setPhoto(null);
+      setUploadTicket(null);
+      setNotice(t('photoUploaded'));
+    } catch (cause) {
+      setError(displayError(cause, 'evidenceUploadFailed'));
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function submitDelivery() {
+    if (!order || !recipientAuthorization || actionInFlight.current || !deliveryReady) return;
+    if (deliveryConfirmationStep(deliveryArmed) === 'confirm') {
+      setDeliveryArmed(true);
+      return;
+    }
+    actionInFlight.current = true;
+    setActionBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const result = await recordDriverDelivery(auth(), language, order.order, {
+        deliveredPackageIds: deliverySelection.deliveredPackageIds,
+        remainingPackageIds: deliverySelection.remainingPackageIds,
+        recipientAuthorizationId: recipientAuthorization.id,
+        observedAt: new Date().toISOString(),
+        evidenceFileIds: [evidenceFileId],
+        ...(deliverySelection.remainingPackageIds.length ? { reason: deliveryReason.trim() } : {}),
+      });
+      setDeliveryOutcome(result.state === 'delivered' ? t('deliveryComplete') : t('deliveryPartial'));
+      setDeliveryArmed(false);
+      await refreshAssignments(false);
+    } catch (cause) {
+      setError(displayError(cause, 'deliveryFailed'));
+    } finally {
+      actionInFlight.current = false;
+      setActionBusy(false);
     }
   }
 
@@ -224,7 +334,7 @@ export default function App() {
     setNotice('');
     try {
       await queueRef.current.enqueue({
-        eventId: globalThis.crypto.randomUUID(),
+        eventId: Crypto.randomUUID(),
         assignmentId: detail.assignment.id,
         assignmentVersion: detail.assignment.version,
         planVersion: detail.assignment.planVersion,
@@ -264,8 +374,20 @@ export default function App() {
   const credentialsReady = token.trim().length >= 32 && csrfToken.trim().length >= 32;
   const deviceReady = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(deviceId.trim());
   const evidenceReady = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(evidenceFileId.trim());
-  const actionAvailable = detail?.assignment.state === 'offered';
+  const online = networkState.isConnected !== false && networkState.isInternetReachable !== false;
+  const assignmentRemainingSeconds = detail ? Math.max(0, Math.ceil((Date.parse(detail.assignment.expiresAt) - now) / 1000)) : 0;
+  const assignmentExpired = Boolean(detail && detail.assignment.state === 'offered' && assignmentRemainingSeconds === 0);
+  const actionAvailable = detail?.assignment.state === 'offered' && !assignmentExpired && online;
   const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+  const packageIds = order?.items.flatMap((item) => item.packageIds) ?? [];
+  const deliverySelection = packageSelection(packageIds, packageChoices);
+  const deliveryReady = online
+    && Boolean(recipientAuthorization)
+    && evidenceReady
+    && deliverySelection.complete
+    && deliverySelection.deliveredPackageIds.length > 0
+    && (deliverySelection.remainingPackageIds.length === 0 || Boolean(deliveryReason.trim()))
+    && !deliveryOutcome;
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -341,6 +463,8 @@ export default function App() {
             <Text>{t('task')} {detail.assignment.id.slice(0, 8)}</Text>
             <Text>{t('status')} {detail.assignment.state}</Text>
             <Text>{t('expires')} {new Date(detail.assignment.expiresAt).toLocaleString()}</Text>
+            {detail.assignment.state === 'offered' ? <Text>{t('assignmentRemaining')} {assignmentRemainingSeconds}s</Text> : null}
+            {assignmentExpired ? <Text style={styles.error}>{t('assignmentExpired')}</Text> : null}
             <Text>{t('routeVersion')} {detail.assignment.planVersion}</Text>
 
             <Text style={styles.sectionTitle}>{t('orderDetails')}</Text>
@@ -363,6 +487,25 @@ export default function App() {
             ))}
             {detail.assignment.state === 'accepted' ? (
               <View style={styles.execution}>
+                <Text style={styles.sectionTitle}>{t('evidencePhoto')}</Text>
+                <Pressable accessibilityRole="button" disabled={actionBusy} onPress={takePhoto} style={[styles.secondaryButton, actionBusy && styles.buttonDisabled]}>
+                  <Text style={styles.secondaryButtonText}>{photo ? t('retakePhoto') : t('takePhoto')}</Text>
+                </Pressable>
+                {cameraDenied ? (
+                  <View>
+                    <Text style={styles.caption}>{t('cameraDenied')}</Text>
+                    <Pressable accessibilityRole="button" onPress={() => Linking.openSettings()} style={styles.linkButton}>
+                      <Text style={styles.linkText}>{t('openSettings')}</Text>
+                    </Pressable>
+                  </View>
+                ) : null}
+                {photo ? <Text style={styles.caption}>{t('photoStoredPrivately')}</Text> : null}
+                <Pressable accessibilityRole="button" disabled={actionBusy || !photo || !online} onPress={uploadPhoto} style={[styles.secondaryButton, (actionBusy || !photo || !online) && styles.buttonDisabled]}>
+                  <Text style={styles.secondaryButtonText}>{actionBusy ? t('actionWorking') : t('uploadPhoto')}</Text>
+                </Pressable>
+                {!online ? <Text style={styles.caption}>{t('needsNetwork')}</Text> : null}
+                {!photo && !evidenceReady ? <Text style={styles.caption}>{t('photoRequired')}</Text> : null}
+                {evidenceReady ? <Text style={styles.notice}>{t('evidenceReady')}</Text> : null}
                 <Text style={styles.sectionTitle}>{t('custodyTransfers')}</Text>
                 {custodyTransfers?.length === 0 ? <Text style={styles.caption}>{t('custodyEmpty')}</Text> : null}
                 {custodyTransfers?.map((transfer) => (
@@ -376,12 +519,13 @@ export default function App() {
                     ))}
                     <Pressable
                       accessibilityRole="button"
-                      disabled={actionBusy || !evidenceReady || !executionReason.trim()}
+                      disabled={actionBusy || !online || !evidenceReady || !executionReason.trim()}
                       onPress={() => submitExecution('custody', transfer)}
-                      style={[styles.secondaryButton, (actionBusy || !evidenceReady || !executionReason.trim()) && styles.buttonDisabled]}
+                      style={[styles.secondaryButton, (actionBusy || !online || !evidenceReady || !executionReason.trim()) && styles.buttonDisabled]}
                     >
                       <Text style={styles.secondaryButtonText}>{t('confirmCustody')}</Text>
                     </Pressable>
+                    {(!executionReason.trim() || !evidenceReady || !online) ? <Text style={styles.caption}>{!online ? t('needsNetwork') : t('executionMissing')}</Text> : null}
                   </View>
                 ))}
                 <Text style={styles.label}>{t('executionReason')}</Text>
@@ -392,17 +536,6 @@ export default function App() {
                   style={styles.input}
                   value={executionReason}
                 />
-                <Text style={styles.label}>{t('evidenceFileId')}</Text>
-                <TextInput
-                  accessibilityLabel={t('evidenceFileId')}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  onChangeText={setEvidenceFileId}
-                  placeholder={t('evidenceFileIdPlaceholder')}
-                  style={styles.input}
-                  value={evidenceFileId}
-                />
-                <Text style={styles.caption}>{t('evidenceFileIdHelp')}</Text>
                 <Text style={styles.sectionTitle}>{t('departureReadiness')}</Text>
                 <Text>{departureReadiness?.ready ? t('departureReady') : t('departureBlocked')}</Text>
                 {departureReadiness?.reasons.map((reason) => (
@@ -410,12 +543,44 @@ export default function App() {
                 ))}
                 <Pressable
                   accessibilityRole="button"
-                  disabled={actionBusy || !departureReadiness?.ready || !evidenceReady || !executionReason.trim()}
+                  disabled={actionBusy || !online || !departureReadiness?.ready || !evidenceReady || !executionReason.trim()}
                   onPress={() => submitExecution('depart')}
-                  style={[styles.button, (actionBusy || !departureReadiness?.ready || !evidenceReady || !executionReason.trim()) && styles.buttonDisabled]}
+                  style={[styles.button, (actionBusy || !online || !departureReadiness?.ready || !evidenceReady || !executionReason.trim()) && styles.buttonDisabled]}
                 >
                   <Text style={styles.buttonText}>{actionBusy ? t('actionWorking') : t('depart')}</Text>
                 </Pressable>
+                {(!departureReadiness?.ready || !executionReason.trim() || !evidenceReady || !online) ? (
+                  <Text style={styles.caption}>{!online ? t('needsNetwork') : !departureReadiness?.ready ? t('departureBlocked') : t('executionMissing')}</Text>
+                ) : null}
+
+                {order.order.fulfillmentStage === 'in_transit' ? (
+                  <View style={styles.deliveryPanel}>
+                    <Text style={styles.sectionTitle}>{t('deliveryRecord')}</Text>
+                    <Text>{recipientAuthorization ? t('recipientAuthorizationReady') : t('recipientAuthorizationMissing')}</Text>
+                    {packageIds.map((packageId) => (
+                      <View key={packageId} style={styles.packageChoice}>
+                        <Text>{t('package')} {packageId}</Text>
+                        <View style={styles.choiceRow}>
+                          <Pressable accessibilityRole="button" onPress={() => { setPackageChoices((current) => ({ ...current, [packageId]: 'delivered' })); setDeliveryArmed(false); }} style={[styles.choice, packageChoices[packageId] === 'delivered' && styles.choiceActive]}>
+                            <Text>{t('markDelivered')}</Text>
+                          </Pressable>
+                          <Pressable accessibilityRole="button" onPress={() => { setPackageChoices((current) => ({ ...current, [packageId]: 'remaining' })); setDeliveryArmed(false); }} style={[styles.choice, packageChoices[packageId] === 'remaining' && styles.choiceActive]}>
+                            <Text>{t('markRemaining')}</Text>
+                          </Pressable>
+                        </View>
+                      </View>
+                    ))}
+                    {deliverySelection.remainingPackageIds.length ? (
+                      <TextInput accessibilityLabel={t('partialReason')} onChangeText={(value) => { setDeliveryReason(value); setDeliveryArmed(false); }} placeholder={t('partialReasonPlaceholder')} style={styles.input} value={deliveryReason} />
+                    ) : null}
+                    <Text>{t('deliverySummary')} {deliverySelection.deliveredPackageIds.length}/{packageIds.length} {t('deliveredCount')}; {deliverySelection.remainingPackageIds.length} {t('remainingCount')}</Text>
+                    <Pressable accessibilityRole="button" disabled={actionBusy || !deliveryReady} onPress={submitDelivery} style={[styles.button, (actionBusy || !deliveryReady) && styles.buttonDisabled]}>
+                      <Text style={styles.buttonText}>{deliveryArmed ? t('confirmDelivery') : t('submitDelivery')}</Text>
+                    </Pressable>
+                    {!deliveryReady && !deliveryOutcome ? <Text style={styles.caption}>{!online ? t('needsNetwork') : t('deliveryMissing')}</Text> : null}
+                    {deliveryOutcome ? <Text style={styles.notice}>{deliveryOutcome}</Text> : null}
+                  </View>
+                ) : null}
               </View>
             ) : null}
             <Pressable accessibilityRole="button" disabled={!order.pickup.point} onPress={() => navigate(order.pickup.point)} style={[styles.secondaryButton, !order.pickup.point && styles.buttonDisabled]}>
@@ -436,6 +601,8 @@ export default function App() {
               >
                 <Text style={styles.buttonText}>{actionBusy ? t('actionWorking') : t('accept')}</Text>
               </Pressable>
+              {!online ? <Text style={styles.caption}>{t('needsNetwork')}</Text> : null}
+              {assignmentExpired ? <Text style={styles.caption}>{t('assignmentExpired')}</Text> : null}
               <Text style={styles.label}>{t('rejectReason')}</Text>
               <TextInput
                 accessibilityLabel={t('rejectReason')}
@@ -478,6 +645,11 @@ export default function App() {
                 <Text accessibilityRole="alert" style={styles.error}>
                   {t('quarantinedPrefix')} {quarantinedEvents} {t('quarantinedSuffix')}
                 </Text>
+              ) : null}
+              {__DEV__ ? (
+                <Pressable accessibilityRole="button" disabled={!detail} onPress={() => recordArrival({ lat: 11.5564, lng: 104.9282 })} style={styles.secondaryButton}>
+                  <Text style={styles.secondaryButtonText}>{t('recordSyntheticArrival')}</Text>
+                </Pressable>
               ) : null}
               <Pressable
                 accessibilityRole="button"
@@ -538,8 +710,13 @@ const styles = StyleSheet.create({
   sectionTitle: { color: '#13233a', fontSize: 20, fontWeight: '700', marginTop: 10 },
   actions: { gap: 10, marginTop: 12 },
   execution: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
+  deliveryPanel: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
   offline: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
   packageRow: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 4, padding: 10 },
+  packageChoice: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 8, padding: 10 },
+  choiceRow: { flexDirection: 'row', gap: 8 },
+  choice: { borderColor: '#94a3b8', borderRadius: 8, borderWidth: 1, padding: 8 },
+  choiceActive: { backgroundColor: '#99f6e4', borderColor: '#0f766e' },
   secondaryButton: { alignItems: 'center', borderColor: '#153a63', borderRadius: 10, borderWidth: 1, marginTop: 10, padding: 12 },
   secondaryButtonText: { color: '#153a63', fontWeight: '700' },
   rejectButton: { alignItems: 'center', borderColor: '#b91c1c', borderRadius: 10, borderWidth: 1, padding: 12 },
