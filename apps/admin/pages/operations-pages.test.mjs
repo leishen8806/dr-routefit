@@ -192,9 +192,12 @@ test('order view keeps its explicit sample-data and frontend-only notice', () =>
 
 test('native drawer declares web dialog and modal semantics', async () => {
   const nativePageSource = await readFile(new URL('./OperationsPage.tsx', import.meta.url), 'utf8');
+  const drawerView = nativePageSource.match(/<View \{\.\.\.webModalProps\}[^>]+>/)?.[0] ?? '';
 
   assert.match(nativePageSource, /role: 'dialog'/);
   assert.match(nativePageSource, /'aria-modal': true/);
+  assert.match(drawerView, /accessibilityViewIsModal/);
+  assert.doesNotMatch(drawerView, /accessibilityRole=/);
 });
 
 test('each list row exposes a frontend-only detail trigger with its own record index', () => {
