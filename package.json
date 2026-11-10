@@ -4,6 +4,7 @@
   "workspaces": [
     "apps/driver",
     "apps/customer",
+    "apps/admin",
     "packages/shared"
   ],
   "scripts": {
