@@ -103,12 +103,12 @@ export function getOperationsDrawerAction(pageId, dataset) {
   return null;
 }
 
-export function reduceOperationsDrawer(state, action) {
+export function reduceOperationsDrawer(state, action, configuredPages) {
   if (action?.type === 'close') return null;
   if (action?.type !== 'open') return state ?? null;
   const index = Number(action.index);
   if (!Number.isInteger(index) || index < 0) return state ?? null;
-  if (!getOperationsRecord(action.pageId, index)) return state ?? null;
+  if (!getOperationsRecord(action.pageId, index, configuredPages)) return state ?? null;
   return { pageId: action.pageId, index };
 }
 

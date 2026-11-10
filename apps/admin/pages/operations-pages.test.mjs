@@ -141,6 +141,24 @@ test('drawer state opens only for a valid record in its requested page', () => {
   assert.equal(reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: '1.5' }), null);
 });
 
+test('drawer state validates a configured page record instead of falling back to demo rows', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [['CFG-001', 'Configured merchant', 'pending', 'review', 'example'] ],
+    },
+  };
+
+  assert.deepEqual(
+    reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: 0 }, configuredPages),
+    { pageId: 'orders', index: 0 },
+  );
+  assert.equal(
+    reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: 1 }, configuredPages),
+    null,
+  );
+});
+
 test('drawer state closes without retaining a previously selected record', () => {
   assert.equal(
     reduceOperationsDrawer({ pageId: 'support', index: 0 }, { type: 'close' }),
