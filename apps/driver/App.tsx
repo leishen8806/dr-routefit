@@ -49,7 +49,7 @@ import {
 } from './src/driver-api';
 import { deleteDeliveryPhoto, deliveryPhotoBlob, captureDeliveryPhoto, type DeliveryPhoto } from './src/delivery-photo';
 import { deliveryConfirmationStep, packageSelection, uploadTicketForPhoto } from './src/delivery.mjs';
-import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentStatusPresentation } from './src/fulfillment.mjs';
+import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentStatusPresentation, offlineNotice, problemReportState, undeliveredReasonState } from './src/fulfillment.mjs';
 import { errorText, languageOptions, text, type MessageKey } from './src/messages';
 import { openOfflineEventQueue } from './src/offline-queue.mjs';
 import { createOfflineQueueStore } from './src/offline-store';
@@ -78,6 +78,9 @@ export default function App() {
   const [recipientAuthorization, setRecipientAuthorization] = useState<RecipientAuthorization | null>(null);
   const [packageChoices, setPackageChoices] = useState<Record<string, 'delivered' | 'remaining'>>({});
   const [deliveryReason, setDeliveryReason] = useState('');
+  const [loadScanCode, setLoadScanCode] = useState('');
+  const [problemSummary, setProblemSummary] = useState('');
+  const [problemRecorded, setProblemRecorded] = useState(false);
   const [deliveryScanCode, setDeliveryScanCode] = useState('');
   const [deliveryLocationVerified, setDeliveryLocationVerified] = useState(false);
   const [deliveryArmed, setDeliveryArmed] = useState(false);
@@ -201,6 +204,9 @@ export default function App() {
       setPackageChoices({});
       setDeliveryScanCode('');
       setDeliveryLocationVerified(false);
+      setLoadScanCode('');
+      setProblemSummary('');
+      setProblemRecorded(false);
     } catch (cause) {
       setDetail(null);
       setOrder(null);
@@ -429,6 +435,10 @@ export default function App() {
     && deliverySubmission.canSubmit
     && !deliveryOutcome;
   const collection = collectionMethod ? collectionConfirmationState(collectionMethod, collectionConfirmed, Boolean(collectionOutcome)) : null;
+  const loadScanReady = Boolean(loadScanCode.trim());
+  const undeliveredReason = undeliveredReasonState(deliveryReason);
+  const problemReport = problemReportState(problemSummary);
+  const networkNotice = offlineNotice(!online);
   const fulfillmentStatus = fulfillmentStatusPresentation(
     order?.order.fulfillmentStage ?? 'none',
     language,
@@ -599,6 +609,15 @@ export default function App() {
                   <Text style={styles.caption}>{!online ? t('needsNetwork') : !departureReadiness?.ready ? t('departureBlocked') : t('executionMissing')}</Text>
                 ) : null}
 
+                {order.order.fulfillmentStage === 'pickup_pending' ? (
+                  <View style={styles.deliveryPanel}>
+                    <Text style={styles.sectionTitle}>{t('loadScan')}</Text>
+                    <TextInput accessibilityLabel={t('loadScan')} onChangeText={setLoadScanCode} placeholder={t('loadScanPlaceholder')} style={styles.input} value={loadScanCode} />
+                    <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
+                    {loadScanReady ? <Text style={styles.notice}>{t('loadScanRecorded')}</Text> : null}
+                  </View>
+                ) : null}
+
                 {order.order.fulfillmentStage === 'in_transit' ? (
                   <View style={styles.deliveryPanel}>
                     <Text style={styles.sectionTitle}>{t('deliveryRecord')}</Text>
@@ -633,7 +652,11 @@ export default function App() {
                       </View>
                     ))}
                     {deliverySelection.remainingPackageIds.length ? (
-                      <TextInput accessibilityLabel={t('partialReason')} onChangeText={(value) => { setDeliveryReason(value); setDeliveryArmed(false); }} placeholder={t('partialReasonPlaceholder')} style={styles.input} value={deliveryReason} />
+                      <>
+                        <Text style={styles.label}>{t('undeliveredReason')}</Text>
+                        <TextInput accessibilityLabel={t('undeliveredReason')} onChangeText={(value) => { setDeliveryReason(value); setDeliveryArmed(false); }} placeholder={t('undeliveredReasonPlaceholder')} style={styles.input} value={deliveryReason} />
+                        {!undeliveredReason.canSubmit ? <Text style={styles.caption}>{t('undeliveredReasonMissing')}</Text> : null}
+                      </>
                     ) : null}
                     <Text>{t('deliverySummary')} {deliverySelection.deliveredPackageIds.length}/{packageIds.length} {t('deliveredCount')}; {deliverySelection.remainingPackageIds.length} {t('remainingCount')}</Text>
                     <Pressable accessibilityRole="button" disabled={actionBusy || !deliveryReady} onPress={submitDelivery} style={[styles.button, (actionBusy || !deliveryReady) && styles.buttonDisabled]}>
@@ -676,8 +699,17 @@ export default function App() {
                           </Pressable>
                         </>
                       ) : null}
-                      {collectionOutcome ? <Text style={styles.notice}>{collectionOutcome}</Text> : null}
+                    {collectionOutcome ? <Text style={styles.notice}>{collectionOutcome}</Text> : null}
+                    <View style={styles.collectionPanel}>
+                      <Text style={styles.sectionTitle}>{t('problemReport')}</Text>
+                      <TextInput accessibilityLabel={t('problemReport')} onChangeText={(value) => { setProblemSummary(value); setProblemRecorded(false); }} placeholder={t('problemReportPlaceholder')} style={styles.input} value={problemSummary} />
+                      <Pressable accessibilityRole="button" disabled={!problemReport.canSubmit || problemRecorded} onPress={() => setProblemRecorded(true)} style={[styles.secondaryButton, (!problemReport.canSubmit || problemRecorded) && styles.buttonDisabled]}>
+                        <Text style={styles.secondaryButtonText}>{t('recordProblemExample')}</Text>
+                      </Pressable>
+                      <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
+                      {problemRecorded ? <Text style={styles.notice}>{t('problemRecorded')}</Text> : null}
                     </View>
+                  </View>
                   </View>
                 ) : null}
               </View>
@@ -728,6 +760,7 @@ export default function App() {
 
             <View style={styles.offline}>
               <Text style={styles.sectionTitle}>{t('offlineEvents')}</Text>
+              {networkNotice.visible ? <Text accessibilityRole="alert" style={styles.notice}>{t('offlineNotice')}</Text> : null}
               <Text style={styles.label}>{t('deviceId')}</Text>
               <TextInput
                 accessibilityLabel={t('deviceId')}

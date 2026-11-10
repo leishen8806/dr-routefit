@@ -18,4 +18,8 @@ test('uses shared design tokens for the driver fulfillment surface', () => {
   assert.match(appSource, /collectionConfirmationState\(collectionMethod, collectionConfirmed, Boolean\(collectionOutcome\)\)/);
   assert.match(appSource, /order\?\.order\.fulfillmentStage \?\? 'none'/);
   assert.match(appSource, /t\('deliveryVerificationExample'\)/);
+  assert.match(appSource, /t\('loadScan'\)/);
+  assert.match(appSource, /t\('undeliveredReason'\)/);
+  assert.match(appSource, /t\('problemReport'\)/);
+  assert.match(appSource, /offlineNotice\(!online\)/);
 });
