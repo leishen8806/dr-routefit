@@ -4,8 +4,11 @@ export const adminFeaturePages = [
 ];
 
 const demo = '示例数据 · 纯前端';
-const rows = (items) => `<div class="rf2-list">${items.map(([title, detail, action]) => { const confirm = action === '确认出款' ? ' data-confirm="confirm-payout"' : action === '停用' ? ' data-confirm="disable-api-key"' : ''; return `<button class="rf2-row" data-detail="${title}"${confirm} type="button"><span><b>${title}</b><small>${detail}</small></span>${action ? `<em>${action}</em>` : '<em>查看</em>'}</button>`; }).join('')}</div>`;
-const tabs = (items, active) => `<div class="rf2-tabs">${items.map((name) => `<button data-tab="${name}" class="${name === active ? 'is-active' : ''}" type="button">${name}</button>`).join('')}</div>`;
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+const confirmActions = { '确认出款': 'confirm-payout', '停用': 'disable-api-key', '点钱确认': 'take-cash' };
+const normalizeAdminFeaturePage = (page) => adminFeaturePages.some((item) => item.id === page) ? page : 'funds';
+const rows = (items) => `<div class="rf2-list">${items.map(([title, detail, action]) => { const confirm = confirmActions[action]; return `<button class="rf2-row" data-detail="${escapeHtml(title)}"${confirm ? ` data-confirm="${confirm}"` : ''} type="button"><span><b>${escapeHtml(title)}</b><small>${escapeHtml(detail)}</small></span>${action ? `<em>${escapeHtml(action)}</em>` : '<em>查看</em>'}</button>`; }).join('')}</div>`;
+const tabs = (items, active) => `<div class="rf2-tabs">${items.map((name) => `<button data-tab="${escapeHtml(name)}" class="${name === active ? 'is-active' : ''}" type="button">${escapeHtml(name)}</button>`).join('')}</div>`;
 
 export function createAdminFeatureState() {
   return {
@@ -40,14 +43,15 @@ function pageContent(page, state) {
 }
 
 export function renderAdminFeaturePage(page = 'funds', state = createAdminFeatureState()) {
-  const title = adminFeaturePages.find((item) => item.id === page)?.title ?? '财务';
-  const dialog = state.dialog ? `<div class="rf2-modal" role="dialog" aria-modal="true"><div><b>请确认</b><p>${state.dialog}</p><button data-close-dialog type="button">取消</button><button data-demo-confirm type="button">确认（纯前端）</button></div></div>` : '';
-  return `<section class="rf2" data-page="${page}"><header><div><p>${demo}</p><h1>${title}</h1></div><button class="rf2-primary" data-create="${page}" type="button">新建（纯前端）</button></header>${pageContent(page, state)}<aside class="rf2-detail" ${state.detail ? '' : 'hidden'}>${state.detail || ''}</aside>${dialog}</section>`;
+  const safePage = normalizeAdminFeaturePage(page);
+  const title = adminFeaturePages.find((item) => item.id === safePage).title;
+  const dialog = state.dialog ? `<div class="rf2-modal" role="dialog" aria-modal="true"><div><b>请确认</b><p>${escapeHtml(state.dialog)}</p><button data-close-dialog type="button">取消</button><button data-demo-confirm type="button">确认（纯前端）</button></div></div>` : '';
+  return `<section class="rf2" data-page="${escapeHtml(safePage)}"><header><div><p>${demo}</p><h1>${escapeHtml(title)}</h1></div><button class="rf2-primary" data-create="${escapeHtml(safePage)}" type="button">新建（纯前端）</button></header>${pageContent(safePage, state)}<aside class="rf2-detail" ${state.detail ? '' : 'hidden'}>${state.detail ? escapeHtml(state.detail) : ''}</aside>${dialog}</section>`;
 }
 
 export function mountAdminFeaturePages(root, initialPage = 'funds') {
-  const state = createAdminFeatureState(); state.page = initialPage;
-  const render = () => { root.innerHTML = renderAdminFeaturePage(state.page, state); };
+  const state = createAdminFeatureState(); state.page = normalizeAdminFeaturePage(initialPage);
+  const render = () => { state.page = normalizeAdminFeaturePage(state.page); root.innerHTML = renderAdminFeaturePage(state.page, state); };
   root.addEventListener('click', (event) => {
     const button = event.target.closest('button'); if (!button) return;
     if (button.dataset.tab) { const pageState = state[state.page]; pageState.active = button.dataset.tab; if (state.page === 'funds') pageState.active = button.dataset.tab; render(); return; }

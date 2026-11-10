@@ -6,6 +6,7 @@ import {
   adminFeaturePages,
   createAdminFeatureState,
   hasActionAttribute,
+  mountAdminFeaturePages,
   renderAdminFeaturePage,
   requiresConfirmation,
 } from './index.mjs';
@@ -38,6 +39,31 @@ test('marks payout confirmation as an irreversible demo action', () => {
   assert.match(renderAdminFeaturePage('funds', state), /data-confirm="confirm-payout"/);
   state.dialog = '确认出款？此示例操作不可撤回。';
   assert.match(renderAdminFeaturePage('funds', state), /role="dialog"/);
+});
+
+test('wires take-cash confirmation from driver cash rows into the confirmation dialog', () => {
+  const root = {
+    innerHTML: '',
+    addEventListener(_type, listener) { this.listener = listener; },
+  };
+  const mounted = mountAdminFeaturePages(root);
+  mounted.state.funds.active = '\u53f8\u673a\u73b0\u91d1';
+  mounted.setPage('funds');
+  assert.match(root.innerHTML, /data-confirm="take-cash"/);
+  root.listener({ target: { closest: () => ({ dataset: { confirm: 'take-cash', detail: 'Sokha' } }) } });
+  assert.match(root.innerHTML, /role="dialog"/);
+});
+
+test('falls back and escapes hostile admin page values before HTML rendering', () => {
+  const hostile = '"><script>x</script>';
+  const state = createAdminFeatureState();
+  state.detail = hostile;
+  state.dialog = hostile;
+  const html = renderAdminFeaturePage(hostile, state);
+  assert.match(html, /data-page="funds"/);
+  assert.match(html, /data-create="funds"/);
+  assert.doesNotMatch(html, /<script>x<\/script>/);
+  assert.match(html, /&quot;&gt;&lt;script&gt;x&lt;\/script&gt;/);
 });
 
 test('recognizes an empty data action attribute so dialog controls remain usable', () => {
