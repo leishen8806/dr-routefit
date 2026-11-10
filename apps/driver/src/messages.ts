@@ -10,8 +10,10 @@ import {
 
 const zh = {
   collectionCancel: '取消',
+  warehouseArrival: '前往仓库', warehouseArrivalExample: '目的仓：演示仓库。此到达标记仅保存在本地示例状态。', markWarehouseArrival: '标记已到仓（示例）', warehouseArrivalRecorded: '已到仓已标记（示例，未上传）',
   loadScan: '扫码装车', loadScanPlaceholder: '输入或扫描装车包裹编号', loadScanRecorded: '装车扫码已标记（示例，未上传）', fulfillmentFrontendExample: '示例／纯前端：此动作暂不调用服务端接口。', undeliveredReason: '未送出原因', undeliveredReasonPlaceholder: '说明未送出原因', undeliveredReasonMissing: '请选择或填写未送出原因。', problemReport: '问题上报', problemReportPlaceholder: '描述配送问题', recordProblemExample: '记录问题（示例）', problemRecorded: '问题已记录（示例，未上传）', offlineNotice: '当前离线：操作会保留，待网络恢复后再同步。',
   deliveryScanCode: '送达扫码', deliveryScanPlaceholder: '输入或扫描包裹编号', verifyDeliveryLocation: '标记送达位置（示例）', deliveryLocationVerified: '位置已标记（示例，未校验）', deliveryVerificationExample: '示例／纯前端：扫码和位置标记不会校验或上传。', deliveryCheckMissing: '请完成扫码、位置标记并上传证据',
+  deliveryProofReview: '送达记录', deliveryProofExample: '送达扫码状态已完成；此记录仅供本地示例查看。', viewDeliveryProof: '查看送达记录（示例）', deliveryProofViewed: '送达记录已查看（示例）',
   appName: 'DR ROUTEFIT', title: '司机任务', caption: '仅连接本机开发服务；正式登录由 RF-PM-055 替换。',
   tokenLabel: '本机开发会话令牌', csrfLabel: '本机开发 CSRF 令牌', secretPlaceholder: '仅保存在当前进程内',
   refreshTasks: '刷新任务', connectTasks: '连接并读取任务', loadingTasks: '正在读取任务', emptyTasks: '当前没有司机任务',
@@ -42,8 +44,10 @@ const zh = {
 
 const en: typeof zh = {
   collectionCancel: 'Cancel',
+  warehouseArrival: 'Heading to warehouse', warehouseArrivalExample: 'Destination: demonstration warehouse. This arrival mark is stored only in local example state.', markWarehouseArrival: 'Mark warehouse arrival (example)', warehouseArrivalRecorded: 'Warehouse arrival marked (example; not uploaded)',
   loadScan: 'Load scan', loadScanPlaceholder: 'Enter or scan the loaded package ID', loadScanRecorded: 'Load scan marked (example; not uploaded)', fulfillmentFrontendExample: 'Example / front-end only: this action does not call a server interface yet.', undeliveredReason: 'Undelivered reason', undeliveredReasonPlaceholder: 'Explain why delivery was not completed', undeliveredReasonMissing: 'Select or enter an undelivered reason.', problemReport: 'Problem report', problemReportPlaceholder: 'Describe the delivery problem', recordProblemExample: 'Record problem (example)', problemRecorded: 'Problem recorded (example; not uploaded)', offlineNotice: 'You are offline: actions are retained and sync after the network returns.',
   deliveryScanCode: 'Delivery scan', deliveryScanPlaceholder: 'Enter or scan a package ID', verifyDeliveryLocation: 'Mark delivery location (example)', deliveryLocationVerified: 'Location marked (example; unverified)', deliveryVerificationExample: 'Example / front-end only: scan and location marks are not verified or sent.', deliveryCheckMissing: 'Complete the scan, location mark, and evidence upload first',
+  deliveryProofReview: 'Delivery record', deliveryProofExample: 'Delivery scan status is complete; this record is available for local example viewing only.', viewDeliveryProof: 'View delivery record (example)', deliveryProofViewed: 'Delivery record viewed (example)',
   appName: 'DR ROUTEFIT', title: 'Driver tasks', caption: 'Local development service only; RF-PM-055 will replace this login.',
   tokenLabel: 'Local development session token', csrfLabel: 'Local development CSRF token', secretPlaceholder: 'Kept in process memory only',
   refreshTasks: 'Refresh tasks', connectTasks: 'Connect and load tasks', loadingTasks: 'Loading tasks', emptyTasks: 'No driver tasks',

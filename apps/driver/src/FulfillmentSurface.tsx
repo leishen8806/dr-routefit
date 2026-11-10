@@ -3,7 +3,7 @@ import { Modal, Pressable, StyleSheet, Text, TextInput, View, type PressableInst
 import { createDialogController, createOverlayManager, createToastState, designTokens, detailDrawerState, dismissToast, enqueueToast, nativeDialogA11yProps, nativeToastA11yProps } from '@routefit/shared';
 
 import type { DriverLanguage } from './driver-api';
-import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentSections, fulfillmentStatusPresentation, offlineNotice, problemReportState, undeliveredReasonState } from './fulfillment.mjs';
+import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentSurfacePlan, offlineNotice, problemReportState, undeliveredReasonState } from './fulfillment.mjs';
 import { text } from './messages';
 
 export type FulfillmentSurfaceProps = {
@@ -24,6 +24,8 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
   const [recorded, setRecorded] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [warehouseArrived, setWarehouseArrived] = useState(false);
+  const [deliveryProofViewed, setDeliveryProofViewed] = useState(false);
   const [toastState, setToastState] = useState(() => createToastState());
   const collectionTriggerRef = useRef<PressableInstance | null>(null);
   const collectionCancelRef = useRef<PressableInstance | null>(null);
@@ -46,8 +48,8 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
   }
   const collectionDialog = collectionDialogRef.current;
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
-  const sections = fulfillmentSections(stage);
-  const status = fulfillmentStatusPresentation(stage, language);
+  const plan = fulfillmentSurfacePlan(stage, language);
+  const { status, panels } = plan;
   const drawer = detailDrawerState(drawerVisible ? status : null);
   const collection = method ? collectionConfirmationState(method, confirmed, recorded) : null;
   const delivery = deliverySubmissionState({ scanCode: deliveryScanCode, locationVerified: locationMarked, evidenceReady: false });
@@ -94,13 +96,17 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
         </Pressable>
         {drawer.open && drawer.record ? <View style={styles.drawer}><Text style={styles.label}>{drawer.record.label}</Text></View> : null}
       </View>
-      {sections.includes('warehouse') ? (
+      {panels.includes('warehouse') ? (
         <View style={styles.panel}>
-          <Text accessibilityRole="header" style={styles.title}>{status.label}</Text>
-          <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
+          <Text accessibilityRole="header" style={styles.title}>{t('warehouseArrival')}</Text>
+          <Text style={styles.caption}>{t('warehouseArrivalExample')}</Text>
+          <Pressable accessibilityRole="button" onPress={() => setWarehouseArrived(true)} style={styles.secondaryButton}>
+            <Text>{t('markWarehouseArrival')}</Text>
+          </Pressable>
+          {warehouseArrived ? <Text style={styles.notice}>{t('warehouseArrivalRecorded')}</Text> : null}
         </View>
       ) : null}
-      {sections.includes('load_scan') ? (
+      {panels.includes('load_scan') ? (
         <View style={styles.panel}>
           <Text style={styles.title}>{t('loadScan')}</Text>
           <TextInput accessibilityLabel={t('loadScan')} onChangeText={setLoadScanCode} placeholder={t('loadScanPlaceholder')} style={styles.input} value={loadScanCode} />
@@ -108,7 +114,7 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
           {loadScanCode.trim() ? <Text style={styles.notice}>{t('loadScanRecorded')}</Text> : null}
         </View>
       ) : null}
-      {sections.includes('delivery') ? (
+      {panels.includes('delivery') ? (
         <View style={styles.panel}>
           <Text style={styles.title}>{t('deliveryRecord')}</Text>
           <TextInput accessibilityLabel={t('deliveryScanCode')} onChangeText={setDeliveryScanCode} placeholder={t('deliveryScanPlaceholder')} style={styles.input} value={deliveryScanCode} />
@@ -129,7 +135,7 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
           {problemRecorded ? <Text style={styles.notice}>{t('problemRecorded')}</Text> : null}
         </View>
       ) : null}
-      {sections.includes('collection') ? (
+      {panels.includes('collection') ? (
         <View style={styles.panel}>
           <Text style={styles.title}>{t('collection')}</Text>
           <Text style={styles.caption}>{t('collectionExampleOnly')}</Text>
@@ -145,10 +151,14 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
           {recorded ? <Text style={styles.notice}>{t('collectionRecorded')}</Text> : null}
         </View>
       ) : null}
-      {sections.includes('delivery_proof') ? (
+      {panels.includes('delivery_proof') ? (
         <View style={styles.panel}>
-          <Text accessibilityRole="header" style={styles.title}>{status.label}</Text>
-          <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
+          <Text accessibilityRole="header" style={styles.title}>{t('deliveryProofReview')}</Text>
+          <Text style={styles.caption}>{t('deliveryProofExample')}</Text>
+          <Pressable accessibilityRole="button" onPress={() => setDeliveryProofViewed(true)} style={styles.secondaryButton}>
+            <Text>{t('viewDeliveryProof')}</Text>
+          </Pressable>
+          {deliveryProofViewed ? <Text style={styles.notice}>{t('deliveryProofViewed')}</Text> : null}
         </View>
       ) : null}
       {toastState.active ? <Pressable {...nativeToastA11yProps()} accessibilityRole="alert" onPress={() => setToastState((current) => dismissToast(current))}><Text style={styles.notice}>{toastState.active.message}</Text></Pressable> : null}

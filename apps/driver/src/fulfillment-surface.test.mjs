@@ -6,10 +6,11 @@ test('keeps the fulfillment controls in an independently mountable surface', asy
   const source = await readFile(new URL('./FulfillmentSurface.tsx', import.meta.url), 'utf8');
 
   assert.match(source, /export function FulfillmentSurface/);
-  assert.match(source, /t\('loadScan'\)/);
-  assert.match(source, /t\('undeliveredReason'\)/);
-  assert.match(source, /t\('problemReport'\)/);
-  assert.match(source, /t\('collectionExampleOnly'\)/);
+  assert.match(source, /fulfillmentSurfacePlan\(stage, language\)/);
+  assert.match(source, /const \{ status, panels \} = plan/);
+  assert.match(source, /panels\.includes\('warehouse'\)/);
+  assert.match(source, /panels\.includes\('load_scan'\)/);
+  assert.match(source, /panels\.includes\('delivery_proof'\)/);
   assert.match(source, /createDialogController/);
   assert.match(source, /focusables: \[collectionCancel, collectionConfirm\]/);
   assert.match(source, /onKeyDown=/);
