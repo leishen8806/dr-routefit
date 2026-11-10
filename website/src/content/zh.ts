@@ -14,7 +14,8 @@ export const zh: SiteCopy = {
     body: 'RouteFit 帮商家把货从仓库送到客户手里：按货物选车，按路线派单，交接、在途、签收每一步都有记录可查。',
     primary: '咨询企业合作',
     secondary: '我是司机，想加入',
-    note: 'The right vehicle. The right route. On time.'
+    note: 'The right vehicle. The right route. On time.',
+    route: ['取货点', '配送车辆', '送货点', '交接凭证']
   },
   quick: [
     { title: '我要发货', body: '商家、仓储客户的配送服务，支持企业月结（需审批）。', action: '咨询合作', href: '/contact/' },
@@ -66,5 +67,8 @@ export const zh: SiteCopy = {
     product: '服务', company: '公司', support: '支持', legal: '法律',
     terms: '服务条款', privacy: '隐私政策', rights: '保留所有权利。'
   },
-  placeholder: { eyebrow: '页面建设中', title: '即将上线', body: '这个页面属于后续官网批次，当前还没有对外开放。', back: '返回首页' }
+  placeholder: {
+    eyebrow: '页面建设中', title: '即将上线', body: '这个页面属于后续官网批次，当前还没有对外开放。', back: '返回首页',
+    pricingFacts: ['报价费用逐项列明', '确认报价后才收费', '每份报价都有有效期']
+  }
 };

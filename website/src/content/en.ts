@@ -12,7 +12,8 @@ export const en: SiteCopy = {
     eyebrow: 'Phnom Penh and nearby · Warehousing and delivery',
     title: 'Match the vehicle. Match the route. Deliver on time.',
     body: 'RouteFit helps merchants move goods from warehouse to customer: choose a vehicle for the cargo, dispatch by route, and keep records for handover, transit and receipt.',
-    primary: 'Discuss a business partnership', secondary: 'I am a driver and want to join', note: 'The right vehicle. The right route. On time.'
+    primary: 'Discuss a business partnership', secondary: 'I am a driver and want to join', note: 'The right vehicle. The right route. On time.',
+    route: ['Pickup', 'Vehicle', 'Delivery', 'Handover proof']
   },
   quick: [
     { title: 'I need a delivery', body: 'Delivery for merchants and warehouse customers, with approved business monthly billing.', action: 'Discuss a partnership', href: '/contact/' },
@@ -54,5 +55,8 @@ export const en: SiteCopy = {
   footer: {
     summary: 'Match the vehicle. Match the route. Deliver on time.', product: 'Services', company: 'Company', support: 'Support', legal: 'Legal', terms: 'Terms of service', privacy: 'Privacy policy', rights: 'All rights reserved.'
   },
-  placeholder: { eyebrow: 'Page in progress', title: 'Coming soon', body: 'This page belongs to a later website batch and is not yet available.', back: 'Back to home' }
+  placeholder: {
+    eyebrow: 'Page in progress', title: 'Coming soon', body: 'This page belongs to a later website batch and is not yet available.', back: 'Back to home',
+    pricingFacts: ['Each quote lists its charges separately.', 'Charges apply only after the quote is confirmed.', 'Every quote has an expiry time.']
+  }
 };

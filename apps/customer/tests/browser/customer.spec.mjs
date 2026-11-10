@@ -20,7 +20,13 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await expect(page.getByTestId('runtime-mode')).toContainText('H5');
   await expect(page.getByText('ការផ្ញើនឹងមកដល់ឆាប់ៗ')).toBeVisible();
+  await expect(page.getByTestId('route-diagram')).toHaveCount(1);
+  for (const tab of ['send', 'orders', 'messages', 'profile']) {
+    await page.getByTestId(`tab-${tab}`).click();
+    await page.screenshot({ fullPage: true, path: path.join(evidenceDirectory, `customer-h5-${tab}.png`) });
+  }
 
+  await page.getByTestId('tab-send').click();
   await page.getByTestId('language-en').click();
   await expect(page.getByText('Sending is coming soon')).toBeVisible();
   const tabTitles = {
@@ -51,7 +57,14 @@ test('mocked Telegram mode calls ready and expand', async ({ page }) => {
     window.Telegram = { WebApp: {
       ready: () => window.__telegramCalls.push('ready'),
       expand: () => window.__telegramCalls.push('expand'),
-      themeParams: { bg_color: '#F6F8FB', text_color: '#0B2545' },
+      themeParams: {
+        bg_color: '#F3F5F7',
+        text_color: '#10243E',
+        secondary_bg_color: '#EEF6F4',
+        button_color: '#1B8F76',
+        button_text_color: '#FFFFFF',
+        hint_color: '#59697A',
+      },
       safeAreaInset: { top: 0, right: 0, bottom: 0, left: 0 },
       BackButton: {
         hide: () => window.__telegramCalls.push('back:hide'),
@@ -65,8 +78,12 @@ test('mocked Telegram mode calls ready and expand', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await expect.poll(() => page.evaluate(() => window.__telegramCalls)).toEqual(['ready', 'expand']);
   await expect(page.getByTestId('runtime-mode')).toContainText('Mini App');
+  await expect(page.getByTestId('runtime-mode')).toHaveCSS('background-color', 'rgb(27, 143, 118)');
   await expect(page.locator('script[data-routefit-telegram="official"]')).toHaveCount(0);
-  await page.screenshot({ fullPage: true, path: path.join(evidenceDirectory, 'batch1-mini-app-1440.png') });
+  for (const tab of ['send', 'orders', 'messages', 'profile']) {
+    await page.getByTestId(`tab-${tab}`).click();
+    await page.screenshot({ fullPage: true, path: path.join(evidenceDirectory, `customer-telegram-${tab}.png`) });
+  }
   await page.getByTestId('track-link').click();
   await expect.poll(() => page.evaluate(() => window.__telegramCalls.includes('back:show'))).toBe(true);
 });

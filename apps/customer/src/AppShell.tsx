@@ -14,8 +14,8 @@ export function AppShell({ children }: PropsWithChildren) {
     >
       <StatusBar style="dark" />
       {__DEV__ && Platform.OS === 'web' ? (
-        <View accessibilityRole="text" style={styles.modeBadge} testID="runtime-mode">
-          <Text style={styles.modeText}>{runtime.mode === 'telegram' ? t('modeTelegram') : t('modeH5')}</Text>
+        <View accessibilityRole="text" style={[styles.modeBadge, { backgroundColor: runtime.accentColor }]} testID="runtime-mode">
+          <Text style={[styles.modeText, { color: runtime.buttonTextColor }]}>{runtime.mode === 'telegram' ? t('modeTelegram') : t('modeH5')}</Text>
         </View>
       ) : null}
       {children}
@@ -30,8 +30,6 @@ const styles = StyleSheet.create({
   },
   modeBadge: {
     alignSelf: 'flex-end',
-    backgroundColor: '#0B2545',
-    borderBottomLeftRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 7,
     position: 'absolute',
@@ -40,8 +38,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   modeText: {
-    color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });

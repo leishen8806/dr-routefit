@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   ApiError,
+  designTokens,
   languageLabels,
   localizedHeaders,
   message,
@@ -34,4 +35,10 @@ test('shares the trilingual catalog shape while preserving app language codes', 
   };
   assert.equal(message(catalog, 'en', 'title'), 'English');
   assert.equal(languageLabels['zh-Hans'], languageLabels.zh);
+});
+
+test('shares product-neutral design tokens without native dependencies', () => {
+  assert.equal(designTokens.color.navy, '#0B2545');
+  assert.equal(designTokens.type.khmer, 'Noto Sans Khmer');
+  assert.equal(designTokens.space.x6, 24);
 });

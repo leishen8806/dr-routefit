@@ -1,7 +1,7 @@
 ---
 import type { SiteCopy, Language } from '../content/types';
-interface Props { lang: Language; copy: SiteCopy; label: string }
-const { lang, copy, label } = Astro.props;
+interface Props { lang: Language; copy: SiteCopy; label: string; slug: string }
+const { lang, copy, label, slug } = Astro.props;
 ---
 <section class="section placeholder-section">
   <div class="shell placeholder-card">
@@ -9,6 +9,7 @@ const { lang, copy, label } = Astro.props;
     <p class="placeholder-label">{label}</p>
     <h1>{copy.placeholder.title}</h1>
     <p class="lead">{copy.placeholder.body}</p>
+    {slug === 'pricing' && <ul class="pricing-facts">{copy.placeholder.pricingFacts.map((fact) => <li>{fact}</li>)}</ul>}
     <a class="button" href={`/${lang}/`}>{copy.placeholder.back}</a>
   </div>
 </section>
