@@ -54,6 +54,17 @@ test('configured page data renders through the list and its matching detail draw
   assert.match(renderOperationsScreen('orders', { pageId: 'orders', index: 0 }, configuredPages), /CFG-001/);
 });
 
+test('configured page ignores a malformed row instead of rendering an empty detail record', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [{}],
+    },
+  };
+
+  assert.equal(getOperationsRecord('orders', 0, configuredPages), null);
+});
+
 test('order view renders an accessible sample-data table and marks actions as frontend-only', () => {
   const markup = renderOperationsPage('orders');
 

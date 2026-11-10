@@ -76,7 +76,7 @@ export function getOperationsPage(id, configuredPages) {
 export function getOperationsRecord(id, index, configuredPages) {
   const page = getOperationsPage(id, configuredPages);
   const row = page?.rows[index];
-  if (!page || !row) return null;
+  if (!page || !Array.isArray(row)) return null;
   return {
     pageId: page.id,
     title: page.title,
