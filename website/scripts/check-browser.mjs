@@ -115,11 +115,23 @@ try {
   const lowContrastButton = buttonContrast.find(({ ratio }) => ratio < 4.5);
   if (lowContrastButton) throw new Error(`preview: button contrast below 4.5:1 (${lowContrastButton.label}, ${lowContrastButton.ratio.toFixed(2)})`);
   const topbarLayout = await fullpage.evaluate(() => {
-    const topbar = document.querySelector('.fullpage-topbar')?.getBoundingClientRect();
+    const element = document.querySelector('.fullpage-topbar');
+    const topbar = element?.getBoundingClientRect();
+    const style = element ? getComputedStyle(element) : null;
     const shell = document.querySelector('#screen-1 .panel-shell')?.getBoundingClientRect();
-    return { height: topbar?.height ?? Infinity, overlaps: (topbar?.bottom ?? Infinity) > (shell?.top ?? -Infinity) };
+    return {
+      height: topbar?.height ?? Infinity,
+      visible: Boolean(topbar?.width && topbar?.height && style?.display !== 'none' && style?.visibility !== 'hidden' && Number(style?.opacity) > 0),
+      overlaps: (topbar?.bottom ?? Infinity) > (shell?.top ?? -Infinity)
+    };
   });
-  if (topbarLayout.height > 64 || topbarLayout.overlaps) throw new Error('preview: fixed topbar exceeds 64px or covers first-screen content');
+  if (!topbarLayout.visible || topbarLayout.height > 64 || topbarLayout.overlaps) throw new Error('preview: fixed topbar is missing, hidden, exceeds 64px, or covers first-screen content');
+  const desktopTitle = await fullpage.locator('#screen-1-title').evaluate((title) => ({
+    lines: title.querySelectorAll(':scope > .title-line').length,
+    renderedLines: new Set([...title.querySelectorAll(':scope > .title-line')].map((line) => Math.round(line.getBoundingClientRect().top))).size,
+    nowrap: getComputedStyle(title.querySelector('.nowrap')).whiteSpace
+  }));
+  if (desktopTitle.lines !== 2 || desktopTitle.renderedLines !== 2 || desktopTitle.nowrap !== 'nowrap') throw new Error('preview: first-screen desktop title is not exactly two lines');
   const progressGap = await fullpage.evaluate(() => {
     const dots = document.querySelector('.fullpage-dots')?.getBoundingClientRect();
     if (!dots) return -Infinity;
@@ -143,11 +155,12 @@ try {
   if (mobileSnap !== 'none') throw new Error(`preview: mobile scroll snap should be disabled, got ${mobileSnap}`);
   if (await previewMobile.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error('preview: horizontal overflow at 390px');
   const mobileTitle = await previewMobile.locator('#screen-1-title').evaluate((title) => ({
-    lines: title.querySelectorAll('.title-line').length,
+    lines: title.querySelectorAll(':scope > .title-line').length,
+    renderedLines: new Set([...title.querySelectorAll(':scope > .title-line')].map((line) => Math.round(line.getBoundingClientRect().top))).size,
     nowrap: getComputedStyle(title.querySelector('.nowrap')).whiteSpace,
-    overflows: [...title.querySelectorAll('.title-line')].some((line) => line.scrollWidth > line.clientWidth + 1)
+    overflows: [...title.querySelectorAll(':scope > .title-line')].some((line) => line.scrollWidth > line.clientWidth + 1)
   }));
-  if (mobileTitle.lines !== 2 || mobileTitle.nowrap !== 'nowrap' || mobileTitle.overflows) throw new Error('preview: first-screen mobile title does not preserve the approved two-line break');
+  if (mobileTitle.lines !== 2 || mobileTitle.renderedLines !== 2 || mobileTitle.nowrap !== 'nowrap' || mobileTitle.overflows) throw new Error('preview: first-screen mobile title is not exactly two intact lines');
 
   const reduced = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   const reducedPage = await reduced.newPage();
