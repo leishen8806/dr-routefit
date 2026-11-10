@@ -57,6 +57,7 @@ export default function HomePage() {
   const [promotionVisibility, setPromotionVisibility] = useState(() => promotionSequence.getVisiblePromotion());
   const overview = experience.getOverview();
   const orderDetail = experience.findOrderDetail(overview.order.id);
+  const orderTimeline = experience.getOrderTrackingTimeline(overview.order.id);
   const orders = experience.listOrders();
   const paymentIntent = experience.getExamplePaymentConfirmation();
   const messages = experience.listMessages();
@@ -177,6 +178,11 @@ export default function HomePage() {
                 <Text style={[styles.flowText, face]}>{t('cod')}</Text>
               </View>
               {orderDetail ? <Text style={[styles.detailHint, face]}>{t('protectedPhone')}</Text> : null}
+              {orderTimeline ? (
+                <View accessibilityLabel={t('tracking')} style={styles.orderTimeline} testID="example-order-timeline">
+                  {orderTimeline.stops.map((stop) => <View key={stop.state} style={[styles.orderTimelineStop, stop.active && styles.orderTimelineStopActive]} />)}
+                </View>
+              ) : null}
             </View>
           ) : null}
           {activeTab === 'messages' ? (
@@ -296,6 +302,9 @@ const styles = StyleSheet.create({
   flowText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
   detailCard: { backgroundColor: '#F8FAFC', borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, gap: designTokens.space.x2, marginTop: designTokens.space.x6, padding: designTokens.space.x4 },
   orderRow: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, gap: 2, marginTop: designTokens.space.x2, padding: designTokens.space.x3 },
+  orderTimeline: { flexDirection: 'row', gap: designTokens.space.x2, marginTop: designTokens.space.x2 },
+  orderTimelineStop: { backgroundColor: designTokens.color.line, borderRadius: 4, flex: 1, height: 8 },
+  orderTimelineStopActive: { backgroundColor: designTokens.color.amber },
   detailTitle: { color: designTokens.color.ink, fontSize: 16, fontWeight: '600', lineHeight: 24, marginTop: designTokens.space.x2 },
   detailStatus: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
   detailHint: { color: designTokens.color.muted, fontSize: 14, lineHeight: 22 },

@@ -63,6 +63,13 @@ export function createCustomerExperience() {
     findOrderDetail(orderId) {
       return orderId === ORDER_ID ? order : null;
     },
+    getOrderTrackingTimeline(orderId) {
+      if (orderId !== ORDER_ID) return null;
+      return Object.freeze({
+        isExample: true,
+        stops: order.stops,
+      });
+    },
     listOrders() {
       return orders;
     },

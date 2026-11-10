@@ -30,6 +30,20 @@ test('keeps recipient tracking limited to synthetic order information', () => {
   assert.equal(experience.findRecipientTracking('unknown'), null);
 });
 
+test('provides an immutable example-only tracking timeline for the order detail view', () => {
+  const experience = createCustomerExperience();
+  const timeline = experience.getOrderTrackingTimeline('EXAMPLE-CUSTOMER-001');
+
+  assert.equal(timeline.isExample, true);
+  assert.deepEqual(timeline.stops, [
+    { state: 'created', active: false },
+    { state: 'driver_assigned', active: true },
+    { state: 'delivered', active: false },
+  ]);
+  assert.equal(Object.isFrozen(timeline.stops), true);
+  assert.equal(experience.getOrderTrackingTimeline('unknown'), null);
+});
+
 test('provides example-only order detail, message, and profile views', () => {
   const experience = createCustomerExperience();
 
