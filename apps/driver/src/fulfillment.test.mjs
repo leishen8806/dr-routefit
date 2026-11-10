@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   collectionState,
   collectionConfirmationState,
+  collectionDialogResult,
   deliveryProofState,
   deliverySubmissionState,
   fulfillmentStep,
@@ -57,6 +58,12 @@ test('requires an explicit second confirmation before recording a demo collectio
     confirmationRequired: true,
     canRecord: true,
   });
+});
+
+test('treats escape as cancel for example collection confirmation', () => {
+  assert.deepEqual(collectionDialogResult('cancel'), { closeDialog: true, record: false });
+  assert.deepEqual(collectionDialogResult('escape'), { closeDialog: true, record: false });
+  assert.deepEqual(collectionDialogResult('confirm'), { closeDialog: true, record: true });
 });
 
 test('shows an offline notice without attempting a network fallback', () => {

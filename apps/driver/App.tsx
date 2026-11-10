@@ -1,11 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import * as Crypto from 'expo-crypto';
 import { useNetworkState } from 'expo-network';
-import { useEffect, useRef, useState } from 'react';
+import { type ComponentRef, useEffect, useRef, useState } from 'react';
 import { designTokens } from '@routefit/shared';
 import {
   ActivityIndicator,
+  AccessibilityInfo,
+  findNodeHandle,
   Linking,
+  Modal,
   Platform,
   Pressable,
   SafeAreaView,
@@ -46,7 +49,7 @@ import {
 } from './src/driver-api';
 import { deleteDeliveryPhoto, deliveryPhotoBlob, captureDeliveryPhoto, type DeliveryPhoto } from './src/delivery-photo';
 import { deliveryConfirmationStep, packageSelection, uploadTicketForPhoto } from './src/delivery.mjs';
-import { collectionConfirmationState, deliverySubmissionState, fulfillmentStatusPresentation } from './src/fulfillment.mjs';
+import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentStatusPresentation } from './src/fulfillment.mjs';
 import { errorText, languageOptions, text, type MessageKey } from './src/messages';
 import { openOfflineEventQueue } from './src/offline-queue.mjs';
 import { createOfflineQueueStore } from './src/offline-store';
@@ -81,6 +84,7 @@ export default function App() {
   const [deliveryOutcome, setDeliveryOutcome] = useState('');
   const [collectionMethod, setCollectionMethod] = useState<'cash' | 'khqr' | null>(null);
   const [collectionConfirmed, setCollectionConfirmed] = useState(false);
+  const [collectionDialogOpen, setCollectionDialogOpen] = useState(false);
   const [collectionOutcome, setCollectionOutcome] = useState('');
   const [now, setNow] = useState(Date.now());
   // shortcut: manual device ID is development-only, remove after RF-PM-055 batch 5 registers devices.
@@ -90,6 +94,8 @@ export default function App() {
   const [queueFailed, setQueueFailed] = useState(false);
   const [syncBusy, setSyncBusy] = useState(false);
   const actionInFlight = useRef(false);
+  const collectionDialogTrigger = useRef<ComponentRef<typeof Pressable> | null>(null);
+  const collectionDialogConfirm = useRef<ComponentRef<typeof Pressable> | null>(null);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const queueRef = useRef<Awaited<ReturnType<typeof openOfflineEventQueue>> | null>(null);
   const networkState = useNetworkState();
@@ -133,6 +139,18 @@ export default function App() {
     return cause instanceof Error ? cause.message : t(fallback);
   }
 
+  function returnCollectionDialogFocus() {
+    const triggerTag = findNodeHandle(collectionDialogTrigger.current);
+    if (triggerTag) AccessibilityInfo.setAccessibilityFocus(triggerTag);
+  }
+
+  function closeCollectionDialog(action: 'cancel' | 'escape' | 'confirm') {
+    const result = collectionDialogResult(action);
+    setCollectionDialogOpen(false);
+    if (result.record) setCollectionOutcome(t('collectionRecorded'));
+    setTimeout(returnCollectionDialogFocus, 0);
+  }
+
   async function refreshAssignments(clearError = true) {
     setLoading('list');
     if (clearError) setError('');
@@ -156,6 +174,7 @@ export default function App() {
     setDeliveryOutcome('');
     setCollectionMethod(null);
     setCollectionConfirmed(false);
+    setCollectionDialogOpen(false);
     setCollectionOutcome('');
     try {
       const nextDetail = await getAssignment(auth(), language, assignmentId);
@@ -645,7 +664,8 @@ export default function App() {
                           <Pressable
                             accessibilityRole="button"
                             disabled={!collection.canRecord}
-                            onPress={() => setCollectionOutcome(t('collectionRecorded'))}
+                            onPress={() => setCollectionDialogOpen(true)}
+                            ref={collectionDialogTrigger}
                             style={[styles.button, !collection.canRecord && styles.buttonDisabled]}
                           >
                             <Text style={styles.buttonText}>{t('collectionRecord')}</Text>
@@ -753,6 +773,37 @@ export default function App() {
           </View>
         ) : null}
       </ScrollView>
+      <Modal
+        animationType="fade"
+        onRequestClose={() => closeCollectionDialog('escape')}
+        transparent
+        visible={collectionDialogOpen}
+      >
+        <View accessibilityViewIsModal style={styles.dialogBackdrop}>
+          <View accessibilityLabel={t('collectionConfirm')} accessibilityRole="alert" style={styles.dialog}>
+            <Text style={styles.sectionTitle}>{t('collectionConfirm')}</Text>
+            <Text style={styles.caption}>{t('collectionExampleOnly')}</Text>
+            <View style={styles.dialogActions}>
+              <Pressable accessibilityRole="button" onPress={() => closeCollectionDialog('cancel')} style={styles.secondaryButton}>
+                <Text style={styles.secondaryButtonText}>{t('collectionCancel')}</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => closeCollectionDialog('confirm')}
+                onLayout={() => {
+                  if (!collectionDialogOpen) return;
+                  const confirmTag = findNodeHandle(collectionDialogConfirm.current);
+                  if (confirmTag) AccessibilityInfo.setAccessibilityFocus(confirmTag);
+                }}
+                ref={collectionDialogConfirm}
+                style={styles.button}
+              >
+                <Text style={styles.buttonText}>{t('collectionRecord')}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -787,6 +838,9 @@ const styles = StyleSheet.create({
   execution: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
   deliveryPanel: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
   collectionPanel: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
+  dialogBackdrop: { alignItems: 'center', backgroundColor: 'rgba(15, 35, 58, 0.55)', flex: 1, justifyContent: 'center', padding: 24 },
+  dialog: { backgroundColor: designTokens.color.surface, borderRadius: designTokens.radius.large, gap: 12, maxWidth: 420, padding: designTokens.space.x6, width: '100%' },
+  dialogActions: { flexDirection: 'row', gap: 10, justifyContent: 'flex-end' },
   offline: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
   packageRow: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 4, padding: 10 },
   packageChoice: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 8, padding: 10 },

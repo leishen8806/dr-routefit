@@ -9,6 +9,7 @@ import {
 } from './task-actions.mjs';
 
 const zh = {
+  collectionCancel: '取消',
   deliveryScanCode: '送达扫码', deliveryScanPlaceholder: '输入或扫描包裹编号', verifyDeliveryLocation: '确认送达位置', deliveryLocationVerified: '送达位置已核对', deliveryCheckMissing: '请完成扫码、位置核对并上传证据',
   appName: 'DR ROUTEFIT', title: '司机任务', caption: '仅连接本机开发服务；正式登录由 RF-PM-055 替换。',
   tokenLabel: '本机开发会话令牌', csrfLabel: '本机开发 CSRF 令牌', secretPlaceholder: '仅保存在当前进程内',
@@ -39,6 +40,7 @@ const zh = {
 };
 
 const en: typeof zh = {
+  collectionCancel: 'Cancel',
   deliveryScanCode: 'Delivery scan', deliveryScanPlaceholder: 'Enter or scan a package ID', verifyDeliveryLocation: 'Confirm delivery location', deliveryLocationVerified: 'Delivery location confirmed', deliveryCheckMissing: 'Complete the scan, location check, and evidence upload first',
   appName: 'DR ROUTEFIT', title: 'Driver tasks', caption: 'Local development service only; RF-PM-055 will replace this login.',
   tokenLabel: 'Local development session token', csrfLabel: 'Local development CSRF token', secretPlaceholder: 'Kept in process memory only',

@@ -74,6 +74,12 @@ export function collectionConfirmationState(method, confirmed) {
   };
 }
 
+export function collectionDialogResult(action) {
+  if (action === 'confirm') return { closeDialog: true, record: true };
+  if (action === 'cancel' || action === 'escape') return { closeDialog: true, record: false };
+  throw new Error('Collection dialog action is not supported');
+}
+
 export function offlineNotice(offline) {
   return offline
     ? { visible: true, message: '当前离线，操作将等待网络恢复后同步。' }
