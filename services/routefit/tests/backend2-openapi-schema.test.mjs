@@ -33,4 +33,16 @@ test('Backend2 write schemas keep simulated collection, versioning, and driver e
     () => validate('DriverApplicationReviewAction', {decision: 'APPROVE'}),
     {code: 'VALIDATION_FAILED'}
   );
+  assert.doesNotThrow(() => validate('LocationCheckCreate', {
+    observed: {lat: 11.5564, lng: 104.9282},
+    allowedRadiusMeters: 150
+  }));
+  assert.throws(
+    () => validate('LocationCheckCreate', {
+      expected: {lat: 11.5565, lng: 104.9283},
+      observed: {lat: 11.5564, lng: 104.9282},
+      allowedRadiusMeters: 150
+    }),
+    {code: 'VALIDATION_FAILED'}
+  );
 });
