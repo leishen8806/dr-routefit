@@ -69,3 +69,11 @@ test('sequences the example startup ad before the home popup and keeps one promo
   sequence.dismissHomePopup();
   assert.deepEqual(sequence.getVisiblePromotion(), { startupAd: false, homePopup: false });
 });
+
+test('clears every promotion before the frontend-only payment confirmation opens', () => {
+  const sequence = createPromotionSequence();
+
+  sequence.beginPaymentConfirmation();
+
+  assert.deepEqual(sequence.getVisiblePromotion(), { startupAd: false, homePopup: false });
+});

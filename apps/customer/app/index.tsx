@@ -154,7 +154,7 @@ export default function HomePage() {
                 <Text style={[styles.flowText, face]}>{t('payment')}</Text>
                 <Text style={[styles.flowText, face]}>{t('cod')}</Text>
               </View>
-              <Pressable accessibilityRole="button" onPress={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); setPaymentConfirmationOpen(true); }} style={styles.confirmButton} testID="confirm-example-payment">
+              <Pressable accessibilityRole="button" onPress={() => { promotionSequence.beginPaymentConfirmation(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); setPaymentConfirmationOpen(true); }} style={styles.confirmButton} testID="confirm-example-payment">
                 <Text style={[styles.confirmText, face]}>{paymentConfirmed ? t('payment') : t('confirm')}</Text>
               </Pressable>
             </>

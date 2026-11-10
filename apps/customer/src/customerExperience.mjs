@@ -90,5 +90,8 @@ export function createPromotionSequence() {
     dismissHomePopup() {
       visible = { startupAd: false, homePopup: false };
     },
+    beginPaymentConfirmation() {
+      visible = { startupAd: false, homePopup: false };
+    },
   });
 }
