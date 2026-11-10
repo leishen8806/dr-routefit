@@ -72,7 +72,7 @@ export default function HomePage() {
       <ScrollView contentContainerStyle={[styles.scrollContent, compact && styles.scrollContentCompact]}>
         <View style={styles.masthead}>
           <View style={styles.routeHeader}>
-            <Svg accessibilityLabel={t('appName')} height={44} testID="routefit-brand-mark" viewBox="0 0 64 64" width={44}>
+            <Svg accessibilityLabel={t('appName')} height={44} testID="customer-home-brand-mark" viewBox="0 0 64 64" width={44}>
               <Path d="M16 53 V13 A4 4 0 0 1 20 9 H38 A13 13 0 0 1 51 22 A13 13 0 0 1 38 35 H26 L44 53" fill="none" stroke="#0B2545" strokeLinecap="round" strokeLinejoin="round" strokeWidth={7} />
               <Circle cx={16} cy={53} fill="#13C29B" r={6} />
               <Rect fill="#F5A623" height={11} rx={2.5} width={15} x={24} y={16.5} />
@@ -91,7 +91,7 @@ export default function HomePage() {
                 key={option.code}
                 onPress={() => setLanguage(option.code)}
                 style={({ pressed }) => [styles.languageButton, language === option.code && styles.languageButtonActive, pressed && styles.pressed]}
-                testID={`language-${option.code}`}
+                testID={`customer-home-language-${option.code}`}
               >
                 <Text style={[styles.languageText, face, language === option.code && styles.languageTextActive]}>{option.label}</Text>
               </Pressable>
@@ -104,7 +104,7 @@ export default function HomePage() {
             <Text style={[styles.title, face]}>{t('greeting')}</Text>
             <Text style={[styles.intro, face]}>{t('intro')}</Text>
           </View>
-          <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.routeDiagram} testID="route-diagram">
+          <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.routeDiagram} testID="customer-home-route-diagram">
             <View style={styles.routeTrack} />
             <View style={[styles.routeNode, styles.routeNodeStart]} />
             <View style={[styles.routeNode, styles.routeNodeCurrent]} />
@@ -116,29 +116,29 @@ export default function HomePage() {
         <Text style={[styles.reviewNote, face]}>{t('reviewPending')}</Text>
 
         {promotionVisibility.startupAd && overview.startupAd.kind === 'example' ? (
-          <View accessibilityLiveRegion="polite" style={styles.startupAd} testID="example-startup-ad">
+          <View accessibilityLiveRegion="polite" style={styles.startupAd} testID="customer-home-startup-ad">
             <Text style={[styles.startupTitle, face]}>{t('promotion')}</Text>
             <Text style={[styles.startupBody, face]}>{t('example')}</Text>
-            <Pressable accessibilityRole="button" onPress={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.confirmButton} testID="dismiss-startup-ad">
+            <Pressable accessibilityRole="button" onPress={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.confirmButton} testID="customer-home-startup-ad-dismiss">
               <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
             </Pressable>
           </View>
         ) : null}
 
         {promotionVisibility.homePopup && overview.homePopup.kind === 'example' ? (
-          <View accessibilityLiveRegion="polite" style={styles.promotion} testID="example-promotion">
+          <View accessibilityLiveRegion="polite" style={styles.promotion} testID="customer-home-promotion">
             <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
             <View style={styles.promotionCopy}>
               <Text style={[styles.promotionTitle, face]}>{t('promotion')}</Text>
               <Text style={[styles.promotionBody, face]}>{t('intro')}</Text>
             </View>
-            <Pressable accessibilityLabel={t('back')} onPress={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.dismissButton} testID="dismiss-promotion">
+            <Pressable accessibilityLabel={t('back')} onPress={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.dismissButton} testID="customer-home-promotion-dismiss">
               <Text style={[styles.dismissText, face]}>×</Text>
             </Pressable>
           </View>
         ) : null}
 
-        <View accessibilityLiveRegion="polite" style={[styles.emptyPanel, { backgroundColor: runtime.surfaceColor }]} testID="empty-panel">
+        <View accessibilityLiveRegion="polite" style={[styles.emptyPanel, { backgroundColor: runtime.surfaceColor }]} testID="customer-home-content-panel">
           <View style={styles.emptyRule} />
           <Text style={[styles.emptyTitle, face]}>{t(activeTab === 'orders' ? 'orderExampleTitle' : activeTab === 'messages' ? 'messageExampleTitle' : activeTab === 'profile' ? 'profileExampleTitle' : activeCopy.title)}</Text>
           <Text style={[styles.emptyBody, face]}>{activeTab === 'send' ? t(activeCopy.body) : t('noRealData')}</Text>
@@ -146,28 +146,28 @@ export default function HomePage() {
             <>
               <View style={styles.choiceRow}>
                 {(['single', 'bulk'] as const).map((mode) => (
-                  <Pressable key={mode} onPress={() => setSendMode(mode)} style={[styles.choiceButton, sendMode === mode && styles.choiceButtonActive]} testID={`send-mode-${mode}`}>
+                  <Pressable key={mode} onPress={() => setSendMode(mode)} style={[styles.choiceButton, sendMode === mode && styles.choiceButtonActive]} testID={mode === 'single' ? 'customer-ship-submit' : 'customer-send-bulk-select'}>
                     <Text style={[styles.choiceText, face, sendMode === mode && styles.choiceTextActive]}>{t(mode === 'single' ? 'singleDelivery' : 'bulkDelivery')}</Text>
                   </Pressable>
                 ))}
               </View>
-              <View style={styles.flowSummary} testID="send-flow-summary">
+              <Pressable accessibilityRole="button" onPress={() => setPaymentConfirmed(false)} style={styles.flowSummary} testID="customer-quote-confirm">
                 <Text style={[styles.flowText, face]}>{t('quote')}</Text>
                 <Text style={[styles.flowText, face]}>{t('payment')}</Text>
                 <Text style={[styles.flowText, face]}>{t('cod')}</Text>
-              </View>
-              <Pressable accessibilityRole="button" onPress={() => { promotionSequence.beginPaymentConfirmation(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); setPaymentConfirmationOpen(true); }} style={styles.confirmButton} testID="confirm-example-payment">
+              </Pressable>
+              <Pressable accessibilityRole="button" onPress={() => { promotionSequence.beginPaymentConfirmation(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); setPaymentConfirmationOpen(true); }} style={styles.confirmButton} testID="customer-pay-confirm">
                 <Text style={[styles.confirmText, face]}>{paymentConfirmed ? t('payment') : t('confirm')}</Text>
               </Pressable>
             </>
           ) : null}
           {activeTab === 'orders' ? (
-            <View style={styles.detailCard} testID="example-order-detail">
+            <View style={styles.detailCard} testID="customer-orders-example-detail">
               <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
               <Text style={[styles.detailTitle, face]}>{t('orderDetail')}</Text>
               <Text style={[styles.detailStatus, face]}>{t('orderStatus')}</Text>
               {orders.map((entry) => (
-                <View key={entry.id} style={styles.orderRow} testID={`example-order-${entry.id}`}>
+                <View key={entry.id} style={styles.orderRow} testID={`customer-orders-example-${entry.id}`}>
                   <Text style={[styles.detailHint, face]}>{t('orderExampleTitle')}</Text>
                   <Text style={[styles.detailHint, face]}>{t('orderStatus')}</Text>
                 </View>
@@ -179,21 +179,21 @@ export default function HomePage() {
               </View>
               {orderDetail ? <Text style={[styles.detailHint, face]}>{t('protectedPhone')}</Text> : null}
               {orderTimeline ? (
-                <View accessibilityLabel={t('tracking')} style={styles.orderTimeline} testID="example-order-timeline">
+                <View accessibilityLabel={t('tracking')} style={styles.orderTimeline} testID="customer-orders-example-timeline">
                   {orderTimeline.stops.map((stop) => <View key={stop.state} style={[styles.orderTimelineStop, stop.active && styles.orderTimelineStopActive]} />)}
                 </View>
               ) : null}
             </View>
           ) : null}
           {activeTab === 'messages' ? (
-            <View style={styles.detailCard} testID="example-message">
+            <View style={styles.detailCard} testID="customer-messages-example">
               <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
               <Text style={[styles.detailTitle, face]}>{t('messageExampleTitle')}</Text>
               {messages.map((entry) => <Text key={entry.id} style={[styles.detailHint, face]}>{t(entry.state === 'driver_assigned' ? 'messageExampleBody' : 'noRealData')}</Text>)}
             </View>
           ) : null}
           {activeTab === 'profile' ? (
-            <View style={styles.detailCard} testID="profile-example">
+            <View style={styles.detailCard} testID="customer-profile-example">
               <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
               <Text style={[styles.detailTitle, face]}>{t('recipient')}</Text>
               <Text style={[styles.detailHint, face]}>{t('protectedPhone')}</Text>
@@ -203,23 +203,23 @@ export default function HomePage() {
               </View>
             </View>
           ) : null}
-          <Link accessibilityRole="link" href="/track" style={[styles.trackLink, face]} testID="track-link">
+          <Link accessibilityRole="link" href="/track" style={[styles.trackLink, face]} testID="customer-home-track-link">
             {t('trackLink')} →
           </Link>
         </View>
       </ScrollView>
 
       {paymentConfirmationOpen ? (
-        <View accessibilityViewIsModal style={styles.modalBackdrop} testID="example-payment-confirmation">
+        <View accessibilityViewIsModal style={styles.modalBackdrop} testID="customer-payment-confirmation">
           <View accessibilityRole="alert" style={[styles.modalCard, { backgroundColor: runtime.surfaceColor }]}>
             <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
             <Text style={[styles.modalTitle, face]}>{t('paymentConfirmTitle')}</Text>
             <Text style={[styles.detailHint, face]}>{t('paymentConfirmBody')}</Text>
             <View style={styles.modalActions}>
-              <Pressable accessibilityRole="button" onPress={() => setPaymentConfirmationOpen(false)} style={styles.cancelButton} testID="cancel-example-payment">
+              <Pressable accessibilityRole="button" onPress={() => setPaymentConfirmationOpen(false)} style={styles.cancelButton} testID="customer-payment-cancel">
                 <Text style={[styles.cancelText, face]}>{t('cancel')}</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" onPress={() => { if (paymentIntent.requiresConfirmation && paymentIntent.action === 'frontend_only') setPaymentConfirmed(true); setPaymentConfirmationOpen(false); }} style={styles.confirmButton} testID="complete-example-payment">
+              <Pressable accessibilityRole="button" onPress={() => { if (paymentIntent.requiresConfirmation && paymentIntent.action === 'frontend_only') setPaymentConfirmed(true); setPaymentConfirmationOpen(false); }} style={styles.confirmButton} testID="customer-payment-complete">
                 <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
               </Pressable>
             </View>
@@ -238,7 +238,7 @@ export default function HomePage() {
               key={tab.key}
               onPress={() => setActiveTab(tab.key)}
               style={({ pressed }) => [styles.tab, selected && styles.tabSelected, pressed && styles.pressed]}
-              testID={`tab-${tab.key}`}
+              testID={`customer-home-tab-${tab.key}`}
             >
               <TabIcon selected={selected} tab={tab.key} />
               <Text style={[styles.tabText, face, selected && styles.tabTextSelected]}>{t(tab.label)}</Text>

@@ -20,7 +20,7 @@ export default function TrackPage() {
       <Text style={[styles.title, language === 'km' && styles.khmer]}>{t('trackTitle')}</Text>
       <Text style={[styles.body, language === 'km' && styles.khmer]}>{t('trackBody')}</Text>
       {tracking ? (
-        <View style={styles.card} testID="recipient-example-tracking">
+        <View style={styles.card} testID="customer-track-recipient-example">
           <Text style={[styles.example, language === 'km' && styles.khmer]}>{t('example')}</Text>
           <Text style={[styles.body, styles.cardText, language === 'km' && styles.khmer]}>{t('tracking')}</Text>
           <View style={styles.stops}>
