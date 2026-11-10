@@ -1,8 +1,9 @@
 const stepByStage = {
-  to_warehouse: 'warehouse',
-  loading: 'load_scan',
-  delivering: 'delivery',
-  delivered: 'delivery_proof',
+  none: 'warehouse',
+  pickup_pending: 'load_scan',
+  picked_up: 'delivery',
+  in_transit: 'delivery',
+  delivery_recorded: 'delivery_proof',
 };
 
 const stepLabels = {
@@ -32,9 +33,10 @@ export function fulfillmentStatusPresentation(stage, language) {
 
 export function fulfillmentSections(stage) {
   switch (stage) {
-    case 'loading':
+    case 'pickup_pending':
       return ['warehouse', 'load_scan', 'offline'];
-    case 'delivering':
+    case 'picked_up':
+    case 'in_transit':
       return [
         'delivery',
         'delivery_scan',

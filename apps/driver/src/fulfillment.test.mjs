@@ -15,11 +15,12 @@ import {
   undeliveredReasonState,
 } from './fulfillment.mjs';
 
-test('maps active fulfillment work to the warehouse, delivery, and proof steps', () => {
-  assert.equal(fulfillmentStep('to_warehouse'), 'warehouse');
-  assert.equal(fulfillmentStep('loading'), 'load_scan');
-  assert.equal(fulfillmentStep('delivering'), 'delivery');
-  assert.equal(fulfillmentStep('delivered'), 'delivery_proof');
+test('maps persisted order fulfillment stages to the driver steps', () => {
+  assert.equal(fulfillmentStep('none'), 'warehouse');
+  assert.equal(fulfillmentStep('pickup_pending'), 'load_scan');
+  assert.equal(fulfillmentStep('picked_up'), 'delivery');
+  assert.equal(fulfillmentStep('in_transit'), 'delivery');
+  assert.equal(fulfillmentStep('delivery_recorded'), 'delivery_proof');
 });
 
 test('requires a scan and location verification before delivery proof can submit', () => {
@@ -82,20 +83,20 @@ test('requires a non-empty problem report summary', () => {
 });
 
 test('exposes the correct fulfillment page sections for delivery work', () => {
-  assert.deepEqual(fulfillmentSections('loading'), ['warehouse', 'load_scan', 'offline']);
-  assert.deepEqual(fulfillmentSections('delivering'), ['delivery', 'delivery_scan', 'location_check', 'collection', 'problem_report', 'offline']);
+  assert.deepEqual(fulfillmentSections('pickup_pending'), ['warehouse', 'load_scan', 'offline']);
+  assert.deepEqual(fulfillmentSections('in_transit'), ['delivery', 'delivery_scan', 'location_check', 'collection', 'problem_report', 'offline']);
 });
 
 test('provides a localized fulfillment status for the driver detail screen', () => {
-  assert.deepEqual(fulfillmentStatusPresentation('loading', 'zh-Hans'), {
+  assert.deepEqual(fulfillmentStatusPresentation('pickup_pending', 'zh-Hans'), {
     step: 'load_scan',
     label: '扫码装车',
   });
-  assert.deepEqual(fulfillmentStatusPresentation('delivering', 'en'), {
+  assert.deepEqual(fulfillmentStatusPresentation('in_transit', 'en'), {
     step: 'delivery',
     label: 'Delivering',
   });
-  assert.deepEqual(fulfillmentStatusPresentation('delivered', 'km'), {
+  assert.deepEqual(fulfillmentStatusPresentation('delivery_recorded', 'km'), {
     step: 'delivery_proof',
     label: 'Delivery scan',
   });
