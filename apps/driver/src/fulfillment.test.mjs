@@ -5,6 +5,7 @@ import {
   collectionState,
   deliveryProofState,
   fulfillmentStep,
+  fulfillmentSections,
   offlineNotice,
   problemReportState,
   undeliveredReasonState,
@@ -40,4 +41,9 @@ test('requires a selected undelivered reason before a partial delivery can submi
 test('requires a non-empty problem report summary', () => {
   assert.deepEqual(problemReportState('   '), { canSubmit: false, summary: null });
   assert.deepEqual(problemReportState('收件人地址无法进入'), { canSubmit: true, summary: '收件人地址无法进入' });
+});
+
+test('exposes the correct fulfillment page sections for delivery work', () => {
+  assert.deepEqual(fulfillmentSections('loading'), ['warehouse', 'load_scan', 'offline']);
+  assert.deepEqual(fulfillmentSections('delivering'), ['delivery', 'delivery_scan', 'location_check', 'collection', 'problem_report', 'offline']);
 });

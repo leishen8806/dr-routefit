@@ -9,6 +9,24 @@ export function fulfillmentStep(stage) {
   return stepByStage[stage] ?? 'warehouse';
 }
 
+export function fulfillmentSections(stage) {
+  switch (stage) {
+    case 'loading':
+      return ['warehouse', 'load_scan', 'offline'];
+    case 'delivering':
+      return [
+        'delivery',
+        'delivery_scan',
+        'location_check',
+        'collection',
+        'problem_report',
+        'offline',
+      ];
+    default:
+      return ['warehouse', 'offline'];
+  }
+}
+
 export function deliveryProofState(scanCode, locationVerified) {
   const missing = [];
   if (!scanCode.trim()) missing.push('scan');
