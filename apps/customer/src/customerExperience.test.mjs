@@ -33,6 +33,10 @@ test('keeps recipient tracking limited to synthetic order information', () => {
 test('provides example-only order detail, message, and profile views', () => {
   const experience = createCustomerExperience();
 
+  const orders = experience.listOrders();
+  assert.deepEqual(orders.map((entry) => entry.id), ['EXAMPLE-CUSTOMER-001']);
+  assert.equal(orders[0].isExample, true);
+
   const detail = experience.findOrderDetail('EXAMPLE-CUSTOMER-001');
   assert.equal(detail.isExample, true);
   assert.equal(detail.id, 'EXAMPLE-CUSTOMER-001');

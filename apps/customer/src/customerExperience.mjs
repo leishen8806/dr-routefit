@@ -37,6 +37,8 @@ const profile = Object.freeze({
   settings: Object.freeze({ languageSelection: 'frontend_only' }),
 });
 
+const orders = Object.freeze([order]);
+
 export function createCustomerExperience() {
   return Object.freeze({
     getOverview() {
@@ -60,6 +62,9 @@ export function createCustomerExperience() {
     },
     findOrderDetail(orderId) {
       return orderId === ORDER_ID ? order : null;
+    },
+    listOrders() {
+      return orders;
     },
     listMessages() {
       return messages;

@@ -57,6 +57,7 @@ export default function HomePage() {
   const [promotionVisibility, setPromotionVisibility] = useState(() => promotionSequence.getVisiblePromotion());
   const overview = experience.getOverview();
   const orderDetail = experience.findOrderDetail(overview.order.id);
+  const orders = experience.listOrders();
   const paymentIntent = experience.getExamplePaymentConfirmation();
   const messages = experience.listMessages();
   const profile = experience.getProfileSummary();
@@ -164,6 +165,12 @@ export default function HomePage() {
               <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
               <Text style={[styles.detailTitle, face]}>{t('orderDetail')}</Text>
               <Text style={[styles.detailStatus, face]}>{t('orderStatus')}</Text>
+              {orders.map((entry) => (
+                <View key={entry.id} style={styles.orderRow} testID={`example-order-${entry.id}`}>
+                  <Text style={[styles.detailHint, face]}>{t('orderExampleTitle')}</Text>
+                  <Text style={[styles.detailHint, face]}>{t('orderStatus')}</Text>
+                </View>
+              ))}
               <View style={styles.flowSummary}>
                 <Text style={[styles.flowText, face]}>{t('quote')}</Text>
                 <Text style={[styles.flowText, face]}>{t('payment')}</Text>
@@ -288,6 +295,7 @@ const styles = StyleSheet.create({
   flowSummary: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, marginTop: designTokens.space.x6 },
   flowText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
   detailCard: { backgroundColor: '#F8FAFC', borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, gap: designTokens.space.x2, marginTop: designTokens.space.x6, padding: designTokens.space.x4 },
+  orderRow: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, gap: 2, marginTop: designTokens.space.x2, padding: designTokens.space.x3 },
   detailTitle: { color: designTokens.color.ink, fontSize: 16, fontWeight: '600', lineHeight: 24, marginTop: designTokens.space.x2 },
   detailStatus: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
   detailHint: { color: designTokens.color.muted, fontSize: 14, lineHeight: 22 },
