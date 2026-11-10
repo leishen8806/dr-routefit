@@ -6,6 +6,8 @@ import {
   deliveryProofState,
   fulfillmentStep,
   offlineNotice,
+  problemReportState,
+  undeliveredReasonState,
 } from './fulfillment.mjs';
 
 test('maps active fulfillment work to the warehouse, delivery, and proof steps', () => {
@@ -28,4 +30,14 @@ test('marks cash and KHQR collection as non-live examples', () => {
 test('shows an offline notice without attempting a network fallback', () => {
   assert.deepEqual(offlineNotice(false), { visible: false, message: null });
   assert.deepEqual(offlineNotice(true), { visible: true, message: '当前离线，操作将等待网络恢复后同步。' });
+});
+
+test('requires a selected undelivered reason before a partial delivery can submit', () => {
+  assert.deepEqual(undeliveredReasonState(''), { canSubmit: false, reason: null });
+  assert.deepEqual(undeliveredReasonState('recipient_unavailable'), { canSubmit: true, reason: 'recipient_unavailable' });
+});
+
+test('requires a non-empty problem report summary', () => {
+  assert.deepEqual(problemReportState('   '), { canSubmit: false, summary: null });
+  assert.deepEqual(problemReportState('收件人地址无法进入'), { canSubmit: true, summary: '收件人地址无法进入' });
 });

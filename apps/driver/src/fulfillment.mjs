@@ -26,3 +26,13 @@ export function offlineNotice(offline) {
     ? { visible: true, message: '当前离线，操作将等待网络恢复后同步。' }
     : { visible: false, message: null };
 }
+
+export function undeliveredReasonState(reason) {
+  const selected = reason.trim();
+  return { canSubmit: Boolean(selected), reason: selected || null };
+}
+
+export function problemReportState(summary) {
+  const trimmed = summary.trim();
+  return { canSubmit: Boolean(trimmed), summary: trimmed || null };
+}
