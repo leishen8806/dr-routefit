@@ -66,15 +66,44 @@ const routePageIds = {
 };
 
 export function getOperationsRoutePageId(pathname) {
-  return routePageIds[pathname] ?? null;
+  return typeof pathname === 'string' && Object.hasOwn(routePageIds, pathname)
+    ? routePageIds[pathname]
+    : null;
+}
+
+function getOwnPage(source, id) {
+  return source && typeof source === 'object' && Object.hasOwn(source, id)
+    ? source[id]
+    : undefined;
+}
+
+function isValidOperationsPage(id, page) {
+  return typeof id === 'string'
+    && Object.hasOwn(pages, id)
+    && page
+    && typeof page === 'object'
+    && !Array.isArray(page)
+    && page.id === id
+    && typeof page.title === 'string'
+    && typeof page.description === 'string'
+    && typeof page.action === 'string'
+    && Array.isArray(page.columns)
+    && page.columns.length > 0
+    && page.columns.every((column) => typeof column === 'string')
+    && Array.isArray(page.rows);
 }
 
 export function getOperationsPage(id, configuredPages) {
-  return configuredPages?.[id] ?? pages[id] ?? null;
+  const configuredPage = getOwnPage(configuredPages, id);
+  if (configuredPage !== undefined) {
+    return isValidOperationsPage(id, configuredPage) ? configuredPage : null;
+  }
+  const demoPage = getOwnPage(pages, id);
+  return isValidOperationsPage(id, demoPage) ? demoPage : null;
 }
 
 function isValidOperationsRow(page, row) {
-  return Array.isArray(row) && row.length === page.columns.length;
+  return Array.isArray(page?.columns) && Array.isArray(row) && row.length === page.columns.length;
 }
 
 export function getOperationsRecord(id, index, configuredPages) {
@@ -140,8 +169,8 @@ export function renderOperationsPage(id, configuredPages) {
       ? [`<tr>${row.map((value) => `<td>${escapeHtml(value)}</td>`).join('')}<td><button type="button" data-mode="frontend-only" data-action="open-detail" data-record-index="${index}">${escapeHtml(page.action)}</button></td></tr>`]
       : []
   )).join('');
-  return `<section aria-labelledby="operations-page-title" data-page="${page.id ?? id}">
-  <header><h1 id="operations-page-title">${page.title}</h1><p>${page.description}</p></header>
+  return `<section aria-labelledby="operations-page-title" data-page="${escapeHtml(page.id ?? id)}">
+  <header><h1 id="operations-page-title">${escapeHtml(page.title)}</h1><p>${escapeHtml(page.description)}</p></header>
   <p role="note">以下为演示数据（示例）；当前操作为纯前端，接入接口后替换。</p>
   <table><thead><tr>${headings}</tr></thead><tbody>${rows}</tbody></table>
 </section>`;
@@ -155,10 +184,10 @@ export function renderOperationsDetail(id, index, configuredPages) {
 
   const fields = record.fields.map(([column, value]) => `<div><dt>${escapeHtml(column)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
   return `<aside role="dialog" aria-modal="${accessibility.isModal}" aria-label="${escapeHtml(accessibility.accessibilityLabel)}" aria-describedby="operations-detail-note">
-  <header><h2>${page.title}详情</h2><button type="button" data-mode="frontend-only" data-action="close-detail" aria-label="关闭详情">关闭</button></header>
+  <header><h2>${escapeHtml(page.title)}详情</h2><button type="button" data-mode="frontend-only" data-action="close-detail" aria-label="关闭详情">关闭</button></header>
   <dl>${fields}</dl>
   <p id="operations-detail-note" role="note">演示数据（示例）；当前操作为纯前端。</p>
-  <button type="button" data-mode="frontend-only">${page.action}</button>
+  <button type="button" data-mode="frontend-only">${escapeHtml(page.action)}</button>
 </aside>`;
 }
 

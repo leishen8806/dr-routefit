@@ -22,6 +22,13 @@ test('admin route paths resolve only to Frontend1-owned operations pages', () =>
   assert.equal(getOperationsRoutePageId('/finance'), null);
 });
 
+test('prototype keys never resolve as operations routes or pages', () => {
+  for (const key of ['__proto__', 'constructor', 'toString']) {
+    assert.equal(getOperationsRoutePageId(key), null);
+    assert.equal(getOperationsPage(key), null);
+  }
+});
+
 test('operations pages expose all Frontend1-owned admin areas', () => {
   assert.deepEqual(
     ['orders', 'capacity', 'support', 'merchants', 'users'],
@@ -52,6 +59,44 @@ test('configured page data renders through the list and its matching detail draw
   assert.match(renderOperationsPage('orders', configuredPages), /CFG-001/);
   assert.match(renderOperationsDetail('orders', 0, configuredPages), /订单配置详情/);
   assert.match(renderOperationsScreen('orders', { pageId: 'orders', index: 0 }, configuredPages), /CFG-001/);
+});
+
+test('configured page text is escaped in list and detail markup', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      title: '<img src=x onerror=alert(1)>',
+      description: '<script>alert(2)</script>',
+      action: '<button onclick=alert(3)>open</button>',
+    },
+  };
+
+  const list = renderOperationsPage('orders', configuredPages);
+  const detail = renderOperationsDetail('orders', 0, configuredPages);
+
+  assert.doesNotMatch(list, /<img|<script|<button onclick=/);
+  assert.match(list, /&lt;img src=x onerror=alert\(1\)&gt;/);
+  assert.match(list, /&lt;button onclick=alert\(3\)&gt;open&lt;\/button&gt;/);
+  assert.doesNotMatch(detail, /<img|<button onclick=/);
+  assert.match(detail, /&lt;button onclick=alert\(3\)&gt;open&lt;\/button&gt;/);
+});
+
+test('configured page missing required schema fields fails closed to safe fallbacks', () => {
+  const configuredPages = {
+    orders: {
+      id: 'orders',
+      title: 'Incomplete configuration',
+      description: 'Columns are intentionally missing',
+      action: 'Open',
+      rows: [],
+    },
+  };
+
+  assert.equal(getOperationsPage('orders', configuredPages), null);
+  assert.equal(getOperationsRecord('orders', 0, configuredPages), null);
+  assert.match(renderOperationsPage('orders', configuredPages), /页面暂不可用/);
+  assert.match(renderOperationsDetail('orders', 0, configuredPages), /记录暂不可用/);
+  assert.match(renderOperationsScreen('orders', { pageId: 'orders', index: 0 }, configuredPages), /页面暂不可用/);
 });
 
 test('configured page ignores a malformed row instead of rendering an empty detail record', () => {
