@@ -1,4 +1,4 @@
-import { isRegistrationReady } from './demo-driver-state.mjs';
+import { isRegistrationReady, nextReviewState, selectTrip } from './demo-driver-state.mjs';
 
 export function createDemoDriverFlow() {
   return {
@@ -26,16 +26,26 @@ export function transitionDemoDriverFlow(flow, event) {
         : flow;
     case 'approve_demo':
       return flow.screen === 'review' ? { ...flow, reviewState: 'approved' } : flow;
+    case 'return_review':
+      return flow.screen === 'review'
+        ? { ...flow, reviewState: nextReviewState(flow.reviewState, 'return') }
+        : flow;
+    case 'resubmit_registration':
+      return flow.screen === 'review'
+        ? { ...flow, reviewState: nextReviewState(flow.reviewState, 'resubmit') }
+        : flow;
     case 'show_offer':
       return flow.screen === 'review' && flow.reviewState === 'approved'
         ? { ...flow, screen: 'offer' }
         : flow;
     case 'accept_offer':
       return flow.screen === 'offer' ? { ...flow, screen: 'trips' } : flow;
-    case 'open_trip':
-      return flow.screen === 'trips'
-        ? { ...flow, screen: 'trip_detail', selectedTripId: event.tripId }
+    case 'open_trip': {
+      const trip = selectTrip(event.trips ?? [], event.tripId);
+      return flow.screen === 'trips' && trip
+        ? { ...flow, screen: 'trip_detail', selectedTripId: trip.id }
         : flow;
+    }
     case 'show_trips':
       return { ...flow, screen: 'trips' };
     case 'start_withdrawal':
@@ -45,6 +55,10 @@ export function transitionDemoDriverFlow(flow, event) {
     case 'confirm_withdrawal':
       return flow.screen === 'withdrawal_confirm'
         ? { ...flow, screen: 'profile', withdrawalState: 'submitted' }
+        : flow;
+    case 'cancel_withdrawal':
+      return flow.screen === 'withdrawal_confirm'
+        ? { ...flow, screen: 'profile', withdrawalState: 'idle' }
         : flow;
     default:
       return flow;

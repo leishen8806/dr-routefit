@@ -61,7 +61,11 @@ test('registration advances through profile, vehicle, and document steps in orde
 test('accepting a sample offer opens the selected sample trip locally', () => {
   const flow = { ...createDemoDriverFlow(), screen: 'offer' };
   const accepted = transitionDemoDriverFlow(flow, { type: 'accept_offer' });
-  const detailed = transitionDemoDriverFlow(accepted, { type: 'open_trip', tripId: 'sample-trip-1' });
+  const detailed = transitionDemoDriverFlow(accepted, {
+    type: 'open_trip',
+    trips: [{ id: 'sample-trip-1' }],
+    tripId: 'sample-trip-1',
+  });
 
   assert.equal(accepted.screen, 'trips');
   assert.equal(detailed.screen, 'trip_detail');
@@ -87,4 +91,24 @@ test('sample withdrawal uses a separate confirmation before it is submitted', ()
   assert.equal(confirm.screen, 'withdrawal_confirm');
   assert.equal(submitted.screen, 'profile');
   assert.equal(submitted.withdrawalState, 'submitted');
+});
+
+test('review, trip selection, and withdrawal confirmation expose reversible local paths', () => {
+  const review = { ...createDemoDriverFlow(), screen: 'review', reviewState: 'submitted' };
+  const returned = transitionDemoDriverFlow(review, { type: 'return_review' });
+  const resubmitted = transitionDemoDriverFlow(returned, { type: 'resubmit_registration' });
+  const trip = transitionDemoDriverFlow(
+    { ...createDemoDriverFlow(), screen: 'trips' },
+    { type: 'open_trip', trips: [{ id: 'sample-trip-1' }], tripId: 'sample-trip-1' },
+  );
+  const cancelled = transitionDemoDriverFlow(
+    { ...createDemoDriverFlow(), screen: 'withdrawal_confirm', withdrawalState: 'confirming' },
+    { type: 'cancel_withdrawal' },
+  );
+
+  assert.equal(returned.reviewState, 'needs_revision');
+  assert.equal(resubmitted.reviewState, 'submitted');
+  assert.equal(trip.selectedTripId, 'sample-trip-1');
+  assert.equal(cancelled.screen, 'profile');
+  assert.equal(cancelled.withdrawalState, 'idle');
 });
