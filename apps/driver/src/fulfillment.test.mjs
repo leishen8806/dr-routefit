@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   collectionState,
+  collectionConfirmationState,
   deliveryProofState,
   deliverySubmissionState,
   fulfillmentStep,
@@ -39,6 +40,23 @@ test('requires local scan, location confirmation, and evidence before delivery s
 test('marks cash and KHQR collection as non-live examples', () => {
   assert.deepEqual(collectionState('cash'), { method: 'cash', live: false, label: '示例' });
   assert.deepEqual(collectionState('khqr'), { method: 'khqr', live: false, label: '示例' });
+});
+
+test('requires an explicit second confirmation before recording a demo collection', () => {
+  assert.deepEqual(collectionConfirmationState('cash', false), {
+    method: 'cash',
+    live: false,
+    label: '示例',
+    confirmationRequired: true,
+    canRecord: false,
+  });
+  assert.deepEqual(collectionConfirmationState('khqr', true), {
+    method: 'khqr',
+    live: false,
+    label: '示例',
+    confirmationRequired: true,
+    canRecord: true,
+  });
 });
 
 test('shows an offline notice without attempting a network fallback', () => {

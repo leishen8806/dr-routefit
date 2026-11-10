@@ -66,6 +66,14 @@ export function collectionState(method) {
   return { method, live: false, label: '示例' };
 }
 
+export function collectionConfirmationState(method, confirmed) {
+  return {
+    ...collectionState(method),
+    confirmationRequired: true,
+    canRecord: Boolean(confirmed),
+  };
+}
+
 export function offlineNotice(offline) {
   return offline
     ? { visible: true, message: '当前离线，操作将等待网络恢复后同步。' }

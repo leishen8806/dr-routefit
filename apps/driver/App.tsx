@@ -45,7 +45,7 @@ import {
 } from './src/driver-api';
 import { deleteDeliveryPhoto, deliveryPhotoBlob, captureDeliveryPhoto, type DeliveryPhoto } from './src/delivery-photo';
 import { deliveryConfirmationStep, packageSelection, uploadTicketForPhoto } from './src/delivery.mjs';
-import { deliverySubmissionState, fulfillmentStatusPresentation } from './src/fulfillment.mjs';
+import { collectionConfirmationState, deliverySubmissionState, fulfillmentStatusPresentation } from './src/fulfillment.mjs';
 import { errorText, languageOptions, text, type MessageKey } from './src/messages';
 import { openOfflineEventQueue } from './src/offline-queue.mjs';
 import { createOfflineQueueStore } from './src/offline-store';
@@ -78,6 +78,9 @@ export default function App() {
   const [deliveryLocationVerified, setDeliveryLocationVerified] = useState(false);
   const [deliveryArmed, setDeliveryArmed] = useState(false);
   const [deliveryOutcome, setDeliveryOutcome] = useState('');
+  const [collectionMethod, setCollectionMethod] = useState<'cash' | 'khqr' | null>(null);
+  const [collectionConfirmed, setCollectionConfirmed] = useState(false);
+  const [collectionOutcome, setCollectionOutcome] = useState('');
   const [now, setNow] = useState(Date.now());
   // shortcut: manual device ID is development-only, remove after RF-PM-055 batch 5 registers devices.
   const [deviceId, setDeviceId] = useState('');
@@ -150,6 +153,9 @@ export default function App() {
     setRejectArmed(false);
     setDeliveryArmed(false);
     setDeliveryOutcome('');
+    setCollectionMethod(null);
+    setCollectionConfirmed(false);
+    setCollectionOutcome('');
     try {
       const nextDetail = await getAssignment(auth(), language, assignmentId);
       const nextOrder = await getDriverOrder(auth(), language, nextDetail.assignment.orderId);
@@ -399,6 +405,7 @@ export default function App() {
     && (deliverySelection.remainingPackageIds.length === 0 || Boolean(deliveryReason.trim()))
     && deliverySubmission.canSubmit
     && !deliveryOutcome;
+  const collection = collectionMethod ? collectionConfirmationState(collectionMethod, collectionConfirmed) : null;
   const fulfillmentStatus = fulfillmentStatusPresentation(
     order?.order.fulfillmentStage === 'in_transit' ? 'delivering' : 'to_warehouse',
     language,
@@ -610,6 +617,42 @@ export default function App() {
                     </Pressable>
                     {!deliveryReady && !deliveryOutcome ? <Text style={styles.caption}>{!online ? t('needsNetwork') : !deliverySubmission.canSubmit ? t('deliveryCheckMissing') : t('deliveryMissing')}</Text> : null}
                     {deliveryOutcome ? <Text style={styles.notice}>{deliveryOutcome}</Text> : null}
+                    <View style={styles.collectionPanel}>
+                      <Text style={styles.sectionTitle}>{t('collection')}</Text>
+                      <Text style={styles.caption}>{t('collectionExampleOnly')}</Text>
+                      <View style={styles.choiceRow}>
+                        {(['cash', 'khqr'] as const).map((method) => (
+                          <Pressable
+                            accessibilityRole="button"
+                            key={method}
+                            onPress={() => { setCollectionMethod(method); setCollectionConfirmed(false); setCollectionOutcome(''); }}
+                            style={[styles.choice, collectionMethod === method && styles.choiceActive]}
+                          >
+                            <Text>{t(method === 'cash' ? 'collectionCash' : 'collectionKhqr')}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                      {collection ? (
+                        <>
+                          <Pressable
+                            accessibilityRole="button"
+                            onPress={() => setCollectionConfirmed((current) => !current)}
+                            style={[styles.secondaryButton, collectionConfirmed && styles.choiceActive]}
+                          >
+                            <Text style={styles.secondaryButtonText}>{collectionConfirmed ? t('collectionConfirmed') : t('collectionConfirm')}</Text>
+                          </Pressable>
+                          <Pressable
+                            accessibilityRole="button"
+                            disabled={!collection.canRecord}
+                            onPress={() => setCollectionOutcome(t('collectionRecorded'))}
+                            style={[styles.button, !collection.canRecord && styles.buttonDisabled]}
+                          >
+                            <Text style={styles.buttonText}>{t('collectionRecord')}</Text>
+                          </Pressable>
+                        </>
+                      ) : null}
+                      {collectionOutcome ? <Text style={styles.notice}>{collectionOutcome}</Text> : null}
+                    </View>
                   </View>
                 ) : null}
               </View>
@@ -742,6 +785,7 @@ const styles = StyleSheet.create({
   actions: { gap: 10, marginTop: 12 },
   execution: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
   deliveryPanel: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
+  collectionPanel: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
   offline: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
   packageRow: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 4, padding: 10 },
   packageChoice: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 8, padding: 10 },
