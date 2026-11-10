@@ -5,7 +5,7 @@ const maximum=9000000000000n;
 const bounded=n=>{ensure(n>=0n&&n<=maximum,422,'AMOUNT_OUT_OF_RANGE','费用超出允许范围');return Number(n);};
 const positiveInteger=(value,code)=>{ensure(Number.isSafeInteger(value)&&value>0,422,code,'Route pricing configuration and dimensions must be positive integers');return value;};
 
-export function calculateRouteQuote({shipment,currency,configuration}){
+export function calculateRouteQuote({shipment,currency,configuration,now=Date.now()}){
  const {weightGrams,lengthCm,widthCm,heightCm,exclusiveVehicle}=shipment;
  const {baseMinor,perKgMinor,longItemFeeMinor,volumetricDivisor,khrRoundingMinor}=configuration;
  for(const value of [weightGrams,lengthCm,widthCm,heightCm,baseMinor,perKgMinor,volumetricDivisor,khrRoundingMinor])positiveInteger(value,'INVALID_ROUTE_PRICING_INPUT');
@@ -13,9 +13,38 @@ export function calculateRouteQuote({shipment,currency,configuration}){
  ensure(typeof exclusiveVehicle==='boolean',422,'INVALID_ROUTE_PRICING_INPUT','Exclusive vehicle flag must be boolean');
  ensure(lengthCm<=300||exclusiveVehicle,422,'EXCLUSIVE_VEHICLE_REQUIRED','Items longer than 3 metres require an exclusive vehicle');
  const actualWeightKg=Math.ceil(weightGrams/1000),volumetricWeightKg=Math.ceil((lengthCm*widthCm*heightCm)/volumetricDivisor),chargeableWeightKg=Math.max(actualWeightKg,volumetricWeightKg),surchargeMinor=lengthCm>200?longItemFeeMinor:0;
- const subtotal=BigInt(baseMinor)+BigInt(perKgMinor)*BigInt(chargeableWeightKg)+BigInt(surchargeMinor);
- const rounded=currency==='KHR'?((subtotal+BigInt(khrRoundingMinor/2))/BigInt(khrRoundingMinor))*BigInt(khrRoundingMinor):subtotal;
- return {chargeableWeightKg,surchargeMinor,totalMinor:bounded(rounded)};
+ const vehicle=configuration.vehicleTariff;
+ const distanceKm=configuration.distanceKm;
+ let subtotal=BigInt(baseMinor)+BigInt(perKgMinor)*BigInt(chargeableWeightKg)+BigInt(surchargeMinor);
+ let sourceCurrency=currency;
+ if(vehicle){
+  ensure(typeof vehicle.vehicleType==='string'&&vehicle.vehicleType.trim(),422,'INVALID_ROUTE_PRICING_INPUT','Vehicle type is required');
+  for(const value of [vehicle.baseMinor,vehicle.includedKm,vehicle.extraKmMinor,distanceKm])ensure(Number.isSafeInteger(value)&&value>=0,422,'INVALID_ROUTE_PRICING_INPUT','Vehicle pricing values must be non-negative integers');
+  ensure(['USD','KHR'].includes(vehicle.currency),422,'INVALID_ROUTE_PRICING_INPUT','Vehicle tariff currency is invalid');
+  sourceCurrency=vehicle.currency;
+  subtotal+=BigInt(vehicle.baseMinor)+BigInt(Math.max(0,distanceKm-vehicle.includedKm))*BigInt(vehicle.extraKmMinor);
+  for(const service of configuration.valueAddedServices??[]){
+   ensure(Number.isSafeInteger(service.amountMinor)&&service.amountMinor>=0&&service.currency===sourceCurrency,422,'INVALID_ROUTE_PRICING_INPUT','Value-added service amount or currency is invalid');
+   subtotal+=BigInt(service.amountMinor);
+  }
+ }
+ if(sourceCurrency!==currency){
+  const fx=configuration.fxRate;
+  ensure(fx?.sourceCurrency===sourceCurrency&&fx.targetCurrency===currency,422,'INVALID_ROUTE_PRICING_INPUT','Matching FX rate is required');
+  for(const value of [fx.rateNumerator,fx.rateDenominator,fx.roundingMinor])positiveInteger(value,'INVALID_ROUTE_PRICING_INPUT');
+  subtotal=(subtotal*BigInt(fx.rateNumerator)+BigInt(Math.floor(fx.rateDenominator/2)))/BigInt(fx.rateDenominator);
+ }
+ const rounding=configuration.fxRate?.targetCurrency===currency?configuration.fxRate.roundingMinor:khrRoundingMinor;
+ const rounded=currency==='KHR'?((subtotal+BigInt(rounding/2))/BigInt(rounding))*BigInt(rounding):subtotal;
+ const quote={chargeableWeightKg,surchargeMinor,totalMinor:bounded(rounded)};
+ if(configuration.version!==undefined){
+  positiveInteger(configuration.version,'INVALID_ROUTE_PRICING_INPUT');
+  const observedAt=typeof now==='string'?Date.parse(now):now;
+  ensure(Number.isSafeInteger(observedAt),422,'INVALID_ROUTE_PRICING_INPUT','Quote time is invalid');
+  quote.configurationVersion=configuration.version;
+  quote.expiresAt=new Date(observedAt+10*60*1000).toISOString();
+ }
+ return quote;
 }
 
 export function validateFee(rule,tariff){
