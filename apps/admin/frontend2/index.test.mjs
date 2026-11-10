@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   adminFeaturePages,
   createAdminFeatureState,
+  hasActionAttribute,
   renderAdminFeaturePage,
   requiresConfirmation,
 } from './index.mjs';
@@ -36,4 +37,9 @@ test('marks payout confirmation as an irreversible demo action', () => {
   assert.match(renderAdminFeaturePage('funds', state), /data-confirm="confirm-payout"/);
   state.dialog = '确认出款？此示例操作不可撤回。';
   assert.match(renderAdminFeaturePage('funds', state), /role="dialog"/);
+});
+
+test('recognizes an empty data action attribute so dialog controls remain usable', () => {
+  assert.equal(hasActionAttribute({ hasAttribute: (name) => name === 'data-close-dialog' }, 'data-close-dialog'), true);
+  assert.equal(hasActionAttribute({ hasAttribute: () => false }, 'data-close-dialog'), false);
 });

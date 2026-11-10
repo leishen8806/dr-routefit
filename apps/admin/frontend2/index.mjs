@@ -16,6 +16,7 @@ export function createAdminFeatureState() {
 }
 
 export const requiresConfirmation = (action) => ['confirm-payout', 'disable-api-key', 'take-cash'].includes(action);
+export const hasActionAttribute = (element, name) => element.hasAttribute(name);
 
 function finance(state) {
   const active = state.funds.active;
@@ -51,8 +52,8 @@ export function mountAdminFeaturePages(root, initialPage = 'funds') {
     const button = event.target.closest('button'); if (!button) return;
     if (button.dataset.tab) { const pageState = state[state.page]; pageState.active = button.dataset.tab; if (state.page === 'funds') pageState.active = button.dataset.tab; render(); return; }
     if (button.dataset.confirm && requiresConfirmation(button.dataset.confirm)) { state.dialog = `确认${button.dataset.detail}？此示例操作不可撤回；不调用真实支付或银行接口。`; render(); return; }
-    if (button.dataset.closeDialog) { state.dialog = ''; render(); return; }
-    if (button.dataset.demoConfirm) { state.dialog = ''; state.detail = '已完成纯前端示例确认，未调用任何支付或银行接口。'; render(); return; }
+    if (hasActionAttribute(button, 'data-close-dialog')) { state.dialog = ''; render(); return; }
+    if (hasActionAttribute(button, 'data-demo-confirm')) { state.dialog = ''; state.detail = '已完成纯前端示例确认，未调用任何支付或银行接口。'; render(); return; }
     if (button.dataset.detail) { state.detail = `${button.dataset.detail}：${demo}`; render(); return; }
     if (button.dataset.create) { state.detail = `新建 ${adminFeaturePages.find((p) => p.id === button.dataset.create)?.title}：${demo}`; render(); }
   });
