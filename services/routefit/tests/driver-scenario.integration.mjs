@@ -32,6 +32,24 @@ function handoverEvent({scenario,assignment,transfer,eventId=randomUUID(),sequen
  return {eventId,sequence,assignmentId:scenario.assignmentId,assignmentVersion:Number(assignment.version),planVersion:Number(assignment.plan_version),observedAt:new Date().toISOString(),type:'HANDOVER_SIGNED',payload:{transferId:transfer.id,transferVersion,evidenceFileIds:[scenario.evidenceFileId]}};
 }
 
+function quoteIdentifier(value){return '"'+String(value).replaceAll('"','""')+'"';}
+
+async function runRepairAsTableOwner(fixture,repairSql){
+ const owner=(await fixture.owner.query('SELECT current_user')).rows[0].current_user;
+ let migrationPool,ownersChanged=false;
+ try{
+  for(const table of ['org.company','mobile.sync_event','mobile.sync_device_state'])await fixture.owner.query(`ALTER TABLE ${table} OWNER TO ${quoteIdentifier(fixture.role)}`);
+  ownersChanged=true;
+  migrationPool=new pg.Pool({connectionString:fixture.runtimeUrl,max:1});
+  assert.deepEqual((await migrationPool.query("SELECT rolsuper,rolbypassrls FROM pg_roles WHERE rolname=current_user")).rows[0],{rolsuper:false,rolbypassrls:false});
+  await migrationPool.query(repairSql);
+  assert.equal((await migrationPool.query("SELECT relforcerowsecurity FROM pg_class WHERE oid='org.company'::regclass")).rows[0].relforcerowsecurity,true);
+ }finally{
+  await migrationPool?.end();
+  if(ownersChanged)for(const table of ['org.company','mobile.sync_event','mobile.sync_device_state'])await fixture.owner.query(`ALTER TABLE ${table} OWNER TO ${quoteIdentifier(owner)}`);
+ }
+}
+
 test('driver scenario creates all three real development stages',async()=>{
  const fixture=await localFixture(process.env.ROUTEFIT_TEST_DATABASE_URL),dir=await mkdtemp(join(tmpdir(),'routefit-driver-scenario-')),sessionsFile=join(dir,'sessions.json');
  let pool,server;
@@ -75,6 +93,11 @@ test('driver scenario creates all three real development stages',async()=>{
   const repairSql=await readFile(new URL('../db/migrations/064_repair_driver_sync_device_state.sql',import.meta.url),'utf8');
   await fixture.owner.query(repairSql);assert.equal(Number((await fixture.owner.query('SELECT last_sequence FROM mobile.sync_device_state WHERE device_id=$1',[batchScenario.deviceId])).rows[0].last_sequence),5);assert.equal(Number((await fixture.owner.query('SELECT count(*) FROM mobile.sync_event WHERE device_id=$1',[batchScenario.deviceId])).rows[0].count),eventsBefore+1);
   await fixture.owner.query(repairSql);assert.equal(Number((await fixture.owner.query('SELECT last_sequence FROM mobile.sync_device_state WHERE device_id=$1',[batchScenario.deviceId])).rows[0].last_sequence),5,'repair migration must be idempotent');
+  const ownerRepairInput={...repairInput,eventId:randomUUID(),sequence:6},ownerRepairResult={...repairResult,eventId:ownerRepairInput.eventId};
+  await fixture.owner.query('INSERT INTO mobile.sync_event(company_id,event_id,device_id,driver_id,sequence,assignment_id,event_type,observed_at,fingerprint,result,resource_id,resource_version,error_code,snapshot) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)',[fixture.driver.companyId,ownerRepairInput.eventId,batchScenario.deviceId,fixture.driver.principalId,ownerRepairInput.sequence,ownerRepairInput.assignmentId,ownerRepairInput.type,ownerRepairInput.observedAt,createHash('sha256').update(JSON.stringify(ownerRepairInput)).digest('hex'),ownerRepairResult.result,ownerRepairResult.resourceId,ownerRepairResult.resourceVersion,ownerRepairResult.errorCode,{input:ownerRepairInput,result:ownerRepairResult}]);
+  await runRepairAsTableOwner(fixture,repairSql);
+  assert.equal(Number((await fixture.owner.query('SELECT last_sequence FROM mobile.sync_device_state WHERE device_id=$1',[batchScenario.deviceId])).rows[0].last_sequence),6,'NOSUPERUSER NOBYPASSRLS table owner must repair lagging device state');
+  assert.equal(Number((await fixture.owner.query('SELECT count(*) FROM mobile.sync_event WHERE device_id=$1',[batchScenario.deviceId])).rows[0].count),eventsBefore+2,'repair must not rewrite sync events');
  }finally{
   process.env.NODE_ENV=previous.NODE_ENV;process.env.ROUTEFIT_AUTH_MODE=previous.ROUTEFIT_AUTH_MODE;
   if(server){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}await pool?.end();await fixture.cleanup();await rm(dir,{recursive:true,force:true});
