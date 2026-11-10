@@ -27,6 +27,15 @@ test('registration can only submit after the local documents are complete', () =
   assert.equal(submitted.reviewState, 'submitted');
 });
 
+test('registration advances through profile, vehicle, and document steps in order', () => {
+  const profile = { ...createDemoDriverFlow(), screen: 'registration_profile' };
+  const vehicle = transitionDemoDriverFlow(profile, { type: 'continue_registration' });
+  const documents = transitionDemoDriverFlow(vehicle, { type: 'continue_registration' });
+
+  assert.equal(vehicle.screen, 'registration_vehicle');
+  assert.equal(documents.screen, 'registration_documents');
+});
+
 test('accepting a sample offer opens the selected sample trip locally', () => {
   const flow = { ...createDemoDriverFlow(), screen: 'offer' };
   const accepted = transitionDemoDriverFlow(flow, { type: 'accept_offer' });
@@ -35,6 +44,17 @@ test('accepting a sample offer opens the selected sample trip locally', () => {
   assert.equal(accepted.screen, 'trips');
   assert.equal(detailed.screen, 'trip_detail');
   assert.equal(detailed.selectedTripId, 'sample-trip-1');
+});
+
+test('approved review can show an offer and return from a trip detail', () => {
+  const review = { ...createDemoDriverFlow(), screen: 'review', reviewState: 'submitted' };
+  const approved = transitionDemoDriverFlow(review, { type: 'approve_demo' });
+  const offer = transitionDemoDriverFlow(approved, { type: 'show_offer' });
+  const trips = transitionDemoDriverFlow({ ...offer, screen: 'trips' }, { type: 'show_trips' });
+
+  assert.equal(approved.reviewState, 'approved');
+  assert.equal(offer.screen, 'offer');
+  assert.equal(trips.screen, 'trips');
 });
 
 test('sample withdrawal uses a separate confirmation before it is submitted', () => {
