@@ -124,6 +124,16 @@
 | `onTimeDeliveryRateWindowDays` | 后台配置（示例） | 统计窗口天数仅接受 1–366；不从订单数据反推，变更后同时作用于准时率时间窗口。 | DashboardSummary 契约 `3f589fe`；OpsLead 看板配置 | 是（契约）；配置存储待 OpsLead 接线 |
 | `actionRequiredExceptionCount` | `casework.dispatch_exception` | 当前状态为 `open`、`assigned` 或 `resolving` 的异常 `id` 去重计数；排除 `resolved`、`closed`，不按事件表重复累计。 | 019 调度异常；R2 由 OpsLead 消费 | 是 |
 
+## 开放接口鉴权注入契约
+
+`http.mjs` 仅定义并调用 `openAuthenticate(request)`；未注入时必须 fail-closed，返回 401。CMP-1326 负责实现并在其后续合入时注入，CMP-1325 不读取或定义其数据表。
+
+| 返回字段 | 语义 | CMP-1326 实现责任 |
+| --- | --- | --- |
+| `subjectId` | 已认证开放接口主体的稳定标识，用于后续数据范围判定 | 从 `integration.api_key` 的有效、未吊销记录解析；不回显明文密钥 |
+| `scopes` | 当前密钥授权范围；路由按 `quote:create`、`order:create`、`order:read`、`order:cancel`、`tracking:read` 拒绝缺失范围 | 校验范围、环境与每分钟限流后返回 |
+| `apiKeyId` | 已认证密钥的稳定标识，仅用于审计关联 | 每次调用只追加 `integration.api_call_log`；密钥仅以哈希查找 |
+
 ## 缺口与认领
 
 - 表格数据行精确计数：Backend1 16、Backend2 16、BackendSenior 29、OpsLead 39，合计 100。BackendSenior 模块清单逐行计数为 29 条。

@@ -138,7 +138,8 @@ export function databaseConflict(error){
  if(error?.code==='23505')return {code:'REQUEST_CONFLICT',message:'资源已被并发创建或已存在，请刷新后重试'};
  return null;
 }
-export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,requestRateLimit=120,log=()=>{}}){
+const rejectOpenAuthentication=()=>{throw new ApiError(401,'UNAUTHORIZED','开放接口密钥无效或缺失');};
+export function apiServer({pool,authenticate,serviceAuthenticate,openAuthenticate=rejectOpenAuthentication,localAccess,evidenceDirectory,origin,recipientCodeSender,requestRateLimit=120,log=()=>{}}){
  const limits=new Map();
  const publicLimits=new Map();
   const recipientLimits=new Map();
@@ -153,6 +154,10 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,evi
    if(localAccess&&await localAccess(req,res,send))return;
    if(req.method==='GET'&&['/health/live','/health/ready'].includes(url.pathname)){
     operation='health';if(url.pathname.endsWith('ready'))await assertRuntimeRole(pool);send(200,{status:'ok',mode:'local-development'});return;
+   }
+   if(url.pathname.startsWith('/api/open/v1/')){
+    const identity=await openAuthenticate(req);
+    ensure(identity&&typeof identity.subjectId==='string'&&Array.isArray(identity.scopes)&&typeof identity.apiKeyId==='string',401,'UNAUTHORIZED','开放接口密钥无效或缺失');
    }
    const publicRoute=publicRoutes.find(r=>r.pattern.test(url.pathname));
    if(publicRoute){

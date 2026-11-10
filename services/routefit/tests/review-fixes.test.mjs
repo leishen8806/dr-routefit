@@ -10,6 +10,17 @@ const companyId='11111111-1111-4111-8111-111111111111',driverId='22222222-2222-4
 const principal={companyId,principalId:driverId};
 const ok=(rows=[])=>({rows,rowCount:rows.length});
 
+test('open API prefix fails closed when an open authentication provider is not injected',async()=>{
+ const server=apiServer({pool:{connect:async()=>{throw new Error('open authentication must reject before database access');}},authenticate:()=>{throw new Error('staff authentication must not run for open API');}});
+ server.listen(0,'127.0.0.1');await once(server,'listening');
+ try{
+  const response=await fetch(`http://127.0.0.1:${server.address().port}/api/open/v1/orders`);
+  const body=await response.json();
+  assert.equal(response.status,401);
+  assert.equal(body.error.code,'UNAUTHORIZED');
+ }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+});
+
 // ---- vehicle door clearance -------------------------------------------------
 const van={state:'available',maxPayloadKg:1000,internalLengthCm:300,internalWidthCm:150,internalHeightCm:150,doorWidthCm:120,doorHeightCm:80};
 const cargo=(over={})=>({order:{id:orderId},items:[{lengthCm:100,widthCm:70,heightCm:110,weightKg:10,quantity:1,restrictions:[],rotationAllowed:false,...over}]});
