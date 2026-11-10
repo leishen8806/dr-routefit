@@ -47,7 +47,8 @@ function TabIcon({ tab, selected }: { tab: Tab; selected: boolean }) {
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<Tab>('send');
   const [sendMode, setSendMode] = useState<'single' | 'bulk'>('single');
-  const [promotionVisible, setPromotionVisible] = useState(true);
+  const [startupVisible, setStartupVisible] = useState(true);
+  const [promotionVisible, setPromotionVisible] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const runtime = useRuntime();
@@ -107,7 +108,17 @@ export default function HomePage() {
 
         <Text style={[styles.reviewNote, face]}>{t('reviewPending')}</Text>
 
-        {promotionVisible && overview.isExample ? (
+        {startupVisible && overview.startupAd.kind === 'example' ? (
+          <View accessibilityLiveRegion="polite" style={styles.startupAd} testID="example-startup-ad">
+            <Text style={[styles.startupTitle, face]}>{t('promotion')}</Text>
+            <Text style={[styles.startupBody, face]}>{t('example')}</Text>
+            <Pressable accessibilityRole="button" onPress={() => { setStartupVisible(false); setPromotionVisible(true); }} style={styles.confirmButton} testID="dismiss-startup-ad">
+              <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
+
+        {promotionVisible && overview.homePopup.kind === 'example' ? (
           <View accessibilityLiveRegion="polite" style={styles.promotion} testID="example-promotion">
             <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
             <View style={styles.promotionCopy}>
@@ -209,6 +220,9 @@ const styles = StyleSheet.create({
   routeVehicle: { backgroundColor: designTokens.color.amber, height: 22, left: '43%', position: 'absolute', top: 28, width: 38 },
   routeVehicleCab: { backgroundColor: '#FFD17A', height: 14, position: 'absolute', right: -10, top: 8, width: 12 },
   reviewNote: { color: designTokens.color.muted, fontSize: 13, lineHeight: 22, marginTop: designTokens.space.x3 },
+  startupAd: { alignItems: 'center', backgroundColor: designTokens.color.navy, borderRadius: designTokens.radius.large, marginTop: designTokens.space.x6, minHeight: 180, padding: designTokens.space.x8 },
+  startupTitle: { color: designTokens.color.surface, fontSize: 24, fontWeight: '600', lineHeight: 34, textAlign: 'center' },
+  startupBody: { color: '#D9E6EF', fontSize: 15, lineHeight: 24, marginTop: designTokens.space.x3, textAlign: 'center' },
   promotion: { alignItems: 'center', backgroundColor: '#FFF4DA', borderColor: designTokens.color.amber, borderRadius: designTokens.radius.medium, borderWidth: 1, flexDirection: 'row', gap: designTokens.space.x3, marginTop: designTokens.space.x6, padding: designTokens.space.x4 },
   exampleBadge: { backgroundColor: designTokens.color.amber, borderRadius: 999, paddingHorizontal: designTokens.space.x2, paddingVertical: 3 },
   exampleBadgeText: { color: designTokens.color.navy, fontSize: 12, fontWeight: '600' },
