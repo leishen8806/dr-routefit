@@ -4,7 +4,7 @@ import { baseURL, startPreview, stopPreview } from './preview-server.mjs';
 
 const server = await startPreview();
 const browser = await chromium.launch();
-const paths = ['/km/', '/en/', '/zh/', '/zh/pricing/'];
+const paths = ['/km/', '/en/', '/zh/', '/zh/pricing/', '/zh/preview/'];
 let serious = 0;
 
 try {

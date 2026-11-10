@@ -92,7 +92,33 @@ try {
   const sitemapUrls = [...sitemap.matchAll(/<loc>/g)].length;
   if (sitemapUrls !== 3 || sitemap.includes('/pricing/')) throw new Error('sitemap includes unavailable pages');
 
-  console.log('BROWSER_CHECK=PASS LANGUAGES=3 VIEWPORTS=2 SITEMAP_URLS=3 STORAGE_FAILURES=2');
+  const fullpage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await fullpage.goto(`${baseURL}/zh/preview/`);
+  if (await fullpage.locator('[data-screen]').count() !== 6) throw new Error('preview: expected six screens');
+  if (await fullpage.locator('.fullpage-dots a').count() !== 6) throw new Error('preview: expected six accessible section links');
+  if (await fullpage.locator('.panel-scene img').count() !== 0) throw new Error('preview: code-drawn scenes unexpectedly use raster images');
+  const desktopSnap = await fullpage.locator('html').evaluate((node) => getComputedStyle(node).scrollSnapType);
+  if (!desktopSnap.includes('mandatory')) throw new Error('preview: desktop scroll snap is not mandatory');
+  await fullpage.locator('.fullpage-dots a').last().click();
+  await fullpage.waitForFunction(() => location.hash === '#screen-6');
+  await fullpage.waitForFunction(() => Math.abs(document.querySelector('#screen-6')?.getBoundingClientRect().top ?? Infinity) < 2);
+
+  const previewMobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await previewMobile.goto(`${baseURL}/zh/preview/`);
+  const mobileSnap = await previewMobile.locator('html').evaluate((node) => getComputedStyle(node).scrollSnapType);
+  if (mobileSnap !== 'none') throw new Error(`preview: mobile scroll snap should be disabled, got ${mobileSnap}`);
+  if (await previewMobile.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error('preview: horizontal overflow at 390px');
+
+  const reduced = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  const reducedPage = await reduced.newPage();
+  await reducedPage.goto(`${baseURL}/zh/preview/`);
+  const reducedSnap = await reducedPage.locator('html').evaluate((node) => getComputedStyle(node).scrollSnapType);
+  if (reducedSnap !== 'none') throw new Error(`preview: reduced motion should disable scroll snap, got ${reducedSnap}`);
+  const hiddenMotion = await reducedPage.locator('[data-motion]').evaluateAll((nodes) => nodes.filter((node) => getComputedStyle(node).opacity !== '1').length);
+  if (hiddenMotion) throw new Error('preview: reduced motion leaves animated content hidden');
+  await reduced.close();
+
+  console.log('BROWSER_CHECK=PASS LANGUAGES=3 VIEWPORTS=2 SITEMAP_URLS=3 STORAGE_FAILURES=2 FULLPAGE_SCREENS=6');
 } finally {
   await browser.close();
   await stopPreview(server);

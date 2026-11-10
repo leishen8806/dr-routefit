@@ -7,7 +7,7 @@
 | 基线 SHA | 最新 `develop`（RF-WEB-02 合并后更好；未合并也可开工，冲突时以 RF-WEB-02 为准） |
 | 分支 | `proto/RF-WEB-03-fullpage`，PR 目标 `develop`，**草稿 PR，不合并** |
 | 需人类批准 | 负责人看完录屏和截图决定：采用（另开实现卡）／修改／放弃 |
-| 状态 | READY |
+| 状态 | IN_REVIEW（原型，不合并） |
 
 ## 目标
 
