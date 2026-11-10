@@ -71,6 +71,10 @@ function notFound() {
   return '<section aria-labelledby="operations-page-title"><h1 id="operations-page-title">页面暂不可用</h1><p>请选择已授权的管理后台业务页面。</p></section>';
 }
 
+function recordUnavailable() {
+  return '<section role="status"><p>记录暂不可用，请返回列表后重新选择。</p></section>';
+}
+
 export function renderOperationsPage(id) {
   const page = getOperationsPage(id);
   if (!page) return notFound();
@@ -83,4 +87,18 @@ export function renderOperationsPage(id) {
   <table><thead><tr>${headings}</tr></thead><tbody>${rows}</tbody></table>
   <button type="button" data-mode="frontend-only">${page.action}</button>
 </section>`;
+}
+
+export function renderOperationsDetail(id, index) {
+  const page = getOperationsPage(id);
+  const row = page?.rows[index];
+  if (!page || !row) return recordUnavailable();
+
+  const fields = page.columns.map((column, fieldIndex) => `<div><dt>${escapeHtml(column)}</dt><dd>${escapeHtml(row[fieldIndex])}</dd></div>`).join('');
+  return `<aside role="dialog" aria-modal="true" aria-label="${page.title}详情">
+  <header><h2>${page.title}详情</h2><button type="button" aria-label="关闭详情">关闭</button></header>
+  <dl>${fields}</dl>
+  <p role="note">演示数据（示例）；当前操作为纯前端。</p>
+  <button type="button" data-mode="frontend-only">${page.action}</button>
+</aside>`;
 }
