@@ -65,6 +65,17 @@ test('configured page ignores a malformed row instead of rendering an empty deta
   assert.equal(getOperationsRecord('orders', 0, configuredPages), null);
 });
 
+test('configured page ignores a short row instead of exposing undefined detail fields', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [['CFG-001']],
+    },
+  };
+
+  assert.equal(getOperationsRecord('orders', 0, configuredPages), null);
+});
+
 test('order view renders an accessible sample-data table and marks actions as frontend-only', () => {
   const markup = renderOperationsPage('orders');
 
