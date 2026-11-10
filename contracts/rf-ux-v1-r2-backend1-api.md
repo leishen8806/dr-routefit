@@ -35,3 +35,78 @@
 ## 对齐记录
 
 本清单依据本卡的领域模块与迁移 `065`–`069`，而非 `contracts/` 总稿。BackendSenior 汇总时如路径、权限名或幂等口径与正式契约不一致，应在索引中记录差异原因；安全相关的权限/RLS/跨步骤事务不由 Backend1 自行实现。
+
+## 供 BackendSenior 粘贴的 path 片段草案
+
+以下是 JSON 格式的增量草案；仅供 `contracts/openapi.json` 的负责人审核、调整并粘贴。本草案不修改总稿，也不定义认证、授权、RLS 或付款核销事务。所有金额字段均使用整数最小货币单位（`int64`）；示例值均须标注为「示例」且后台可配置。
+
+```json
+{
+  "paths": {
+    "/api/customer/v1/route-quotes": {
+      "post": {"operationId":"createRouteQuote","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RouteQuoteCreate"}}}},"responses":{"201":{"description":"报价","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RouteQuote"}}}},"422":{"$ref":"#/components/responses/Error422"}}}
+    },
+    "/api/ops/v1/route-pricing/configurations": {
+      "get": {"operationId":"listRoutePricingConfigurations","responses":{"200":{"description":"配置页","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RoutePricingConfigurationPage"}}}}}},
+      "post": {"operationId":"createRoutePricingConfiguration","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RoutePricingConfigurationCreate"}}}},"responses":{"201":{"description":"新配置版本","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RoutePricingConfiguration"}}}},"422":{"$ref":"#/components/responses/Error422"}}}
+    },
+    "/api/ops/v1/coupons": {
+      "get": {"operationId":"listCoupons","responses":{"200":{"description":"券页","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CouponPage"}}}}}}
+    },
+    "/api/ops/v1/coupons/batches": {
+      "post": {"operationId":"createCouponBatch","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CouponBatchCreate"}}}},"responses":{"201":{"description":"券批次","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CouponBatch"}}}},"422":{"$ref":"#/components/responses/Error422"}}}
+    },
+    "/api/customer/v1/orders/{orderId}/actions/lock-coupon": {
+      "post": {"operationId":"lockOrderCoupon","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CouponLockAction"}}}},"responses":{"200":{"description":"锁定结果","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CouponLock"}}}},"409":{"$ref":"#/components/responses/Error409"}}}
+    },
+    "/api/customer/v1/orders/{orderId}/actions/redeem-coupon": {
+      "post": {"operationId":"redeemOrderCoupon","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CouponRedeemAction"}}}},"responses":{"200":{"description":"核销结果","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CouponRedemption"}}}},"409":{"$ref":"#/components/responses/Error409"}}}
+    },
+    "/api/customer/v1/orders/{orderId}/actions/release-coupon": {
+      "post": {"operationId":"releaseOrderCoupon","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CouponReleaseAction"}}}},"responses":{"200":{"description":"释放结果","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CouponRelease"}}}},"409":{"$ref":"#/components/responses/Error409"}}}
+    },
+    "/api/ops/v1/merchants/{merchantId}/contract": {
+      "get": {"operationId":"getMerchantContract","responses":{"200":{"description":"合同","content":{"application/json":{"schema":{"$ref":"#/components/schemas/MerchantContract"}}}},"404":{"$ref":"#/components/responses/Error404"}}},
+      "post": {"operationId":"createMerchantContract","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/MerchantContractCreate"}}}},"responses":{"201":{"description":"草稿合同","content":{"application/json":{"schema":{"$ref":"#/components/schemas/MerchantContract"}}}},"422":{"$ref":"#/components/responses/Error422"}}}
+    },
+    "/api/ops/v1/merchants/{merchantId}/contract/actions/activate": {
+      "post": {"operationId":"activateMerchantContract","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/MerchantContractTransitionAction"}}}},"responses":{"200":{"description":"生效合同","content":{"application/json":{"schema":{"$ref":"#/components/schemas/MerchantContract"}}}},"409":{"$ref":"#/components/responses/Error409"}}}
+    },
+    "/api/ops/v1/merchants/{merchantId}/contract/actions/expire": {
+      "post": {"operationId":"expireMerchantContract","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/MerchantContractTransitionAction"}}}},"responses":{"200":{"description":"到期合同","content":{"application/json":{"schema":{"$ref":"#/components/schemas/MerchantContract"}}}},"409":{"$ref":"#/components/responses/Error409"}}}
+    },
+    "/api/ops/v1/merchants/{merchantId}/sku-dimensions": {
+      "get": {"operationId":"listMerchantSkuDimensions","responses":{"200":{"description":"尺寸页","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SkuDimensionPage"}}}}}},
+      "post": {"operationId":"createMerchantSkuDimension","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SkuDimensionCreate"}}}},"responses":{"201":{"description":"尺寸","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SkuDimension"}}}},"422":{"$ref":"#/components/responses/Error422"}}}
+    },
+    "/api/ops/v1/users/{userId}/actions/freeze": {
+      "post": {"operationId":"freezeUser","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserFreezeAction"}}}},"responses":{"200":{"description":"冻结状态","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserFreezeState"}}}},"409":{"$ref":"#/components/responses/Error409"}}}
+    },
+    "/api/ops/v1/users/{userId}/actions/unfreeze": {
+      "post": {"operationId":"unfreezeUser","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserUnfreezeAction"}}}},"responses":{"200":{"description":"解冻状态","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserFreezeState"}}}},"409":{"$ref":"#/components/responses/Error409"}}}
+    }
+  }
+}
+```
+
+```json
+{
+  "components": {
+    "schemas": {
+      "RouteQuote": {"type":"object","required":["chargeableWeightGrams","totalMinor","currency","expiresAt","configurationVersion"],"properties":{"chargeableWeightGrams":{"type":"integer","minimum":1},"totalMinor":{"type":"integer","format":"int64","description":"最小货币单位；示例值由后台配置"},"currency":{"type":"string","enum":["USD","KHR"]},"expiresAt":{"$ref":"#/components/schemas/Timestamp"},"configurationVersion":{"type":"integer","minimum":1}}},
+      "RoutePricingConfiguration": {"type":"object","required":["id","version","effectiveAt"],"properties":{"id":{"$ref":"#/components/schemas/Id"},"version":{"type":"integer","minimum":1},"effectiveAt":{"$ref":"#/components/schemas/Timestamp"}}},
+      "RoutePricingConfigurationPage": {"type":"object","required":["items"],"properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/RoutePricingConfiguration"}}}},
+      "CouponBatch": {"type":"object","required":["id","version","budgetMinor"],"properties":{"id":{"$ref":"#/components/schemas/Id"},"version":{"type":"integer","minimum":1},"budgetMinor":{"type":"integer","format":"int64","description":"最小货币单位；示例值由后台配置"}}},
+      "CouponPage": {"type":"object","required":["items"],"properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/Coupon"}}}},
+      "Coupon": {"type":"object","required":["id","state"],"properties":{"id":{"$ref":"#/components/schemas/Id"},"state":{"type":"string","enum":["AVAILABLE","LOCKED","REDEEMED","RELEASED"]}}},
+      "CouponLock": {"type":"object","required":["couponId","discountMinor","driverCommissionBaseMinor"],"properties":{"couponId":{"$ref":"#/components/schemas/Id"},"discountMinor":{"type":"integer","format":"int64"},"driverCommissionBaseMinor":{"type":"integer","format":"int64","description":"优惠前金额"}}},
+      "CouponRedemption": {"type":"object","required":["id","couponId","state"],"properties":{"id":{"$ref":"#/components/schemas/Id"},"couponId":{"$ref":"#/components/schemas/Id"},"state":{"const":"REDEEMED"}}},
+      "CouponRelease": {"type":"object","required":["couponId","state"],"properties":{"couponId":{"$ref":"#/components/schemas/Id"},"state":{"const":"RELEASED"}}},
+      "MerchantContract": {"type":"object","required":["id","state","version"],"properties":{"id":{"$ref":"#/components/schemas/Id"},"state":{"type":"string","enum":["DRAFT","ACTIVE","EXPIRED"]},"version":{"type":"integer","minimum":1}}},
+      "SkuDimension": {"type":"object","required":["id","chargeableWeightGrams","exclusiveVehicleOnly"],"properties":{"id":{"$ref":"#/components/schemas/Id"},"chargeableWeightGrams":{"type":"integer","minimum":1},"exclusiveVehicleOnly":{"type":"boolean"}}},
+      "SkuDimensionPage": {"type":"object","required":["items"],"properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/SkuDimension"}}}},
+      "UserFreezeState": {"type":"object","required":["userId","state","version"],"properties":{"userId":{"$ref":"#/components/schemas/Id"},"state":{"type":"string","enum":["ACTIVE","FROZEN"]},"version":{"type":"integer","minimum":1}}}
+    }
+  }
+}
+```
