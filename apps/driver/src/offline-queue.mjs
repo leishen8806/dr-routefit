@@ -118,12 +118,13 @@ export function createOfflineEventQueue(
         while (snapshot.events.length > 0) {
           const event = snapshot.events[0];
           const retry = snapshot.retries[event.eventId];
-          if (retry?.nextAttemptAt > now()) {
+          const t = now();
+          if (retry?.nextAttemptAt > t) {
             return {
               accepted,
               quarantined,
               delayed: true,
-              retryAfterMs: retry.nextAttemptAt - now(),
+              retryAfterMs: retry.nextAttemptAt - t,
               ...(retry.errorCode === 'SYNC_SEQUENCE_INVALID' && retry.attempts >= 5
                 ? { dispatchRequired: true }
                 : {}),
@@ -140,10 +141,10 @@ export function createOfflineEventQueue(
             next.retries[event.eventId] = {
               attempts,
               errorCode: null,
-              nextAttemptAt: now() + Math.min(baseDelayMs * (2 ** (attempts - 1)), 60000),
+              nextAttemptAt: t + Math.min(baseDelayMs * (2 ** (attempts - 1)), 60000),
             };
             await commit(next);
-            return { accepted, quarantined, delayed: true, retryAfterMs: next.retries[event.eventId].nextAttemptAt - now() };
+            return { accepted, quarantined, delayed: true, retryAfterMs: next.retries[event.eventId].nextAttemptAt - t };
           }
 
           if (result.eventId !== event.eventId) throw new Error('Sync result eventId does not match');
@@ -155,14 +156,14 @@ export function createOfflineEventQueue(
             next.retries[event.eventId] = {
               attempts,
               errorCode: result.errorCode,
-              nextAttemptAt: now() + Math.min(baseDelayMs * (2 ** (attempts - 1)), 60000),
+              nextAttemptAt: t + Math.min(baseDelayMs * (2 ** (attempts - 1)), 60000),
             };
             await commit(next);
             return {
               accepted,
               quarantined,
               delayed: true,
-              retryAfterMs: next.retries[event.eventId].nextAttemptAt - now(),
+              retryAfterMs: next.retries[event.eventId].nextAttemptAt - t,
               ...(result.errorCode === 'SYNC_SEQUENCE_INVALID' && attempts >= 5
                 ? { dispatchRequired: true }
                 : {}),
