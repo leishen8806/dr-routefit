@@ -48,6 +48,12 @@ test('detail drawer keeps row context and labels its action as frontend-only', (
   assert.match(markup, /data-action="close-detail"/);
 });
 
+test('detail drawer marks its close control as frontend-only', () => {
+  const markup = renderOperationsDetail('support', 0);
+
+  assert.match(markup, /data-mode="frontend-only" data-action="close-detail"/);
+});
+
 test('detail drawer rejects a row outside the selected page instead of leaking a different record', () => {
   assert.match(renderOperationsDetail('orders', 9), /记录暂不可用/);
   assert.doesNotMatch(renderOperationsDetail('orders', 9), /CS-082/);
