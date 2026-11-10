@@ -7,6 +7,7 @@ import {
   reduceOperationsDrawer,
   renderOperationsDetail,
   renderOperationsPage,
+  renderOperationsScreen,
 } from './operations-pages.mjs';
 
 test('operations pages expose all Frontend1-owned admin areas', () => {
@@ -74,4 +75,9 @@ test('drawer state closes without retaining a previously selected record', () =>
     reduceOperationsDrawer({ pageId: 'support', index: 0 }, { type: 'close' }),
     null,
   );
+});
+
+test('screen renders a matching drawer but never leaks a drawer from another page', () => {
+  assert.match(renderOperationsScreen('support', { pageId: 'support', index: 0 }), /CS-082/);
+  assert.doesNotMatch(renderOperationsScreen('orders', { pageId: 'support', index: 0 }), /CS-082/);
 });

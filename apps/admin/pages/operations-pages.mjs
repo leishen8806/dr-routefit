@@ -120,3 +120,10 @@ export function renderOperationsDetail(id, index) {
   <button type="button" data-mode="frontend-only">${page.action}</button>
 </aside>`;
 }
+
+export function renderOperationsScreen(id, drawerState) {
+  const drawer = drawerState?.pageId === id
+    ? renderOperationsDetail(drawerState.pageId, drawerState.index)
+    : '';
+  return `${renderOperationsPage(id)}${drawer}`;
+}
