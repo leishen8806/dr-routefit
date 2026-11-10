@@ -14,7 +14,7 @@ export const zh: SiteCopy = {
     body: 'RouteFit 帮商家把货从仓库送到客户手里：按货物选车，按路线派单，交接、在途、签收每一步都有记录可查。',
     primary: '咨询企业合作',
     secondary: '我是司机，想加入',
-    note: 'The right vehicle. The right route. On time.',
+    note: '柬埔寨最后一公里，直达收件人',
     route: ['取货点', '配送车辆', '送货点', '交接凭证']
   },
   quick: [
@@ -46,7 +46,8 @@ export const zh: SiteCopy = {
     eyebrow: '服务区域',
     title: '金边及周边',
     body: '目前从金边的发货仓出发，服务金边市区及周边。具体能否送达，以下单时的地址校验为准；新开通的区域会在这里更新。',
-    action: '问一下我的地址能不能送'
+    action: '问一下我的地址能不能送',
+    mapLabel: '服务区域：金边及周边'
   },
   audiences: [
     { eyebrow: '加入 RouteFit', title: '加入 RouteFit 司机与车队', body: '按完成的配送单计收入，按周期结算。个人司机和合作车队都可以申请，审核通过后开始接单。', action: '了解加入方式', href: '/drivers/' },
@@ -63,7 +64,7 @@ export const zh: SiteCopy = {
     ]
   },
   footer: {
-    summary: '车对货，路对线，准时送到。',
+    summary: '柬埔寨最后一公里，直达收件人',
     product: '服务', company: '公司', support: '支持', legal: '法律',
     terms: '服务条款', privacy: '隐私政策', rights: '保留所有权利。'
   },

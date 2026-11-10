@@ -65,5 +65,8 @@ npm run build:check --workspace @routefit/driver-app
 - `offered`：验证列表、详情与接单。
 - `custody-pending`：验证待签交接、签认、出发就绪与出发。
 - `ready-to-depart`：验证签认完成后的出发就绪投影。
+- `delivery-ready`：验证已出发、收货授权就绪后的拍照上传与按件交付。
+
+交接、出发与交付证据由司机在 App 内拍照上传；照片只写入 App 私有缓存，上传完成后删除，不写入系统相册。相机权限仅在点击“拍照”时申请。上传和交付要求在线，超时后不会自动重试写操作。
 
 Android 模拟器继续使用 `adb reverse tcp:4180 tcp:4180`。脚本拒绝远端服务或数据库；它只适用于本机合成开发数据。

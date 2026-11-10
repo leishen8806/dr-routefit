@@ -22,7 +22,9 @@ Static Astro website for the public-facing RouteFit pages. It contains no backen
 
 ## Language behavior
 
-Routes use `/km/`, `/en/` and `/zh/`. The root page prefers an explicit local choice, then the browser language, and otherwise defaults to Khmer. Language links keep the visitor on the equivalent page.
+Routes use `/km/`, `/en/` and `/zh/`. The root page prefers an explicit local choice, then the browser language, and otherwise defaults to English. Language links keep the visitor on the equivalent page.
+
+The Cambodia service-area outline is derived from [Natural Earth 1:110m Admin 0 Countries](https://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-admin-0-countries/), simplified and embedded as SVG. Natural Earth data is [public domain](https://www.naturalearthdata.com/about/terms-of-use/); the website makes no runtime map request.
 
 ## Evidence
 
