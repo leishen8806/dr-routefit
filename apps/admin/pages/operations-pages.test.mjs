@@ -76,6 +76,22 @@ test('configured page ignores a short row instead of exposing undefined detail f
   assert.equal(getOperationsRecord('orders', 0, configuredPages), null);
 });
 
+test('configured page list skips malformed rows without crashing the screen', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [
+        ['CFG-001', 'Configured merchant', 'pending', 'review', 'example'],
+        {},
+      ],
+    },
+  };
+
+  const markup = renderOperationsPage('orders', configuredPages);
+  assert.match(markup, /CFG-001/);
+  assert.doesNotMatch(markup, /data-record-index="1"/);
+});
+
 test('order view renders an accessible sample-data table and marks actions as frontend-only', () => {
   const markup = renderOperationsPage('orders');
 
