@@ -136,19 +136,21 @@ export function createOfflineEventQueue(
             result = await send(structuredClone(event));
           } catch (error) {
             if (!isTemporary(error)) throw error;
+            const settledAt = now();
             const attempts = (retry?.attempts ?? 0) + 1;
             const next = structuredClone(snapshot);
             next.retries[event.eventId] = {
               attempts,
               errorCode: null,
-              nextAttemptAt: t + Math.min(baseDelayMs * (2 ** (attempts - 1)), 60000),
+              nextAttemptAt: settledAt + Math.min(baseDelayMs * (2 ** (attempts - 1)), 60000),
             };
             await commit(next);
-            return { accepted, quarantined, delayed: true, retryAfterMs: next.retries[event.eventId].nextAttemptAt - t };
+            return { accepted, quarantined, delayed: true, retryAfterMs: next.retries[event.eventId].nextAttemptAt - settledAt };
           }
 
           if (result.eventId !== event.eventId) throw new Error('Sync result eventId does not match');
           if (result.result === 'REJECTED' && retryableResultCodes.has(result.errorCode)) {
+            const settledAt = now();
             const attempts = result.errorCode === 'SYNC_SEQUENCE_INVALID' && retry?.errorCode !== result.errorCode
               ? 1
               : (retry?.attempts ?? 0) + 1;
@@ -156,14 +158,14 @@ export function createOfflineEventQueue(
             next.retries[event.eventId] = {
               attempts,
               errorCode: result.errorCode,
-              nextAttemptAt: t + Math.min(baseDelayMs * (2 ** (attempts - 1)), 60000),
+              nextAttemptAt: settledAt + Math.min(baseDelayMs * (2 ** (attempts - 1)), 60000),
             };
             await commit(next);
             return {
               accepted,
               quarantined,
               delayed: true,
-              retryAfterMs: next.retries[event.eventId].nextAttemptAt - t,
+              retryAfterMs: next.retries[event.eventId].nextAttemptAt - settledAt,
               ...(result.errorCode === 'SYNC_SEQUENCE_INVALID' && attempts >= 5
                 ? { dispatchRequired: true }
                 : {}),

@@ -112,6 +112,30 @@ test('uses one clock reading for retry scheduling and delay reporting', async ()
   assert.equal(result.retryAfterMs, 1000);
 });
 
+test('starts temporary failure backoff after the request settles', async () => {
+  let currentTime = 0;
+  const queue = createOfflineEventQueue(undefined, { now: () => currentTime });
+  await queue.enqueue(input('event-1'));
+  const result = await queue.replay(async () => {
+    currentTime += 5000;
+    throw Object.assign(new Error('temporary'), { status: 503 });
+  });
+  assert.equal(result.retryAfterMs, 1000);
+  assert.equal(queue.snapshot().retries['event-1'].nextAttemptAt, 6000);
+});
+
+test('starts retryable rejection backoff after the response settles', async () => {
+  let currentTime = 0;
+  const queue = createOfflineEventQueue(undefined, { now: () => currentTime });
+  await queue.enqueue(input('event-1'));
+  const result = await queue.replay(async (event) => {
+    currentTime += 5000;
+    return { eventId: event.eventId, result: 'REJECTED', errorCode: 'SYNC_SEQUENCE_INVALID' };
+  });
+  assert.equal(result.retryAfterMs, 1000);
+  assert.equal(queue.snapshot().retries['event-1'].nextAttemptAt, 6000);
+});
+
 test('requires dispatch help after five consecutive sequence rejections', async () => {
   let currentTime = 0;
   const queue = createOfflineEventQueue(undefined, { now: () => currentTime, baseDelayMs: 1 });
