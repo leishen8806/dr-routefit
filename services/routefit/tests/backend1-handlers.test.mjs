@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {backend1Handlers,createBackend1Handlers} from '../application/backend1-handlers.mjs';
-import {activateMerchantContract as activateMerchantContractRepository,createCouponBatch,expireMerchantContract as expireMerchantContractRepository,getMerchantContract,listCoupons,listMerchantSkuDimensions} from '../adapters/backend1.mjs';
+import {activateMerchantContract as activateMerchantContractRepository,createCouponBatch,expireMerchantContract as expireMerchantContractRepository,freezeUser as freezeUserRepository,getMerchantContract,listCoupons,listMerchantSkuDimensions} from '../adapters/backend1.mjs';
 
 test('Backend1 handlers pass authenticated context and validated input to their repository boundary', async () => {
  const calls=[];
@@ -134,4 +134,27 @@ test('default Backend1 expiry handler uses the contract transition repository', 
  }};
  const result=await backend1Handlers.expireMerchantContract({client,companyId:'00000000-0000-0000-0000-000000000001',merchantId:'00000000-0000-0000-0000-000000000002',version:3},{});
  assert.deepEqual(result,{status:200,body:{id:'00000000-0000-0000-0000-000000000014',state:'EXPIRED',version:4}});
+});
+
+test('manual user freeze appends a company-scoped versioned history event', async () => {
+ const calls=[];
+ const client={query:async(sql,params)=>{
+  calls.push({sql,params});
+  if(calls.length===1)return {rows:[{action:'UNFREEZE',reason:'Previous review cleared',version:'1'}]};
+  return {rows:[{principal_id:'00000000-0000-0000-0000-000000000003',action:'FREEZE',version:'2'}]};
+ }};
+ const result=await freezeUserRepository({client,companyId:'00000000-0000-0000-0000-000000000001',userId:'00000000-0000-0000-0000-000000000003',version:1},{reason:'Example manual review'});
+ assert.deepEqual(result,{userId:'00000000-0000-0000-0000-000000000003',state:'FROZEN',version:2});
+ assert.match(calls[0].sql,/WHERE company_id=\$1 AND principal_id=\$2/);
+ assert.match(calls[1].sql,/INSERT INTO party\.account_freeze/);
+ assert.deepEqual(calls[1].params.slice(1),['00000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000003','Example manual review',2]);
+});
+
+test('default Backend1 freeze handler uses the append-only user freeze repository', async () => {
+ const client={query:async(sql)=>{
+  if(sql.includes('SELECT action,reason,version'))return {rows:[{action:'UNFREEZE',reason:'Previous review cleared',version:'1'}]};
+  return {rows:[{principal_id:'00000000-0000-0000-0000-000000000003',action:'FREEZE',version:'2'}]};
+ }};
+ const result=await backend1Handlers.freezeUser({client,companyId:'00000000-0000-0000-0000-000000000001',userId:'00000000-0000-0000-0000-000000000003',version:1},{reason:'Example manual review'});
+ assert.deepEqual(result,{status:200,body:{userId:'00000000-0000-0000-0000-000000000003',state:'FROZEN',version:2}});
 });

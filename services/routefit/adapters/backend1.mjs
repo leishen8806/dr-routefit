@@ -1,6 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {ApiError,ensure} from '../domain/errors.mjs';
 import {activateMerchantContract as activateContract,expireMerchantContract as expireContract} from '../domain/merchant-contracts.mjs';
+import {freezeUser as freezeUserDomain} from '../domain/user-freeze.mjs';
 
 export async function createCouponBatch({client,companyId,idempotencyKey},{discountType,amountMinor,currency,budgetMinor,minimumSpendMinor=0}){
  const kind=discountType==='fixed'?'AMOUNT_OFF':'THRESHOLD_OFF';
@@ -63,3 +64,29 @@ async function transitionMerchantContract({client,companyId,merchantId,version},
 
 export const activateMerchantContract=context=>transitionMerchantContract(context,activateContract);
 export const expireMerchantContract=context=>transitionMerchantContract(context,expireContract);
+
+async function getUserFreezeState({client,companyId,userId}){
+ const result=await client.query(`SELECT action,reason,version
+  FROM party.account_freeze
+  WHERE company_id=$1 AND principal_id=$2
+  ORDER BY version DESC
+  LIMIT 1`,[companyId,userId]);
+ const row=result.rows[0];
+ if(!row)return {state:'ACTIVE',version:0};
+ return row.action==='FREEZE'
+  ?{state:'FROZEN',freezeReason:row.reason,version:Number(row.version)}
+  :{state:'ACTIVE',version:Number(row.version)};
+}
+
+export async function freezeUser({client,companyId,userId,version},{reason}){
+ const current=await getUserFreezeState({client,companyId,userId});
+ ensure(current.version===version,412,'VERSION_CONFLICT','User freeze version has changed');
+ const next=freezeUserDomain(current,{reason});
+ const nextVersion=current.version+1;
+ const result=await client.query(`INSERT INTO party.account_freeze
+  (id,company_id,principal_id,action,reason,version)
+  VALUES($1,$2,$3,'FREEZE',$4,$5)
+  RETURNING principal_id,action,version`,[randomUUID(),companyId,userId,next.freezeReason,nextVersion]);
+ const row=result.rows[0];
+ return {userId:row.principal_id,state:'FROZEN',version:Number(row.version)};
+}
