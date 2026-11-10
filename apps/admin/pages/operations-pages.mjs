@@ -72,6 +72,14 @@ export function getOperationsRecord(id, index) {
   };
 }
 
+export function getOperationsDrawerAction(pageId, dataset) {
+  if (dataset?.action === 'close-detail') return { type: 'close' };
+  if (dataset?.action === 'open-detail') {
+    return { type: 'open', pageId, index: dataset.recordIndex };
+  }
+  return null;
+}
+
 export function reduceOperationsDrawer(state, action) {
   if (action?.type === 'close') return null;
   if (action?.type !== 'open') return state ?? null;
