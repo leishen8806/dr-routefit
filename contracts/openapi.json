@@ -15945,7 +15945,7 @@
       "post": {
         "operationId": "driverSync",
         "summary": "离线事件逐项补传",
-        "description": "事件ID永久业务去重，同ID异内容409项级拒绝；逐事件版本而非整批ETag；设备授权/顺序/观测时效检查，不允许接受提案或核验银行。",
+        "description": "事件ID永久业务去重，同ID异内容409项级拒绝；不同事件占用同一设备序号时，该项返回REJECTED与SYNC_SEQUENCE_CONFLICT；逐事件版本而非整批ETag；设备授权/顺序/观测时效检查，不允许接受提案或核验银行。",
         "tags": [
           "driver"
         ],
@@ -35250,7 +35250,7 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 128,
-                "description": "稳定错误码"
+                "description": "稳定错误码；不同eventId占用同一设备sequence时为SYNC_SEQUENCE_CONFLICT"
               },
               {
                 "type": "null"

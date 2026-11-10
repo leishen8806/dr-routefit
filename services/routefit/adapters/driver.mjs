@@ -55,8 +55,18 @@ async function savedSyncResult(client,principal,deviceId,input,fingerprint){
  return syncResult(input.eventId,'DUPLICATE',prior.resource_id,prior.resource_version===null?null:Number(prior.resource_version),prior.error_code);
 }
 async function storeSyncResult(client,principal,deviceId,input,fingerprint,result){
- await client.query('INSERT INTO mobile.sync_event(company_id,event_id,device_id,driver_id,sequence,assignment_id,event_type,observed_at,fingerprint,result,resource_id,resource_version,error_code,snapshot) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)',[principal.companyId,input.eventId,deviceId,principal.principalId,input.sequence,input.assignmentId,input.type,input.observedAt,fingerprint,result.result,result.resourceId,result.resourceVersion,result.errorCode,{input,result,receivedAt:new Date().toISOString()}]);
- await client.query('UPDATE mobile.sync_device_state SET last_sequence=$3,updated_at=clock_timestamp() WHERE company_id=$1 AND device_id=$2',[principal.companyId,deviceId,input.sequence]);
+ await client.query('SAVEPOINT driver_sync_result');
+ try{
+  await client.query('INSERT INTO mobile.sync_event(company_id,event_id,device_id,driver_id,sequence,assignment_id,event_type,observed_at,fingerprint,result,resource_id,resource_version,error_code,snapshot) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)',[principal.companyId,input.eventId,deviceId,principal.principalId,input.sequence,input.assignmentId,input.type,input.observedAt,fingerprint,result.result,result.resourceId,result.resourceVersion,result.errorCode,{input,result,receivedAt:new Date().toISOString()}]);
+  const updated=await client.query('UPDATE mobile.sync_device_state SET last_sequence=$3,updated_at=clock_timestamp() WHERE company_id=$1 AND device_id=$2',[principal.companyId,deviceId,input.sequence]);
+  ensure(updated.rowCount===1,500,'SYNC_DEVICE_STATE_MISSING','设备补传状态不存在');await client.query('RELEASE SAVEPOINT driver_sync_result');return result;
+ }catch(error){
+  await client.query('ROLLBACK TO SAVEPOINT driver_sync_result');await client.query('RELEASE SAVEPOINT driver_sync_result');
+  if(error.code!=='23505')throw error;
+  const prior=await savedSyncResult(client,principal,deviceId,input,fingerprint);if(prior)return prior;
+  const occupied=(await client.query('SELECT 1 FROM mobile.sync_event WHERE company_id=$1 AND device_id=$2 AND sequence=$3',[principal.companyId,deviceId,input.sequence])).rowCount;
+  if(occupied)return syncResult(input.eventId,'REJECTED',null,null,'SYNC_SEQUENCE_CONFLICT');throw error;
+ }
 }
 async function applySyncEvent(client,principal,input){
  const assignment=await syncAssignment(client,principal,input);
@@ -89,16 +99,17 @@ export async function writeDriverSync(client,principal,input){
   // stored, so the device can resend it later in order instead of being blocked forever or rewinding the counter.
   let result,authorized=false,inSequence=false;
   try{
-   await client.query('SAVEPOINT driver_sync_event');await syncDevice(client,principal,input.deviceId,item.observedAt);authorized=true;
+   await syncDevice(client,principal,input.deviceId,item.observedAt);authorized=true;
    await client.query('INSERT INTO mobile.sync_device_state(company_id,device_id,driver_id,last_sequence) VALUES($1,$2,$3,0) ON CONFLICT(company_id,device_id) DO NOTHING',[principal.companyId,input.deviceId,principal.principalId]);
    const state=(await client.query('SELECT last_sequence FROM mobile.sync_device_state WHERE company_id=$1 AND device_id=$2 FOR UPDATE',[principal.companyId,input.deviceId])).rows[0];
-   ensure(Number(state.last_sequence)+1===item.sequence,409,'SYNC_SEQUENCE_INVALID','设备事件顺序不连续');inSequence=true;result=await applySyncEvent(client,principal,item);await client.query('RELEASE SAVEPOINT driver_sync_event');
+   ensure(Number(state.last_sequence)+1===item.sequence,409,'SYNC_SEQUENCE_INVALID','设备事件顺序不连续');inSequence=true;await client.query('SAVEPOINT driver_sync_event');
+   try{result=await applySyncEvent(client,principal,item);await client.query('RELEASE SAVEPOINT driver_sync_event');}
+   catch(error){await client.query('ROLLBACK TO SAVEPOINT driver_sync_event');await client.query('RELEASE SAVEPOINT driver_sync_event');throw error;}
   }catch(error){
-   await client.query('ROLLBACK TO SAVEPOINT driver_sync_event').catch(()=>{});await client.query('RELEASE SAVEPOINT driver_sync_event').catch(()=>{});
    result=syncResult(item.eventId,'REJECTED',null,null,error instanceof ApiError?error.code:'SYNC_PROCESSING_FAILED');
   }
   if(!authorized||!inSequence){results.push(result);continue;}
-  try{await storeSyncResult(client,principal,input.deviceId,item,fingerprint,result);}catch(error){results.push(syncResult(item.eventId,'REJECTED',null,null,error instanceof ApiError?error.code:'SYNC_PROCESSING_FAILED'));continue;}results.push(result);
+  try{results.push(await storeSyncResult(client,principal,input.deviceId,item,fingerprint,result));}catch(error){results.push(syncResult(item.eventId,'REJECTED',null,null,error instanceof ApiError?error.code:'SYNC_PROCESSING_FAILED'));}
  }
  return {results};
 }
