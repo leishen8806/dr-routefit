@@ -3,6 +3,21 @@ import {ensure} from './errors.mjs';
 export {catalog};
 const maximum=9000000000000n;
 const bounded=n=>{ensure(n>=0n&&n<=maximum,422,'AMOUNT_OUT_OF_RANGE','费用超出允许范围');return Number(n);};
+const positiveInteger=(value,code)=>{ensure(Number.isSafeInteger(value)&&value>0,422,code,'Route pricing configuration and dimensions must be positive integers');return value;};
+
+export function calculateRouteQuote({shipment,currency,configuration}){
+ const {weightGrams,lengthCm,widthCm,heightCm,exclusiveVehicle}=shipment;
+ const {baseMinor,perKgMinor,longItemFeeMinor,volumetricDivisor,khrRoundingMinor}=configuration;
+ for(const value of [weightGrams,lengthCm,widthCm,heightCm,baseMinor,perKgMinor,volumetricDivisor,khrRoundingMinor])positiveInteger(value,'INVALID_ROUTE_PRICING_INPUT');
+ ensure(Number.isSafeInteger(longItemFeeMinor)&&longItemFeeMinor>=0,422,'INVALID_ROUTE_PRICING_INPUT','Long-item fee must be a non-negative integer');
+ ensure(typeof exclusiveVehicle==='boolean',422,'INVALID_ROUTE_PRICING_INPUT','Exclusive vehicle flag must be boolean');
+ ensure(lengthCm<=300||exclusiveVehicle,422,'EXCLUSIVE_VEHICLE_REQUIRED','Items longer than 3 metres require an exclusive vehicle');
+ const actualWeightKg=Math.ceil(weightGrams/1000),volumetricWeightKg=Math.ceil((lengthCm*widthCm*heightCm)/volumetricDivisor),chargeableWeightKg=Math.max(actualWeightKg,volumetricWeightKg),surchargeMinor=lengthCm>200?longItemFeeMinor:0;
+ const subtotal=BigInt(baseMinor)+BigInt(perKgMinor)*BigInt(chargeableWeightKg)+BigInt(surchargeMinor);
+ const rounded=currency==='KHR'?((subtotal+BigInt(khrRoundingMinor/2))/BigInt(khrRoundingMinor))*BigInt(khrRoundingMinor):subtotal;
+ return {chargeableWeightKg,surchargeMinor,totalMinor:bounded(rounded)};
+}
+
 export function validateFee(rule,tariff){
  const item=catalog.find(x=>x.code===rule.code);
  ensure(item,422,'UNKNOWN_FEE','未知费用项目');
