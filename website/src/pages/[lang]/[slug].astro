@@ -12,5 +12,5 @@ const { lang, slug } = Astro.props as { lang: Language; slug: keyof typeof conte
 const copy = content[lang];
 ---
 <BaseLayout {lang} title={`${copy.pages[slug]} | DR RouteFit`} pathname={`/${lang}/${slug}/`}>
-  <PlaceholderPage {lang} {copy} label={copy.pages[slug]} />
+  <PlaceholderPage {lang} {copy} label={copy.pages[slug]} {slug} />
 </BaseLayout>

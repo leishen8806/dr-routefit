@@ -4,21 +4,21 @@ colors:
   navy: "#0B2545"
   teal: "#13C29B"
   orange: "#F5A623"
-  background: "#F6F8FB"
+  background: "#F3F5F7"
   surface: "#FFFFFF"
-  textSecondary: "#5B6B7F"
-  line: "#E3E8EF"
+  textSecondary: "#59697A"
+  line: "#D9E1E8"
 typography:
   khmer:
-    fontFamily: "Noto Sans Khmer, Khmer UI, Leelawadee UI, sans-serif"
+    fontFamily: "Noto Sans Khmer, sans-serif"
     fontSize: "16px"
     lineHeight: "1.85"
   latin:
-    fontFamily: "Inter, Segoe UI, Roboto, Arial, sans-serif"
+    fontFamily: "IBM Plex Sans, sans-serif"
     fontSize: "16px"
     lineHeight: "1.55"
   chinese:
-    fontFamily: "Noto Sans SC, Microsoft YaHei, PingFang SC, sans-serif"
+    fontFamily: "Noto Sans SC, sans-serif"
     fontSize: "16px"
     lineHeight: "1.7"
 rounded:
@@ -44,7 +44,7 @@ Use the repository RouteFit palette. Navy carries hierarchy, teal marks the acti
 
 ## Typography
 
-Khmer is the first-run language and receives the most generous line height. Never tighten Khmer tracking or force it into a fixed single line. English and Chinese use the established repository stacks; fonts are system-resolved in this skeleton and must be self-hosted before production.
+Khmer is the first-run language and receives the most generous line height. Never tighten Khmer tracking or force it into a fixed single line. English, Chinese and Khmer use repository-installed, self-hosted font packages; no runtime font request is sent to Google Fonts or another font CDN.
 
 ## Layout
 

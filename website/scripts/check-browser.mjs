@@ -21,14 +21,26 @@ try {
     if (lang === 'km') {
       const clipped = await page.evaluate(() => [...document.querySelectorAll('h1,h2,h3,p,a')].some((node) => node.scrollHeight > node.clientHeight + 2));
       if (clipped) throw new Error('km: clipped copy');
-      await page.screenshot({ path: path.join(evidence, 'home-km-390.png'), fullPage: true });
     }
+    await page.screenshot({ path: path.join(evidence, `website-${lang}-home-390.png`), fullPage: true });
+    await page.goto(`${baseURL}/${lang}/pricing/`);
+    await page.screenshot({ path: path.join(evidence, `website-${lang}-pricing-390.png`), fullPage: true });
     await page.close();
   }
 
   const wide = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  for (const lang of ['km', 'en', 'zh']) {
+    await wide.goto(`${baseURL}/${lang}/`);
+    await wide.screenshot({ path: path.join(evidence, `website-${lang}-home-1440.png`), fullPage: true });
+    await wide.goto(`${baseURL}/${lang}/pricing/`);
+    await wide.screenshot({ path: path.join(evidence, `website-${lang}-pricing-1440.png`), fullPage: true });
+  }
   await wide.goto(`${baseURL}/zh/`);
   if (await wide.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error('zh: horizontal overflow at 1440px');
+  for (const [selector, label] of [['.route-track span:nth-child(2)', 'route midpoint'], ['.route-step-4 > span', 'handoff node']]) {
+    const background = await wide.locator(selector).evaluate((node) => getComputedStyle(node).backgroundColor);
+    if (background === 'transparent' || background === 'rgba(0, 0, 0, 0)') throw new Error(`zh: ${label} background is transparent`);
+  }
   const navigation = await wide.locator('.desktop-nav > *').evaluateAll((nodes) => nodes.map((node) => node.textContent?.trim()));
   if (JSON.stringify(navigation) !== JSON.stringify(['服务', '价格说明', '司机与车队', '查单', '关于我们', '帮助中心'])) throw new Error('zh: navigation does not match approved design');
   if (await wide.locator('.desktop-nav .nav-disabled[aria-disabled="true"]').textContent() !== '查单') throw new Error('zh: track navigation is not visibly unavailable');
@@ -43,8 +55,11 @@ try {
   if (!(await wide.locator('meta[property="og:image"]').getAttribute('content'))?.endsWith('/og-card.png')) throw new Error('zh: social image is not PNG');
   if (await wide.locator('meta[property="og:image:width"]').getAttribute('content') !== '1200') throw new Error('zh: wrong social image width');
   if (await wide.locator('meta[property="og:image:height"]').getAttribute('content') !== '630') throw new Error('zh: wrong social image height');
-  await wide.screenshot({ path: path.join(evidence, 'home-zh-1440.png'), fullPage: true });
   await wide.goto(`${baseURL}/zh/pricing/`);
+  for (const fact of ['报价费用逐项列明', '确认报价后才收费', '每份报价都有有效期']) {
+    if (!(await wide.locator('body').textContent())?.includes(fact)) throw new Error(`zh pricing: missing approved fact: ${fact}`);
+  }
+  if (/\$|USD|KHR|美元|瑞尔/.test((await wide.locator('.pricing-facts').textContent()) ?? '')) throw new Error('zh pricing: contains an unapproved price');
   await wide.locator('a.language-link[lang="en"]').first().click();
   await wide.waitForURL('**/en/pricing/');
 

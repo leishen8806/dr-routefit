@@ -9,16 +9,19 @@ export default function Root({ children }: PropsWithChildren) {
       <head>
         <meta charSet="utf-8" />
         <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
+        <link href="/fonts/ibm-plex-sans/index.css" rel="stylesheet" />
+        <link href="/fonts/noto-sans-sc/index.css" rel="stylesheet" />
+        <link href="/fonts/noto-sans-khmer/index.css" rel="stylesheet" />
         <ScrollViewStyleReset />
         <style>{`
-          :root { color-scheme: light; scrollbar-color: #9AA9BA #E3E8EF; scrollbar-width: thin; }
+          :root { color-scheme: light; scrollbar-color: #8796A6 #D9E1E8; scrollbar-width: thin; }
           * { box-sizing: border-box; }
-          html, body, #root { min-height: 100%; margin: 0; background: #F6F8FB; }
-          body { font-family: Inter, "Noto Sans Khmer", "Noto Sans SC", "Segoe UI", sans-serif; }
+          html, body, #root { min-height: 100%; margin: 0; background: #F3F5F7; }
+          body { font-family: "IBM Plex Sans", "Noto Sans SC", "Noto Sans Khmer", sans-serif; }
           *::-webkit-scrollbar { width: 10px; height: 10px; }
-          *::-webkit-scrollbar-track { background: #E3E8EF; }
-          *::-webkit-scrollbar-thumb { background: #9AA9BA; border: 2px solid #E3E8EF; border-radius: 999px; }
-          *::-webkit-scrollbar-thumb:hover { background: #5B6B7F; }
+          *::-webkit-scrollbar-track { background: #D9E1E8; }
+          *::-webkit-scrollbar-thumb { background: #8796A6; border: 2px solid #D9E1E8; border-radius: 999px; }
+          *::-webkit-scrollbar-thumb:hover { background: #59697A; }
           #routefit-app-shell {
             padding-top: max(env(safe-area-inset-top), var(--tg-safe-area-inset-top, 0px));
             padding-right: max(env(safe-area-inset-right), var(--tg-safe-area-inset-right, 0px));
@@ -26,7 +29,7 @@ export default function Root({ children }: PropsWithChildren) {
             padding-left: max(env(safe-area-inset-left), var(--tg-safe-area-inset-left, 0px));
           }
           button:focus-visible, [role="button"]:focus-visible, [role="tab"]:focus-visible, a:focus-visible {
-            outline: 3px solid #1D5FBF; outline-offset: 3px;
+            outline: 3px solid #13C29B; outline-offset: 3px;
           }
           @media (forced-colors: active) { :root { scrollbar-color: auto; } }
           @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }

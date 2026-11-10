@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 import { Platform } from 'react-native';
+import { designTokens } from '@routefit/shared';
 import { activateTelegram, detectRuntime, shouldLoadTelegramScript } from './runtime.mjs';
 
 type TelegramBackButton = {
@@ -29,12 +30,20 @@ type RuntimeContextValue = {
   webApp?: TelegramWebApp;
   backgroundColor: string;
   textColor: string;
+  accentColor: string;
+  surfaceColor: string;
+  mutedColor: string;
+  buttonTextColor: string;
 };
 
 const DEFAULT_RUNTIME: RuntimeContextValue = {
   mode: 'h5',
-  backgroundColor: '#F6F8FB',
-  textColor: '#0B2545',
+  backgroundColor: designTokens.color.background,
+  textColor: designTokens.color.ink,
+  accentColor: designTokens.color.teal,
+  surfaceColor: designTokens.color.surface,
+  mutedColor: designTokens.color.muted,
+  buttonTextColor: designTokens.color.surface,
 };
 
 const RuntimeContext = createContext(DEFAULT_RUNTIME);
@@ -56,6 +65,10 @@ function activateCurrentTelegram(setRuntime: (runtime: RuntimeContextValue) => v
     webApp,
     backgroundColor: result.themeParams.bg_color ?? DEFAULT_RUNTIME.backgroundColor,
     textColor: result.themeParams.text_color ?? DEFAULT_RUNTIME.textColor,
+    accentColor: result.themeParams.button_color ?? DEFAULT_RUNTIME.accentColor,
+    surfaceColor: result.themeParams.secondary_bg_color ?? DEFAULT_RUNTIME.surfaceColor,
+    mutedColor: result.themeParams.hint_color ?? DEFAULT_RUNTIME.mutedColor,
+    buttonTextColor: result.themeParams.button_text_color ?? DEFAULT_RUNTIME.buttonTextColor,
   });
 }
 
