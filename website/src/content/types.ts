@@ -9,7 +9,7 @@ export type SiteCopy = {
   quick: Array<{ title: string; body: string; action: string; href: string; badge?: string }>;
   values: { eyebrow: string; title: string; items: Array<{ icon: string; title: string; body: string }> };
   process: { eyebrow: string; title: string; items: Array<{ title: string; body: string }> };
-  coverage: { eyebrow: string; title: string; body: string; action: string };
+  coverage: { eyebrow: string; title: string; body: string; action: string; mapLabel: string };
   audiences: Array<{ eyebrow: string; title: string; body: string; action: string; href: string }>;
   faq: { eyebrow: string; title: string; items: Array<{ question: string; answer: string }> };
   footer: {
