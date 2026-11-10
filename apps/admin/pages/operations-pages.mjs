@@ -57,6 +57,18 @@ const pages = {
   },
 };
 
+const routePageIds = {
+  '/orders': 'orders',
+  '/capacity': 'capacity',
+  '/customers': 'support',
+  '/merchants': 'merchants',
+  '/users': 'users',
+};
+
+export function getOperationsRoutePageId(pathname) {
+  return routePageIds[pathname] ?? null;
+}
+
 export function getOperationsPage(id, configuredPages) {
   return configuredPages?.[id] ?? pages[id] ?? null;
 }

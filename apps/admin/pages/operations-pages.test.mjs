@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  getOperationsRoutePageId,
   getOperationsPage,
   getOperationsRecord,
   getOperationsDrawerAction,
@@ -10,6 +11,15 @@ import {
   renderOperationsPage,
   renderOperationsScreen,
 } from './operations-pages.mjs';
+
+test('admin route paths resolve only to Frontend1-owned operations pages', () => {
+  assert.equal(getOperationsRoutePageId('/orders'), 'orders');
+  assert.equal(getOperationsRoutePageId('/capacity'), 'capacity');
+  assert.equal(getOperationsRoutePageId('/customers'), 'support');
+  assert.equal(getOperationsRoutePageId('/merchants'), 'merchants');
+  assert.equal(getOperationsRoutePageId('/users'), 'users');
+  assert.equal(getOperationsRoutePageId('/finance'), null);
+});
 
 test('operations pages expose all Frontend1-owned admin areas', () => {
   assert.deepEqual(
