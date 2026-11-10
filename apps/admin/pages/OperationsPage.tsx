@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AdminPage, Panel } from '../src/AdminPage';
-import { getOperationsPage, getOperationsRecord } from './operations-pages.mjs';
+import { getOperationsDrawerAccessibility, getOperationsPage, getOperationsRecord } from './operations-pages.mjs';
 
 type OperationsPageProps = {
   pageId: string;
@@ -16,6 +16,7 @@ export function OperationsPage({ pageId }: OperationsPageProps) {
   }
 
   const selectedRecord = selectedIndex === null ? null : getOperationsRecord(pageId, selectedIndex);
+  const drawerAccessibility = selectedRecord ? getOperationsDrawerAccessibility(pageId) : null;
 
   return <AdminPage title={page.title} description={page.description}>
     <Panel title="示例数据">
@@ -26,7 +27,7 @@ export function OperationsPage({ pageId }: OperationsPageProps) {
       <Text style={styles.note}>以下均为示例数据；当前页面操作均为纯前端，接入接口后替换。</Text>
     </Panel>
     {selectedRecord && <Panel title={`${selectedRecord.title}详情`}>
-      <View accessibilityViewIsModal accessibilityRole="summary" style={styles.detail}>
+      <View accessibilityLabel={drawerAccessibility?.accessibilityLabel} accessibilityRole="summary" accessibilityViewIsModal={drawerAccessibility?.isModal} style={styles.detail}>
         {selectedRecord.fields.map(([label, value]: [string, string]) => <View key={label} style={styles.detailRow}><Text style={styles.detailLabel}>{label}</Text><Text style={styles.detailValue}>{value}</Text></View>)}
         <Pressable accessibilityLabel="关闭详情" accessibilityRole="button" onPress={() => setSelectedIndex(null)} style={styles.closeButton}><Text style={styles.closeButtonText}>关闭（纯前端）</Text></Pressable>
       </View>

@@ -5,6 +5,7 @@ import {
   getOperationsRoutePageId,
   getOperationsPage,
   getOperationsRecord,
+  getOperationsDrawerAccessibility,
   getOperationsDrawerAction,
   reduceOperationsDrawer,
   renderOperationsDetail,
@@ -110,6 +111,14 @@ test('selected record keeps its page and field labels for a route-owned detail d
 
 test('selected record returns null when the requested page row does not exist', () => {
   assert.equal(getOperationsRecord('support', 3), null);
+});
+
+test('detail drawer exposes a modal label for its selected operations page', () => {
+  assert.deepEqual(getOperationsDrawerAccessibility('support'), {
+    accessibilityLabel: '客服与异常详情',
+    isModal: true,
+  });
+  assert.equal(getOperationsDrawerAccessibility('billing'), null);
 });
 
 test('drawer state opens only for a valid record in its requested page', () => {
