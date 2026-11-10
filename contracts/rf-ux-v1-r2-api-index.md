@@ -110,6 +110,20 @@
 | `GET /api/public/v1/ads` | 客户端与司机端广告 | OpsLead | 同上 | 待定义 |
 | `POST /api/public/v1/ad-interactions` | 广告曝光/点击上报 | OpsLead | 同上 | 待定义 |
 
+## DashboardSummary 指标来源与口径
+
+以下口径按公司隔离统计；日期边界使用后台可配置的运营日历。未就绪的数据源不得被 demo 值伪装为实时值。
+
+| 指标字段 | 来源表或视图 | 计算口径（含时间窗口、去重与排除规则） | 来源表属于哪个号段/哪张卡 | 当前是否已在 develop |
+| --- | --- | --- | --- | --- |
+| `pendingDispatchOrderCount` | `orders.draft` | 当前快照中 `snapshot#>>'{order,state}'='awaiting_dispatch'` 的 `id` 去重计数；天然排除已执行、已送达、取消及其他状态。 | 002 订单草稿基础；R2 由 OpsLead 消费 | 是 |
+| `pendingDispatchOrderDeltaVsYesterday` | `orders.draft` + `orders.draft_revision` | 当前待调度去重计数，减去上一运营日结束时每个订单在 `draft_revision` 的最后一版快照为 `awaiting_dispatch` 的去重计数；同一订单只取该截止点前最新版本，排除截止点后修订。 | 002 订单草稿及追加修订；R2 由 OpsLead 消费 | 是 |
+| `availableDriverCount` | 后台可配置 demo 示例值；后续 Backend2 070 司机表 | 当前分支未含 070 表定义，故只返回标注“示例”的后台配置值；070 合入后按其发布的可调度状态对司机主键去重，排除停用、审核未通过和不可调度状态。 | Backend2 070 司机注册/运力；CMP-1324 | 否（070 未合入） |
+| `driversPendingConfirmationCount` | 后台可配置 demo 示例值；后续 Backend2 070 司机表 | 当前分支未含 070 表定义，故只返回标注“示例”的后台配置值；070 合入后在可调度司机集合内，按其发布的待确认标记去重计数，不把不可调度司机计入分母。 | Backend2 070 司机注册/运力；CMP-1324 | 否（070 未合入） |
+| `onTimeDeliveryRatePercent` | `delivery.record` + `dispatch.service_promise` | 最近 `onTimeDeliveryRateWindowDays` 个运营日内，按订单去重；仅 `delivery_state='DELIVERED'` 纳入，交付时间取 `record.observed_at`。现有 `service_promise.snapshot` 尚未固化可比较的承诺截止字段，因此实时比例未就绪，先返回后台可配置“示例”值；截止字段发布后以不晚于承诺截止的订单数除以纳入订单数，分母为零时返回配置示例。 | 014 服务承诺、034 送达记录；R2 由 OpsLead 消费 | 表已在；实时口径未就绪 |
+| `onTimeDeliveryRateWindowDays` | 后台配置（示例） | 统计窗口天数仅接受 1–366；不从订单数据反推，变更后同时作用于准时率时间窗口。 | DashboardSummary 契约 `3f589fe`；OpsLead 看板配置 | 是（契约）；配置存储待 OpsLead 接线 |
+| `actionRequiredExceptionCount` | `casework.dispatch_exception` | 当前状态为 `open`、`assigned` 或 `resolving` 的异常 `id` 去重计数；排除 `resolved`、`closed`，不按事件表重复累计。 | 019 调度异常；R2 由 OpsLead 消费 | 是 |
+
 ## 缺口与认领
 
 - 表格数据行精确计数：Backend1 16、Backend2 16、BackendSenior 29、OpsLead 39，合计 100。BackendSenior 模块清单逐行计数为 29 条。
