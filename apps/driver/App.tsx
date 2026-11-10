@@ -147,7 +147,10 @@ export default function App() {
   function closeCollectionDialog(action: 'cancel' | 'escape' | 'confirm') {
     const result = collectionDialogResult(action);
     setCollectionDialogOpen(false);
-    if (result.record) setCollectionOutcome(t('collectionRecorded'));
+    if (result.record && collection?.canRecord && !collectionOutcome) {
+      setCollectionOutcome(t('collectionRecorded'));
+      setCollectionConfirmed(false);
+    }
     setTimeout(returnCollectionDialogFocus, 0);
   }
 
@@ -425,9 +428,9 @@ export default function App() {
     && (deliverySelection.remainingPackageIds.length === 0 || Boolean(deliveryReason.trim()))
     && deliverySubmission.canSubmit
     && !deliveryOutcome;
-  const collection = collectionMethod ? collectionConfirmationState(collectionMethod, collectionConfirmed) : null;
+  const collection = collectionMethod ? collectionConfirmationState(collectionMethod, collectionConfirmed, Boolean(collectionOutcome)) : null;
   const fulfillmentStatus = fulfillmentStatusPresentation(
-    order?.order.fulfillmentStage === 'in_transit' ? 'delivering' : 'to_warehouse',
+    order?.order.fulfillmentStage ?? 'none',
     language,
   );
 
@@ -511,7 +514,7 @@ export default function App() {
 
             <Text style={styles.sectionTitle}>{t('orderDetails')}</Text>
             <Text>{t('order')} {order.order.orderNo}</Text>
-            <Text accessibilityLabel="Fulfillment status">{fulfillmentStatus.label}</Text>
+            <Text accessibilityLabel={t('status')}>{fulfillmentStatus.label}</Text>
             <Text style={styles.label}>{t('pickup')}</Text>
             <Text>{order.pickup.address}</Text>
             <Text>{t('contact')} {order.pickup.contactName}</Text>
@@ -615,6 +618,7 @@ export default function App() {
                     >
                       <Text style={styles.secondaryButtonText}>{deliveryLocationVerified ? t('deliveryLocationVerified') : t('verifyDeliveryLocation')}</Text>
                     </Pressable>
+                    <Text style={styles.caption}>{t('deliveryVerificationExample')}</Text>
                     {packageIds.map((packageId) => (
                       <View key={packageId} style={styles.packageChoice}>
                         <Text>{t('package')} {packageId}</Text>
@@ -663,10 +667,10 @@ export default function App() {
                           </Pressable>
                           <Pressable
                             accessibilityRole="button"
-                            disabled={!collection.canRecord}
+                            disabled={!collection.canRecord || Boolean(collectionOutcome)}
                             onPress={() => setCollectionDialogOpen(true)}
                             ref={collectionDialogTrigger}
-                            style={[styles.button, !collection.canRecord && styles.buttonDisabled]}
+                            style={[styles.button, (!collection.canRecord || Boolean(collectionOutcome)) && styles.buttonDisabled]}
                           >
                             <Text style={styles.buttonText}>{t('collectionRecord')}</Text>
                           </Pressable>
@@ -835,13 +839,13 @@ const styles = StyleSheet.create({
   detail: { backgroundColor: designTokens.color.surface, borderRadius: designTokens.radius.large, gap: 8, padding: 18 },
   sectionTitle: { color: '#13233a', fontSize: 20, fontWeight: '700', marginTop: 10 },
   actions: { gap: 10, marginTop: 12 },
-  execution: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
-  deliveryPanel: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
-  collectionPanel: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
-  dialogBackdrop: { alignItems: 'center', backgroundColor: 'rgba(15, 35, 58, 0.55)', flex: 1, justifyContent: 'center', padding: 24 },
+  execution: { borderTopColor: designTokens.color.line, borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
+  deliveryPanel: { borderTopColor: designTokens.color.line, borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
+  collectionPanel: { borderTopColor: designTokens.color.line, borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
+  dialogBackdrop: { alignItems: 'center', backgroundColor: designTokens.color.navy, flex: 1, justifyContent: 'center', padding: 24 },
   dialog: { backgroundColor: designTokens.color.surface, borderRadius: designTokens.radius.large, gap: 12, maxWidth: 420, padding: designTokens.space.x6, width: '100%' },
   dialogActions: { flexDirection: 'row', gap: 10, justifyContent: 'flex-end' },
-  offline: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
+  offline: { borderTopColor: designTokens.color.line, borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
   packageRow: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 4, padding: 10 },
   packageChoice: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 8, padding: 10 },
   choiceRow: { flexDirection: 'row', gap: 8 },

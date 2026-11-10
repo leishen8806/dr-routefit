@@ -59,6 +59,13 @@ test('requires an explicit second confirmation before recording a demo collectio
     confirmationRequired: true,
     canRecord: true,
   });
+  assert.deepEqual(collectionConfirmationState('cash', true, true), {
+    method: 'cash',
+    live: false,
+    label: '示例',
+    confirmationRequired: true,
+    canRecord: false,
+  });
 });
 
 test('treats escape as cancel for example collection confirmation', () => {

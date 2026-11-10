@@ -10,7 +10,7 @@ import {
 
 const zh = {
   collectionCancel: '取消',
-  deliveryScanCode: '送达扫码', deliveryScanPlaceholder: '输入或扫描包裹编号', verifyDeliveryLocation: '确认送达位置', deliveryLocationVerified: '送达位置已核对', deliveryCheckMissing: '请完成扫码、位置核对并上传证据',
+  deliveryScanCode: '送达扫码', deliveryScanPlaceholder: '输入或扫描包裹编号', verifyDeliveryLocation: '标记送达位置（示例）', deliveryLocationVerified: '位置已标记（示例，未校验）', deliveryVerificationExample: '示例／纯前端：扫码和位置标记不会校验或上传。', deliveryCheckMissing: '请完成扫码、位置标记并上传证据',
   appName: 'DR ROUTEFIT', title: '司机任务', caption: '仅连接本机开发服务；正式登录由 RF-PM-055 替换。',
   tokenLabel: '本机开发会话令牌', csrfLabel: '本机开发 CSRF 令牌', secretPlaceholder: '仅保存在当前进程内',
   refreshTasks: '刷新任务', connectTasks: '连接并读取任务', loadingTasks: '正在读取任务', emptyTasks: '当前没有司机任务',
@@ -41,7 +41,7 @@ const zh = {
 
 const en: typeof zh = {
   collectionCancel: 'Cancel',
-  deliveryScanCode: 'Delivery scan', deliveryScanPlaceholder: 'Enter or scan a package ID', verifyDeliveryLocation: 'Confirm delivery location', deliveryLocationVerified: 'Delivery location confirmed', deliveryCheckMissing: 'Complete the scan, location check, and evidence upload first',
+  deliveryScanCode: 'Delivery scan', deliveryScanPlaceholder: 'Enter or scan a package ID', verifyDeliveryLocation: 'Mark delivery location (example)', deliveryLocationVerified: 'Location marked (example; unverified)', deliveryVerificationExample: 'Example / front-end only: scan and location marks are not verified or sent.', deliveryCheckMissing: 'Complete the scan, location mark, and evidence upload first',
   appName: 'DR ROUTEFIT', title: 'Driver tasks', caption: 'Local development service only; RF-PM-055 will replace this login.',
   tokenLabel: 'Local development session token', csrfLabel: 'Local development CSRF token', secretPlaceholder: 'Kept in process memory only',
   refreshTasks: 'Refresh tasks', connectTasks: 'Connect and load tasks', loadingTasks: 'Loading tasks', emptyTasks: 'No driver tasks',

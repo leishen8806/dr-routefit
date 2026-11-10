@@ -68,11 +68,11 @@ export function collectionState(method) {
   return { method, live: false, label: '示例' };
 }
 
-export function collectionConfirmationState(method, confirmed) {
+export function collectionConfirmationState(method, confirmed, alreadyRecorded = false) {
   return {
     ...collectionState(method),
     confirmationRequired: true,
-    canRecord: Boolean(confirmed),
+    canRecord: Boolean(confirmed) && !alreadyRecorded,
   };
 }
 
