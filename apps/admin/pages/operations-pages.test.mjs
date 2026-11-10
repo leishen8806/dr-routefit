@@ -90,6 +90,13 @@ test('detail drawer marks its close control as frontend-only', () => {
   assert.match(markup, /data-mode="frontend-only" data-action="close-detail"/);
 });
 
+test('detail drawer describes its sample-data limitation to assistive technology', () => {
+  const markup = renderOperationsDetail('support', 0);
+
+  assert.match(markup, /aria-describedby="operations-detail-note"/);
+  assert.match(markup, /<p id="operations-detail-note" role="note">演示数据（示例）；当前操作为纯前端。<\/p>/);
+});
+
 test('detail drawer rejects a row outside the selected page instead of leaking a different record', () => {
   assert.match(renderOperationsDetail('orders', 9), /记录暂不可用/);
   assert.doesNotMatch(renderOperationsDetail('orders', 9), /CS-082/);

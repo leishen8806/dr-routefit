@@ -146,10 +146,10 @@ export function renderOperationsDetail(id, index, configuredPages) {
   const accessibility = getOperationsDrawerAccessibility(id, configuredPages);
 
   const fields = record.fields.map(([column, value]) => `<div><dt>${escapeHtml(column)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
-  return `<aside role="dialog" aria-modal="${accessibility.isModal}" aria-label="${escapeHtml(accessibility.accessibilityLabel)}">
+  return `<aside role="dialog" aria-modal="${accessibility.isModal}" aria-label="${escapeHtml(accessibility.accessibilityLabel)}" aria-describedby="operations-detail-note">
   <header><h2>${page.title}详情</h2><button type="button" data-mode="frontend-only" data-action="close-detail" aria-label="关闭详情">关闭</button></header>
   <dl>${fields}</dl>
-  <p role="note">演示数据（示例）；当前操作为纯前端。</p>
+  <p id="operations-detail-note" role="note">演示数据（示例）；当前操作为纯前端。</p>
   <button type="button" data-mode="frontend-only">${page.action}</button>
 </aside>`;
 }
