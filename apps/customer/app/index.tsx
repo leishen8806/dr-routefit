@@ -49,12 +49,17 @@ export default function HomePage() {
   const [sendMode, setSendMode] = useState<'single' | 'bulk'>('single');
   const [startupVisible, setStartupVisible] = useState(true);
   const [promotionVisible, setPromotionVisible] = useState(false);
+  const [paymentConfirmationOpen, setPaymentConfirmationOpen] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const runtime = useRuntime();
   const { width } = useWindowDimensions();
   const experience = useMemo(() => createCustomerExperience(), []);
   const overview = experience.getOverview();
+  const orderDetail = experience.findOrderDetail(overview.order.id);
+  const paymentIntent = experience.getExamplePaymentConfirmation();
+  const messages = experience.listMessages();
+  const profile = experience.getProfileSummary();
   const compact = width < 720;
   const activeCopy = emptyCopy[activeTab];
   const face = { fontFamily: fontFamily[language] };
@@ -133,8 +138,8 @@ export default function HomePage() {
 
         <View accessibilityLiveRegion="polite" style={[styles.emptyPanel, { backgroundColor: runtime.surfaceColor }]} testID="empty-panel">
           <View style={styles.emptyRule} />
-          <Text style={[styles.emptyTitle, face]}>{t(activeCopy.title)}</Text>
-          <Text style={[styles.emptyBody, face]}>{t(activeCopy.body)}</Text>
+          <Text style={[styles.emptyTitle, face]}>{t(activeTab === 'orders' ? 'orderExampleTitle' : activeTab === 'messages' ? 'messageExampleTitle' : activeTab === 'profile' ? 'profileExampleTitle' : activeCopy.title)}</Text>
+          <Text style={[styles.emptyBody, face]}>{activeTab === 'send' ? t(activeCopy.body) : t('noRealData')}</Text>
           {activeTab === 'send' ? (
             <>
               <View style={styles.choiceRow}>
@@ -149,25 +154,65 @@ export default function HomePage() {
                 <Text style={[styles.flowText, face]}>{t('payment')}</Text>
                 <Text style={[styles.flowText, face]}>{t('cod')}</Text>
               </View>
-              <Pressable accessibilityRole="button" onPress={() => setPaymentConfirmed(true)} style={styles.confirmButton} testID="confirm-example-payment">
+              <Pressable accessibilityRole="button" onPress={() => { setPromotionVisible(false); setPaymentConfirmationOpen(true); }} style={styles.confirmButton} testID="confirm-example-payment">
                 <Text style={[styles.confirmText, face]}>{paymentConfirmed ? t('payment') : t('confirm')}</Text>
               </Pressable>
             </>
           ) : null}
           {activeTab === 'orders' ? (
-            <View style={styles.flowSummary} testID="example-order">
-              <Text style={[styles.flowText, face]}>{t('example')}</Text>
-              <Text style={[styles.flowText, face]}>{t('quote')}</Text>
-              <Text style={[styles.flowText, face]}>{t('cod')}</Text>
+            <View style={styles.detailCard} testID="example-order-detail">
+              <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+              <Text style={[styles.detailTitle, face]}>{t('orderDetail')}</Text>
+              <Text style={[styles.detailStatus, face]}>{t('orderStatus')}</Text>
+              <View style={styles.flowSummary}>
+                <Text style={[styles.flowText, face]}>{t('quote')}</Text>
+                <Text style={[styles.flowText, face]}>{t('payment')}</Text>
+                <Text style={[styles.flowText, face]}>{t('cod')}</Text>
+              </View>
+              {orderDetail ? <Text style={[styles.detailHint, face]}>{t('protectedPhone')}</Text> : null}
             </View>
           ) : null}
-          {activeTab === 'messages' ? <Text style={[styles.flowText, face]} testID="example-message">{t('example')}</Text> : null}
-          {activeTab === 'profile' ? <Text style={[styles.flowText, face]} testID="profile-example">{t('example')}</Text> : null}
+          {activeTab === 'messages' ? (
+            <View style={styles.detailCard} testID="example-message">
+              <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+              <Text style={[styles.detailTitle, face]}>{t('messageExampleTitle')}</Text>
+              {messages.map((entry) => <Text key={entry.id} style={[styles.detailHint, face]}>{t(entry.state === 'driver_assigned' ? 'messageExampleBody' : 'noRealData')}</Text>)}
+            </View>
+          ) : null}
+          {activeTab === 'profile' ? (
+            <View style={styles.detailCard} testID="profile-example">
+              <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+              <Text style={[styles.detailTitle, face]}>{t('recipient')}</Text>
+              <Text style={[styles.detailHint, face]}>{t('protectedPhone')}</Text>
+              <View style={styles.flowSummary}>
+                <Text style={[styles.flowText, face]}>{t('languageSetting')}</Text>
+                <Text style={[styles.flowText, face]}>{profile.settings.languageSelection === 'frontend_only' ? t('frontendOnly') : t('noRealData')}</Text>
+              </View>
+            </View>
+          ) : null}
           <Link accessibilityRole="link" href="/track" style={[styles.trackLink, face]} testID="track-link">
             {t('trackLink')} →
           </Link>
         </View>
       </ScrollView>
+
+      {paymentConfirmationOpen ? (
+        <View accessibilityViewIsModal style={styles.modalBackdrop} testID="example-payment-confirmation">
+          <View accessibilityRole="alert" style={[styles.modalCard, { backgroundColor: runtime.surfaceColor }]}>
+            <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+            <Text style={[styles.modalTitle, face]}>{t('paymentConfirmTitle')}</Text>
+            <Text style={[styles.detailHint, face]}>{t('paymentConfirmBody')}</Text>
+            <View style={styles.modalActions}>
+              <Pressable accessibilityRole="button" onPress={() => setPaymentConfirmationOpen(false)} style={styles.cancelButton} testID="cancel-example-payment">
+                <Text style={[styles.cancelText, face]}>{t('cancel')}</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" onPress={() => { if (paymentIntent.requiresConfirmation && paymentIntent.action === 'frontend_only') setPaymentConfirmed(true); setPaymentConfirmationOpen(false); }} style={styles.confirmButton} testID="complete-example-payment">
+                <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      ) : null}
 
       <View accessibilityRole="tablist" style={[styles.tabBar, { backgroundColor: runtime.surfaceColor }]}>
         {tabs.map((tab) => {
@@ -242,6 +287,16 @@ const styles = StyleSheet.create({
   choiceTextActive: { fontWeight: '600' },
   flowSummary: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, marginTop: designTokens.space.x6 },
   flowText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
+  detailCard: { backgroundColor: '#F8FAFC', borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, gap: designTokens.space.x2, marginTop: designTokens.space.x6, padding: designTokens.space.x4 },
+  detailTitle: { color: designTokens.color.ink, fontSize: 16, fontWeight: '600', lineHeight: 24, marginTop: designTokens.space.x2 },
+  detailStatus: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
+  detailHint: { color: designTokens.color.muted, fontSize: 14, lineHeight: 22 },
+  modalBackdrop: { alignItems: 'center', backgroundColor: 'rgba(11, 37, 69, 0.42)', bottom: 0, justifyContent: 'center', left: 0, padding: designTokens.space.x6, position: 'absolute', right: 0, top: 0, zIndex: 20 },
+  modalCard: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.large, borderWidth: 1, gap: designTokens.space.x3, maxWidth: 480, padding: designTokens.space.x6, width: '100%' },
+  modalTitle: { color: designTokens.color.ink, fontSize: 20, fontWeight: '600', lineHeight: 28 },
+  modalActions: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, justifyContent: 'flex-end' },
+  cancelButton: { alignItems: 'center', borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, justifyContent: 'center', minHeight: 44, paddingHorizontal: designTokens.space.x5 },
+  cancelText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500' },
   confirmButton: { alignItems: 'center', alignSelf: 'flex-start', backgroundColor: designTokens.color.navy, borderRadius: designTokens.radius.small, justifyContent: 'center', marginTop: designTokens.space.x6, minHeight: 44, paddingHorizontal: designTokens.space.x5 },
   confirmText: { color: designTokens.color.surface, fontSize: 14, fontWeight: '600' },
   trackLink: { color: designTokens.color.navyRaised, fontSize: 15, fontWeight: '600', marginTop: designTokens.space.x6, paddingVertical: designTokens.space.x2 },

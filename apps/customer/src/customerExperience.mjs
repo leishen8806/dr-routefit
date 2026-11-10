@@ -27,6 +27,16 @@ const order = Object.freeze({
   ]),
 });
 
+const messages = Object.freeze([
+  Object.freeze({ id: 'example-message-1', isExample: true, kind: 'order_update', state: 'driver_assigned' }),
+]);
+
+const profile = Object.freeze({
+  isExample: true,
+  customer: Object.freeze({ name: 'Example customer', phoneMasked: '*** *** 321' }),
+  settings: Object.freeze({ languageSelection: 'frontend_only' }),
+});
+
 export function createCustomerExperience() {
   return Object.freeze({
     getOverview() {
@@ -36,7 +46,7 @@ export function createCustomerExperience() {
         startupAd: { kind: 'example' },
         homePopup: { kind: 'example' },
         order,
-        messages: Object.freeze([{ id: 'example-message-1', kind: 'example', state: 'driver_assigned' }]),
+        messages,
       };
     },
     findRecipientTracking(orderId) {
@@ -47,6 +57,22 @@ export function createCustomerExperience() {
         recipient: order.recipient,
         stops: order.stops,
       };
+    },
+    findOrderDetail(orderId) {
+      return orderId === ORDER_ID ? order : null;
+    },
+    listMessages() {
+      return messages;
+    },
+    getProfileSummary() {
+      return profile;
+    },
+    getExamplePaymentConfirmation() {
+      return Object.freeze({
+        isExample: true,
+        requiresConfirmation: true,
+        action: order.payment.action,
+      });
     },
   });
 }
