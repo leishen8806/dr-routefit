@@ -93,6 +93,18 @@ test('sample withdrawal uses a separate confirmation before it is submitted', ()
   assert.equal(submitted.withdrawalState, 'submitted');
 });
 
+test('a driver can reach profile, cancel a sample withdrawal, and return to profile', () => {
+  const initial = createDemoDriverFlow();
+  const profile = transitionDemoDriverFlow(initial, { type: 'show_profile' });
+  const confirmation = transitionDemoDriverFlow(profile, { type: 'start_withdrawal' });
+  const cancelled = transitionDemoDriverFlow(confirmation, { type: 'cancel_withdrawal' });
+
+  assert.equal(profile.screen, 'profile');
+  assert.equal(confirmation.screen, 'withdrawal_confirm');
+  assert.equal(cancelled.screen, 'profile');
+  assert.equal(cancelled.withdrawalState, 'idle');
+});
+
 test('review, trip selection, and withdrawal confirmation expose reversible local paths', () => {
   const review = { ...createDemoDriverFlow(), screen: 'review', reviewState: 'submitted' };
   const returned = transitionDemoDriverFlow(review, { type: 'return_review' });

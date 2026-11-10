@@ -48,6 +48,8 @@ export function transitionDemoDriverFlow(flow, event) {
     }
     case 'show_trips':
       return { ...flow, screen: 'trips' };
+    case 'show_profile':
+      return { ...flow, screen: 'profile' };
     case 'start_withdrawal':
       return flow.screen === 'profile'
         ? { ...flow, screen: 'withdrawal_confirm', withdrawalState: 'confirming' }
