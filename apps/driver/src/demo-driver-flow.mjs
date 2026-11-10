@@ -1,3 +1,5 @@
+import { isRegistrationReady } from './demo-driver-state.mjs';
+
 export function createDemoDriverFlow() {
   return {
     screen: 'login',
@@ -13,7 +15,7 @@ export function transitionDemoDriverFlow(flow, event) {
     case 'start_registration':
       return { ...flow, screen: 'registration_profile', reviewState: 'draft' };
     case 'set_registration_ready':
-      return { ...flow, registrationReady: true };
+      return { ...flow, registrationReady: isRegistrationReady(event.registration ?? {}) };
     case 'continue_registration':
       if (flow.screen === 'registration_profile') return { ...flow, screen: 'registration_vehicle' };
       if (flow.screen === 'registration_vehicle') return { ...flow, screen: 'registration_documents' };

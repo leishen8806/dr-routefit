@@ -7,15 +7,22 @@ import { createDemoDriverFlow, transitionDemoDriverFlow } from './src/demo-drive
 
 const languages: DemoLanguage[] = ['zh-Hans', 'en', 'km'];
 const languageLabels: Record<DemoLanguage, string> = { 'zh-Hans': '中文', en: 'English', km: 'ខ្មែរ' };
+const sampleRegistration = {
+  fullName: 'Sample Driver',
+  vehicleType: 'box_truck',
+  plateNumber: '2BB-4471',
+  documents: { idFront: true, idBack: true, license: true, vehicle: true },
+  acceptedTerms: true,
+};
 
 export default function App() {
   const [language, setLanguage] = useState<DemoLanguage>('zh-Hans');
   const [flow, setFlow] = useState(createDemoDriverFlow);
   const t = (key: Parameters<typeof demoText>[1]) => demoText(language, key);
-  const act = (type: string, tripId?: string) => setFlow((current) => transitionDemoDriverFlow(current, { type, tripId }));
+  const act = (type: string, tripId?: string, registration?: typeof sampleRegistration) => setFlow((current) => transitionDemoDriverFlow(current, { type, tripId, registration }));
   const registration = flow.screen.startsWith('registration_');
 
-  const action = (label: string, type: string, style = styles.primary) => <Pressable accessibilityRole="button" onPress={() => act(type)} style={style}><Text style={styles.buttonText}>{label}</Text></Pressable>;
+  const action = (label: string, type: string, style = styles.primary, tripId?: string) => <Pressable accessibilityRole="button" onPress={() => act(type, tripId)} style={style}><Text style={styles.buttonText}>{label}</Text></Pressable>;
 
   return <SafeAreaView style={styles.safe}><StatusBar style="dark" /><ScrollView contentContainerStyle={styles.page}>
     <View style={styles.header}><Text style={styles.brand}>{t('appName')}</Text><Text style={styles.badge}>{t('sample')}</Text></View>
@@ -24,10 +31,10 @@ export default function App() {
     {registration && <Card title={flow.screen === 'registration_profile' ? t('profileStep') : flow.screen === 'registration_vehicle' ? t('vehicleStep') : t('documentsStep')}>
       <Text style={styles.field}>{flow.screen === 'registration_profile' ? t('fullName') : flow.screen === 'registration_vehicle' ? t('vehicle') : t('uploadDemo')}</Text>
       <Text style={styles.field}>{flow.screen === 'registration_vehicle' ? t('plate') : flow.screen === 'registration_documents' ? t('agree') : t('sample')}</Text>
-      {flow.screen === 'registration_documents' ? <><Text style={styles.notice}>{t('registrationReady')}</Text>{action(t('submitRegistration'), 'set_registration_ready', styles.secondary)}{action(t('submitRegistration'), 'submit_registration')}</> : action(t('continue'), 'continue_registration')}</Card>}
+      {flow.screen === 'registration_documents' ? <><Text style={styles.notice}>{t('registrationReady')}</Text><Pressable accessibilityRole="button" onPress={() => act('set_registration_ready', undefined, sampleRegistration)} style={styles.secondary}><Text style={styles.buttonText}>{t('verifySampleDetails')}</Text></Pressable>{action(t('submitRegistration'), 'submit_registration')}</> : action(t('continue'), 'continue_registration')}</Card>}
     {flow.screen === 'review' && <Card title={t('reviewing')}><Text style={styles.muted}>{t('sample')}</Text>{action(t('approveDemo'), 'approve_demo')}</Card>}
     {flow.screen === 'offer' && <Card title={t('offer')}><Text style={styles.title}>{t('demoTripTitle')}</Text><Text>{t('pickup')}</Text><Text>{t('dropoff')}</Text>{action(t('accept'), 'accept_offer')}</Card>}
-    {flow.screen === 'trips' && <Card title={t('trips')}><Text style={styles.title}>{t('demoTripTitle')}</Text><Text style={styles.muted}>{t('online')}</Text>{action(t('viewDetail'), 'open_trip')}</Card>}
+    {flow.screen === 'trips' && <Card title={t('trips')}><Text style={styles.title}>{t('demoTripTitle')}</Text><Text style={styles.muted}>{t('online')}</Text>{action(t('viewDetail'), 'open_trip', styles.primary, 'sample-trip-1')}</Card>}
     {flow.screen === 'trip_detail' && <Card title={t('tripDetail')}><Text style={styles.title}>{t('demoTripTitle')}</Text><Text>{t('pickup')}</Text><Text>{t('dropoff')}</Text>{action(t('back'), 'show_trips', styles.secondary)}</Card>}
     {flow.screen === 'profile' && <Card title={t('profile')}><Text style={styles.muted}>{t('noPayment')}</Text>{flow.withdrawalState === 'submitted' && <Text style={styles.notice}>{t('withdrawSubmitted')}</Text>}{action(t('withdraw'), 'start_withdrawal')}</Card>}
     {flow.screen === 'withdrawal_confirm' && <Card title={t('withdraw')}><Text style={styles.notice}>{t('withdrawConfirm')}</Text>{action(t('withdrawConfirm'), 'confirm_withdrawal')}</Card>}

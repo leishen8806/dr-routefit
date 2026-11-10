@@ -12,7 +12,7 @@ test('login starts the local registration journey without an API call', () => {
   assert.equal(next.reviewState, 'draft');
 });
 
-test('registration can only submit after the local documents are complete', () => {
+test('registration only becomes ready when supplied details are complete', () => {
   const flow = {
     ...createDemoDriverFlow(),
     screen: 'registration_documents',
@@ -21,8 +21,30 @@ test('registration can only submit after the local documents are complete', () =
 
   assert.equal(transitionDemoDriverFlow(flow, { type: 'submit_registration' }).screen, 'registration_documents');
 
-  const ready = transitionDemoDriverFlow(flow, { type: 'set_registration_ready' });
+  const incomplete = transitionDemoDriverFlow(flow, {
+    type: 'set_registration_ready',
+    registration: {
+      fullName: 'Sample Driver',
+      vehicleType: 'box_truck',
+      plateNumber: '2BB-4471',
+      documents: { idFront: true, idBack: true, license: true, vehicle: true },
+      acceptedTerms: false,
+    },
+  });
+  assert.equal(incomplete.registrationReady, false);
+
+  const ready = transitionDemoDriverFlow(flow, {
+    type: 'set_registration_ready',
+    registration: {
+      fullName: 'Sample Driver',
+      vehicleType: 'box_truck',
+      plateNumber: '2BB-4471',
+      documents: { idFront: true, idBack: true, license: true, vehicle: true },
+      acceptedTerms: true,
+    },
+  });
   const submitted = transitionDemoDriverFlow(ready, { type: 'submit_registration' });
+  assert.equal(ready.registrationReady, true);
   assert.equal(submitted.screen, 'review');
   assert.equal(submitted.reviewState, 'submitted');
 });
