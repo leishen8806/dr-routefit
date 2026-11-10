@@ -10,4 +10,6 @@ test('OpsLead response schemas expose safe projections and response pages', asyn
   for (const name of ['OpenApiClient','OpenApiClientPage','OpenApiKeyCreated','OpenApiKey','WebhookEndpoint','WebhookDelivery','WebhookDeliveryPage','AdCampaign','AdCampaignPage','AdStatsDaily','Role','RolePage','Staff','StaffPage','AuditLogEntry','AuditLogEntryPage','DashboardSummary','AdServed','AdInteractionResult']) assert.ok(schemas[name], `missing ${name}`);
   assert.doesNotThrow(() => validate('OpenApiKeyCreated', {id:'demo-001',clientId:'demo-001',keyPrefix:'rfs_example',environment:'sandbox',scopes:['quote:create'],rateLimitPerMinute:60,state:'active',createdAt:'2026-11-10T00:00:00Z',revokedAt:null,secret:'one-time'}));
   assert.throws(() => validate('OpenApiKey', {id:'demo-001',secret:'leak'}), {code:'VALIDATION_FAILED'});
+  assert.doesNotThrow(() => validate('DashboardSummary', {asOf:'2026-11-10T00:00:00Z',pendingDispatchOrderCount:12,pendingDispatchOrderDeltaVsYesterday:-2,availableDriverCount:8,driversPendingConfirmationCount:1,onTimeDeliveryRatePercent:98.5,onTimeDeliveryRateWindowDays:7,actionRequiredExceptionCount:3}));
+  assert.throws(() => validate('DashboardSummary', {asOf:'2026-11-10T00:00:00Z'}), {code:'VALIDATION_FAILED'});
 });
