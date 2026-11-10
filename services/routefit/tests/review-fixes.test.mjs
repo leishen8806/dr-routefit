@@ -46,18 +46,21 @@ test('offer lifetime follows the service level (PILOT-0 candidate: S1 60s, other
 });
 
 // ---- offline sync sequence --------------------------------------------------
-function syncClient(startSequence){
- const stored=new Map();let sequence=startSequence;const updates=[];
+function syncClient(startSequence,{occupiedSequence=null,updateRows=1}={}){
+ const stored=new Map();let sequence=startSequence,failed=false;const updates=[];
  return {stored,updates,get sequence(){return sequence;},query:async(sql,params=[])=>{
+  if(sql.startsWith('ROLLBACK TO SAVEPOINT')){failed=false;return ok();}
+  if(failed){const error=Error('transaction is aborted');error.code='25P02';throw error;}
   if(sql.includes('SELECT kind,person_id FROM org.principal'))return ok([{kind:'DRIVER',person_id:personId}]);
   if(sql.includes('SELECT device_id,fingerprint,result,resource_id')){const row=stored.get(params[1]);return ok(row?[row]:[]);}
+  if(sql.includes('SELECT 1 FROM mobile.sync_event'))return occupiedSequence===params[2]?ok([{}]):ok();
   if(sql.includes('FROM mobile.device d JOIN mobile.shift'))return ok([{ok:1}]);
   if(sql.includes('INSERT INTO mobile.sync_device_state'))return ok();
   if(sql.includes('SELECT last_sequence FROM mobile.sync_device_state'))return ok([{last_sequence:sequence}]);
   if(sql.includes('SELECT a.*,pv.plan_version FROM dispatch.assignment'))return ok([{id:assignmentId,order_id:orderId,version:1,plan_version:1}]);
   if(sql.includes('count(*)::integer AS count FROM evidence.file'))return ok([{count:0}]);
-  if(sql.includes('INSERT INTO mobile.sync_event')){stored.set(params[1],{device_id:params[2],fingerprint:params[8],result:params[9],resource_id:params[10],resource_version:params[11],error_code:params[12]});return ok([{}]);}
-  if(sql.includes('UPDATE mobile.sync_device_state SET last_sequence')){sequence=params[2];updates.push(params[2]);return ok([{}]);}
+  if(sql.includes('INSERT INTO mobile.sync_event')){if(occupiedSequence===params[4]){failed=true;const error=Error('sequence occupied');error.code='23505';throw error;}stored.set(params[1],{device_id:params[2],fingerprint:params[8],result:params[9],resource_id:params[10],resource_version:params[11],error_code:params[12]});return ok([{}]);}
+  if(sql.includes('UPDATE mobile.sync_device_state SET last_sequence')){if(updateRows){sequence=params[2];updates.push(params[2]);}return {rows:[],rowCount:updateRows};}
   return ok();
  }};
 }
@@ -86,6 +89,16 @@ test('a whole batch sent out of order is applied up to the gap and the rest is r
  assert.deepEqual(batch.results.map(r=>[r.eventId,r.result,r.errorCode]),[[id(1),'APPLIED',null],[id(3),'REJECTED','SYNC_SEQUENCE_INVALID'],[id(2),'APPLIED',null]]);
  assert.equal(db.sequence,2);
  const retry=await writeDriverSync(db,principal,{deviceId,events:[arrived(id(3),3)]});assert.equal(retry.results[0].result,'APPLIED');
+});
+test('a different event occupying the same sequence is rejected without poisoning the transaction',async()=>{
+ const db=syncClient(0,{occupiedSequence:1}),result=await writeDriverSync(db,principal,{deviceId,events:[arrived(id(2),1)]});
+ assert.deepEqual(result.results[0],{eventId:id(2),result:'REJECTED',resourceId:null,resourceVersion:null,errorCode:'SYNC_SEQUENCE_CONFLICT'});
+ assert.equal((await db.query('SELECT 1')).rowCount,0,'the result savepoint must leave the transaction usable');
+});
+test('sync persistence rejects a missing device state update without leaving an aborted transaction',async()=>{
+ const db=syncClient(0,{updateRows:0}),result=await writeDriverSync(db,principal,{deviceId,events:[arrived(id(1),1)]});
+ assert.equal(result.results[0].errorCode,'SYNC_DEVICE_STATE_MISSING');
+ assert.equal((await db.query('SELECT 1')).rowCount,0);
 });
 
 // ---- location upload outside the authorised shift ---------------------------
