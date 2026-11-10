@@ -6,12 +6,16 @@
   "scripts": {
     "start": "expo start --web",
     "lint": "expo lint",
+    "prepare:fonts": "node scripts/copy-fonts.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test src/*.test.mjs",
-    "test:browser": "playwright test",
-    "build:web": "expo export --platform web"
+    "test:browser": "npm run prepare:fonts && playwright test",
+    "build:web": "npm run prepare:fonts && expo export --platform web"
   },
   "dependencies": {
+    "@fontsource-variable/ibm-plex-sans": "5.3.0",
+    "@fontsource-variable/noto-sans-khmer": "5.3.0",
+    "@fontsource-variable/noto-sans-sc": "5.3.1",
     "@routefit/shared": "0.0.1",
     "expo": "~58.0.23",
     "expo-constants": "~58.0.15",
@@ -22,6 +26,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
+    "react-native-svg": "15.16.0",
     "react-native-web": "^0.21.4"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 .expo/
 dist/
+public/fonts/
 node_modules/
 playwright-report/
 test-results/

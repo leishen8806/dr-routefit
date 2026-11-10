@@ -1,6 +1,7 @@
 import { Link, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { designTokens } from '@routefit/shared';
 import { CopyKey, Language, languageOptions } from '../src/copy';
 import { useLanguage } from '../src/LanguageContext';
@@ -57,7 +58,11 @@ export default function HomePage() {
       <ScrollView contentContainerStyle={[styles.scrollContent, compact && styles.scrollContentCompact]}>
         <View style={styles.masthead}>
           <View style={styles.routeHeader}>
-            <View style={styles.routeMark}><Text style={[styles.routeLetter, face]}>R</Text></View>
+            <Svg accessibilityLabel={t('appName')} height={44} testID="routefit-brand-mark" viewBox="0 0 64 64" width={44}>
+              <Path d="M16 53 V13 A4 4 0 0 1 20 9 H38 A13 13 0 0 1 51 22 A13 13 0 0 1 38 35 H26 L44 53" fill="none" stroke="#0B2545" strokeLinecap="round" strokeLinejoin="round" strokeWidth={7} />
+              <Circle cx={16} cy={53} fill="#13C29B" r={6} />
+              <Rect fill="#F5A623" height={11} rx={2.5} width={15} x={24} y={16.5} />
+            </Svg>
             <View style={styles.brandCopy}>
               <Text style={[styles.brand, face]}>{t('appName')}</Text>
               <Text style={[styles.tagline, face]}>{t('tagline')}</Text>
@@ -135,8 +140,6 @@ const styles = StyleSheet.create({
   scrollContentCompact: { paddingHorizontal: designTokens.space.x4, paddingTop: designTokens.space.x8 },
   masthead: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x4, justifyContent: 'space-between', marginBottom: designTokens.space.x8 },
   routeHeader: { alignItems: 'center', flexDirection: 'row', gap: designTokens.space.x3 },
-  routeMark: { alignItems: 'center', borderColor: designTokens.color.teal, borderRadius: designTokens.radius.small, borderWidth: 2, height: 44, justifyContent: 'center', width: 44 },
-  routeLetter: { color: designTokens.color.navy, fontSize: 28, fontWeight: '600' },
   brandCopy: { flexShrink: 1 },
   brand: { color: designTokens.color.navy, fontSize: 18, fontWeight: '600', letterSpacing: 0.2 },
   tagline: { color: designTokens.color.muted, fontSize: 12, marginTop: 2 },

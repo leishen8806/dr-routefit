@@ -19,6 +19,8 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/', { waitUntil: 'networkidle' });
   await expect(page.getByTestId('runtime-mode')).toContainText('H5');
+  await expect(page.getByTestId('routefit-brand-mark')).toBeVisible();
+  await expect(page.getByTestId('routefit-brand-mark').locator('path')).toHaveAttribute('d', 'M16 53 V13 A4 4 0 0 1 20 9 H38 A13 13 0 0 1 51 22 A13 13 0 0 1 38 35 H26 L44 53');
   await expect(page.getByText('ការផ្ញើនឹងមកដល់ឆាប់ៗ')).toBeVisible();
   await expect(page.getByTestId('route-diagram')).toHaveCount(1);
   for (const tab of ['send', 'orders', 'messages', 'profile']) {
