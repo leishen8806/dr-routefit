@@ -1,5 +1,5 @@
 import {ApiError} from '../domain/errors.mjs';
-import {activateMerchantContract,createCouponBatch,expireMerchantContract,freezeUser,getMerchantContract,listCoupons,listMerchantSkuDimensions} from '../adapters/backend1.mjs';
+import {activateMerchantContract,createCouponBatch,expireMerchantContract,freezeUser,getMerchantContract,listCoupons,listMerchantSkuDimensions,unfreezeUser} from '../adapters/backend1.mjs';
 
 const definitions={
  createRouteQuote:{status:201},
@@ -28,4 +28,4 @@ export function createBackend1Handlers(repositories){
  }]));
 }
 
-export const backend1Handlers=createBackend1Handlers({activateMerchantContract,createCouponBatch,expireMerchantContract,freezeUser,getMerchantContract,listCoupons,listMerchantSkuDimensions});
+export const backend1Handlers=createBackend1Handlers({activateMerchantContract,createCouponBatch,expireMerchantContract,freezeUser,getMerchantContract,listCoupons,listMerchantSkuDimensions,unfreezeUser});
