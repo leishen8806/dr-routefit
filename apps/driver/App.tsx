@@ -1,14 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import * as Crypto from 'expo-crypto';
 import { useNetworkState } from 'expo-network';
-import { type ComponentRef, useEffect, useRef, useState } from 'react';
-import { designTokens, nativeDialogA11yProps, nativeToastA11yProps } from '@routefit/shared';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  AccessibilityInfo,
-  findNodeHandle,
   Linking,
-  Modal,
   Platform,
   Pressable,
   SafeAreaView,
@@ -49,7 +45,6 @@ import {
 } from './src/driver-api';
 import { deleteDeliveryPhoto, deliveryPhotoBlob, captureDeliveryPhoto, type DeliveryPhoto } from './src/delivery-photo';
 import { deliveryConfirmationStep, packageSelection, uploadTicketForPhoto } from './src/delivery.mjs';
-import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentStatusPresentation, offlineNotice, problemReportState, undeliveredReasonState } from './src/fulfillment.mjs';
 import { errorText, languageOptions, text, type MessageKey } from './src/messages';
 import { openOfflineEventQueue } from './src/offline-queue.mjs';
 import { createOfflineQueueStore } from './src/offline-store';
@@ -78,17 +73,8 @@ export default function App() {
   const [recipientAuthorization, setRecipientAuthorization] = useState<RecipientAuthorization | null>(null);
   const [packageChoices, setPackageChoices] = useState<Record<string, 'delivered' | 'remaining'>>({});
   const [deliveryReason, setDeliveryReason] = useState('');
-  const [loadScanCode, setLoadScanCode] = useState('');
-  const [problemSummary, setProblemSummary] = useState('');
-  const [problemRecorded, setProblemRecorded] = useState(false);
-  const [deliveryScanCode, setDeliveryScanCode] = useState('');
-  const [deliveryLocationVerified, setDeliveryLocationVerified] = useState(false);
   const [deliveryArmed, setDeliveryArmed] = useState(false);
   const [deliveryOutcome, setDeliveryOutcome] = useState('');
-  const [collectionMethod, setCollectionMethod] = useState<'cash' | 'khqr' | null>(null);
-  const [collectionConfirmed, setCollectionConfirmed] = useState(false);
-  const [collectionDialogOpen, setCollectionDialogOpen] = useState(false);
-  const [collectionOutcome, setCollectionOutcome] = useState('');
   const [now, setNow] = useState(Date.now());
   // shortcut: manual device ID is development-only, remove after RF-PM-055 batch 5 registers devices.
   const [deviceId, setDeviceId] = useState('');
@@ -97,8 +83,6 @@ export default function App() {
   const [queueFailed, setQueueFailed] = useState(false);
   const [syncBusy, setSyncBusy] = useState(false);
   const actionInFlight = useRef(false);
-  const collectionDialogTrigger = useRef<ComponentRef<typeof Pressable> | null>(null);
-  const collectionDialogConfirm = useRef<ComponentRef<typeof Pressable> | null>(null);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const queueRef = useRef<Awaited<ReturnType<typeof openOfflineEventQueue>> | null>(null);
   const networkState = useNetworkState();
@@ -142,21 +126,6 @@ export default function App() {
     return cause instanceof Error ? cause.message : t(fallback);
   }
 
-  function returnCollectionDialogFocus() {
-    const triggerTag = findNodeHandle(collectionDialogTrigger.current);
-    if (triggerTag) AccessibilityInfo.setAccessibilityFocus(triggerTag);
-  }
-
-  function closeCollectionDialog(action: 'cancel' | 'escape' | 'confirm') {
-    const result = collectionDialogResult(action);
-    setCollectionDialogOpen(false);
-    if (result.record && collection?.canRecord && !collectionOutcome) {
-      setCollectionOutcome(t('collectionRecorded'));
-      setCollectionConfirmed(false);
-    }
-    setTimeout(returnCollectionDialogFocus, 0);
-  }
-
   async function refreshAssignments(clearError = true) {
     setLoading('list');
     if (clearError) setError('');
@@ -178,10 +147,6 @@ export default function App() {
     setRejectArmed(false);
     setDeliveryArmed(false);
     setDeliveryOutcome('');
-    setCollectionMethod(null);
-    setCollectionConfirmed(false);
-    setCollectionDialogOpen(false);
-    setCollectionOutcome('');
     try {
       const nextDetail = await getAssignment(auth(), language, assignmentId);
       const nextOrder = await getDriverOrder(auth(), language, nextDetail.assignment.orderId);
@@ -202,11 +167,6 @@ export default function App() {
       setDepartureReadiness(nextReadiness);
       setRecipientAuthorization(nextAuthorization);
       setPackageChoices({});
-      setDeliveryScanCode('');
-      setDeliveryLocationVerified(false);
-      setLoadScanCode('');
-      setProblemSummary('');
-      setProblemRecorded(false);
     } catch (cause) {
       setDetail(null);
       setOrder(null);
@@ -421,28 +381,13 @@ export default function App() {
   const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
   const packageIds = order?.items.flatMap((item) => item.packageIds) ?? [];
   const deliverySelection = packageSelection(packageIds, packageChoices);
-  const deliverySubmission = deliverySubmissionState({
-    scanCode: deliveryScanCode,
-    locationVerified: deliveryLocationVerified,
-    evidenceReady,
-  });
   const deliveryReady = online
     && Boolean(recipientAuthorization)
     && evidenceReady
     && deliverySelection.complete
     && deliverySelection.deliveredPackageIds.length > 0
     && (deliverySelection.remainingPackageIds.length === 0 || Boolean(deliveryReason.trim()))
-    && deliverySubmission.canSubmit
     && !deliveryOutcome;
-  const collection = collectionMethod ? collectionConfirmationState(collectionMethod, collectionConfirmed, Boolean(collectionOutcome)) : null;
-  const loadScanReady = Boolean(loadScanCode.trim());
-  const undeliveredReason = undeliveredReasonState(deliveryReason);
-  const problemReport = problemReportState(problemSummary);
-  const networkNotice = offlineNotice(!online);
-  const fulfillmentStatus = fulfillmentStatusPresentation(
-    order?.order.fulfillmentStage ?? 'none',
-    language,
-  );
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -524,7 +469,6 @@ export default function App() {
 
             <Text style={styles.sectionTitle}>{t('orderDetails')}</Text>
             <Text>{t('order')} {order.order.orderNo}</Text>
-            <Text accessibilityLabel={t('status')}>{fulfillmentStatus.label}</Text>
             <Text style={styles.label}>{t('pickup')}</Text>
             <Text>{order.pickup.address}</Text>
             <Text>{t('contact')} {order.pickup.contactName}</Text>
@@ -609,35 +553,10 @@ export default function App() {
                   <Text style={styles.caption}>{!online ? t('needsNetwork') : !departureReadiness?.ready ? t('departureBlocked') : t('executionMissing')}</Text>
                 ) : null}
 
-                {order.order.fulfillmentStage === 'pickup_pending' ? (
-                  <View style={styles.deliveryPanel}>
-                    <Text style={styles.sectionTitle}>{t('loadScan')}</Text>
-                    <TextInput accessibilityLabel={t('loadScan')} onChangeText={setLoadScanCode} placeholder={t('loadScanPlaceholder')} style={styles.input} value={loadScanCode} />
-                    <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
-                    {loadScanReady ? <Text style={styles.notice}>{t('loadScanRecorded')}</Text> : null}
-                  </View>
-                ) : null}
-
                 {order.order.fulfillmentStage === 'in_transit' ? (
                   <View style={styles.deliveryPanel}>
                     <Text style={styles.sectionTitle}>{t('deliveryRecord')}</Text>
                     <Text>{recipientAuthorization ? t('recipientAuthorizationReady') : t('recipientAuthorizationMissing')}</Text>
-                    <Text style={styles.label}>{t('deliveryScanCode')}</Text>
-                    <TextInput
-                      accessibilityLabel={t('deliveryScanCode')}
-                      onChangeText={(value) => { setDeliveryScanCode(value); setDeliveryArmed(false); }}
-                      placeholder={t('deliveryScanPlaceholder')}
-                      style={styles.input}
-                      value={deliveryScanCode}
-                    />
-                    <Pressable
-                      accessibilityRole="button"
-                      onPress={() => { setDeliveryLocationVerified((current) => !current); setDeliveryArmed(false); }}
-                      style={[styles.secondaryButton, deliveryLocationVerified && styles.choiceActive]}
-                    >
-                      <Text style={styles.secondaryButtonText}>{deliveryLocationVerified ? t('deliveryLocationVerified') : t('verifyDeliveryLocation')}</Text>
-                    </Pressable>
-                    <Text style={styles.caption}>{t('deliveryVerificationExample')}</Text>
                     {packageIds.map((packageId) => (
                       <View key={packageId} style={styles.packageChoice}>
                         <Text>{t('package')} {packageId}</Text>
@@ -652,64 +571,14 @@ export default function App() {
                       </View>
                     ))}
                     {deliverySelection.remainingPackageIds.length ? (
-                      <>
-                        <Text style={styles.label}>{t('undeliveredReason')}</Text>
-                        <TextInput accessibilityLabel={t('undeliveredReason')} onChangeText={(value) => { setDeliveryReason(value); setDeliveryArmed(false); }} placeholder={t('undeliveredReasonPlaceholder')} style={styles.input} value={deliveryReason} />
-                        {!undeliveredReason.canSubmit ? <Text style={styles.caption}>{t('undeliveredReasonMissing')}</Text> : null}
-                      </>
+                      <TextInput accessibilityLabel={t('partialReason')} onChangeText={(value) => { setDeliveryReason(value); setDeliveryArmed(false); }} placeholder={t('partialReasonPlaceholder')} style={styles.input} value={deliveryReason} />
                     ) : null}
                     <Text>{t('deliverySummary')} {deliverySelection.deliveredPackageIds.length}/{packageIds.length} {t('deliveredCount')}; {deliverySelection.remainingPackageIds.length} {t('remainingCount')}</Text>
                     <Pressable accessibilityRole="button" disabled={actionBusy || !deliveryReady} onPress={submitDelivery} style={[styles.button, (actionBusy || !deliveryReady) && styles.buttonDisabled]}>
                       <Text style={styles.buttonText}>{deliveryArmed ? t('confirmDelivery') : t('submitDelivery')}</Text>
                     </Pressable>
-                    {!deliveryReady && !deliveryOutcome ? <Text style={styles.caption}>{!online ? t('needsNetwork') : !deliverySubmission.canSubmit ? t('deliveryCheckMissing') : t('deliveryMissing')}</Text> : null}
+                    {!deliveryReady && !deliveryOutcome ? <Text style={styles.caption}>{!online ? t('needsNetwork') : t('deliveryMissing')}</Text> : null}
                     {deliveryOutcome ? <Text style={styles.notice}>{deliveryOutcome}</Text> : null}
-                    <View style={styles.collectionPanel}>
-                      <Text style={styles.sectionTitle}>{t('collection')}</Text>
-                      <Text style={styles.caption}>{t('collectionExampleOnly')}</Text>
-                      <View style={styles.choiceRow}>
-                        {(['cash', 'khqr'] as const).map((method) => (
-                          <Pressable
-                            accessibilityRole="button"
-                            key={method}
-                            onPress={() => { setCollectionMethod(method); setCollectionConfirmed(false); setCollectionOutcome(''); }}
-                            style={[styles.choice, collectionMethod === method && styles.choiceActive]}
-                          >
-                            <Text>{t(method === 'cash' ? 'collectionCash' : 'collectionKhqr')}</Text>
-                          </Pressable>
-                        ))}
-                      </View>
-                      {collection ? (
-                        <>
-                          <Pressable
-                            accessibilityRole="button"
-                            onPress={() => setCollectionConfirmed((current) => !current)}
-                            style={[styles.secondaryButton, collectionConfirmed && styles.choiceActive]}
-                          >
-                            <Text style={styles.secondaryButtonText}>{collectionConfirmed ? t('collectionConfirmed') : t('collectionConfirm')}</Text>
-                          </Pressable>
-                          <Pressable
-                            accessibilityRole="button"
-                            disabled={!collection.canRecord || Boolean(collectionOutcome)}
-                            onPress={() => setCollectionDialogOpen(true)}
-                            ref={collectionDialogTrigger}
-                            style={[styles.button, (!collection.canRecord || Boolean(collectionOutcome)) && styles.buttonDisabled]}
-                          >
-                            <Text style={styles.buttonText}>{t('collectionRecord')}</Text>
-                          </Pressable>
-                        </>
-                      ) : null}
-                    {collectionOutcome ? <Text style={styles.notice}>{collectionOutcome}</Text> : null}
-                    <View style={styles.collectionPanel}>
-                      <Text style={styles.sectionTitle}>{t('problemReport')}</Text>
-                      <TextInput accessibilityLabel={t('problemReport')} onChangeText={(value) => { setProblemSummary(value); setProblemRecorded(false); }} placeholder={t('problemReportPlaceholder')} style={styles.input} value={problemSummary} />
-                      <Pressable accessibilityRole="button" disabled={!problemReport.canSubmit || problemRecorded} onPress={() => setProblemRecorded(true)} style={[styles.secondaryButton, (!problemReport.canSubmit || problemRecorded) && styles.buttonDisabled]}>
-                        <Text style={styles.secondaryButtonText}>{t('recordProblemExample')}</Text>
-                      </Pressable>
-                      <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
-                      {problemRecorded ? <Text style={styles.notice}>{t('problemRecorded')}</Text> : null}
-                    </View>
-                  </View>
                   </View>
                 ) : null}
               </View>
@@ -760,7 +629,6 @@ export default function App() {
 
             <View style={styles.offline}>
               <Text style={styles.sectionTitle}>{t('offlineEvents')}</Text>
-              {networkNotice.visible ? <Text {...nativeToastA11yProps()} accessibilityRole="alert" style={styles.notice}>{t('offlineNotice')}</Text> : null}
               <Text style={styles.label}>{t('deviceId')}</Text>
               <TextInput
                 accessibilityLabel={t('deviceId')}
@@ -810,52 +678,21 @@ export default function App() {
           </View>
         ) : null}
       </ScrollView>
-      <Modal
-        animationType="fade"
-        onRequestClose={() => closeCollectionDialog('escape')}
-        transparent
-        visible={collectionDialogOpen}
-      >
-        <View {...nativeDialogA11yProps(t('collectionConfirm'))} style={styles.dialogBackdrop}>
-          <View accessibilityLabel={t('collectionConfirm')} accessibilityRole="alert" style={styles.dialog}>
-            <Text style={styles.sectionTitle}>{t('collectionConfirm')}</Text>
-            <Text style={styles.caption}>{t('collectionExampleOnly')}</Text>
-            <View style={styles.dialogActions}>
-              <Pressable accessibilityRole="button" onPress={() => closeCollectionDialog('cancel')} style={styles.secondaryButton}>
-                <Text style={styles.secondaryButtonText}>{t('collectionCancel')}</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => closeCollectionDialog('confirm')}
-                onLayout={() => {
-                  if (!collectionDialogOpen) return;
-                  const confirmTag = findNodeHandle(collectionDialogConfirm.current);
-                  if (confirmTag) AccessibilityInfo.setAccessibilityFocus(confirmTag);
-                }}
-                ref={collectionDialogConfirm}
-                style={styles.button}
-              >
-                <Text style={styles.buttonText}>{t('collectionRecord')}</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: designTokens.color.background },
-  content: { padding: designTokens.space.x6 },
+  screen: { flex: 1, backgroundColor: '#f4f6f8' },
+  content: { padding: 24 },
   header: { gap: 6, marginBottom: 24 },
   eyebrow: { color: '#0f766e', fontSize: 12, fontWeight: '700', letterSpacing: 1.5 },
-  title: { color: designTokens.color.ink, fontSize: designTokens.type.size.title, fontWeight: '700' },
+  title: { color: '#13233a', fontSize: 32, fontWeight: '700' },
   caption: { color: '#526174', fontSize: 14, lineHeight: 20 },
   languages: { flexDirection: 'row', gap: 8, marginTop: 8 },
   language: { backgroundColor: '#e8edf3', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 },
   languageActive: { backgroundColor: '#99f6e4' },
-  login: { backgroundColor: designTokens.color.surface, borderRadius: designTokens.radius.large, gap: 12, marginBottom: 20, padding: 18 },
+  login: { backgroundColor: '#ffffff', borderRadius: 16, gap: 12, marginBottom: 20, padding: 18 },
   label: { color: '#13233a', fontSize: 14, fontWeight: '600', marginTop: 6 },
   input: { borderColor: '#c8d1dc', borderRadius: 10, borderWidth: 1, color: '#13233a', padding: 12 },
   button: { alignItems: 'center', backgroundColor: '#153a63', borderRadius: 10, padding: 14 },
@@ -869,16 +706,12 @@ const styles = StyleSheet.create({
   card: { backgroundColor: '#ffffff', borderRadius: 14, gap: 5, padding: 16 },
   cardTitle: { color: '#13233a', fontSize: 17, fontWeight: '700' },
   cardMeta: { color: '#526174', fontSize: 14 },
-  detail: { backgroundColor: designTokens.color.surface, borderRadius: designTokens.radius.large, gap: 8, padding: 18 },
+  detail: { backgroundColor: '#ffffff', borderRadius: 16, gap: 8, padding: 18 },
   sectionTitle: { color: '#13233a', fontSize: 20, fontWeight: '700', marginTop: 10 },
   actions: { gap: 10, marginTop: 12 },
-  execution: { borderTopColor: designTokens.color.line, borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
-  deliveryPanel: { borderTopColor: designTokens.color.line, borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
-  collectionPanel: { borderTopColor: designTokens.color.line, borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
-  dialogBackdrop: { alignItems: 'center', backgroundColor: designTokens.color.navy, flex: 1, justifyContent: 'center', padding: 24 },
-  dialog: { backgroundColor: designTokens.color.surface, borderRadius: designTokens.radius.large, gap: 12, maxWidth: 420, padding: designTokens.space.x6, width: '100%' },
-  dialogActions: { flexDirection: 'row', gap: 10, justifyContent: 'flex-end' },
-  offline: { borderTopColor: designTokens.color.line, borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
+  execution: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
+  deliveryPanel: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 12, paddingTop: 8 },
+  offline: { borderTopColor: '#d7dee7', borderTopWidth: 1, gap: 10, marginTop: 18, paddingTop: 8 },
   packageRow: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 4, padding: 10 },
   packageChoice: { backgroundColor: '#f4f6f8', borderRadius: 8, gap: 8, padding: 10 },
   choiceRow: { flexDirection: 'row', gap: 8 },

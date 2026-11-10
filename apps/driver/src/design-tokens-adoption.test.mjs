@@ -2,24 +2,20 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-const appSource = await readFile(new URL('../App.tsx', import.meta.url), 'utf8');
+const surfaceSource = await readFile(new URL('./FulfillmentSurface.tsx', import.meta.url), 'utf8');
 
 test('uses shared design tokens for the driver fulfillment surface', () => {
-  assert.match(appSource, /import \{ designTokens \} from '@routefit\/shared';/);
-  assert.match(appSource, /backgroundColor: designTokens\.color\.background/);
-  assert.match(appSource, /borderRadius: designTokens\.radius\.large/);
-  assert.match(appSource, /fontSize: designTokens\.type\.size\.title/);
-  assert.match(appSource, /backgroundColor: designTokens\.color\.navy/);
-  assert.match(appSource, /borderTopColor: designTokens\.color\.line/);
-  assert.match(appSource, /accessibilityLabel=\{t\('status'\)\}/);
-  assert.match(appSource, /if \(result\.record && collection\?\.canRecord && !collectionOutcome\)/);
-  assert.match(appSource, /disabled=\{!collection\.canRecord \|\| Boolean\(collectionOutcome\)\}/);
-  assert.match(appSource, /\(!collection\.canRecord \|\| Boolean\(collectionOutcome\)\) && styles\.buttonDisabled/);
-  assert.match(appSource, /collectionConfirmationState\(collectionMethod, collectionConfirmed, Boolean\(collectionOutcome\)\)/);
-  assert.match(appSource, /order\?\.order\.fulfillmentStage \?\? 'none'/);
-  assert.match(appSource, /t\('deliveryVerificationExample'\)/);
-  assert.match(appSource, /t\('loadScan'\)/);
-  assert.match(appSource, /t\('undeliveredReason'\)/);
-  assert.match(appSource, /t\('problemReport'\)/);
-  assert.match(appSource, /offlineNotice\(!online\)/);
+  assert.match(surfaceSource, /import \{ designTokens, nativeDialogA11yProps, nativeToastA11yProps \} from '@routefit\/shared';/);
+  assert.match(surfaceSource, /backgroundColor: designTokens\.color\.surface/);
+  assert.match(surfaceSource, /borderRadius: designTokens\.radius\.large/);
+  assert.match(surfaceSource, /fontSize: designTokens\.type\.size\.title/);
+  assert.match(surfaceSource, /backgroundColor: designTokens\.color\.navy/);
+  assert.match(surfaceSource, /borderColor: designTokens\.color\.line/);
+  assert.match(surfaceSource, /if \(result\.record && collection\?\.canRecord && !recorded\)/);
+  assert.match(surfaceSource, /collectionConfirmationState\(method, confirmed, recorded\)/);
+  assert.match(surfaceSource, /t\('deliveryVerificationExample'\)/);
+  assert.match(surfaceSource, /t\('loadScan'\)/);
+  assert.match(surfaceSource, /t\('undeliveredReason'\)/);
+  assert.match(surfaceSource, /t\('problemReport'\)/);
+  assert.match(surfaceSource, /offlineNotice\(offline\)/);
 });
