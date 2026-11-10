@@ -23,3 +23,15 @@ test('Backend1 migration range defines the assigned pricing, order, merchant, an
  const couponDefinition=await migration('068_backend1_coupons.sql');
  assert.doesNotMatch(couponDefinition,/marketing\.coupon_redemption|marketing\.risk_flag/);
 });
+
+test('Backend1 migrations keep contract transitions, freezes, and coupon writes append-only and idempotent',async()=>{
+ const contracts=await migration('067_backend1_merchant_contracts.sql');
+ const coupons=await migration('068_backend1_coupons.sql');
+ const events=await migration('069_backend1_rls_handoff.sql');
+ assert.match(contracts,/party\.merchant_contract_event/);
+ assert.match(contracts,/version bigint NOT NULL CHECK\(version BETWEEN 1 AND 9000000000000\)/);
+ assert.match(coupons,/idempotency_key text NOT NULL/);
+ assert.match(coupons,/UNIQUE\(company_id,idempotency_key\)/);
+ assert.match(events,/CREATE FUNCTION party\.prevent_backend1_history_mutation/);
+ assert.match(events,/BEFORE UPDATE OR DELETE/);
+});

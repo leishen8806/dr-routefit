@@ -29,13 +29,24 @@ CREATE TABLE party.sku_dimension (
  UNIQUE(company_id,id), UNIQUE(company_id,merchant_id,name),
  FOREIGN KEY(company_id,merchant_id) REFERENCES party.customer(company_id,id)
 );
+CREATE TABLE party.merchant_contract_event (
+ id uuid PRIMARY KEY,
+ company_id uuid NOT NULL REFERENCES org.company(id),
+ contract_id uuid NOT NULL,
+ version bigint NOT NULL CHECK(version BETWEEN 1 AND 9000000000000),
+ state text NOT NULL CHECK(state IN ('DRAFT','ACTIVE','EXPIRED')),
+ occurred_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ UNIQUE(company_id,id), UNIQUE(company_id,contract_id,version),
+ FOREIGN KEY(company_id,contract_id) REFERENCES party.merchant_contract(company_id,id)
+);
 CREATE TABLE party.account_freeze (
  id uuid PRIMARY KEY,
  company_id uuid NOT NULL REFERENCES org.company(id),
  principal_id uuid NOT NULL,
  action text NOT NULL CHECK(action IN ('FREEZE','UNFREEZE')),
  reason text NOT NULL CHECK(length(btrim(reason)) BETWEEN 1 AND 300),
+ version bigint NOT NULL CHECK(version BETWEEN 1 AND 9000000000000),
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
- UNIQUE(company_id,id),
+ UNIQUE(company_id,id), UNIQUE(company_id,principal_id,version),
  FOREIGN KEY(company_id,principal_id) REFERENCES org.principal(company_id,id)
 );

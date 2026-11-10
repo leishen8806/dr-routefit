@@ -24,11 +24,12 @@ test('Backend1 handlers reject an operation without a supplied repository implem
 test('coupon batch repository stores integer budget in the company scope and returns the contract projection', async () => {
  const calls=[];
  const client={query:async(sql,params)=>{calls.push({sql,params});return {rows:[{id:'00000000-0000-0000-0000-000000000010',version:'1',budget_minor:'1000'}]};}};
- const result=await createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001'},{code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-10T00:00:00Z',endsAt:'2026-11-11T00:00:00Z'});
+ const result=await createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001',idempotencyKey:'coupon-batch-1'},{code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-10T00:00:00Z',endsAt:'2026-11-11T00:00:00Z'});
  assert.deepEqual(result,{id:'00000000-0000-0000-0000-000000000010',version:1,budgetMinor:1000});
  assert.match(calls[0].sql,/INSERT INTO marketing\.coupon_batch/);
  assert.equal(calls[0].params[1],'00000000-0000-0000-0000-000000000001');
  assert.equal(calls[0].params[6],1000);
+ assert.equal(calls[0].params[7],'coupon-batch-1');
 });
 
 test('coupon list repository scopes results to the company and maps issued coupons to available', async () => {
@@ -80,7 +81,7 @@ test('merchant contract read returns a not-found domain error when its company s
 
 test('default Backend1 coupon batch handler uses the module repository', async () => {
  const client={query:async()=>({rows:[{id:'00000000-0000-0000-0000-000000000010',version:'1',budget_minor:'1000'}]})};
- const result=await backend1Handlers.createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001'},{code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-10T00:00:00Z',endsAt:'2026-11-11T00:00:00Z'});
+ const result=await backend1Handlers.createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001',idempotencyKey:'coupon-batch-1'},{code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-10T00:00:00Z',endsAt:'2026-11-11T00:00:00Z'});
  assert.equal(result.status,201);
  assert.equal(result.body.budgetMinor,1000);
 });

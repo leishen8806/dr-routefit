@@ -24,6 +24,22 @@ CREATE TABLE marketing.risk_flag (
  CHECK(coupon_id IS NOT NULL OR order_id IS NOT NULL)
 );
 
+CREATE FUNCTION party.prevent_backend1_history_mutation() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+ RAISE EXCEPTION 'Backend1 history is append-only';
+END;
+$$;
+CREATE TRIGGER merchant_contract_event_append_only
+ BEFORE UPDATE OR DELETE ON party.merchant_contract_event
+ FOR EACH ROW EXECUTE FUNCTION party.prevent_backend1_history_mutation();
+CREATE TRIGGER account_freeze_append_only
+ BEFORE UPDATE OR DELETE ON party.account_freeze
+ FOR EACH ROW EXECUTE FUNCTION party.prevent_backend1_history_mutation();
+CREATE TRIGGER coupon_redemption_append_only
+ BEFORE UPDATE OR DELETE ON marketing.coupon_redemption
+ FOR EACH ROW EXECUTE FUNCTION party.prevent_backend1_history_mutation();
+
 -- Backend1 RLS handoff: every table created in 065--069 has company_id.
 -- DBEngineer owns the restrictive, role-specific policies and grants in its reviewed migration range.
 COMMENT ON TABLE pricing.dimension_rule IS 'Backend1 RLS handoff: company-scoped configuration; DBEngineer adds reviewed restrictive policy.';
