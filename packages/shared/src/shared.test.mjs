@@ -41,4 +41,19 @@ test('shares product-neutral design tokens without native dependencies', () => {
   assert.equal(designTokens.color.navy, '#0B2545');
   assert.equal(designTokens.type.khmer, 'Noto Sans Khmer');
   assert.equal(designTokens.space.x6, 24);
+  assert.deepEqual(designTokens.type.size, {
+    caption: 12,
+    small: 14,
+    body: 16,
+    lead: 20,
+    title: 32,
+    display: 48,
+  });
+  assert.deepEqual(designTokens.radius, { small: 6, medium: 10, large: 16 });
+  assert.equal(designTokens.platform.web.fontFamily, 'IBM Plex Sans, Noto Sans SC, Noto Sans Khmer, sans-serif');
+  assert.deepEqual(designTokens.platform.native.fontFamily, [
+    'IBM Plex Sans',
+    'Noto Sans SC',
+    'Noto Sans Khmer',
+  ]);
 });

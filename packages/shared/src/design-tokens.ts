@@ -20,4 +20,12 @@ export const designTokens = {
   space: { x1: 4, x2: 8, x3: 12, x4: 16, x6: 24, x8: 32, x12: 48, x18: 72, x24: 96 },
   radius: { small: 6, medium: 10, large: 16 },
   motion: { quick: 120, standard: 180 },
+  platform: {
+    web: {
+      fontFamily: 'IBM Plex Sans, Noto Sans SC, Noto Sans Khmer, sans-serif',
+    },
+    native: {
+      fontFamily: ['IBM Plex Sans', 'Noto Sans SC', 'Noto Sans Khmer'],
+    },
+  },
 } as const;
