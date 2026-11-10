@@ -106,6 +106,14 @@ function isValidOperationsRow(page, row) {
   return Array.isArray(page?.columns) && Array.isArray(row) && row.length === page.columns.length;
 }
 
+export function getOperationsRows(id, configuredPages) {
+  const page = getOperationsPage(id, configuredPages);
+  if (!page) return [];
+  return page.rows.flatMap((row, index) => (
+    isValidOperationsRow(page, row) ? [{ index, row }] : []
+  ));
+}
+
 export function getOperationsRecord(id, index, configuredPages) {
   const page = getOperationsPage(id, configuredPages);
   const row = page?.rows[index];

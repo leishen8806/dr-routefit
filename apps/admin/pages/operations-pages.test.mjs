@@ -7,6 +7,7 @@ import {
   getOperationsRecord,
   getOperationsDrawerAccessibility,
   getOperationsDrawerAction,
+  getOperationsRows,
   reduceOperationsDrawer,
   renderOperationsDetail,
   renderOperationsPage,
@@ -135,6 +136,22 @@ test('configured page list skips malformed rows without crashing the screen', ()
   const markup = renderOperationsPage('orders', configuredPages);
   assert.match(markup, /CFG-001/);
   assert.doesNotMatch(markup, /data-record-index="1"/);
+});
+
+test('configured page exposes only valid rows for native screen rendering', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [
+        ['CFG-001', 'Configured merchant', 'pending', 'review', 'example'],
+        {},
+      ],
+    },
+  };
+
+  assert.deepEqual(getOperationsRows('orders', configuredPages), [
+    { index: 0, row: ['CFG-001', 'Configured merchant', 'pending', 'review', 'example'] },
+  ]);
 });
 
 test('order view renders an accessible sample-data table and marks actions as frontend-only', () => {
