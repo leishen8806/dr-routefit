@@ -1,0 +1,9 @@
+{
+  "name": "@routefit/admin-app",
+  "version": "0.0.1",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "test": "node --test src/*.test.mjs"
+  }
+}
