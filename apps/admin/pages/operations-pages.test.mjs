@@ -182,6 +182,20 @@ test('drawer event mapping rejects an open action with an invalid record index',
   );
 });
 
+test('drawer event mapping validates configured page records before opening', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [['CFG-001', 'Configured merchant', 'pending', 'review', 'example']],
+    },
+  };
+
+  assert.equal(
+    getOperationsDrawerAction('orders', { action: 'open-detail', recordIndex: '1' }, configuredPages),
+    null,
+  );
+});
+
 test('screen renders a matching drawer but never leaks a drawer from another page', () => {
   assert.match(renderOperationsScreen('support', { pageId: 'support', index: 0 }), /CS-082/);
   assert.doesNotMatch(renderOperationsScreen('orders', { pageId: 'support', index: 0 }), /CS-082/);

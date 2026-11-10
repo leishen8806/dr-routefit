@@ -93,11 +93,11 @@ export function getOperationsDrawerAccessibility(id, configuredPages) {
   };
 }
 
-export function getOperationsDrawerAction(pageId, dataset) {
+export function getOperationsDrawerAction(pageId, dataset, configuredPages) {
   if (dataset?.action === 'close-detail') return { type: 'close' };
   if (dataset?.action === 'open-detail') {
     const index = Number(dataset.recordIndex);
-    if (!Number.isInteger(index) || index < 0 || !getOperationsRecord(pageId, index)) return null;
+    if (!Number.isInteger(index) || index < 0 || !getOperationsRecord(pageId, index, configuredPages)) return null;
     return { type: 'open', pageId, index };
   }
   return null;
