@@ -9,7 +9,7 @@ export const zh: SiteCopy = {
   nav: { home: '首页', services: '服务', drivers: '司机与车队', pricing: '价格说明', track: '查单', about: '关于我们', help: '帮助中心', contact: '联系我们', menu: '打开导航', language: '语言', skip: '跳到主要内容' },
   pages: { drivers: '司机与车队', pricing: '价格说明', about: '关于我们', help: '帮助中心', contact: '联系我们', terms: '服务条款', privacy: '隐私政策' },
   hero: {
-    eyebrow: '金边及周边 · 仓配一体',
+    eyebrow: '柬埔寨最后一公里，直达收件人',
     title: '车对货，路对线，准时送到。',
     body: 'RouteFit 帮商家把货从仓库送到客户手里：按货物选车，按路线派单，交接、在途、签收每一步都有记录可查。',
     primary: '咨询企业合作',
