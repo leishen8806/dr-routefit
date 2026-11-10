@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import {
   adminFeaturePages,
@@ -42,4 +43,11 @@ test('marks payout confirmation as an irreversible demo action', () => {
 test('recognizes an empty data action attribute so dialog controls remain usable', () => {
   assert.equal(hasActionAttribute({ hasAttribute: (name) => name === 'data-close-dialog' }, 'data-close-dialog'), true);
   assert.equal(hasActionAttribute({ hasAttribute: () => false }, 'data-close-dialog'), false);
+});
+
+test('keeps documented UI audit font weights and dark row actions accessible', () => {
+  const styles = readFileSync(new URL('./styles.css', import.meta.url), 'utf8');
+  assert.match(styles, /\.rf2 h1[^}]*font-weight:600/);
+  assert.match(styles, /\.rf2 b[^}]*font-weight:600/);
+  assert.match(styles, /\.rf2-row em\s*\{\s*color:#67e8c4/);
 });
