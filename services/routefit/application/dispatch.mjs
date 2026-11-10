@@ -1,4 +1,8 @@
 export const dispatchRoutes=[
+ {method:'POST',pattern:/^\/api\/ops\/v1\/dispatch\/optimization-runs$/,operation:'createOptimizationRun',schema:'OptimizationRun',input:'OptimizationRunCreate',kind:'optimization-run-create',permission:'dispatch:write',write:true},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/dispatch\/optimization-runs$/,operation:'listOptimizationRuns',schema:'OptimizationRunPage',kind:'optimization-runs',permission:'dispatch:read'},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/dispatch\/optimization-runs\/([^/]+)$/,operation:'getOptimizationRun',schema:'OptimizationRun',kind:'optimization-run',permission:'dispatch:read'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/dispatch\/optimization-runs\/([^/]+)\/actions\/adopt$/,operation:'adoptOptimizationRun',schema:'OptimizationRun',input:'OptimizationRunAdopt',kind:'optimization-run-adopt',permission:'dispatch:write',write:true,version:true},
  {method:'GET',pattern:/^\/api\/ops\/v1\/dispatch\/board$/,operation:'dispatchBoard',schema:'DispatchBoard',kind:'board',permission:'dispatch:read'},
  {method:'GET',pattern:/^\/api\/ops\/v1\/vehicles$/,operation:'listVehicles',schema:'VehiclePage',kind:'vehicles',permission:'fleet:read'},
  {method:'GET',pattern:/^\/api\/ops\/v1\/orders\/([^/]+)\/dispatch-candidates$/,operation:'dispatchCandidates',schema:'CandidatePage',kind:'candidates',permission:'dispatch:read'},

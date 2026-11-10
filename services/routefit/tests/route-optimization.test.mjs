@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {planOptimizationRoutes} from '../domain/route-optimization.mjs';
+import {dispatchRoutes} from '../application/dispatch.mjs';
 
 const vehicles=[
  {id:'small-1',type:'small',capacityVolume:10,availableSlots:['am']},
@@ -23,4 +24,17 @@ test('optimization produces the same route order regardless of input order',()=>
  const input={vehicles,orders:[{id:'b',volume:1,slot:'am'},{id:'a',volume:1,slot:'am'}]};
  const reversed={...input,orders:[...input.orders].reverse()};
  assert.deepEqual(planOptimizationRoutes(input),planOptimizationRoutes(reversed));
+});
+
+test('optimization runs expose create, list, detail and adoption routes with dispatch authorization',()=>{
+ const expected=[
+  ['POST','/api/ops/v1/dispatch/optimization-runs','optimization-run-create','dispatch:write'],
+  ['GET','/api/ops/v1/dispatch/optimization-runs','optimization-runs','dispatch:read'],
+  ['GET','/api/ops/v1/dispatch/optimization-runs/run-id','optimization-run','dispatch:read'],
+  ['POST','/api/ops/v1/dispatch/optimization-runs/run-id/actions/adopt','optimization-run-adopt','dispatch:write']
+ ];
+ for(const [method,path,kind,permission] of expected){
+  const route=dispatchRoutes.find(candidate=>candidate.method===method&&candidate.kind===kind&&candidate.pattern.test(path));
+  assert.equal(route?.permission,permission);
+ }
 });
