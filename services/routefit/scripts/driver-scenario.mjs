@@ -4,6 +4,7 @@ import {chmod,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createBrowserGrant} from '../adapters/local-browser.mjs';
+import {developmentDriverPermissions} from '../db/dev-bootstrap-permissions.mjs';
 import {createDriverRouteFixture} from '../db/driver-scenario-fixture.mjs';
 
 const stages=new Set(['offered','custody-pending','ready-to-depart','delivery-ready']);
@@ -39,7 +40,7 @@ export async function createDriverScenario({
  localUrl(origin,'Driver scenario service');localUrl(databaseUrl,'Driver scenario database');localUrl(fixtureUrl,'Driver scenario fixture database');
  if(process.env.NODE_ENV==='production'||process.env.ROUTEFIT_AUTH_MODE!=='development')throw Error('Explicit local development mode required');
  const sessions=JSON.parse(await readFile(sessionsFile,'utf8'));
- const driver=sessions.findIndex(session=>session.deviceId&&session.shiftId&&['driver:tasks:execute','driver:custody:confirm','driver:evidence:create','driver:delivery:record','driver:sync'].every(permission=>session.permissions?.includes(permission)));if(driver<0)throw Error('Missing development driver identity');
+ const driver=sessions.findIndex(session=>session.deviceId&&session.shiftId&&developmentDriverPermissions.every(permission=>session.permissions?.includes(permission)));if(driver<0)throw Error('Missing development driver identity');
  const indexes={author:actorWith(sessions,'pricing:write','orders:create'),reviewer:actorWith(sessions,'pricing:review'),publisher:actorWith(sessions,'pricing:publish'),financeReview:actorWith(sessions,'prepayment:verify'),financeApprove:actorWith(sessions,'prepayment:approve','prepayment:post'),driver};
  const active={};for(const [name,actor] of Object.entries(indexes))active[name]=await activate({origin,sessionsFile,actor});
  assert.equal(new Set(Object.values(active).map(session=>session.principalId)).size,Object.keys(active).length,'Scenario roles must be distinct');
