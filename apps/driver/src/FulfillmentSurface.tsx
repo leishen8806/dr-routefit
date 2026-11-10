@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { designTokens, nativeDialogA11yProps, nativeToastA11yProps } from '@routefit/shared';
+import { createDialogController, designTokens, nativeDialogA11yProps, nativeToastA11yProps } from '@routefit/shared';
 
 import type { DriverLanguage } from './driver-api';
 import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentSections, offlineNotice, problemReportState, undeliveredReasonState } from './fulfillment.mjs';
@@ -23,6 +23,14 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
   const [confirmed, setConfirmed] = useState(false);
   const [recorded, setRecorded] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const collectionDialogRef = useRef<ReturnType<typeof createDialogController> | null>(null);
+  if (!collectionDialogRef.current) {
+    collectionDialogRef.current = createDialogController({
+      titleId: 'collection-confirmation-title',
+      onCancel: () => setDialogOpen(false),
+    });
+  }
+  const collectionDialog = collectionDialogRef.current;
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
   const sections = fulfillmentSections(stage);
   const collection = method ? collectionConfirmationState(method, confirmed, recorded) : null;
@@ -33,11 +41,17 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
 
   function closeCollection(action: 'cancel' | 'escape' | 'confirm') {
     const result = collectionDialogResult(action);
+    collectionDialog.close(action === 'confirm' ? 'replaced' : action);
     setDialogOpen(false);
     if (result.record && collection?.canRecord && !recorded) {
       setRecorded(true);
       setConfirmed(false);
     }
+  }
+
+  function openCollectionDialog() {
+    collectionDialog.open();
+    setDialogOpen(true);
   }
 
   return (
@@ -83,7 +97,7 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
           ))}
           {collection ? <>
             <Pressable accessibilityRole="button" onPress={() => setConfirmed((value) => !value)} style={styles.secondaryButton}><Text>{confirmed ? t('collectionConfirmed') : t('collectionConfirm')}</Text></Pressable>
-            <Pressable accessibilityRole="button" disabled={!collection.canRecord} onPress={() => setDialogOpen(true)} style={styles.button}><Text style={styles.buttonText}>{t('collectionRecord')}</Text></Pressable>
+            <Pressable accessibilityRole="button" disabled={!collection.canRecord} onPress={openCollectionDialog} style={styles.button}><Text style={styles.buttonText}>{t('collectionRecord')}</Text></Pressable>
           </> : null}
           {recorded ? <Text style={styles.notice}>{t('collectionRecorded')}</Text> : null}
         </View>

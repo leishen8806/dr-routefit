@@ -5,7 +5,7 @@ import test from 'node:test';
 const surfaceSource = await readFile(new URL('./FulfillmentSurface.tsx', import.meta.url), 'utf8');
 
 test('uses shared design tokens for the driver fulfillment surface', () => {
-  assert.match(surfaceSource, /import \{ designTokens, nativeDialogA11yProps, nativeToastA11yProps \} from '@routefit\/shared';/);
+  assert.match(surfaceSource, /import \{ [^}]*designTokens[^}]*nativeDialogA11yProps[^}]*nativeToastA11yProps[^}]* \} from '@routefit\/shared';/);
   assert.match(surfaceSource, /backgroundColor: designTokens\.color\.surface/);
   assert.match(surfaceSource, /borderRadius: designTokens\.radius\.large/);
   assert.match(surfaceSource, /fontSize: designTokens\.type\.size\.title/);
