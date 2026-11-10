@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlaceholderPage from '../../components/PlaceholderPage.astro';
+import { content, languages, placeholderSlugs } from '../../lib/site';
+import type { Language } from '../../content/types';
+
+export function getStaticPaths() {
+  return languages.flatMap((lang) => placeholderSlugs.map((slug) => ({ params: { lang, slug }, props: { lang, slug } })));
+}
+
+const { lang, slug } = Astro.props as { lang: Language; slug: keyof typeof content.en.pages };
+const copy = content[lang];
+---
+<BaseLayout {lang} title={`${copy.pages[slug]} | DR RouteFit`} pathname={`/${lang}/${slug}/`}>
+  <PlaceholderPage {lang} {copy} label={copy.pages[slug]} {slug} />
+</BaseLayout>

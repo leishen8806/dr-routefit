@@ -10,6 +10,18 @@
 
 DR RouteFit is a warehouse and delivery operations project. This repository contains product specifications, brand assets and an interactive Web prototype. Local backend development is in progress; this is not a production delivery or payment service.
 
+## 客户端工作区
+
+根目录 npm workspaces 管理司机原生 App、客户 Mini App／H5 和无原生依赖的共享包：
+
+```text
+apps/driver       Android／iOS 司机端；保留离线队列、SQLite 和其他原生能力
+apps/customer     Telegram Mini App 与普通 H5 的同一份网页构建
+packages/shared   两端共用的请求头、错误类型、语言和三语文案结构
+```
+
+使用 Node 24 在仓库根目录执行 `npm ci`，再用 `npm run <script> --workspace <workspace>` 运行各端检查。共享包不得依赖 Expo 原生模块。
+
 ## 当前进度
 
 截至 **2026-10-26**，代码基线为 main `99299bc0451443162018a18030a685718fea5421`。历史环境检查以 main 基线 `2ac993ec20adb24feeb6b5035fb15a69990b608c` 的 [RF-PM-001 实测报告](https://github.com/leishen8806/dr-routefit/blob/test/RF-PM-001-baseline-report/ops/codex/reports/RF-PM-001-baseline.md)为准；代码入库、文档暴露与运行通过分别说明。

@@ -1,0 +1,27 @@
+{
+  "name": "routefit-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check:links": "node scripts/check-links.mjs",
+    "check:browser": "node scripts/check-browser.mjs",
+    "check:a11y": "node scripts/check-a11y.mjs",
+    "test": "npm run build && npm run check:links && npm run check:browser && npm run check:a11y"
+  },
+  "dependencies": {
+    "@fontsource-variable/ibm-plex-sans": "5.3.0",
+    "@fontsource-variable/noto-sans-khmer": "5.3.0",
+    "@fontsource-variable/noto-sans-sc": "5.3.1",
+    "astro": "7.4.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.0"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

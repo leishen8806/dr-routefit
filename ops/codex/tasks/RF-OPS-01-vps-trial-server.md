@@ -149,11 +149,11 @@
 
 **部署前准备清单（2026-10-30 演练后补充）：**
 
-1. **数据库日志：** `trial:init` 建角色的语句里带明文口令，任何会记录语句文本的日志设置都会把口令写进服务器日志。执行前逐项确认：
+1. **数据库日志：** `trial:init` 建角色的语句传入 SCRAM-SHA-256 校验值，不再传明文口令；校验值仍属敏感信息，任何会记录语句文本的日志设置都会把它写进服务器日志。执行前仍逐项确认：
    - `SHOW log_statement` 必须为 `none`（`ddl`、`mod`、`all` 都会记录 DDL）；
    - `SHOW log_min_duration_statement` 必须为 `-1`（大于等于 0 时会连同语句文本一起记录）；
    - `SHOW shared_preload_libraries` 里没有会记录语句文本的扩展（如 `pgaudit`、`auto_explain`），有的话确认其配置不记录 DDL；
-   - `log_min_error_statement` 默认为 `error`，`CREATE ROLE` 一旦执行失败，失败语句的文本会进错误日志。`trial:init` 失败后，须检查当次日志并清除含口令的行；也可以在 init 前临时设为 `panic`，完成后恢复。
+   - `log_min_error_statement` 默认为 `error`，`CREATE ROLE` 一旦执行失败，失败语句的文本会进错误日志。`trial:init` 失败后，须检查当次日志并清除含校验值的行；也可以在 init 前临时设为 `panic`，完成后恢复。
 2. **管理连接：** 专用管理角色为 `LOGIN SUPERUSER`（创建带 `BYPASSRLS` 的备份角色需要超级用户），`pg_hba` 只允许它从 `127.0.0.1/32`、`::1/128` 以 `scram-sha-256` 连接 `postgres` 和 `routefit_trial`；`<ADMIN_ENV>` 为 `root:root 600`。部署完成后可改为 `NOLOGIN`，维护时再临时打开。
 3. **父目录：** R4 起 `trial:init` 不再自动建目录。`/etc/routefit`、`/var/lib/routefit`、`/root/.config/routefit` 须事先存在且可写；备份目录为 `root:rf-admin 2750`。
 4. **`<ADMIN_ENV>` 在 `trial:init` 前须包含的全部变量（共 12 个，另加连接串）：**

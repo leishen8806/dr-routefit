@@ -2,6 +2,8 @@
 
 仓库：`leishen8806/dr-routefit`（公开仓库）。执行人 GitHub 账号：`zhangdaowang3-code`。所有时间一律按 UTC+7 写。
 
+**仓库全名和负责人账号要原样抄写：** 仓库是 `leishen8806/dr-routefit`，负责人账号是 `leishen8806`，两处都是**末尾 806**（不是 800、8800）。写文档、PR 描述、issue 评论、命令里的 `-R` 参数时都从本节复制，不要凭记忆输入。命令返回 404 时，先核对拼写，再怀疑权限或网络。
+
 ## 一、去哪里领任务
 
 任务只从 GitHub Issues 领取：
@@ -24,18 +26,18 @@ gh issue list -R leishen8806/dr-routefit --assignee zhangdaowang3-code --state o
 
 ## 三、怎么做
 
-1. 新任务：从**最新 `develop`** 切分支，分支名 `<类型>/<任务编号>-<简述>`，例如 `fix/RF-PM-048-policy-picker-clarity`。一张卡一个分支、一个 PR。提交信息以任务编号开头。
+1. 新任务：从**最新 `develop`** 切分支，分支名 `<类型>/<任务编号>-<简述>`，例如 `fix/RF-PM-048-policy-picker-clarity`。一个 issue 一个分支、一个 PR；issue 里列了多张卡（合并任务）时，分支名用第一张卡的编号，例如 `chore/RF-PM-052-054-ops-tooling`，提交信息以对应的卡号开头，PR 描述按卡逐项写验收结果。
 2. 返工：在**原分支**追加提交，不要新开 PR，不要强推改写历史。
 3. 先开**草稿 PR**。PR 描述按任务卡"验收"逐项写 **PASS / FAIL / NOT_RUN**，NOT_RUN 必须写原因；返工时逐条写每条意见的处理结果。
 4. 范围外发现的问题，写进 PR 的"发现但未处理"，不要顺手改。
-5. 环境：Node 24；PostgreSQL 集成测试用 `ROUTEFIT_TEST_DATABASE_URL` 指向本机一次性合成库。CI 五项（`prototype`、`service-integration`、`service-unit`、`trial-tooling-macos`、`trial-tooling-windows`）必须全绿。
+5. 环境：Node 24；PostgreSQL 集成测试用 `ROUTEFIT_TEST_DATABASE_URL` 指向本机一次性合成库。CI 八项（`prototype`、`service-integration`、`service-unit`、`trial-tooling-macos`、`trial-tooling-windows`、`driver-app`、`website`、`customer-app`）必须全绿。
 6. 浏览器验收：用真实的页面与服务链路。用接口桩的验证必须在 PR 里写明"接口桩"，不能标成真实库；检查项必须是真实断言，不能只数元素，也不能用内容相同的截图。
 
 ## 四、什么时候可以标 Ready
 
 同时满足：
 
-1. CI 五项全绿；
+1. CI 八项全绿；
 2. PR 描述与最终 head 一致；
 3. issue 里每一条意见都有处理结果；
 4. 没有未解决的审查意见。
