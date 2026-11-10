@@ -30,6 +30,19 @@ test('operations pages accept configured page data in place of demo values', () 
   );
 });
 
+test('configured page data renders through the list and its matching detail drawer', () => {
+  const configuredOrders = {
+    ...getOperationsPage('orders'),
+    title: '订单配置',
+    rows: [['CFG-001', '配置商户', '待处理', '配置环节', '示例：1 小时']],
+  };
+  const configuredPages = { orders: configuredOrders };
+
+  assert.match(renderOperationsPage('orders', configuredPages), /CFG-001/);
+  assert.match(renderOperationsDetail('orders', 0, configuredPages), /订单配置详情/);
+  assert.match(renderOperationsScreen('orders', { pageId: 'orders', index: 0 }, configuredPages), /CFG-001/);
+});
+
 test('order view renders an accessible sample-data table and marks actions as frontend-only', () => {
   const markup = renderOperationsPage('orders');
 

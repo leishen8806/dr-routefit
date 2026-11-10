@@ -61,8 +61,8 @@ export function getOperationsPage(id, configuredPages) {
   return configuredPages?.[id] ?? pages[id] ?? null;
 }
 
-export function getOperationsRecord(id, index) {
-  const page = getOperationsPage(id);
+export function getOperationsRecord(id, index, configuredPages) {
+  const page = getOperationsPage(id, configuredPages);
   const row = page?.rows[index];
   if (!page || !row) return null;
   return {
@@ -105,8 +105,8 @@ function recordUnavailable() {
   return '<section role="status"><p>记录暂不可用，请返回列表后重新选择。</p></section>';
 }
 
-export function renderOperationsPage(id) {
-  const page = getOperationsPage(id);
+export function renderOperationsPage(id, configuredPages) {
+  const page = getOperationsPage(id, configuredPages);
   if (!page) return notFound();
 
   const headings = `${page.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join('')}<th scope="col">操作</th>`;
@@ -118,9 +118,9 @@ export function renderOperationsPage(id) {
 </section>`;
 }
 
-export function renderOperationsDetail(id, index) {
-  const page = getOperationsPage(id);
-  const record = getOperationsRecord(id, index);
+export function renderOperationsDetail(id, index, configuredPages) {
+  const page = getOperationsPage(id, configuredPages);
+  const record = getOperationsRecord(id, index, configuredPages);
   if (!page || !record) return recordUnavailable();
 
   const fields = record.fields.map(([column, value]) => `<div><dt>${escapeHtml(column)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
@@ -132,9 +132,9 @@ export function renderOperationsDetail(id, index) {
 </aside>`;
 }
 
-export function renderOperationsScreen(id, drawerState) {
+export function renderOperationsScreen(id, drawerState, configuredPages) {
   const drawer = drawerState?.pageId === id
-    ? renderOperationsDetail(drawerState.pageId, drawerState.index)
+    ? renderOperationsDetail(drawerState.pageId, drawerState.index, configuredPages)
     : '';
-  return `${renderOperationsPage(id)}${drawer}`;
+  return `${renderOperationsPage(id, configuredPages)}${drawer}`;
 }
