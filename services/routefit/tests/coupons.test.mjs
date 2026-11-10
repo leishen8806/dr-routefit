@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {assessCouponRisk,lockCoupon,redeemCoupon,releaseCoupon} from '../domain/coupons.mjs';
 
 const coupon={id:'coupon-1',amountMinor:300,minimumSpendMinor:1000,budgetRemainingMinor:1000,approved:true};
-const order={id:'order-1',merchandiseMinor:1200,codMinor:400,insuranceMinor:100,paymentMethod:'PREPAID'};
+const order={id:'order-1',merchandiseMinor:1200,shippingMinor:200,codMinor:400,insuranceMinor:100,paymentMethod:'PREPAID'};
 
 test('coupon rule 1: a coupon can be used only once',()=>{
  assert.throws(()=>lockCoupon({coupon,order,alreadyUsed:true}),{code:'COUPON_ALREADY_USED'});
@@ -26,9 +26,9 @@ test('coupon rule 4: cancellation releases a locked or redeemed coupon',()=>{
  assert.deepEqual(releaseCoupon(redeemed),{...redeemed,state:'RELEASED'});
 });
 
-test('coupon rule 5: discount excludes COD and insurance',()=>{
+test('coupon rule 5: discount applies only to shipping, excluding COD and insurance',()=>{
  const locked=lockCoupon({coupon,order});
- assert.equal(locked.discountMinor,300);
+ assert.equal(locked.discountMinor,200);
 });
 
 test('coupon rule 6: COD orders cannot use coupons',()=>{
@@ -45,7 +45,7 @@ test('coupon rule 8: coupon lock records anti-fraud review and requires approved
  const locked=lockCoupon({coupon,order});
  assert.equal(locked.fraudReviewRequired,true);
  assert.throws(()=>lockCoupon({coupon:{...coupon,approved:false},order}),{code:'COUPON_NOT_APPROVED'});
- assert.throws(()=>lockCoupon({coupon:{...coupon,budgetRemainingMinor:299},order}),{code:'COUPON_BUDGET_EXCEEDED'});
+ assert.throws(()=>lockCoupon({coupon:{...coupon,budgetRemainingMinor:199},order}),{code:'COUPON_BUDGET_EXCEEDED'});
 });
 
 test('coupon rule 8: repeated device or phone accounts pause redemption without storing raw phone data',()=>{

@@ -18,9 +18,9 @@ export function lockCoupon({coupon,order,existingCouponId=null,alreadyUsed=false
  ensure(risk.state!=='PAUSED',409,'COUPON_REDEMPTION_PAUSED','Coupon redemption is paused for risk review');
  ensure(coupon.approved===true,409,'COUPON_NOT_APPROVED','Coupon budget requires approval');
  ensure(order.paymentMethod!=='COD',422,'COD_NOT_ELIGIBLE','Cash-on-delivery orders cannot use coupons');
- ensure(validMoney(order.merchandiseMinor)&&validMoney(coupon.amountMinor)&&validMoney(coupon.minimumSpendMinor)&&validMoney(coupon.budgetRemainingMinor),422,'INVALID_COUPON_INPUT','Coupon values must be non-negative integers');
+ ensure(validMoney(order.merchandiseMinor)&&validMoney(order.shippingMinor)&&validMoney(coupon.amountMinor)&&validMoney(coupon.minimumSpendMinor)&&validMoney(coupon.budgetRemainingMinor),422,'INVALID_COUPON_INPUT','Coupon values must be non-negative integers');
  ensure(order.merchandiseMinor>=coupon.minimumSpendMinor,422,'COUPON_MINIMUM_NOT_MET','Order does not meet the coupon minimum');
- const discountMinor=Math.min(coupon.amountMinor,order.merchandiseMinor);
+ const discountMinor=Math.min(coupon.amountMinor,order.shippingMinor);
  ensure(coupon.budgetRemainingMinor>=discountMinor,409,'COUPON_BUDGET_EXCEEDED','Coupon budget is insufficient');
  return {couponId:coupon.id,orderId:order.id,state:'LOCKED',discountMinor,driverCommissionBaseMinor:order.merchandiseMinor+order.codMinor+order.insuranceMinor,fraudReviewRequired:true};
 }
