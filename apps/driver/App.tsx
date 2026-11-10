@@ -45,7 +45,7 @@ import {
 } from './src/driver-api';
 import { deleteDeliveryPhoto, deliveryPhotoBlob, captureDeliveryPhoto, type DeliveryPhoto } from './src/delivery-photo';
 import { deliveryConfirmationStep, packageSelection, uploadTicketForPhoto } from './src/delivery.mjs';
-import { fulfillmentStatusPresentation } from './src/fulfillment.mjs';
+import { deliverySubmissionState, fulfillmentStatusPresentation } from './src/fulfillment.mjs';
 import { errorText, languageOptions, text, type MessageKey } from './src/messages';
 import { openOfflineEventQueue } from './src/offline-queue.mjs';
 import { createOfflineQueueStore } from './src/offline-store';
@@ -74,6 +74,8 @@ export default function App() {
   const [recipientAuthorization, setRecipientAuthorization] = useState<RecipientAuthorization | null>(null);
   const [packageChoices, setPackageChoices] = useState<Record<string, 'delivered' | 'remaining'>>({});
   const [deliveryReason, setDeliveryReason] = useState('');
+  const [deliveryScanCode, setDeliveryScanCode] = useState('');
+  const [deliveryLocationVerified, setDeliveryLocationVerified] = useState(false);
   const [deliveryArmed, setDeliveryArmed] = useState(false);
   const [deliveryOutcome, setDeliveryOutcome] = useState('');
   const [now, setNow] = useState(Date.now());
@@ -168,6 +170,8 @@ export default function App() {
       setDepartureReadiness(nextReadiness);
       setRecipientAuthorization(nextAuthorization);
       setPackageChoices({});
+      setDeliveryScanCode('');
+      setDeliveryLocationVerified(false);
     } catch (cause) {
       setDetail(null);
       setOrder(null);
@@ -382,12 +386,18 @@ export default function App() {
   const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
   const packageIds = order?.items.flatMap((item) => item.packageIds) ?? [];
   const deliverySelection = packageSelection(packageIds, packageChoices);
+  const deliverySubmission = deliverySubmissionState({
+    scanCode: deliveryScanCode,
+    locationVerified: deliveryLocationVerified,
+    evidenceReady,
+  });
   const deliveryReady = online
     && Boolean(recipientAuthorization)
     && evidenceReady
     && deliverySelection.complete
     && deliverySelection.deliveredPackageIds.length > 0
     && (deliverySelection.remainingPackageIds.length === 0 || Boolean(deliveryReason.trim()))
+    && deliverySubmission.canSubmit
     && !deliveryOutcome;
   const fulfillmentStatus = fulfillmentStatusPresentation(
     order?.order.fulfillmentStage === 'in_transit' ? 'delivering' : 'to_warehouse',
@@ -563,6 +573,21 @@ export default function App() {
                   <View style={styles.deliveryPanel}>
                     <Text style={styles.sectionTitle}>{t('deliveryRecord')}</Text>
                     <Text>{recipientAuthorization ? t('recipientAuthorizationReady') : t('recipientAuthorizationMissing')}</Text>
+                    <Text style={styles.label}>{t('deliveryScanCode')}</Text>
+                    <TextInput
+                      accessibilityLabel={t('deliveryScanCode')}
+                      onChangeText={(value) => { setDeliveryScanCode(value); setDeliveryArmed(false); }}
+                      placeholder={t('deliveryScanPlaceholder')}
+                      style={styles.input}
+                      value={deliveryScanCode}
+                    />
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => { setDeliveryLocationVerified((current) => !current); setDeliveryArmed(false); }}
+                      style={[styles.secondaryButton, deliveryLocationVerified && styles.choiceActive]}
+                    >
+                      <Text style={styles.secondaryButtonText}>{deliveryLocationVerified ? t('deliveryLocationVerified') : t('verifyDeliveryLocation')}</Text>
+                    </Pressable>
                     {packageIds.map((packageId) => (
                       <View key={packageId} style={styles.packageChoice}>
                         <Text>{t('package')} {packageId}</Text>
@@ -583,7 +608,7 @@ export default function App() {
                     <Pressable accessibilityRole="button" disabled={actionBusy || !deliveryReady} onPress={submitDelivery} style={[styles.button, (actionBusy || !deliveryReady) && styles.buttonDisabled]}>
                       <Text style={styles.buttonText}>{deliveryArmed ? t('confirmDelivery') : t('submitDelivery')}</Text>
                     </Pressable>
-                    {!deliveryReady && !deliveryOutcome ? <Text style={styles.caption}>{!online ? t('needsNetwork') : t('deliveryMissing')}</Text> : null}
+                    {!deliveryReady && !deliveryOutcome ? <Text style={styles.caption}>{!online ? t('needsNetwork') : !deliverySubmission.canSubmit ? t('deliveryCheckMissing') : t('deliveryMissing')}</Text> : null}
                     {deliveryOutcome ? <Text style={styles.notice}>{deliveryOutcome}</Text> : null}
                   </View>
                 ) : null}

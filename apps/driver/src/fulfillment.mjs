@@ -55,6 +55,12 @@ export function deliveryProofState(scanCode, locationVerified) {
   return { canSubmit: missing.length === 0, missing };
 }
 
+export function deliverySubmissionState({ scanCode, locationVerified, evidenceReady }) {
+  const proof = deliveryProofState(scanCode, locationVerified);
+  const missing = evidenceReady ? proof.missing : [...proof.missing, 'evidence'];
+  return { canSubmit: missing.length === 0, missing };
+}
+
 export function collectionState(method) {
   if (method !== 'cash' && method !== 'khqr') throw new Error('Collection method is not supported');
   return { method, live: false, label: '示例' };

@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   collectionState,
   deliveryProofState,
+  deliverySubmissionState,
   fulfillmentStep,
   fulfillmentSections,
   fulfillmentStatusPresentation,
@@ -22,6 +23,17 @@ test('maps active fulfillment work to the warehouse, delivery, and proof steps',
 test('requires a scan and location verification before delivery proof can submit', () => {
   assert.deepEqual(deliveryProofState('', false), { canSubmit: false, missing: ['scan', 'location'] });
   assert.deepEqual(deliveryProofState('PKG-EXAMPLE-01', true), { canSubmit: true, missing: [] });
+});
+
+test('requires local scan, location confirmation, and evidence before delivery submission', () => {
+  assert.deepEqual(deliverySubmissionState({ scanCode: ' ', locationVerified: false, evidenceReady: false }), {
+    canSubmit: false,
+    missing: ['scan', 'location', 'evidence'],
+  });
+  assert.deepEqual(deliverySubmissionState({ scanCode: 'PKG-EXAMPLE-01', locationVerified: true, evidenceReady: true }), {
+    canSubmit: true,
+    missing: [],
+  });
 });
 
 test('marks cash and KHQR collection as non-live examples', () => {
