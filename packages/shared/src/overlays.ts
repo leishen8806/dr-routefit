@@ -28,3 +28,13 @@ export function confirmationState(armed: boolean) {
 export function detailDrawerState<T>(record: T | null) {
   return { open: record !== null, record };
 }
+
+export function loadingState(reducedMotion: boolean) {
+  return reducedMotion
+    ? { animation: 'rf-calm' as const, durationMs: 1600 }
+    : { animation: 'rf-write' as const, durationMs: 1800 };
+}
+
+export function adSlotState(visible: boolean) {
+  return visible ? { visible: true, label: '广告' } : { visible: false, label: null };
+}

@@ -7,6 +7,8 @@ import {
   detailDrawerState,
   dismissToast,
   enqueueToast,
+  loadingState,
+  adSlotState,
 } from './overlays.ts';
 
 test('queues a second toast until the active toast is dismissed', () => {
@@ -29,4 +31,14 @@ test('opens a detail drawer only when a record is provided', () => {
     open: true,
     record: { id: 'task-demo-1' },
   });
+});
+
+test('uses the calm loader treatment when reduced motion is requested', () => {
+  assert.deepEqual(loadingState(false), { animation: 'rf-write', durationMs: 1800 });
+  assert.deepEqual(loadingState(true), { animation: 'rf-calm', durationMs: 1600 });
+});
+
+test('labels a visible ad slot and keeps hidden slots inert', () => {
+  assert.deepEqual(adSlotState(true), { visible: true, label: '广告' });
+  assert.deepEqual(adSlotState(false), { visible: false, label: null });
 });
