@@ -1,6 +1,6 @@
 import {randomUUID} from 'node:crypto';
 import {ApiError,ensure} from '../domain/errors.mjs';
-import {activateMerchantContract as activateContract} from '../domain/merchant-contracts.mjs';
+import {activateMerchantContract as activateContract,expireMerchantContract as expireContract} from '../domain/merchant-contracts.mjs';
 
 export async function createCouponBatch({client,companyId,idempotencyKey},{discountType,amountMinor,currency,budgetMinor,minimumSpendMinor=0}){
  const kind=discountType==='fixed'?'AMOUNT_OFF':'THRESHOLD_OFF';
@@ -42,10 +42,10 @@ export async function getMerchantContract({client,companyId,merchantId}){
  return {id:row.id,state:row.state,version:Number(row.version)};
 }
 
-export async function activateMerchantContract({client,companyId,merchantId,version}){
+async function transitionMerchantContract({client,companyId,merchantId,version},transition){
  const current=await getMerchantContract({client,companyId,merchantId});
  ensure(current.version===version,412,'VERSION_CONFLICT','Merchant contract version has changed');
- const next=activateContract(current);
+ const next=transition(current);
  const result=await client.query(`WITH updated AS (
   UPDATE party.merchant_contract
   SET state=$4,version=version+1,updated_at=clock_timestamp()
@@ -60,3 +60,6 @@ export async function activateMerchantContract({client,companyId,merchantId,vers
  if(!row)throw new ApiError(412,'VERSION_CONFLICT','Merchant contract version has changed');
  return {id:row.id,state:row.state,version:Number(row.version)};
 }
+
+export const activateMerchantContract=context=>transitionMerchantContract(context,activateContract);
+export const expireMerchantContract=context=>transitionMerchantContract(context,expireContract);
