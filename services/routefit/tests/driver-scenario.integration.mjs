@@ -12,7 +12,7 @@ import {apiServer} from '../application/http.mjs';
 import {developmentAuth,developmentPermissions,digest} from '../adapters/development-auth.mjs';
 import {assertRuntimeRole} from '../adapters/postgres.mjs';
 import {createBrowserGrant,localBrowser} from '../adapters/local-browser.mjs';
-import {buildDevelopmentPermissionSets} from '../db/dev-bootstrap-permissions.mjs';
+import {buildDevelopmentPermissionSets,developmentDriverPermissions} from '../db/dev-bootstrap-permissions.mjs';
 import {createDriverScenario} from '../scripts/driver-scenario.mjs';
 
 if(!process.env.ROUTEFIT_TEST_DATABASE_URL)throw Error('ROUTEFIT_TEST_DATABASE_URL must point to a local disposable PostgreSQL cluster administrator');
@@ -63,7 +63,7 @@ test('driver scenario creates all four real development stages',async()=>{
    fixture.principals.push({companyId,principalId});
   }
   const sessions=fixture.principals.map((principal,index)=>{const token=randomBytes(32).toString('hex'),csrf=randomBytes(32).toString('hex');return {...principal,tokenHash:digest(token),csrfHash:digest(csrf),permissions:permissionSets[index],expiresAt:new Date(Date.now()+3600000).toISOString()};});
-  {const token=randomBytes(32).toString('hex'),csrf=randomBytes(32).toString('hex');sessions.push({...fixture.driver,tokenHash:digest(token),csrfHash:digest(csrf),permissions:['driver:tasks:read','driver:tasks:accept','driver:tasks:reject','driver:tasks:execute','driver:locations','driver:delivery:record','driver:custody:confirm','driver:evidence:create','driver:evidence:read','driver:sync'],expiresAt:new Date(Date.now()+3600000).toISOString()});}
+  {const token=randomBytes(32).toString('hex'),csrf=randomBytes(32).toString('hex');sessions.push({...fixture.driver,tokenHash:digest(token),csrfHash:digest(csrf),permissions:[...developmentDriverPermissions],expiresAt:new Date(Date.now()+3600000).toISOString()});}
   await writeFile(sessionsFile,JSON.stringify(sessions),{mode:0o600});
   pool=new pg.Pool({connectionString:fixture.runtimeUrl,max:5});await assertRuntimeRole(pool);
   let auth,access;server=apiServer({pool,authenticate:Object.assign(request=>auth(request),{revoke:principal=>auth.revoke(principal)}),localAccess:(...args)=>access(...args),evidenceDirectory:dir,requestRateLimit:1000});server.listen(0,'127.0.0.1');await once(server,'listening');const origin=`http://127.0.0.1:${server.address().port}`;auth=developmentAuth(sessions,origin);access=localBrowser({origin,root:fileURLToPath(new URL('../../../',import.meta.url)),sessionsFile,authenticate:auth,pool});

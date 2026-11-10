@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildDevelopmentPermissionSets,developmentOrderQuotePermissions,developmentBootstrapCaseDeciderPermissions} from '../db/dev-bootstrap-permissions.mjs';
+import {buildDevelopmentPermissionSets,developmentOrderQuotePermissions,developmentBootstrapCaseDeciderPermissions,developmentDriverPermissions} from '../db/dev-bootstrap-permissions.mjs';
 import {developmentPermissions} from '../adapters/development-auth.mjs';
 import {rolePermissions} from '../scripts/trial-common.mjs';
 
@@ -24,4 +24,11 @@ test('dev bootstrap preserves existing six identities and appends workflow ident
  assert.deepEqual(rolePermissions.case_decider,['cases:read','cases:decide','orders:read','quotes:read','areas:read']);
  assert.equal(sets[6].includes('cases:decide'),false);
  assert.equal(sets[7].includes('cases:create'),false);
+});
+
+test('development driver session covers the scenario and known development permissions',()=>{
+ const scenarioPermissions=['driver:tasks:execute','driver:custody:confirm','driver:evidence:create','driver:delivery:record','driver:sync'];
+ assert.equal(scenarioPermissions.every(permission=>developmentDriverPermissions.includes(permission)),true);
+ assert.equal(developmentDriverPermissions.every(permission=>developmentPermissions.includes(permission)),true);
+ assert.equal(developmentDriverPermissions.includes('driver:evidence:read'),true);
 });

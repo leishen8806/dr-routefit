@@ -3,7 +3,7 @@ import {randomBytes,randomUUID} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {localFixture} from './local-fixture.mjs';
 import {digest,developmentPermissions} from '../adapters/development-auth.mjs';
-import {buildDevelopmentPermissionSets} from './dev-bootstrap-permissions.mjs';
+import {buildDevelopmentPermissionSets,developmentDriverPermissions} from './dev-bootstrap-permissions.mjs';
 
 if(process.env.NODE_ENV==='production'||!process.env.ROUTEFIT_PG_ADMIN_URL)throw Error('Set ROUTEFIT_PG_ADMIN_URL to a local development PostgreSQL administrator');
 const dir=new URL('../.local/',import.meta.url);
@@ -35,7 +35,7 @@ try{
  const clients=fixture.principals.map(()=>({token:randomBytes(32).toString('hex'),csrf:randomBytes(32).toString('hex'),origin:'http://127.0.0.1:4180'}));
  const sessions=fixture.principals.map((p,i)=>({...p,tokenHash:digest(clients[i].token),csrfHash:digest(clients[i].csrf),permissions:permissionSets[i],expiresAt:new Date(Date.now()+86400000).toISOString()}));
  const driverClient={token:randomBytes(32).toString('hex'),csrf:randomBytes(32).toString('hex')};
- sessions.push({...fixture.driver,tokenHash:digest(driverClient.token),csrfHash:digest(driverClient.csrf),permissions:['driver:tasks:read','driver:tasks:accept','driver:tasks:reject','driver:tasks:execute','driver:locations','driver:delivery:record','driver:custody:confirm','driver:sync'],expiresAt:new Date(Date.now()+86400000).toISOString()});
+ sessions.push({...fixture.driver,tokenHash:digest(driverClient.token),csrfHash:digest(driverClient.csrf),permissions:[...developmentDriverPermissions],expiresAt:new Date(Date.now()+86400000).toISOString()});
  await writeFile(new URL('sessions.json',dir),JSON.stringify(sessions,null,2),{flag:'wx',mode:0o600});
  await writeFile(new URL('client.json',dir),JSON.stringify(clients[0],null,2),{flag:'wx',mode:0o600});
  await writeFile(new URL('dev.env',dir),`NODE_ENV=development\nROUTEFIT_AUTH_MODE=development\nROUTEFIT_DATABASE_URL=${fixture.runtimeUrl}\nROUTEFIT_PG_FIXTURE_URL=${fixture.fixtureUrl}\nROUTEFIT_SESSION_FILE="${fileURLToPath(new URL('sessions.json',dir)).replaceAll('\\','/')}"\nROUTEFIT_PORT=4180\n`,{flag:'wx',mode:0o600});
