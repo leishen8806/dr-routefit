@@ -16,6 +16,7 @@ import {
   nativeToastA11yProps,
   toastA11yProps,
 } from './overlays.ts';
+import { designTokens } from './design-tokens.ts';
 
 test('queues a second toast until the active toast is dismissed', () => {
   const first = enqueueToast(createToastState(), { id: 'saved', message: 'Saved' });
@@ -68,6 +69,10 @@ test('maps overlay accessibility semantics for React Native consumers', () => {
   });
 });
 
+test('defines a translucent scrim token for native modal backdrops', () => {
+  assert.match(designTokens.color.scrim, /^rgba\(/);
+});
+
 test('moves focus into a confirmation dialog, traps Tab, and returns it on Escape', () => {
   const focusLog = [];
   const trigger = { focus: () => focusLog.push('trigger') };
@@ -100,6 +105,25 @@ test('moves focus into a confirmation dialog, traps Tab, and returns it on Escap
   assert.equal(dialog.isOpen(), false);
   assert.equal(cancelled, 1);
   assert.deepEqual(focusLog, ['first', 'first', 'trigger']);
+});
+
+test('keeps Tab inside a dialog when focus starts on its container', () => {
+  const focusLog = [];
+  const container = { focus: () => focusLog.push('container') };
+  const first = { focus: () => focusLog.push('first') };
+  const last = { focus: () => focusLog.push('last') };
+  const dialog = createDialogController({
+    titleId: 'container-title',
+    container,
+    focusables: [first, last],
+  });
+
+  dialog.open();
+  let prevented = false;
+  dialog.onKeyDown({ key: 'Tab', target: container, preventDefault: () => (prevented = true) });
+
+  assert.equal(prevented, true);
+  assert.deepEqual(focusLog, ['first', 'first']);
 });
 
 test('keeps only one dialog open at a time', () => {

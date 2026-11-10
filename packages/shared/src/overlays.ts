@@ -120,6 +120,11 @@ export function createDialogController(options: DialogControllerOptions): Dialog
     if (event.key !== 'Tab' || focusables.length === 0) return false;
 
     const currentIndex = focusables.indexOf(event.target as FocusTarget);
+    if (currentIndex === -1) {
+      event.preventDefault();
+      (event.shiftKey ? focusables[focusables.length - 1] : focusables[0]).focus();
+      return true;
+    }
     const boundaryIndex = event.shiftKey ? 0 : focusables.length - 1;
     if (currentIndex !== boundaryIndex) return false;
 

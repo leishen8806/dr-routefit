@@ -45,9 +45,25 @@ export function fulfillmentSections(stage) {
         'problem_report',
         'offline',
       ];
+    case 'delivery_recorded':
+      return ['delivery_proof', 'offline'];
     default:
       return ['warehouse', 'offline'];
   }
+}
+
+export function fulfillmentSurfacePlan(stage, language) {
+  const sections = fulfillmentSections(stage);
+  return {
+    status: fulfillmentStatusPresentation(stage, language),
+    panels: [
+      ...(sections.includes('warehouse') ? ['warehouse'] : []),
+      ...(sections.includes('load_scan') ? ['load_scan'] : []),
+      ...(sections.includes('delivery') ? ['delivery'] : []),
+      ...(sections.includes('delivery_proof') ? ['delivery_proof'] : []),
+      ...(sections.includes('collection') ? ['collection'] : []),
+    ],
+  };
 }
 
 export function deliveryProofState(scanCode, locationVerified) {

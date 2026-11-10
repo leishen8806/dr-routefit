@@ -8,9 +8,11 @@ test('uses shared design tokens for the driver fulfillment surface', () => {
   assert.match(surfaceSource, /import \{ [^}]*designTokens[^}]*nativeDialogA11yProps[^}]*nativeToastA11yProps[^}]* \} from '@routefit\/shared';/);
   assert.match(surfaceSource, /backgroundColor: designTokens\.color\.surface/);
   assert.match(surfaceSource, /borderRadius: designTokens\.radius\.large/);
-  assert.match(surfaceSource, /fontSize: designTokens\.type\.size\.title/);
+  assert.match(surfaceSource, /fontSize: designTokens\.type\.size\.lead/);
   assert.match(surfaceSource, /backgroundColor: designTokens\.color\.navy/);
   assert.match(surfaceSource, /borderColor: designTokens\.color\.line/);
+  assert.match(surfaceSource, /backgroundColor: designTokens\.color\.scrim/);
+  assert.doesNotMatch(surfaceSource, /#[0-9a-fA-F]{3,8}|rgba?\(/);
   assert.match(surfaceSource, /if \(result\.record && collection\?\.canRecord && !recorded\)/);
   assert.match(surfaceSource, /collectionConfirmationState\(method, confirmed, recorded\)/);
   assert.match(surfaceSource, /t\('deliveryVerificationExample'\)/);

@@ -11,8 +11,9 @@ test('keeps the fulfillment controls in an independently mountable surface', asy
   assert.match(source, /t\('problemReport'\)/);
   assert.match(source, /t\('collectionExampleOnly'\)/);
   assert.match(source, /createDialogController/);
-  assert.match(source, /collectionDialog\.open\(\)/);
-  assert.match(source, /collectionDialog\.close\(/);
+  assert.match(source, /focusables: \[collectionCancel, collectionConfirm\]/);
+  assert.match(source, /onKeyDown=/);
+  assert.match(source, /createOverlayManager/);
 });
 
 test('mounts the independent fulfillment surface from the trip detail', async () => {

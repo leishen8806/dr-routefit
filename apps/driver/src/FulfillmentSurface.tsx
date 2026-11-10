@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { createDialogController, designTokens, nativeDialogA11yProps, nativeToastA11yProps } from '@routefit/shared';
+import { Modal, Pressable, StyleSheet, Text, TextInput, View, type PressableInstance } from 'react-native';
+import { createDialogController, createOverlayManager, createToastState, designTokens, detailDrawerState, dismissToast, enqueueToast, nativeDialogA11yProps, nativeToastA11yProps } from '@routefit/shared';
 
 import type { DriverLanguage } from './driver-api';
-import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentSections, offlineNotice, problemReportState, undeliveredReasonState } from './fulfillment.mjs';
+import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentSections, fulfillmentStatusPresentation, offlineNotice, problemReportState, undeliveredReasonState } from './fulfillment.mjs';
 import { text } from './messages';
 
 export type FulfillmentSurfaceProps = {
@@ -23,16 +23,32 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
   const [confirmed, setConfirmed] = useState(false);
   const [recorded, setRecorded] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [toastState, setToastState] = useState(() => createToastState());
+  const collectionTriggerRef = useRef<PressableInstance | null>(null);
+  const collectionCancelRef = useRef<PressableInstance | null>(null);
+  const collectionConfirmRef = useRef<PressableInstance | null>(null);
+  const collectionContainerRef = useRef<PressableInstance | null>(null);
+  const collectionTrigger = useRef({ focus: () => collectionTriggerRef.current?.focus() }).current;
+  const collectionCancel = useRef({ focus: () => collectionCancelRef.current?.focus() }).current;
+  const collectionConfirm = useRef({ focus: () => collectionConfirmRef.current?.focus() }).current;
+  const collectionContainer = useRef({ focus: () => collectionContainerRef.current?.focus() }).current;
+  const overlayManagerRef = useRef(createOverlayManager());
   const collectionDialogRef = useRef<ReturnType<typeof createDialogController> | null>(null);
   if (!collectionDialogRef.current) {
     collectionDialogRef.current = createDialogController({
       titleId: 'collection-confirmation-title',
+      trigger: collectionTrigger,
+      focusables: [collectionCancel, collectionConfirm],
+      container: collectionContainer,
       onCancel: () => setDialogOpen(false),
     });
   }
   const collectionDialog = collectionDialogRef.current;
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
   const sections = fulfillmentSections(stage);
+  const status = fulfillmentStatusPresentation(stage, language);
+  const drawer = detailDrawerState(drawerVisible ? status : null);
   const collection = method ? collectionConfirmationState(method, confirmed, recorded) : null;
   const delivery = deliverySubmissionState({ scanCode: deliveryScanCode, locationVerified: locationMarked, evidenceReady: false });
   const undelivered = undeliveredReasonState(undeliveredReason);
@@ -41,7 +57,7 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
 
   function closeCollection(action: 'cancel' | 'escape' | 'confirm') {
     const result = collectionDialogResult(action);
-    collectionDialog.close(action === 'confirm' ? 'replaced' : action);
+    overlayManagerRef.current.closeActive();
     setDialogOpen(false);
     if (result.record && collection?.canRecord && !recorded) {
       setRecorded(true);
@@ -50,13 +66,40 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
   }
 
   function openCollectionDialog() {
-    collectionDialog.open();
     setDialogOpen(true);
+  }
+
+  function handleDialogKeyDown(event: { nativeEvent: { key?: string; shiftKey?: boolean }; preventDefault?: () => void }, target: { focus: () => void }) {
+    collectionDialog.onKeyDown({
+      key: event.nativeEvent.key ?? '',
+      shiftKey: Boolean(event.nativeEvent.shiftKey),
+      target,
+      preventDefault: () => event.preventDefault?.(),
+    });
+  }
+
+  function recordProblem() {
+    setProblemRecorded(true);
+    setToastState((current) => enqueueToast(current, { id: 'problem-recorded', message: t('problemRecorded') }));
   }
 
   return (
     <View style={styles.surface}>
       {offlineState.visible ? <Text {...nativeToastA11yProps()} accessibilityRole="alert" style={styles.notice}>{t('offlineNotice')}</Text> : null}
+      <View style={styles.panel}>
+        <Text accessibilityRole="header" style={styles.title}>{status.label}</Text>
+        <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
+        <Pressable accessibilityRole="button" onPress={() => setDrawerVisible((value) => !value)} style={styles.secondaryButton}>
+          <Text>{t('assignmentDetails')}</Text>
+        </Pressable>
+        {drawer.open && drawer.record ? <View style={styles.drawer}><Text style={styles.label}>{drawer.record.label}</Text></View> : null}
+      </View>
+      {sections.includes('warehouse') ? (
+        <View style={styles.panel}>
+          <Text accessibilityRole="header" style={styles.title}>{status.label}</Text>
+          <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
+        </View>
+      ) : null}
       {sections.includes('load_scan') ? (
         <View style={styles.panel}>
           <Text style={styles.title}>{t('loadScan')}</Text>
@@ -79,7 +122,7 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
           {!undelivered.canSubmit ? <Text style={styles.caption}>{t('undeliveredReasonMissing')}</Text> : null}
           <Text style={styles.label}>{t('problemReport')}</Text>
           <TextInput accessibilityLabel={t('problemReport')} onChangeText={(value) => { setProblemSummary(value); setProblemRecorded(false); }} placeholder={t('problemReportPlaceholder')} style={styles.input} value={problemSummary} />
-          <Pressable accessibilityRole="button" disabled={!problem.canSubmit || problemRecorded} onPress={() => setProblemRecorded(true)} style={styles.secondaryButton}>
+          <Pressable accessibilityRole="button" disabled={!problem.canSubmit || problemRecorded} onPress={recordProblem} style={styles.secondaryButton}>
             <Text>{t('recordProblemExample')}</Text>
           </Pressable>
           <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
@@ -97,20 +140,27 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
           ))}
           {collection ? <>
             <Pressable accessibilityRole="button" onPress={() => setConfirmed((value) => !value)} style={styles.secondaryButton}><Text>{confirmed ? t('collectionConfirmed') : t('collectionConfirm')}</Text></Pressable>
-            <Pressable accessibilityRole="button" disabled={!collection.canRecord} onPress={openCollectionDialog} style={styles.button}><Text style={styles.buttonText}>{t('collectionRecord')}</Text></Pressable>
+            <Pressable accessibilityRole="button" disabled={!collection.canRecord} onPress={openCollectionDialog} ref={collectionTriggerRef} style={styles.button}><Text style={styles.buttonText}>{t('collectionRecord')}</Text></Pressable>
           </> : null}
           {recorded ? <Text style={styles.notice}>{t('collectionRecorded')}</Text> : null}
         </View>
       ) : null}
-      <Modal onRequestClose={() => closeCollection('escape')} transparent visible={dialogOpen}>
-        <View {...nativeDialogA11yProps(t('collectionConfirm'))} style={styles.backdrop}>
-          <View style={styles.dialog}>
-            <Text style={styles.title}>{t('collectionConfirm')}</Text>
-            <Text style={styles.caption}>{t('collectionExampleOnly')}</Text>
-            <Pressable accessibilityRole="button" onPress={() => closeCollection('cancel')} style={styles.secondaryButton}><Text>{t('collectionCancel')}</Text></Pressable>
-            <Pressable accessibilityRole="button" onPress={() => closeCollection('confirm')} style={styles.button}><Text style={styles.buttonText}>{t('collectionRecord')}</Text></Pressable>
-          </View>
+      {sections.includes('delivery_proof') ? (
+        <View style={styles.panel}>
+          <Text accessibilityRole="header" style={styles.title}>{status.label}</Text>
+          <Text style={styles.caption}>{t('fulfillmentFrontendExample')}</Text>
         </View>
+      ) : null}
+      {toastState.active ? <Pressable {...nativeToastA11yProps()} accessibilityRole="alert" onPress={() => setToastState((current) => dismissToast(current))}><Text style={styles.notice}>{toastState.active.message}</Text></Pressable> : null}
+      <Modal onRequestClose={() => closeCollection('escape')} onShow={() => overlayManagerRef.current.open(collectionDialog)} transparent visible={dialogOpen}>
+        <Pressable {...nativeDialogA11yProps(t('collectionConfirm'))} onKeyDown={(event) => handleDialogKeyDown(event, collectionContainer)} ref={collectionContainerRef} style={styles.backdrop}>
+          <View style={styles.dialog}>
+            <Text accessibilityRole="header" nativeID="collection-confirmation-title" style={styles.title}>{t('collectionConfirm')}</Text>
+            <Text style={styles.caption}>{t('collectionExampleOnly')}</Text>
+            <Pressable accessibilityRole="button" onKeyDown={(event) => handleDialogKeyDown(event, collectionCancel)} onPress={() => closeCollection('cancel')} ref={collectionCancelRef} style={styles.secondaryButton}><Text>{t('collectionCancel')}</Text></Pressable>
+            <Pressable accessibilityRole="button" onKeyDown={(event) => handleDialogKeyDown(event, collectionConfirm)} onPress={() => closeCollection('confirm')} ref={collectionConfirmRef} style={styles.button}><Text style={styles.buttonText}>{t('collectionRecord')}</Text></Pressable>
+          </View>
+        </Pressable>
       </Modal>
     </View>
   );
@@ -119,7 +169,7 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
 const styles = StyleSheet.create({
   surface: { gap: designTokens.space.x4 },
   panel: { backgroundColor: designTokens.color.surface, borderColor: designTokens.color.line, borderRadius: designTokens.radius.large, borderWidth: 1, gap: designTokens.space.x3, padding: designTokens.space.x4 },
-  title: { color: designTokens.color.navy, fontSize: designTokens.type.size.title, fontWeight: '700' },
+  title: { color: designTokens.color.navy, fontSize: designTokens.type.size.lead, fontWeight: '700' },
   label: { color: designTokens.color.navy, fontSize: designTokens.type.size.body, fontWeight: '600' },
   caption: { color: designTokens.color.navy, fontSize: designTokens.type.size.small },
   notice: { color: designTokens.color.navy, fontSize: designTokens.type.size.body },
@@ -127,6 +177,7 @@ const styles = StyleSheet.create({
   secondaryButton: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.medium, borderWidth: 1, padding: designTokens.space.x3 },
   button: { backgroundColor: designTokens.color.navy, borderRadius: designTokens.radius.medium, padding: designTokens.space.x3 },
   buttonText: { color: designTokens.color.surface },
-  backdrop: { alignItems: 'center', backgroundColor: designTokens.color.navy, flex: 1, justifyContent: 'center', padding: designTokens.space.x4 },
+  backdrop: { alignItems: 'center', backgroundColor: designTokens.color.scrim, flex: 1, justifyContent: 'center', padding: designTokens.space.x4 },
   dialog: { backgroundColor: designTokens.color.surface, borderRadius: designTokens.radius.large, gap: designTokens.space.x3, padding: designTokens.space.x4, width: '100%' },
+  drawer: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.medium, borderWidth: 1, padding: designTokens.space.x3 },
 });

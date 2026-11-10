@@ -1,6 +1,7 @@
 export const designTokens = {
   color: {
     navy: '#0B2545',
+    scrim: 'rgba(11, 37, 69, 0.55)',
     navyRaised: '#173A61',
     teal: '#13C29B',
     amber: '#F5A623',

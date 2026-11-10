@@ -9,6 +9,7 @@ import {
   deliverySubmissionState,
   fulfillmentStep,
   fulfillmentSections,
+  fulfillmentSurfacePlan,
   fulfillmentStatusPresentation,
   offlineNotice,
   problemReportState,
@@ -92,6 +93,23 @@ test('requires a non-empty problem report summary', () => {
 test('exposes the correct fulfillment page sections for delivery work', () => {
   assert.deepEqual(fulfillmentSections('pickup_pending'), ['warehouse', 'load_scan', 'offline']);
   assert.deepEqual(fulfillmentSections('in_transit'), ['delivery', 'delivery_scan', 'location_check', 'collection', 'problem_report', 'offline']);
+});
+
+test('creates a visible fulfillment plan for every persisted stage', () => {
+  assert.deepEqual(fulfillmentSurfacePlan('none', 'zh-Hans'), {
+    status: { step: 'warehouse', label: '前往仓库' },
+    panels: ['warehouse'],
+  });
+  assert.deepEqual(fulfillmentSurfacePlan('pickup_pending', 'en'), {
+    status: { step: 'load_scan', label: 'Load scan' },
+    panels: ['warehouse', 'load_scan'],
+  });
+  assert.deepEqual(fulfillmentSurfacePlan('picked_up', 'en').panels, ['delivery', 'collection']);
+  assert.deepEqual(fulfillmentSurfacePlan('in_transit', 'en').panels, ['delivery', 'collection']);
+  assert.deepEqual(fulfillmentSurfacePlan('delivery_recorded', 'en'), {
+    status: { step: 'delivery_proof', label: 'Delivery scan' },
+    panels: ['delivery_proof'],
+  });
 });
 
 test('provides a localized fulfillment status for the driver detail screen', () => {
