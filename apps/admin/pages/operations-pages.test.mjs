@@ -18,6 +18,18 @@ test('operations pages expose all Frontend1-owned admin areas', () => {
   );
 });
 
+test('operations pages accept configured page data in place of demo values', () => {
+  const configuredCapacity = {
+    ...getOperationsPage('capacity'),
+    rows: [['Configured driver', 'driver', 'online', 'none', 'example KPI']],
+  };
+
+  assert.equal(
+    getOperationsPage('capacity', { capacity: configuredCapacity }),
+    configuredCapacity,
+  );
+});
+
 test('order view renders an accessible sample-data table and marks actions as frontend-only', () => {
   const markup = renderOperationsPage('orders');
 

@@ -57,8 +57,8 @@ const pages = {
   },
 };
 
-export function getOperationsPage(id) {
-  return pages[id] ?? null;
+export function getOperationsPage(id, configuredPages) {
+  return configuredPages?.[id] ?? pages[id] ?? null;
 }
 
 export function getOperationsRecord(id, index) {
