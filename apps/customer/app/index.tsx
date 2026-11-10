@@ -1,11 +1,12 @@
 import { Link, Stack } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { designTokens } from '@routefit/shared';
 import { CopyKey, Language, languageOptions } from '../src/copy';
 import { useLanguage } from '../src/LanguageContext';
 import { useRuntime } from '../src/RuntimeContext';
+import { createCustomerExperience } from '../src/customerExperience.mjs';
 
 type Tab = 'send' | 'orders' | 'messages' | 'profile';
 
@@ -45,9 +46,14 @@ function TabIcon({ tab, selected }: { tab: Tab; selected: boolean }) {
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<Tab>('send');
+  const [sendMode, setSendMode] = useState<'single' | 'bulk'>('single');
+  const [promotionVisible, setPromotionVisible] = useState(true);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const runtime = useRuntime();
   const { width } = useWindowDimensions();
+  const experience = useMemo(() => createCustomerExperience(), []);
+  const overview = experience.getOverview();
   const compact = width < 720;
   const activeCopy = emptyCopy[activeTab];
   const face = { fontFamily: fontFamily[language] };
@@ -101,10 +107,51 @@ export default function HomePage() {
 
         <Text style={[styles.reviewNote, face]}>{t('reviewPending')}</Text>
 
+        {promotionVisible && overview.isExample ? (
+          <View accessibilityLiveRegion="polite" style={styles.promotion} testID="example-promotion">
+            <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+            <View style={styles.promotionCopy}>
+              <Text style={[styles.promotionTitle, face]}>{t('promotion')}</Text>
+              <Text style={[styles.promotionBody, face]}>{t('intro')}</Text>
+            </View>
+            <Pressable accessibilityLabel={t('back')} onPress={() => setPromotionVisible(false)} style={styles.dismissButton} testID="dismiss-promotion">
+              <Text style={[styles.dismissText, face]}>×</Text>
+            </Pressable>
+          </View>
+        ) : null}
+
         <View accessibilityLiveRegion="polite" style={[styles.emptyPanel, { backgroundColor: runtime.surfaceColor }]} testID="empty-panel">
           <View style={styles.emptyRule} />
           <Text style={[styles.emptyTitle, face]}>{t(activeCopy.title)}</Text>
           <Text style={[styles.emptyBody, face]}>{t(activeCopy.body)}</Text>
+          {activeTab === 'send' ? (
+            <>
+              <View style={styles.choiceRow}>
+                {(['single', 'bulk'] as const).map((mode) => (
+                  <Pressable key={mode} onPress={() => setSendMode(mode)} style={[styles.choiceButton, sendMode === mode && styles.choiceButtonActive]} testID={`send-mode-${mode}`}>
+                    <Text style={[styles.choiceText, face, sendMode === mode && styles.choiceTextActive]}>{t(mode === 'single' ? 'singleDelivery' : 'bulkDelivery')}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <View style={styles.flowSummary} testID="send-flow-summary">
+                <Text style={[styles.flowText, face]}>{t('quote')}</Text>
+                <Text style={[styles.flowText, face]}>{t('payment')}</Text>
+                <Text style={[styles.flowText, face]}>{t('cod')}</Text>
+              </View>
+              <Pressable accessibilityRole="button" onPress={() => setPaymentConfirmed(true)} style={styles.confirmButton} testID="confirm-example-payment">
+                <Text style={[styles.confirmText, face]}>{paymentConfirmed ? t('payment') : t('confirm')}</Text>
+              </Pressable>
+            </>
+          ) : null}
+          {activeTab === 'orders' ? (
+            <View style={styles.flowSummary} testID="example-order">
+              <Text style={[styles.flowText, face]}>{t('example')}</Text>
+              <Text style={[styles.flowText, face]}>{t('quote')}</Text>
+              <Text style={[styles.flowText, face]}>{t('cod')}</Text>
+            </View>
+          ) : null}
+          {activeTab === 'messages' ? <Text style={[styles.flowText, face]} testID="example-message">{t('example')}</Text> : null}
+          {activeTab === 'profile' ? <Text style={[styles.flowText, face]} testID="profile-example">{t('example')}</Text> : null}
           <Link accessibilityRole="link" href="/track" style={[styles.trackLink, face]} testID="track-link">
             {t('trackLink')} →
           </Link>
@@ -162,10 +209,27 @@ const styles = StyleSheet.create({
   routeVehicle: { backgroundColor: designTokens.color.amber, height: 22, left: '43%', position: 'absolute', top: 28, width: 38 },
   routeVehicleCab: { backgroundColor: '#FFD17A', height: 14, position: 'absolute', right: -10, top: 8, width: 12 },
   reviewNote: { color: designTokens.color.muted, fontSize: 13, lineHeight: 22, marginTop: designTokens.space.x3 },
+  promotion: { alignItems: 'center', backgroundColor: '#FFF4DA', borderColor: designTokens.color.amber, borderRadius: designTokens.radius.medium, borderWidth: 1, flexDirection: 'row', gap: designTokens.space.x3, marginTop: designTokens.space.x6, padding: designTokens.space.x4 },
+  exampleBadge: { backgroundColor: designTokens.color.amber, borderRadius: 999, paddingHorizontal: designTokens.space.x2, paddingVertical: 3 },
+  exampleBadgeText: { color: designTokens.color.navy, fontSize: 12, fontWeight: '600' },
+  promotionCopy: { flex: 1 },
+  promotionTitle: { color: designTokens.color.ink, fontSize: 16, fontWeight: '600' },
+  promotionBody: { color: designTokens.color.muted, fontSize: 13, lineHeight: 20, marginTop: 2 },
+  dismissButton: { alignItems: 'center', justifyContent: 'center', minHeight: 44, minWidth: 44 },
+  dismissText: { color: designTokens.color.navy, fontSize: 16, fontWeight: '600' },
   emptyPanel: { borderColor: designTokens.color.line, borderLeftColor: designTokens.color.teal, borderLeftWidth: 4, borderRadius: designTokens.radius.medium, borderWidth: 1, marginTop: designTokens.space.x8, minHeight: 220, padding: designTokens.space.x8 },
   emptyRule: { backgroundColor: designTokens.color.amber, height: 3, marginBottom: designTokens.space.x6, width: 48 },
   emptyTitle: { color: designTokens.color.ink, fontSize: 22, fontWeight: '600', lineHeight: 32 },
   emptyBody: { color: designTokens.color.muted, fontSize: 16, lineHeight: 27, marginTop: designTokens.space.x2, maxWidth: 600 },
+  choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, marginTop: designTokens.space.x6 },
+  choiceButton: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, justifyContent: 'center', minHeight: 44, paddingHorizontal: designTokens.space.x4 },
+  choiceButtonActive: { backgroundColor: '#E9F7F3', borderColor: designTokens.color.teal },
+  choiceText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500' },
+  choiceTextActive: { fontWeight: '600' },
+  flowSummary: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, marginTop: designTokens.space.x6 },
+  flowText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
+  confirmButton: { alignItems: 'center', alignSelf: 'flex-start', backgroundColor: designTokens.color.navy, borderRadius: designTokens.radius.small, justifyContent: 'center', marginTop: designTokens.space.x6, minHeight: 44, paddingHorizontal: designTokens.space.x5 },
+  confirmText: { color: designTokens.color.surface, fontSize: 14, fontWeight: '600' },
   trackLink: { color: designTokens.color.navyRaised, fontSize: 15, fontWeight: '600', marginTop: designTokens.space.x6, paddingVertical: designTokens.space.x2 },
   tabBar: { alignSelf: 'center', borderColor: designTokens.color.line, borderTopWidth: 1, bottom: 0, flexDirection: 'row', left: 0, maxWidth: 1120, position: 'absolute', right: 0 },
   tab: { alignItems: 'center', borderTopColor: 'transparent', borderTopWidth: 3, flex: 1, justifyContent: 'center', minHeight: 76, paddingHorizontal: designTokens.space.x2, paddingVertical: designTokens.space.x2 },

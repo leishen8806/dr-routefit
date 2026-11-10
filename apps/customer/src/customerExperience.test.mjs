@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { createCustomerExperience } from './customerExperience.mjs';
+
+test('provides an example-only customer journey without a real payment action', () => {
+  const experience = createCustomerExperience();
+  const overview = experience.getOverview();
+
+  assert.equal(overview.isExample, true);
+  assert.equal(overview.homePopup.kind, 'example');
+  assert.equal(overview.startupAd.kind, 'example');
+  assert.equal(overview.sendModes.single, true);
+  assert.equal(overview.sendModes.bulk, true);
+  assert.equal(overview.order.cod.amountMinor, 125000n);
+  assert.equal(overview.order.payment.status, 'confirmation_required');
+  assert.equal(overview.order.payment.action, 'frontend_only');
+  assert.equal(overview.order.quote.deliveryFeeMinor, 85000n);
+  assert.equal(overview.order.quote.insuranceFeeMinor, 0n);
+  assert.equal(overview.messages.length > 0, true);
+});
+
+test('keeps recipient tracking limited to synthetic order information', () => {
+  const experience = createCustomerExperience();
+  const tracking = experience.findRecipientTracking('EXAMPLE-CUSTOMER-001');
+
+  assert.equal(tracking.isExample, true);
+  assert.equal(tracking.orderId, 'EXAMPLE-CUSTOMER-001');
+  assert.equal(tracking.stops.length, 3);
+  assert.equal(tracking.recipient.phoneMasked, '*** *** 321');
+  assert.equal(experience.findRecipientTracking('unknown'), null);
+});
