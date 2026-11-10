@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {backend1Handlers,createBackend1Handlers} from '../application/backend1-handlers.mjs';
-import {createCouponBatch,listCoupons} from '../adapters/backend1.mjs';
+import {createCouponBatch,listCoupons,listMerchantSkuDimensions} from '../adapters/backend1.mjs';
 
 test('Backend1 handlers pass authenticated context and validated input to their repository boundary', async () => {
  const calls=[];
@@ -47,6 +47,18 @@ test('coupon list repository scopes results to the company and maps issued coupo
  ]});
  assert.match(calls[0].sql,/WHERE company_id=\$1/);
  assert.deepEqual(calls[0].params,['00000000-0000-0000-0000-000000000001']);
+});
+
+test('merchant SKU dimension list scopes the merchant and projects chargeable weight', async () => {
+ const calls=[];
+ const client={query:async(sql,params)=>{
+  calls.push({sql,params});
+  return {rows:[{id:'00000000-0000-0000-0000-000000000013',length_cm:400,width_cm:20,height_cm:20,weight_grams:18000}]};
+ }};
+ const result=await listMerchantSkuDimensions({client,companyId:'00000000-0000-0000-0000-000000000001',merchantId:'00000000-0000-0000-0000-000000000002'});
+ assert.deepEqual(result,{items:[{id:'00000000-0000-0000-0000-000000000013',chargeableWeightGrams:27000,exclusiveVehicleOnly:true}]});
+ assert.match(calls[0].sql,/WHERE company_id=\$1 AND merchant_id=\$2/);
+ assert.deepEqual(calls[0].params,['00000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000002']);
 });
 
 test('default Backend1 coupon batch handler uses the module repository', async () => {

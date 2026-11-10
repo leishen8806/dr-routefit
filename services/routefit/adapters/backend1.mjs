@@ -17,3 +17,14 @@ export async function listCoupons({client,companyId}){
   ORDER BY id`,[companyId]);
  return {items:result.rows.map(row=>({id:row.id,state:row.state==='ISSUED'?'AVAILABLE':row.state}))};
 }
+
+export async function listMerchantSkuDimensions({client,companyId,merchantId}){
+ const result=await client.query(`SELECT id,length_cm,width_cm,height_cm,weight_grams
+  FROM party.sku_dimension
+  WHERE company_id=$1 AND merchant_id=$2
+  ORDER BY id`,[companyId,merchantId]);
+ return {items:result.rows.map(row=>{
+  const volumetricWeightGrams=Math.ceil((Number(row.length_cm)*Number(row.width_cm)*Number(row.height_cm))/6000)*1000;
+  return {id:row.id,chargeableWeightGrams:Math.max(Number(row.weight_grams),volumetricWeightGrams),exclusiveVehicleOnly:Number(row.length_cm)>300};
+ })};
+}

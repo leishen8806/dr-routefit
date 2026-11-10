@@ -1,5 +1,5 @@
 import {ApiError} from '../domain/errors.mjs';
-import {createCouponBatch,listCoupons} from '../adapters/backend1.mjs';
+import {createCouponBatch,listCoupons,listMerchantSkuDimensions} from '../adapters/backend1.mjs';
 
 const definitions={
  createRouteQuote:{status:201},
@@ -28,4 +28,4 @@ export function createBackend1Handlers(repositories){
  }]));
 }
 
-export const backend1Handlers=createBackend1Handlers({createCouponBatch,listCoupons});
+export const backend1Handlers=createBackend1Handlers({createCouponBatch,listCoupons,listMerchantSkuDimensions});
