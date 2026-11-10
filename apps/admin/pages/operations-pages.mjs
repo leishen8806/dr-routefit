@@ -75,8 +75,10 @@ export function getOperationsRecord(id, index) {
 export function reduceOperationsDrawer(state, action) {
   if (action?.type === 'close') return null;
   if (action?.type !== 'open') return state ?? null;
-  if (!getOperationsRecord(action.pageId, action.index)) return state ?? null;
-  return { pageId: action.pageId, index: action.index };
+  const index = Number(action.index);
+  if (!Number.isInteger(index) || index < 0) return state ?? null;
+  if (!getOperationsRecord(action.pageId, index)) return state ?? null;
+  return { pageId: action.pageId, index };
 }
 
 function escapeHtml(value) {

@@ -75,7 +75,12 @@ test('drawer state opens only for a valid record in its requested page', () => {
     reduceOperationsDrawer(null, { type: 'open', pageId: 'support', index: 0 }),
     { pageId: 'support', index: 0 },
   );
+  assert.deepEqual(
+    reduceOperationsDrawer(null, { type: 'open', pageId: 'support', index: '0' }),
+    { pageId: 'support', index: 0 },
+  );
   assert.equal(reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: 9 }), null);
+  assert.equal(reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: '1.5' }), null);
 });
 
 test('drawer state closes without retaining a previously selected record', () => {
