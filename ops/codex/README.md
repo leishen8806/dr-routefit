@@ -55,6 +55,7 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-057](tasks/RF-PM-057-driver-app-task-actions.md) | 司机 App 任务查看与接单／拒单（苏晨＋Codex，需人类批准） | feat | 中 | RF-PM-056 | IN_PROGRESS |
 | [RF-PM-058](tasks/RF-PM-058-driver-app-execution.md) | 司机 App 履约执行：交接签认、出发、离线持久化与补传（苏晨＋Codex，需人类批准） | feat | 高 | RF-PM-057 | IN_PROGRESS |
 | [RF-WEB-01](tasks/RF-WEB-01-website-foundation.md) | 官网批次 1：站点框架、三语切换、首页（苏晨＋Codex，需人类批准） | feat | 低 | 无 | DONE（#129 已合并；未部署） |
+| RF-WEB-02 | 根地址按浏览器语言跳转 | fix | 低 | RF-WEB-01 | IN_PROGRESS |
 | [RF-UI-01](tasks/RF-UI-01-unslop-all-surfaces.md) | 官网、Mini App／H5 与司机端去“AI 味”整改（苏晨＋Codex，需人类批准） | design+refactor | 中 | 阶段 3 依赖 RF-PM-059 | IN_PROGRESS（阶段 2：官网＋Mini App／H5） |
 | [RF-PM-062](tasks/RF-PM-062-one-codebase.md) | 一套代码覆盖司机 App、Telegram Mini App 和 H5（批次 2：共享包；苏晨＋Codex，需人类批准） | feat+refactor | 中 | #127、#128 已合并 | 批次 2 进行中 |
 | [RF-PM-060](tasks/RF-PM-060-driver-read-projections.md) | 司机端只读投影补齐：待签交接、出发就绪、开发夹具设备与当班（苏晨＋Codex，需人类批准） | feat | 中 | 无 | IN_REVIEW（#128） |

@@ -28,7 +28,7 @@ const canonical = new URL(pathname, Astro.site);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
     {languages.map((item) => <link rel="alternate" hreflang={item} href={new URL(localizedPath(item, pathname), Astro.site)} />)}
-    <link rel="alternate" hreflang="x-default" href={new URL(localizedPath('km', pathname), Astro.site)} />
+    <link rel="alternate" hreflang="x-default" href={new URL(localizedPath('en', pathname), Astro.site)} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -42,6 +42,6 @@ const canonical = new URL(pathname, Astro.site);
     <a class="skip-link" href="#main-content">{content[lang].nav.skip}</a>
     <Header {lang} {pathname} />
     <main id="main-content"><slot /></main>
-    <Footer {lang} />
+    <Footer {lang} showSlogan={pathname !== `/${lang}/`} />
   </body>
 </html>

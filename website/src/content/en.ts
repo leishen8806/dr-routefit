@@ -12,7 +12,7 @@ export const en: SiteCopy = {
     eyebrow: 'Phnom Penh and nearby · Warehousing and delivery',
     title: 'Match the vehicle. Match the route. Deliver on time.',
     body: 'RouteFit helps merchants move goods from warehouse to customer: choose a vehicle for the cargo, dispatch by route, and keep records for handover, transit and receipt.',
-    primary: 'Discuss a business partnership', secondary: 'I am a driver and want to join', note: 'The right vehicle. The right route. On time.',
+    primary: 'Discuss a business partnership', secondary: 'I am a driver and want to join', note: 'From warehouse to doorstep, every order delivered',
     route: ['Pickup', 'Vehicle', 'Delivery', 'Handover proof']
   },
   quick: [
@@ -38,7 +38,7 @@ export const en: SiteCopy = {
       { title: 'Receipt and proof', body: 'The recipient signs and photo evidence is kept, so you can check each item’s outcome.' }
     ]
   },
-  coverage: { eyebrow: 'Service area', title: 'Phnom Penh and nearby', body: 'Deliveries currently leave from a Phnom Penh warehouse and serve the city and nearby areas. Final availability depends on address validation when ordering; new areas will be updated here.', action: 'Ask whether my address is covered' },
+  coverage: { eyebrow: 'Service area', title: 'Phnom Penh and nearby', body: 'Deliveries currently leave from a Phnom Penh warehouse and serve the city and nearby areas. Final availability depends on address validation when ordering; new areas will be updated here.', action: 'Ask whether my address is covered', mapLabel: 'Service area: Phnom Penh and nearby' },
   audiences: [
     { eyebrow: 'Join RouteFit', title: 'Join RouteFit as a driver or fleet', body: 'Earn by completed delivery and settle on a regular cycle. Individual drivers and partner fleets can apply and start after approval.', action: 'How to join', href: '/drivers/' },
     { eyebrow: 'About us', title: 'Business and investment partnerships', body: 'We are building a warehousing and delivery dispatch platform in Cambodia. Warehouses, merchants, fleets and investors are welcome to contact us.', action: 'Share your interest', href: '/contact/' }
@@ -53,7 +53,7 @@ export const en: SiteCopy = {
     ]
   },
   footer: {
-    summary: 'Match the vehicle. Match the route. Deliver on time.', product: 'Services', company: 'Company', support: 'Support', legal: 'Legal', terms: 'Terms of service', privacy: 'Privacy policy', rights: 'All rights reserved.'
+    summary: 'From warehouse to doorstep, every order delivered', product: 'Services', company: 'Company', support: 'Support', legal: 'Legal', terms: 'Terms of service', privacy: 'Privacy policy', rights: 'All rights reserved.'
   },
   placeholder: {
     eyebrow: 'Page in progress', title: 'Coming soon', body: 'This page belongs to a later website batch and is not yet available.', back: 'Back to home',

@@ -8,6 +8,11 @@ const server = await startPreview();
 const browser = await chromium.launch();
 const evidence = process.env.EVIDENCE_DIR || path.join(os.tmpdir(), 'routefit-website-evidence');
 await mkdir(evidence, { recursive: true });
+const slogans = {
+  km: 'ពីឃ្លាំងដល់មាត់ទ្វារ គ្រប់ការបញ្ជាទិញដល់ដៃ',
+  en: 'From warehouse to doorstep, every order delivered',
+  zh: '从仓库到门口，每一单都送到',
+};
 
 try {
   for (const [lang, expected] of [['km', 'km'], ['en', 'en'], ['zh', 'zh']]) {
@@ -16,12 +21,21 @@ try {
     if (await page.locator('html').getAttribute('lang') !== expected) throw new Error(`${lang}: wrong html lang`);
     const hreflangs = await page.locator('link[rel="alternate"][hreflang]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('hreflang')));
     for (const required of ['km', 'en', 'zh', 'x-default']) if (!hreflangs.includes(required)) throw new Error(`${lang}: missing hreflang ${required}`);
+    const xDefault = await page.locator('link[rel="alternate"][hreflang="x-default"]').getAttribute('href');
+    if (!xDefault || new URL(xDefault).pathname !== '/en/') throw new Error(`${lang}: x-default does not point to English`);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     if (overflow) throw new Error(`${lang}: horizontal overflow at 390px`);
-    if (lang === 'km') {
-      const clipped = await page.evaluate(() => [...document.querySelectorAll('h1,h2,h3,p,a')].some((node) => node.scrollHeight > node.clientHeight + 2));
-      if (clipped) throw new Error('km: clipped copy');
-    }
+    const headingFailure = await page.locator('.section-heading h2').evaluateAll((nodes) => nodes.some((node) => {
+      const rect = node.getBoundingClientRect();
+      return node.scrollWidth > node.clientWidth + 1 || rect.left < -1 || rect.right > innerWidth + 1;
+    }));
+    if (headingFailure) throw new Error(`${lang}: section heading overflows or is clipped at 390px`);
+    if (await page.getByText(slogans[lang], { exact: true }).count() !== 1) throw new Error(`${lang}: slogan must appear exactly once`);
+    const mapRect = await page.locator('.coverage-map').evaluate((node) => {
+      const rect = node.getBoundingClientRect();
+      return { left: rect.left, right: rect.right, label: node.getAttribute('aria-label') };
+    });
+    if (mapRect.left < -1 || mapRect.right > 391 || !mapRect.label) throw new Error(`${lang}: coverage map overflows or lacks an accessible label`);
     await page.screenshot({ path: path.join(evidence, `website-${lang}-home-390.png`), fullPage: true });
     await page.goto(`${baseURL}/${lang}/pricing/`);
     await page.screenshot({ path: path.join(evidence, `website-${lang}-pricing-390.png`), fullPage: true });
@@ -37,6 +51,16 @@ try {
   }
   await wide.goto(`${baseURL}/zh/`);
   if (await wide.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error('zh: horizontal overflow at 1440px');
+  const valueHeading = wide.locator('.section-heading h2').filter({ hasText: '把三件事做对：车、路线、时间' });
+  const valueHeadingMetrics = await valueHeading.evaluate((node) => {
+    const lineHeight = Number.parseFloat(getComputedStyle(node).lineHeight);
+    return { height: node.getBoundingClientRect().height, lineHeight };
+  });
+  if (valueHeadingMetrics.height > valueHeadingMetrics.lineHeight + 1) throw new Error('zh: value section heading wraps at 1440px');
+  const labelBottoms = await wide.locator('.route-step strong').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().bottom));
+  if (Math.max(...labelBottoms) - Math.min(...labelBottoms) > 2) throw new Error('zh: route labels do not share a baseline');
+  if (/\bDR\b/.test(await wide.locator('.coverage-map').innerText())) throw new Error('zh: coverage map still shows the DR circle label');
+  if (await wide.locator('.route-mark').count() !== 1 || await wide.locator('.coverage-route-mark').count() !== 1) throw new Error('zh: route mark is missing');
   for (const [selector, label] of [['.route-track span:nth-child(2)', 'route midpoint'], ['.route-step-4 > span', 'handoff node']]) {
     const background = await wide.locator(selector).evaluate((node) => getComputedStyle(node).backgroundColor);
     if (background === 'transparent' || background === 'rgba(0, 0, 0, 0)') throw new Error(`zh: ${label} background is transparent`);
@@ -63,24 +87,53 @@ try {
   await wide.locator('a.language-link[lang="en"]').first().click();
   await wide.waitForURL('**/en/pricing/');
 
-  const redirect = await browser.newPage();
-  await redirect.addInitScript(() => Object.defineProperty(navigator, 'language', { get: () => 'en-US' }));
-  await redirect.goto(`${baseURL}/`);
-  await redirect.waitForURL('**/en/');
-  await redirect.evaluate(() => localStorage.setItem('routefit-language', 'zh'));
-  await redirect.goto(`${baseURL}/`);
-  await redirect.waitForURL('**/zh/');
+  for (const [locale, expected] of [['zh-CN', 'zh'], ['km-KH', 'km'], ['th-TH', 'en'], ['en-US', 'en']]) {
+    const context = await browser.newContext({ locale });
+    const redirect = await context.newPage();
+    await redirect.goto(`${baseURL}/?source=locale#proof`);
+    await redirect.waitForURL((url) => url.pathname === `/${expected}/` && url.search === '?source=locale' && url.hash === '#proof');
+    await context.close();
+  }
 
-  const blockedStorage = await browser.newPage();
+  const savedContext = await browser.newContext({ locale: 'km-KH' });
+  const savedRedirect = await savedContext.newPage();
+  await savedRedirect.goto(`${baseURL}/en/`);
+  await savedRedirect.evaluate(() => localStorage.setItem('routefit-language', 'zh'));
+  await savedRedirect.goto(`${baseURL}/?source=saved#handoff`);
+  await savedRedirect.waitForURL((url) => url.pathname === '/zh/' && url.search === '?source=saved' && url.hash === '#handoff');
+  await savedContext.close();
+
+  const blockedContext = await browser.newContext({ locale: 'km-KH' });
+  const blockedStorage = await blockedContext.newPage();
+  const storageErrors = [];
+  blockedStorage.on('pageerror', (error) => storageErrors.push(error.message));
   await blockedStorage.addInitScript(() => {
     Storage.prototype.getItem = () => { throw new Error('storage blocked'); };
     Storage.prototype.setItem = () => { throw new Error('storage blocked'); };
-    Object.defineProperty(navigator, 'language', { get: () => 'en-US' });
   });
   await blockedStorage.goto(`${baseURL}/`);
-  await blockedStorage.waitForURL('**/en/');
+  await blockedStorage.waitForURL('**/km/');
+  if (storageErrors.length) throw new Error(`storage blocked: ${storageErrors.join(', ')}`);
   await blockedStorage.locator('a.language-link[lang="zh"]').first().click();
   await blockedStorage.waitForURL('**/zh/');
+  await blockedContext.close();
+
+  const transitionContext = await browser.newContext({ locale: 'zh-CN', viewport: { width: 390, height: 844 } });
+  const transition = await transitionContext.newPage();
+  await transition.route('**/*', async (route) => {
+    const url = new URL(route.request().url());
+    if (url.origin !== baseURL || url.pathname !== '/') return route.continue();
+    const response = await route.fetch();
+    await route.fulfill({
+      response,
+      headers: { ...response.headers(), 'content-security-policy': "script-src 'none'" },
+    });
+  });
+  await transition.goto(`${baseURL}/`);
+  if (await transition.locator('html').getAttribute('lang') !== 'en') throw new Error('root: wrong html lang');
+  if (/(ខ្មែរ|English|中文)/.test(await transition.locator('body').innerText())) throw new Error('root: language links flashed during redirect');
+  await transition.screenshot({ path: path.join(evidence, 'website-root-redirect-transition.png') });
+  await transitionContext.close();
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await mobile.goto(`${baseURL}/zh/`);
@@ -92,7 +145,7 @@ try {
   const sitemapUrls = [...sitemap.matchAll(/<loc>/g)].length;
   if (sitemapUrls !== 3 || sitemap.includes('/pricing/')) throw new Error('sitemap includes unavailable pages');
 
-  console.log('BROWSER_CHECK=PASS LANGUAGES=3 VIEWPORTS=2 SITEMAP_URLS=3 STORAGE_FAILURES=2');
+  console.log('BROWSER_CHECK=PASS LANGUAGES=3 ROOT_LOCALES=4 VIEWPORTS=2 SITEMAP_URLS=3 STORAGE_FAILURES=2');
 } finally {
   await browser.close();
   await stopPreview(server);
