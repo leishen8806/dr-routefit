@@ -61,6 +61,17 @@ export function getOperationsPage(id) {
   return pages[id] ?? null;
 }
 
+export function getOperationsRecord(id, index) {
+  const page = getOperationsPage(id);
+  const row = page?.rows[index];
+  if (!page || !row) return null;
+  return {
+    pageId: page.id,
+    title: page.title,
+    fields: page.columns.map((column, fieldIndex) => [column, row[fieldIndex]]),
+  };
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -91,10 +102,10 @@ export function renderOperationsPage(id) {
 
 export function renderOperationsDetail(id, index) {
   const page = getOperationsPage(id);
-  const row = page?.rows[index];
-  if (!page || !row) return recordUnavailable();
+  const record = getOperationsRecord(id, index);
+  if (!page || !record) return recordUnavailable();
 
-  const fields = page.columns.map((column, fieldIndex) => `<div><dt>${escapeHtml(column)}</dt><dd>${escapeHtml(row[fieldIndex])}</dd></div>`).join('');
+  const fields = record.fields.map(([column, value]) => `<div><dt>${escapeHtml(column)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
   return `<aside role="dialog" aria-modal="true" aria-label="${page.title}详情">
   <header><h2>${page.title}详情</h2><button type="button" aria-label="关闭详情">关闭</button></header>
   <dl>${fields}</dl>

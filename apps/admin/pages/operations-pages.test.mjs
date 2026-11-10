@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { getOperationsPage, renderOperationsDetail, renderOperationsPage } from './operations-pages.mjs';
+import { getOperationsPage, getOperationsRecord, renderOperationsDetail, renderOperationsPage } from './operations-pages.mjs';
 
 test('operations pages expose all Frontend1-owned admin areas', () => {
   assert.deepEqual(
@@ -35,4 +35,22 @@ test('detail drawer keeps row context and labels its action as frontend-only', (
 test('detail drawer rejects a row outside the selected page instead of leaking a different record', () => {
   assert.match(renderOperationsDetail('orders', 9), /记录暂不可用/);
   assert.doesNotMatch(renderOperationsDetail('orders', 9), /CS-082/);
+});
+
+test('selected record keeps its page and field labels for a route-owned detail drawer', () => {
+  assert.deepEqual(getOperationsRecord('support', 0), {
+    pageId: 'support',
+    title: '客服与异常',
+    fields: [
+      ['工单', 'CS-082'],
+      ['关联订单', 'RF-240811-018'],
+      ['类型', '配送延迟'],
+      ['负责人', '待分配'],
+      ['SLA', '示例：30 分钟'],
+    ],
+  });
+});
+
+test('selected record returns null when the requested page row does not exist', () => {
+  assert.equal(getOperationsRecord('support', 3), null);
 });
