@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as Crypto from 'expo-crypto';
 import { useNetworkState } from 'expo-network';
 import { type ComponentRef, useEffect, useRef, useState } from 'react';
-import { designTokens } from '@routefit/shared';
+import { designTokens, nativeDialogA11yProps, nativeToastA11yProps } from '@routefit/shared';
 import {
   ActivityIndicator,
   AccessibilityInfo,
@@ -760,7 +760,7 @@ export default function App() {
 
             <View style={styles.offline}>
               <Text style={styles.sectionTitle}>{t('offlineEvents')}</Text>
-              {networkNotice.visible ? <Text accessibilityRole="alert" style={styles.notice}>{t('offlineNotice')}</Text> : null}
+              {networkNotice.visible ? <Text {...nativeToastA11yProps()} accessibilityRole="alert" style={styles.notice}>{t('offlineNotice')}</Text> : null}
               <Text style={styles.label}>{t('deviceId')}</Text>
               <TextInput
                 accessibilityLabel={t('deviceId')}
@@ -816,7 +816,7 @@ export default function App() {
         transparent
         visible={collectionDialogOpen}
       >
-        <View accessibilityViewIsModal style={styles.dialogBackdrop}>
+        <View {...nativeDialogA11yProps(t('collectionConfirm'))} style={styles.dialogBackdrop}>
           <View accessibilityLabel={t('collectionConfirm')} accessibilityRole="alert" style={styles.dialog}>
             <Text style={styles.sectionTitle}>{t('collectionConfirm')}</Text>
             <Text style={styles.caption}>{t('collectionExampleOnly')}</Text>

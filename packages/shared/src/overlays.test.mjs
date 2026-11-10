@@ -12,6 +12,8 @@ import {
   createDialogController,
   createOverlayManager,
   drawerA11yProps,
+  nativeDialogA11yProps,
+  nativeToastA11yProps,
   toastA11yProps,
 } from './overlays.ts';
 
@@ -54,6 +56,15 @@ test('exposes polite toast semantics and dialog semantics for the detail drawer'
     'aria-modal': true,
     'aria-labelledby': 'job-title',
     'aria-describedby': 'job-detail',
+  });
+});
+
+test('maps overlay accessibility semantics for React Native consumers', () => {
+  assert.deepEqual(nativeToastA11yProps(), { accessibilityLiveRegion: 'polite' });
+  assert.deepEqual(nativeDialogA11yProps('Confirm collection'), {
+    accessibilityLabel: 'Confirm collection',
+    accessibilityRole: 'alert',
+    accessibilityViewIsModal: true,
   });
 });
 

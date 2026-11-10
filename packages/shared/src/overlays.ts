@@ -69,6 +69,18 @@ export function toastA11yProps() {
   return { role: 'status', 'aria-live': 'polite' } as const;
 }
 
+export function nativeToastA11yProps() {
+  return { accessibilityLiveRegion: 'polite' } as const;
+}
+
+export function nativeDialogA11yProps(label: string) {
+  return {
+    accessibilityLabel: label,
+    accessibilityRole: 'alert',
+    accessibilityViewIsModal: true,
+  } as const;
+}
+
 export function drawerA11yProps(titleId: string, descriptionId?: string) {
   return dialogA11yProps(titleId, descriptionId);
 }
