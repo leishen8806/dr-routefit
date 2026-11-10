@@ -39,4 +39,3 @@ CREATE TABLE party.account_freeze (
  UNIQUE(company_id,id),
  FOREIGN KEY(company_id,principal_id) REFERENCES org.principal(company_id,id)
 );
-

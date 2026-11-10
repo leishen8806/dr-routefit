@@ -51,4 +51,3 @@ CREATE TABLE pricing.fx_rate (
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  UNIQUE(company_id,id), UNIQUE(company_id,version)
 );
-

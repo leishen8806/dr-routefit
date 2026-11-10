@@ -19,4 +19,3 @@ ALTER TABLE orders.draft
  ADD COLUMN payment_method text NULL CHECK(payment_method IN ('PREPAID','COD')),
  ADD COLUMN value_added_service_codes text[] NOT NULL DEFAULT ARRAY[]::text[] CHECK(value_added_service_codes <@ ARRAY['STAIRS','WAITING','INSURANCE','LONG_ITEM']),
  ADD COLUMN quote_expires_at timestamptz NULL;
-

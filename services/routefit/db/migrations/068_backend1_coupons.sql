@@ -48,4 +48,3 @@ CREATE TABLE marketing.risk_flag (
  FOREIGN KEY(company_id,order_id) REFERENCES orders.draft(company_id,id),
  CHECK(coupon_id IS NOT NULL OR order_id IS NOT NULL)
 );
-
