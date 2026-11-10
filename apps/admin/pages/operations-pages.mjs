@@ -72,6 +72,13 @@ export function getOperationsRecord(id, index) {
   };
 }
 
+export function reduceOperationsDrawer(state, action) {
+  if (action?.type === 'close') return null;
+  if (action?.type !== 'open') return state ?? null;
+  if (!getOperationsRecord(action.pageId, action.index)) return state ?? null;
+  return { pageId: action.pageId, index: action.index };
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',

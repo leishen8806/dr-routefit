@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { getOperationsPage, getOperationsRecord, renderOperationsDetail, renderOperationsPage } from './operations-pages.mjs';
+import {
+  getOperationsPage,
+  getOperationsRecord,
+  reduceOperationsDrawer,
+  renderOperationsDetail,
+  renderOperationsPage,
+} from './operations-pages.mjs';
 
 test('operations pages expose all Frontend1-owned admin areas', () => {
   assert.deepEqual(
@@ -53,4 +59,19 @@ test('selected record keeps its page and field labels for a route-owned detail d
 
 test('selected record returns null when the requested page row does not exist', () => {
   assert.equal(getOperationsRecord('support', 3), null);
+});
+
+test('drawer state opens only for a valid record in its requested page', () => {
+  assert.deepEqual(
+    reduceOperationsDrawer(null, { type: 'open', pageId: 'support', index: 0 }),
+    { pageId: 'support', index: 0 },
+  );
+  assert.equal(reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: 9 }), null);
+});
+
+test('drawer state closes without retaining a previously selected record', () => {
+  assert.equal(
+    reduceOperationsDrawer({ pageId: 'support', index: 0 }, { type: 'close' }),
+    null,
+  );
 });
