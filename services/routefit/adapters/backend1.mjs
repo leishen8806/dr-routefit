@@ -1,5 +1,6 @@
 import {randomUUID} from 'node:crypto';
-import {ApiError} from '../domain/errors.mjs';
+import {ApiError,ensure} from '../domain/errors.mjs';
+import {activateMerchantContract as activateContract} from '../domain/merchant-contracts.mjs';
 
 export async function createCouponBatch({client,companyId,idempotencyKey},{discountType,amountMinor,currency,budgetMinor,minimumSpendMinor=0}){
  const kind=discountType==='fixed'?'AMOUNT_OFF':'THRESHOLD_OFF';
@@ -38,5 +39,24 @@ export async function getMerchantContract({client,companyId,merchantId}){
   LIMIT 1`,[companyId,merchantId]);
  const row=result.rows[0];
  if(!row)throw new ApiError(404,'MERCHANT_CONTRACT_NOT_FOUND','Merchant contract was not found');
+ return {id:row.id,state:row.state,version:Number(row.version)};
+}
+
+export async function activateMerchantContract({client,companyId,merchantId,version}){
+ const current=await getMerchantContract({client,companyId,merchantId});
+ ensure(current.version===version,412,'VERSION_CONFLICT','Merchant contract version has changed');
+ const next=activateContract(current);
+ const result=await client.query(`WITH updated AS (
+  UPDATE party.merchant_contract
+  SET state=$4,version=version+1,updated_at=clock_timestamp()
+  WHERE company_id=$1 AND id=$2 AND merchant_id=$3 AND version=$5
+  RETURNING id,state,version
+ ), event AS (
+  INSERT INTO party.merchant_contract_event(id,company_id,contract_id,version,state)
+  SELECT $6,$1,id,version,state FROM updated
+ )
+ SELECT id,state,version FROM updated`,[companyId,current.id,merchantId,next.state,version,randomUUID()]);
+ const row=result.rows[0];
+ if(!row)throw new ApiError(412,'VERSION_CONFLICT','Merchant contract version has changed');
  return {id:row.id,state:row.state,version:Number(row.version)};
 }

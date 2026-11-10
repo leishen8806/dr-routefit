@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {backend1Handlers,createBackend1Handlers} from '../application/backend1-handlers.mjs';
-import {createCouponBatch,getMerchantContract,listCoupons,listMerchantSkuDimensions} from '../adapters/backend1.mjs';
+import {activateMerchantContract as activateMerchantContractRepository,createCouponBatch,getMerchantContract,listCoupons,listMerchantSkuDimensions} from '../adapters/backend1.mjs';
 
 test('Backend1 handlers pass authenticated context and validated input to their repository boundary', async () => {
  const calls=[];
@@ -84,4 +84,33 @@ test('default Backend1 coupon batch handler uses the module repository', async (
  const result=await backend1Handlers.createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001',idempotencyKey:'coupon-batch-1'},{code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-10T00:00:00Z',endsAt:'2026-11-11T00:00:00Z'});
  assert.equal(result.status,201);
  assert.equal(result.body.budgetMinor,1000);
+});
+
+test('merchant contract activation invokes the domain transition and appends its event', async () => {
+ const calls=[];
+ const client={query:async(sql,params)=>{
+  calls.push({sql,params});
+  if(calls.length===1)return {rows:[{id:'00000000-0000-0000-0000-000000000014',state:'DRAFT',version:'2'}]};
+  return {rows:[{id:'00000000-0000-0000-0000-000000000014',state:'ACTIVE',version:'3'}]};
+ }};
+ const result=await activateMerchantContractRepository({client,companyId:'00000000-0000-0000-0000-000000000001',merchantId:'00000000-0000-0000-0000-000000000002',version:2});
+ assert.deepEqual(result,{id:'00000000-0000-0000-0000-000000000014',state:'ACTIVE',version:3});
+ assert.match(calls[1].sql,/INSERT INTO party\.merchant_contract_event/);
+});
+
+test('merchant contract activation rejects a stale If-Match version before it writes', async () => {
+ const client={query:async()=>({rows:[{id:'00000000-0000-0000-0000-000000000014',state:'DRAFT',version:'3'}]})};
+ await assert.rejects(
+  ()=>activateMerchantContractRepository({client,companyId:'00000000-0000-0000-0000-000000000001',merchantId:'00000000-0000-0000-0000-000000000002',version:2}),
+  {code:'VERSION_CONFLICT'}
+ );
+});
+
+test('default Backend1 activation handler uses the contract transition repository', async () => {
+ const client={query:async(sql)=>{
+  if(sql.trimStart().startsWith('SELECT id,state,version'))return {rows:[{id:'00000000-0000-0000-0000-000000000014',state:'DRAFT',version:'2'}]};
+  return {rows:[{id:'00000000-0000-0000-0000-000000000014',state:'ACTIVE',version:'3'}]};
+ }};
+ const result=await backend1Handlers.activateMerchantContract({client,companyId:'00000000-0000-0000-0000-000000000001',merchantId:'00000000-0000-0000-0000-000000000002',version:2},{});
+ assert.deepEqual(result,{status:200,body:{id:'00000000-0000-0000-0000-000000000014',state:'ACTIVE',version:3}});
 });
