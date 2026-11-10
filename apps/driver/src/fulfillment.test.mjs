@@ -6,6 +6,7 @@ import {
   deliveryProofState,
   fulfillmentStep,
   fulfillmentSections,
+  fulfillmentStatusPresentation,
   offlineNotice,
   problemReportState,
   undeliveredReasonState,
@@ -46,4 +47,19 @@ test('requires a non-empty problem report summary', () => {
 test('exposes the correct fulfillment page sections for delivery work', () => {
   assert.deepEqual(fulfillmentSections('loading'), ['warehouse', 'load_scan', 'offline']);
   assert.deepEqual(fulfillmentSections('delivering'), ['delivery', 'delivery_scan', 'location_check', 'collection', 'problem_report', 'offline']);
+});
+
+test('provides a localized fulfillment status for the driver detail screen', () => {
+  assert.deepEqual(fulfillmentStatusPresentation('loading', 'zh-Hans'), {
+    step: 'load_scan',
+    label: '扫码装车',
+  });
+  assert.deepEqual(fulfillmentStatusPresentation('delivering', 'en'), {
+    step: 'delivery',
+    label: 'Delivering',
+  });
+  assert.deepEqual(fulfillmentStatusPresentation('delivered', 'km'), {
+    step: 'delivery_proof',
+    label: 'Delivery scan',
+  });
 });

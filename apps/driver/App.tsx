@@ -45,6 +45,7 @@ import {
 } from './src/driver-api';
 import { deleteDeliveryPhoto, deliveryPhotoBlob, captureDeliveryPhoto, type DeliveryPhoto } from './src/delivery-photo';
 import { deliveryConfirmationStep, packageSelection, uploadTicketForPhoto } from './src/delivery.mjs';
+import { fulfillmentStatusPresentation } from './src/fulfillment.mjs';
 import { errorText, languageOptions, text, type MessageKey } from './src/messages';
 import { openOfflineEventQueue } from './src/offline-queue.mjs';
 import { createOfflineQueueStore } from './src/offline-store';
@@ -388,6 +389,10 @@ export default function App() {
     && deliverySelection.deliveredPackageIds.length > 0
     && (deliverySelection.remainingPackageIds.length === 0 || Boolean(deliveryReason.trim()))
     && !deliveryOutcome;
+  const fulfillmentStatus = fulfillmentStatusPresentation(
+    order?.order.fulfillmentStage === 'in_transit' ? 'delivering' : 'to_warehouse',
+    language,
+  );
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -469,6 +474,7 @@ export default function App() {
 
             <Text style={styles.sectionTitle}>{t('orderDetails')}</Text>
             <Text>{t('order')} {order.order.orderNo}</Text>
+            <Text accessibilityLabel="Fulfillment status">{fulfillmentStatus.label}</Text>
             <Text style={styles.label}>{t('pickup')}</Text>
             <Text>{order.pickup.address}</Text>
             <Text>{t('contact')} {order.pickup.contactName}</Text>

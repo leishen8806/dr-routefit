@@ -5,8 +5,29 @@ const stepByStage = {
   delivered: 'delivery_proof',
 };
 
+const stepLabels = {
+  'zh-Hans': {
+    warehouse: '前往仓库',
+    load_scan: '扫码装车',
+    delivery: '配送中',
+    delivery_proof: '扫码送达',
+  },
+  en: {
+    warehouse: 'Heading to warehouse',
+    load_scan: 'Load scan',
+    delivery: 'Delivering',
+    delivery_proof: 'Delivery scan',
+  },
+};
+
 export function fulfillmentStep(stage) {
   return stepByStage[stage] ?? 'warehouse';
+}
+
+export function fulfillmentStatusPresentation(stage, language) {
+  const step = fulfillmentStep(stage);
+  const labels = stepLabels[language] ?? stepLabels.en;
+  return { step, label: labels[step] };
 }
 
 export function fulfillmentSections(stage) {
