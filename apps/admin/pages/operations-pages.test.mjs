@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
@@ -154,6 +155,26 @@ test('configured page exposes only valid rows for native screen rendering', () =
   ]);
 });
 
+test('valid native rows preserve their original index after a rejected leading row', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [
+        {},
+        ['CFG-002', 'Configured merchant', 'pending', 'review', 'example'],
+      ],
+    },
+  };
+
+  assert.deepEqual(getOperationsRows('orders', configuredPages), [
+    { index: 1, row: ['CFG-002', 'Configured merchant', 'pending', 'review', 'example'] },
+  ]);
+  assert.deepEqual(
+    getOperationsDrawerAction('orders', { action: 'open-detail', recordIndex: '1' }, configuredPages),
+    { type: 'open', pageId: 'orders', index: 1 },
+  );
+});
+
 test('order view renders an accessible sample-data table and marks actions as frontend-only', () => {
   const markup = renderOperationsPage('orders');
 
@@ -161,6 +182,19 @@ test('order view renders an accessible sample-data table and marks actions as fr
   assert.match(markup, /<table/);
   assert.match(markup, /示例/);
   assert.match(markup, /data-mode="frontend-only"/);
+});
+
+test('order view keeps its explicit sample-data and frontend-only notice', () => {
+  const markup = renderOperationsPage('orders');
+
+  assert.match(markup, /<p role="note">以下为演示数据（示例）；当前操作为纯前端，接入接口后替换。<\/p>/);
+});
+
+test('native drawer declares web dialog and modal semantics', async () => {
+  const nativePageSource = await readFile(new URL('./OperationsPage.tsx', import.meta.url), 'utf8');
+
+  assert.match(nativePageSource, /role: 'dialog'/);
+  assert.match(nativePageSource, /'aria-modal': true/);
 });
 
 test('each list row exposes a frontend-only detail trigger with its own record index', () => {

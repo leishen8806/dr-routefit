@@ -13,6 +13,8 @@ type OperationsPageProps = {
   configuredPages?: Record<string, unknown>;
 };
 
+const webModalProps = { role: 'dialog', 'aria-modal': true } as const;
+
 export function OperationsPage({ pageId, configuredPages }: OperationsPageProps) {
   const page = getOperationsPage(pageId, configuredPages);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -36,7 +38,7 @@ export function OperationsPage({ pageId, configuredPages }: OperationsPageProps)
       <Text style={styles.note}>以下均为示例数据；当前页面操作均为纯前端，接入接口后替换。</Text>
     </Panel>
     {selectedRecord && <Panel title={`${selectedRecord.title}详情`}>
-      <View accessibilityHint="演示数据（示例）；当前操作为纯前端。" accessibilityLabel={drawerAccessibility?.accessibilityLabel} accessibilityRole="summary" accessibilityViewIsModal={drawerAccessibility?.isModal} style={styles.detail}>
+      <View {...webModalProps} accessibilityHint="演示数据（示例）；当前操作为纯前端。" accessibilityLabel={drawerAccessibility?.accessibilityLabel} accessibilityRole="summary" accessibilityViewIsModal={drawerAccessibility?.isModal} style={styles.detail}>
         {selectedRecord.fields.map(([label, value]: [string, string]) => <View key={label} style={styles.detailRow}><Text style={styles.detailLabel}>{label}</Text><Text style={styles.detailValue}>{value}</Text></View>)}
         <Pressable accessibilityLabel="关闭详情" accessibilityRole="button" onPress={() => setSelectedIndex(null)} style={styles.closeButton}><Text style={styles.closeButtonText}>关闭（纯前端）</Text></Pressable>
       </View>
