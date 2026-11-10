@@ -26,6 +26,13 @@ test('order view renders an accessible sample-data table and marks actions as fr
   assert.match(markup, /data-mode="frontend-only"/);
 });
 
+test('each list row exposes a frontend-only detail trigger with its own record index', () => {
+  const markup = renderOperationsPage('orders');
+
+  assert.match(markup, /data-action="open-detail" data-record-index="0"/);
+  assert.match(markup, /data-action="open-detail" data-record-index="1"/);
+});
+
 test('unknown pages return a safe not-found panel rather than rendering another business area', () => {
   assert.match(renderOperationsPage('billing'), /页面暂不可用/);
   assert.doesNotMatch(renderOperationsPage('billing'), /财务/);

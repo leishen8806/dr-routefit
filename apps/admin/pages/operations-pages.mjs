@@ -97,13 +97,12 @@ export function renderOperationsPage(id) {
   const page = getOperationsPage(id);
   if (!page) return notFound();
 
-  const headings = page.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join('');
-  const rows = page.rows.map((row) => `<tr>${row.map((value) => `<td>${escapeHtml(value)}</td>`).join('')}</tr>`).join('');
+  const headings = `${page.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join('')}<th scope="col">操作</th>`;
+  const rows = page.rows.map((row, index) => `<tr>${row.map((value) => `<td>${escapeHtml(value)}</td>`).join('')}<td><button type="button" data-mode="frontend-only" data-action="open-detail" data-record-index="${index}">${escapeHtml(page.action)}</button></td></tr>`).join('');
   return `<section aria-labelledby="operations-page-title" data-page="${page.id ?? id}">
   <header><h1 id="operations-page-title">${page.title}</h1><p>${page.description}</p></header>
   <p role="note">以下为演示数据（示例）；当前操作为纯前端，接入接口后替换。</p>
   <table><thead><tr>${headings}</tr></thead><tbody>${rows}</tbody></table>
-  <button type="button" data-mode="frontend-only">${page.action}</button>
 </section>`;
 }
 
