@@ -9,9 +9,9 @@ const browser = await chromium.launch();
 const evidence = process.env.EVIDENCE_DIR || path.join(os.tmpdir(), 'routefit-website-evidence');
 await mkdir(evidence, { recursive: true });
 const slogans = {
-  km: 'ពីឃ្លាំងដល់មាត់ទ្វារ គ្រប់ការបញ្ជាទិញដល់ដៃ',
-  en: 'From warehouse to doorstep, every order delivered',
-  zh: '从仓库到门口，每一单都送到',
+  km: 'ការដឹកជញ្ជូនចម្ងាយចុងក្រោយនៅកម្ពុជា ដល់ដៃអ្នកទទួលផ្ទាល់',
+  en: "Cambodia's last mile, delivered to the right hands",
+  zh: '柬埔寨最后一公里，直达收件人',
 };
 
 try {

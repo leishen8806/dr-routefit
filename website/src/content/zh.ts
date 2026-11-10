@@ -14,7 +14,7 @@ export const zh: SiteCopy = {
     body: 'RouteFit 帮商家把货从仓库送到客户手里：按货物选车，按路线派单，交接、在途、签收每一步都有记录可查。',
     primary: '咨询企业合作',
     secondary: '我是司机，想加入',
-    note: '从仓库到门口，每一单都送到',
+    note: '柬埔寨最后一公里，直达收件人',
     route: ['取货点', '配送车辆', '送货点', '交接凭证']
   },
   quick: [
@@ -64,7 +64,7 @@ export const zh: SiteCopy = {
     ]
   },
   footer: {
-    summary: '从仓库到门口，每一单都送到',
+    summary: '柬埔寨最后一公里，直达收件人',
     product: '服务', company: '公司', support: '支持', legal: '法律',
     terms: '服务条款', privacy: '隐私政策', rights: '保留所有权利。'
   },
