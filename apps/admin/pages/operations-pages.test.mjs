@@ -94,10 +94,17 @@ test('drawer state closes without retaining a previously selected record', () =>
 test('drawer event mapping accepts only the rendered detail actions', () => {
   assert.deepEqual(
     getOperationsDrawerAction('support', { action: 'open-detail', recordIndex: '0' }),
-    { type: 'open', pageId: 'support', index: '0' },
+    { type: 'open', pageId: 'support', index: 0 },
   );
   assert.deepEqual(getOperationsDrawerAction('support', { action: 'close-detail' }), { type: 'close' });
   assert.equal(getOperationsDrawerAction('support', { action: 'delete-record', recordIndex: '0' }), null);
+});
+
+test('drawer event mapping rejects an open action with an invalid record index', () => {
+  assert.equal(
+    getOperationsDrawerAction('support', { action: 'open-detail', recordIndex: '1.5' }),
+    null,
+  );
 });
 
 test('screen renders a matching drawer but never leaks a drawer from another page', () => {

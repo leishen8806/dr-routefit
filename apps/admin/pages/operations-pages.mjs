@@ -75,7 +75,9 @@ export function getOperationsRecord(id, index) {
 export function getOperationsDrawerAction(pageId, dataset) {
   if (dataset?.action === 'close-detail') return { type: 'close' };
   if (dataset?.action === 'open-detail') {
-    return { type: 'open', pageId, index: dataset.recordIndex };
+    const index = Number(dataset.recordIndex);
+    if (!Number.isInteger(index) || index < 0 || !getOperationsRecord(pageId, index)) return null;
+    return { type: 'open', pageId, index };
   }
   return null;
 }
