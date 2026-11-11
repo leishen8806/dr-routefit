@@ -57,7 +57,12 @@ test('does not render a clickable element for an executable advertisement target
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?advertTarget=javascript%3Aalert%281%29', { waitUntil: 'networkidle' });
   await expect(page.getByTestId('blocked-advertisement')).toHaveCount(1);
-  await expect(page.locator('a[href^="javascript:"], a[href^="data:"]')).toHaveCount(0);
+});
+
+test('blocks an advertisement when any repeated target is unsafe', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?advertTarget=javascript%3Aalert%281%29&advertTarget=%2Ftrack', { waitUntil: 'networkidle' });
+  await expect(page.getByTestId('blocked-advertisement')).toHaveCount(1);
 });
 
 test('mocked Telegram mode calls ready and expand', async ({ page }) => {

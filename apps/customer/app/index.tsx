@@ -54,7 +54,8 @@ export default function HomePage() {
   const activeCopy = emptyCopy[activeTab];
   const face = { fontFamily: fontFamily[language] };
   const trackTarget = safeNavigationTarget('/track');
-  const unsafeAdvertisement = typeof advertTarget === 'string' && safeNavigationTarget(advertTarget) === null;
+  const advertisementTargets = Array.isArray(advertTarget) ? advertTarget : advertTarget ? [advertTarget] : [];
+  const unsafeAdvertisement = advertisementTargets.some((target) => safeNavigationTarget(target) === null);
 
   return (
     <View style={styles.page}>
@@ -111,9 +112,11 @@ export default function HomePage() {
           <View style={styles.emptyRule} />
           <Text style={[styles.emptyTitle, face]}>{t(activeCopy.title)}</Text>
           <Text style={[styles.emptyBody, face]}>{t(activeCopy.body)}</Text>
-          <Link accessibilityRole="link" href={trackTarget ?? '/'} style={[styles.trackLink, face]} testID="track-link">
-            {t('trackLink')} →
-          </Link>
+          {trackTarget ? (
+            <Link accessibilityRole="link" href={trackTarget} style={[styles.trackLink, face]} testID="track-link">
+              {t('trackLink')} →
+            </Link>
+          ) : null}
         </View>
       </ScrollView>
 
