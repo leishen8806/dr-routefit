@@ -27954,8 +27954,8 @@
       }
     },
     "/api/ops/v1/ad-campaigns/{campaignId}": {
-      "put": {
-        "operationId": "updateAdCampaign",
+      "patch": {
+        "operationId": "patchAdCampaign",
         "summary": "修改广告",
         "description": "修改广告。CMP-1326 R2 草案；权限标签与实现状态见 x- 扩展。",
         "tags": [
@@ -28462,8 +28462,8 @@
       }
     },
     "/api/ops/v1/roles/{roleId}": {
-      "put": {
-        "operationId": "updateRole",
+      "patch": {
+        "operationId": "patchRole",
         "summary": "修改角色权限（系统角色不可改）",
         "description": "修改角色权限（系统角色不可改）。CMP-1326 R2 草案；权限标签与实现状态见 x- 扩展。",
         "tags": [
@@ -28755,8 +28755,8 @@
       }
     },
     "/api/ops/v1/staff/{personId}": {
-      "put": {
-        "operationId": "updateStaffRoles",
+      "patch": {
+        "operationId": "patchStaffRoles",
         "summary": "修改员工角色",
         "description": "修改员工角色。CMP-1326 R2 草案；权限标签与实现状态见 x- 扩展。",
         "tags": [
