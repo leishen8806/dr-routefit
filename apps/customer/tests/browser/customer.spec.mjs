@@ -53,6 +53,13 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await expect(page.getByText('查件功能即将开放')).toBeVisible();
 });
 
+test('does not render a clickable element for an executable advertisement target', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?advertTarget=javascript%3Aalert%281%29', { waitUntil: 'networkidle' });
+  await expect(page.getByTestId('blocked-advertisement')).toBeVisible();
+  await expect(page.locator('a[href^="javascript:"], a[href^="data:"]')).toHaveCount(0);
+});
+
 test('mocked Telegram mode calls ready and expand', async ({ page }) => {
   await page.addInitScript(() => {
     window.__telegramCalls = [];

@@ -1,4 +1,4 @@
-import { Link, Stack } from 'expo-router';
+import { Link, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
@@ -6,6 +6,7 @@ import { designTokens } from '@routefit/shared';
 import { CopyKey, Language, languageOptions } from '../src/copy';
 import { useLanguage } from '../src/LanguageContext';
 import { useRuntime } from '../src/RuntimeContext';
+import { safeNavigationTarget } from '../src/renderSafety.mjs';
 
 type Tab = 'send' | 'orders' | 'messages' | 'profile';
 
@@ -47,10 +48,13 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<Tab>('send');
   const { language, setLanguage, t } = useLanguage();
   const runtime = useRuntime();
+  const { advertTarget } = useLocalSearchParams<{ advertTarget?: string | string[] }>();
   const { width } = useWindowDimensions();
   const compact = width < 720;
   const activeCopy = emptyCopy[activeTab];
   const face = { fontFamily: fontFamily[language] };
+  const trackTarget = safeNavigationTarget('/track');
+  const unsafeAdvertisement = typeof advertTarget === 'string' && safeNavigationTarget(advertTarget) === null;
 
   return (
     <View style={styles.page}>
@@ -101,11 +105,13 @@ export default function HomePage() {
 
         <Text style={[styles.reviewNote, face]}>{t('reviewPending')}</Text>
 
+        {unsafeAdvertisement ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" testID="blocked-advertisement" /> : null}
+
         <View accessibilityLiveRegion="polite" style={[styles.emptyPanel, { backgroundColor: runtime.surfaceColor }]} testID="empty-panel">
           <View style={styles.emptyRule} />
           <Text style={[styles.emptyTitle, face]}>{t(activeCopy.title)}</Text>
           <Text style={[styles.emptyBody, face]}>{t(activeCopy.body)}</Text>
-          <Link accessibilityRole="link" href="/track" style={[styles.trackLink, face]} testID="track-link">
+          <Link accessibilityRole="link" href={trackTarget ?? '/'} style={[styles.trackLink, face]} testID="track-link">
             {t('trackLink')} →
           </Link>
         </View>
