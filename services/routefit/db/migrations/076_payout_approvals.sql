@@ -31,6 +31,8 @@ CREATE TABLE finance.payout_approval (
  CHECK((state='submitted' AND approved_by_person_id IS NULL AND confirmed_by_person_id IS NULL) OR (state='approved' AND approved_by_person_id IS NOT NULL AND confirmed_by_person_id IS NULL) OR (state='rejected' AND confirmed_by_person_id IS NULL) OR (state='paid' AND approved_by_person_id IS NOT NULL AND confirmed_by_person_id IS NOT NULL))
 );
 
+COMMENT ON COLUMN finance.payout_approval.confirmed_by_person_id IS 'Two-person payout control: confirmation may be by the preparer, but never by the approver.';
+
 CREATE TABLE finance.payout_approval_event (
  company_id uuid NOT NULL,
  payout_approval_id uuid NOT NULL,
@@ -56,7 +58,10 @@ BEGIN
  IF NEW.company_id<>OLD.company_id OR NEW.id<>OLD.id OR NEW.source_type<>OLD.source_type OR NEW.source_id<>OLD.source_id OR NEW.money_amount_minor<>OLD.money_amount_minor OR NEW.money_currency<>OLD.money_currency OR NEW.prepared_by_person_id<>OLD.prepared_by_person_id OR NEW.prepared_by_principal_id<>OLD.prepared_by_principal_id OR (OLD.approved_by_person_id IS NOT NULL AND NEW.approved_by_person_id<>OLD.approved_by_person_id) OR (OLD.approved_by_principal_id IS NOT NULL AND NEW.approved_by_principal_id<>OLD.approved_by_principal_id) OR NEW.idempotency_key<>OLD.idempotency_key OR NEW.snapshot<>OLD.snapshot OR NEW.version<>OLD.version+1 THEN
   RAISE EXCEPTION 'Payout approval history is immutable' USING ERRCODE='42501';
  END IF;
- IF OLD.state='submitted' AND NEW.state='approved' AND NEW.approved_by_person_id IS NOT NULL AND NEW.approved_by_person_id<>OLD.prepared_by_person_id AND NEW.approved_by_principal_id<>OLD.prepared_by_principal_id AND NEW.confirmed_by_person_id IS NULL THEN RETURN NEW; END IF;
+ IF OLD.state='submitted' AND NEW.state='approved' AND (NEW.approved_by_person_id IS NULL OR NEW.approved_by_principal_id IS NULL) THEN
+  RAISE EXCEPTION 'Approved payout requires approver person and principal' USING ERRCODE='23514';
+ END IF;
+ IF OLD.state='submitted' AND NEW.state='approved' AND NEW.approved_by_person_id IS NOT NULL AND NEW.approved_by_principal_id IS NOT NULL AND NEW.approved_by_person_id<>OLD.prepared_by_person_id AND NEW.approved_by_principal_id<>OLD.prepared_by_principal_id AND NEW.confirmed_by_person_id IS NULL THEN RETURN NEW; END IF;
  IF OLD.state='submitted' AND NEW.state='rejected' AND NEW.approved_by_person_id IS NOT NULL AND NEW.confirmed_by_person_id IS NULL THEN RETURN NEW; END IF;
  IF OLD.state='approved' AND NEW.state='paid' AND NEW.confirmed_by_person_id IS NOT NULL AND NEW.confirmed_by_person_id<>OLD.approved_by_person_id THEN RETURN NEW; END IF;
  RAISE EXCEPTION 'Invalid payout approval transition' USING ERRCODE='23514';
