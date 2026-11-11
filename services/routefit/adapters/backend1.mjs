@@ -1,17 +1,17 @@
 import {randomUUID} from 'node:crypto';
 import {ApiError,ensure} from '../domain/errors.mjs';
 import {activateMerchantContract as activateContract,expireMerchantContract as expireContract} from '../domain/merchant-contracts.mjs';
-import {lockCoupon as lockCouponDomain,redeemCoupon as redeemCouponDomain,releaseCoupon as releaseCouponDomain} from '../domain/coupons.mjs';
+import {assessCouponRisk,lockCoupon as lockCouponDomain,redeemCoupon as redeemCouponDomain,releaseCoupon as releaseCouponDomain} from '../domain/coupons.mjs';
 import {freezeUser as freezeUserDomain,unfreezeUser as unfreezeUserDomain} from '../domain/user-freeze.mjs';
 
-export async function createCouponBatch({client,companyId,idempotencyKey},{discountType,amountMinor,currency,budgetMinor,minimumSpendMinor=0}){
+export async function createCouponBatch({client,companyId,idempotencyKey},{code,discountType,amountMinor,currency,budgetMinor,minimumSpendMinor=0,startsAt,endsAt}){
  const kind=discountType==='fixed'?'AMOUNT_OFF':'THRESHOLD_OFF';
  const result=await client.query(`INSERT INTO marketing.coupon_batch
-  (id,company_id,kind,currency,amount_minor,minimum_spend_minor,budget_minor,idempotency_key,state,version)
-  VALUES($1,$2,$3,$4,$5,$6,$7,$8,'DRAFT',1)
-  RETURNING id,version,budget_minor`,[randomUUID(),companyId,kind,currency,amountMinor,minimumSpendMinor,budgetMinor,idempotencyKey]);
+  (id,company_id,kind,currency,amount_minor,minimum_spend_minor,budget_minor,idempotency_key,code,starts_at,ends_at,state,version)
+  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'DRAFT',1)
+  RETURNING id,version,budget_minor,code,starts_at,ends_at`,[randomUUID(),companyId,kind,currency,amountMinor,minimumSpendMinor,budgetMinor,idempotencyKey,code,startsAt,endsAt]);
  const row=result.rows[0];
- return {id:row.id,version:Number(row.version),budgetMinor:Number(row.budget_minor)};
+ return {id:row.id,version:Number(row.version),budgetMinor:Number(row.budget_minor),code:row.code,startsAt:new Date(row.starts_at).toISOString(),endsAt:new Date(row.ends_at).toISOString()};
 }
 
 export async function listCoupons({client,companyId}){
@@ -105,8 +105,8 @@ export async function unfreezeUser({client,companyId,userId,version}){
  return {userId:row.principal_id,state:next.state,version:Number(row.version)};
 }
 
-export async function lockOrderCoupon({client,companyId,orderId,idempotencyKey},{couponId}){
- const couponRow=(await client.query(`SELECT c.id,c.state,b.state AS batch_state,b.amount_minor,b.minimum_spend_minor,
+export async function lockOrderCoupon({client,companyId,principalId,orderId,idempotencyKey,riskSignals},{couponId}){
+ const couponRow=(await client.query(`SELECT c.id,c.state,b.state AS batch_state,b.amount_minor,b.minimum_spend_minor,b.starts_at,b.ends_at,
   b.budget_minor-COALESCE((SELECT sum(r.discount_minor) FROM marketing.coupon_redemption r
    WHERE r.company_id=b.company_id AND r.state<>'RELEASED'),0) AS budget_remaining_minor
   FROM marketing.coupon c
@@ -118,12 +118,30 @@ export async function lockOrderCoupon({client,companyId,orderId,idempotencyKey},
  if(!orderRow)throw new ApiError(404,'NOT_FOUND','Order was not found');
  const existing=(await client.query(`SELECT coupon_id FROM marketing.coupon_redemption
   WHERE company_id=$1 AND order_id=$2`,[companyId,orderId])).rows[0];
- const risk=(await client.query(`SELECT 1 FROM marketing.risk_flag
+ let risk=(await client.query(`SELECT 1 FROM marketing.risk_flag
   WHERE company_id=$1 AND state='OPEN' AND (coupon_id=$2 OR order_id=$3)
   LIMIT 1`,[companyId,couponId,orderId])).rows[0];
+ if(riskSignals){
+  const {deviceFingerprintHash,phoneHash,observedAt=new Date().toISOString()}=riskSignals;
+  ensure(/^[a-f0-9]{64}$/.test(deviceFingerprintHash)&&/^[a-f0-9]{64}$/.test(phoneHash),422,'INVALID_RISK_SIGNAL','Coupon risk signals must be SHA-256 hashes');
+  ensure(typeof principalId==='string'&&principalId.length>0,422,'INVALID_RISK_SIGNAL','Coupon risk signals require an authenticated principal');
+  await client.query(`INSERT INTO marketing.coupon_risk_signal
+   (id,company_id,principal_id,device_fingerprint_hash,phone_hash,observed_at)
+   VALUES($1,$2,$3,$4,$5,$6)
+   ON CONFLICT(company_id,principal_id,device_fingerprint_hash,phone_hash)
+   DO UPDATE SET observed_at=EXCLUDED.observed_at`,[randomUUID(),companyId,principalId,deviceFingerprintHash,phoneHash,observedAt]);
+  const accounts=(await client.query(`SELECT DISTINCT principal_id FROM marketing.coupon_risk_signal
+   WHERE company_id=$1 AND (device_fingerprint_hash=$2 OR phone_hash=$3)`,[companyId,deviceFingerprintHash,phoneHash])).rows.map(row=>row.principal_id);
+  const assessed=assessCouponRisk({deviceId:deviceFingerprintHash,phoneHash,accountIds:accounts});
+  if(assessed.state==='PAUSED'){
+   await client.query(`INSERT INTO marketing.risk_flag(id,company_id,coupon_id,order_id,code,state)
+    VALUES($1,$2,$3,$4,'COUPON_REVIEW_REQUIRED','OPEN')`,[randomUUID(),companyId,couponId,orderId]);
+   risk={state:'OPEN'};
+  }
+ }
  const storedOrder=orderRow.snapshot.order;
  const locked=lockCouponDomain({
-  coupon:{id:couponRow.id,approved:couponRow.batch_state==='APPROVED',amountMinor:Number(couponRow.amount_minor),minimumSpendMinor:Number(couponRow.minimum_spend_minor),budgetRemainingMinor:Number(couponRow.budget_remaining_minor)},
+  coupon:{id:couponRow.id,approved:couponRow.batch_state==='APPROVED',amountMinor:Number(couponRow.amount_minor),minimumSpendMinor:Number(couponRow.minimum_spend_minor),budgetRemainingMinor:Number(couponRow.budget_remaining_minor),startsAt:couponRow.starts_at,endsAt:couponRow.ends_at},
   order:{id:orderId,merchandiseMinor:Number(storedOrder.merchandiseMinor),shippingMinor:Number(storedOrder.shippingMinor),codMinor:Number(orderRow.cod_amount_minor??0),insuranceMinor:Number(storedOrder.insuranceMinor??0),paymentMethod:orderRow.payment_method},
   existingCouponId:existing?.coupon_id??null,
   alreadyUsed:couponRow.state==='REDEEMED',

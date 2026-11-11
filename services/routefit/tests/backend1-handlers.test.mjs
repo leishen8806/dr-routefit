@@ -23,13 +23,22 @@ test('Backend1 handlers reject an operation without a supplied repository implem
 
 test('coupon batch repository stores integer budget in the company scope and returns the contract projection', async () => {
  const calls=[];
- const client={query:async(sql,params)=>{calls.push({sql,params});return {rows:[{id:'00000000-0000-0000-0000-000000000010',version:'1',budget_minor:'1000'}]};}};
+ const client={query:async(sql,params)=>{calls.push({sql,params});return {rows:[{id:'00000000-0000-0000-0000-000000000010',version:'1',budget_minor:'1000',code:'DEMO',starts_at:'2026-11-10T00:00:00.000Z',ends_at:'2026-11-11T00:00:00.000Z'}]};}};
  const result=await createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001',idempotencyKey:'coupon-batch-1'},{code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-10T00:00:00Z',endsAt:'2026-11-11T00:00:00Z'});
- assert.deepEqual(result,{id:'00000000-0000-0000-0000-000000000010',version:1,budgetMinor:1000});
+ assert.deepEqual(result,{id:'00000000-0000-0000-0000-000000000010',version:1,budgetMinor:1000,code:'DEMO',startsAt:'2026-11-10T00:00:00.000Z',endsAt:'2026-11-11T00:00:00.000Z'});
  assert.match(calls[0].sql,/INSERT INTO marketing\.coupon_batch/);
  assert.equal(calls[0].params[1],'00000000-0000-0000-0000-000000000001');
  assert.equal(calls[0].params[6],1000);
  assert.equal(calls[0].params[7],'coupon-batch-1');
+});
+
+test('coupon batch repository persists its code and activation window', async () => {
+ const calls=[];
+ const client={query:async(sql,params)=>{calls.push({sql,params});return {rows:[{id:'00000000-0000-0000-0000-000000000010',version:'1',budget_minor:'1000',code:'DEMO',starts_at:'2026-11-10T00:00:00.000Z',ends_at:'2026-11-11T00:00:00.000Z'}]};}};
+ const result=await createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001',idempotencyKey:'coupon-batch-window-1'},{code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-10T00:00:00Z',endsAt:'2026-11-11T00:00:00Z'});
+ assert.deepEqual(result,{id:'00000000-0000-0000-0000-000000000010',version:1,budgetMinor:1000,code:'DEMO',startsAt:'2026-11-10T00:00:00.000Z',endsAt:'2026-11-11T00:00:00.000Z'});
+ assert.match(calls[0].sql,/code,starts_at,ends_at/);
+ assert.deepEqual(calls[0].params.slice(-3),['DEMO','2026-11-10T00:00:00Z','2026-11-11T00:00:00Z']);
 });
 
 test('coupon list repository scopes results to the company and maps issued coupons to available', async () => {
@@ -80,7 +89,7 @@ test('merchant contract read returns a not-found domain error when its company s
 });
 
 test('default Backend1 coupon batch handler uses the module repository', async () => {
- const client={query:async()=>({rows:[{id:'00000000-0000-0000-0000-000000000010',version:'1',budget_minor:'1000'}]})};
+ const client={query:async()=>({rows:[{id:'00000000-0000-0000-0000-000000000010',version:'1',budget_minor:'1000',code:'DEMO',starts_at:'2026-11-10T00:00:00.000Z',ends_at:'2026-11-11T00:00:00.000Z'}]})};
  const result=await backend1Handlers.createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001',idempotencyKey:'coupon-batch-1'},{code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-10T00:00:00Z',endsAt:'2026-11-11T00:00:00Z'});
  assert.equal(result.status,201);
  assert.equal(result.body.budgetMinor,1000);
@@ -195,6 +204,24 @@ test('coupon lock repository runs the domain rules then atomically locks and app
  assert.deepEqual(result,{couponId:'00000000-0000-0000-0000-000000000010',orderId:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discountMinor:200,driverCommissionBaseMinor:1700,fraudReviewRequired:true});
  assert.match(calls[4].sql,/UPDATE marketing\.coupon/);
  assert.match(calls[4].sql,/INSERT INTO marketing\.coupon_redemption/);
+});
+
+test('coupon lock persists hashed risk signals and pauses three accounts sharing one device', async () => {
+ const calls=[];
+ const deviceFingerprintHash='a'.repeat(64),phoneHash='b'.repeat(64);
+ const client={query:async(sql,params)=>{
+  calls.push({sql,params});
+  if(sql.includes('FROM marketing.coupon c'))return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000',starts_at:'2026-11-10T00:00:00.000Z',ends_at:'2026-11-12T00:00:00.000Z'}]};
+  if(sql.includes('FROM orders.draft'))return {rows:[{snapshot:{order:{id:'00000000-0000-0000-0000-000000000020',merchandiseMinor:1200,shippingMinor:200,insuranceMinor:100}},cod_amount_minor:'400',payment_method:'PREPAID'}]};
+  if(sql.includes('SELECT DISTINCT principal_id'))return {rows:[{principal_id:'00000000-0000-0000-0000-000000000099'},{principal_id:'00000000-0000-0000-0000-000000000098'},{principal_id:'00000000-0000-0000-0000-000000000097'}]};
+  if(sql.includes('marketing.coupon_redemption'))return {rows:[]};
+  return {rows:[]};
+ }};
+ await assert.rejects(
+  ()=>lockOrderCouponRepository({client,companyId:'00000000-0000-0000-0000-000000000001',principalId:'00000000-0000-0000-0000-000000000099',orderId:'00000000-0000-0000-0000-000000000020',riskSignals:{deviceFingerprintHash,phoneHash,observedAt:'2026-11-11T00:00:00Z'}},{couponId:'00000000-0000-0000-0000-000000000010'}),
+  {code:'COUPON_REDEMPTION_PAUSED'}
+ );
+ assert.ok(calls.some(call=>call.sql.includes('INSERT INTO marketing.coupon_risk_signal')),'hash-only signal must be persisted before the risk decision');
 });
 
 test('default Backend1 coupon lock handler uses the coupon lock repository', async () => {

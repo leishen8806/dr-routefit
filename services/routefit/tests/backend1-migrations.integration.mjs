@@ -41,7 +41,7 @@ test('Backend1 history is append-only and freeze versions are unique in PostgreS
 test('Backend1 tables force company RLS for routefit_api',async()=>{
  const fixture=await localFixture(process.env.ROUTEFIT_TEST_DATABASE_URL);
  const client=new pg.Client({connectionString:fixture.runtimeUrl});
- const tables=['pricing.dimension_rule','pricing.vehicle_tariff','pricing.value_added_service','pricing.fx_rate','orders.package_line','party.merchant_contract','party.sku_dimension','party.merchant_contract_event','party.account_freeze','marketing.coupon_batch','marketing.coupon','marketing.coupon_redemption','marketing.risk_flag'];
+ const tables=['pricing.dimension_rule','pricing.vehicle_tariff','pricing.value_added_service','pricing.fx_rate','orders.package_line','party.merchant_contract','party.sku_dimension','party.merchant_contract_event','party.account_freeze','marketing.coupon_batch','marketing.coupon','marketing.coupon_redemption','marketing.risk_flag','marketing.coupon_risk_signal'];
  try{
   const companyA=fixture.principals[0].companyId;
   const companyB=fixture.principals[1].companyId;
@@ -57,15 +57,15 @@ test('Backend1 tables force company RLS for routefit_api',async()=>{
    assert.ok(row.with_check,row.table_name);
   }
   const couponId=randomUUID();
-  await fixture.owner.query(`INSERT INTO marketing.coupon_batch(id,company_id,kind,currency,amount_minor,minimum_spend_minor,budget_minor,idempotency_key,state,version)
-   VALUES($1,$2,'AMOUNT_OFF','USD',100,0,1000,$3,'APPROVED',1)`,[randomUUID(),companyB,'foreign-batch']);
+  await fixture.owner.query(`INSERT INTO marketing.coupon_batch(id,company_id,kind,currency,amount_minor,minimum_spend_minor,budget_minor,idempotency_key,code,starts_at,ends_at,state,version)
+   VALUES($1,$2,'AMOUNT_OFF','USD',100,0,1000,$3,'FOREIGN-DEMO','2026-11-10T00:00:00Z','2026-11-12T00:00:00Z','APPROVED',1)`,[randomUUID(),companyB,'foreign-batch']);
   await client.connect();
   await client.query('BEGIN');
   await client.query('SET ROLE routefit_api');
   await client.query("SELECT set_config('app.company_id',$1,true)",[companyA]);
   assert.equal((await client.query('SELECT id FROM marketing.coupon_batch WHERE company_id=$1',[companyB])).rowCount,0);
-  await assert.rejects(client.query(`INSERT INTO marketing.coupon_batch(id,company_id,kind,currency,amount_minor,minimum_spend_minor,budget_minor,idempotency_key,state,version)
-   VALUES($1,$2,'AMOUNT_OFF','USD',100,0,1000,$3,'DRAFT',1)`,[couponId,companyB,'blocked-cross-company']),error=>error.code==='42501');
+  await assert.rejects(client.query(`INSERT INTO marketing.coupon_batch(id,company_id,kind,currency,amount_minor,minimum_spend_minor,budget_minor,idempotency_key,code,starts_at,ends_at,state,version)
+   VALUES($1,$2,'AMOUNT_OFF','USD',100,0,1000,$3,'BLOCKED-DEMO','2026-11-10T00:00:00Z','2026-11-12T00:00:00Z','DRAFT',1)`,[couponId,companyB,'blocked-cross-company']),error=>error.code==='42501');
   await client.query('ROLLBACK');
  }finally{await client.end().catch(()=>{});await fixture.cleanup();}
 });

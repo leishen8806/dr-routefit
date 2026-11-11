@@ -12,11 +12,13 @@ export function assessCouponRisk({deviceId,phoneHash,accountIds}){
   : {state:'CLEAR',reason:null,accountCount};
 }
 
-export function lockCoupon({coupon,order,existingCouponId=null,alreadyUsed=false,risk={state:'CLEAR'}}){
+export function lockCoupon({coupon,order,existingCouponId=null,alreadyUsed=false,risk={state:'CLEAR'},now=new Date().toISOString()}){
  ensure(!existingCouponId,409,'ORDER_ALREADY_HAS_COUPON','Each order may use one coupon');
  ensure(!alreadyUsed,409,'COUPON_ALREADY_USED','A coupon may only be used once');
  ensure(risk.state!=='PAUSED',409,'COUPON_REDEMPTION_PAUSED','Coupon redemption is paused for risk review');
  ensure(coupon.approved===true,409,'COUPON_NOT_APPROVED','Coupon budget requires approval');
+ ensure(!coupon.startsAt||Date.parse(coupon.startsAt)<=Date.parse(now),409,'COUPON_NOT_ACTIVE','Coupon is not active yet');
+ ensure(!coupon.endsAt||Date.parse(now)<Date.parse(coupon.endsAt),409,'COUPON_EXPIRED','Coupon has expired');
  ensure(order.paymentMethod!=='COD',422,'COD_NOT_ELIGIBLE','Cash-on-delivery orders cannot use coupons');
  ensure(validMoney(order.merchandiseMinor)&&validMoney(order.shippingMinor)&&validMoney(coupon.amountMinor)&&validMoney(coupon.minimumSpendMinor)&&validMoney(coupon.budgetRemainingMinor),422,'INVALID_COUPON_INPUT','Coupon values must be non-negative integers');
  ensure(order.merchandiseMinor>=coupon.minimumSpendMinor,422,'COUPON_MINIMUM_NOT_MET','Order does not meet the coupon minimum');

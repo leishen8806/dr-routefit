@@ -26,6 +26,17 @@ CREATE TABLE marketing.risk_flag (
  FOREIGN KEY(company_id,order_id) REFERENCES orders.draft(company_id,id),
  CHECK(coupon_id IS NOT NULL OR order_id IS NOT NULL)
 );
+CREATE TABLE marketing.coupon_risk_signal (
+ id uuid PRIMARY KEY,
+ company_id uuid NOT NULL REFERENCES org.company(id),
+ principal_id uuid NOT NULL,
+ device_fingerprint_hash text NOT NULL CHECK(device_fingerprint_hash~'^[a-f0-9]{64}$'),
+ phone_hash text NOT NULL CHECK(phone_hash~'^[a-f0-9]{64}$'),
+ observed_at timestamptz NOT NULL,
+ UNIQUE(company_id,id),
+ UNIQUE(company_id,principal_id,device_fingerprint_hash,phone_hash),
+ FOREIGN KEY(company_id,principal_id) REFERENCES org.principal(company_id,id)
+);
 
 CREATE FUNCTION party.prevent_backend1_history_mutation() RETURNS trigger
 LANGUAGE plpgsql AS $$
@@ -50,7 +61,7 @@ DO $$ DECLARE t text; BEGIN
   EXECUTE format('CREATE POLICY company_scope ON %s USING(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid) WITH CHECK(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid)',t);
   EXECUTE format('GRANT SELECT,INSERT ON %s TO routefit_api',t);
  END LOOP;
- FOREACH t IN ARRAY ARRAY['marketing.risk_flag'] LOOP
+ FOREACH t IN ARRAY ARRAY['marketing.risk_flag','marketing.coupon_risk_signal'] LOOP
   EXECUTE format('ALTER TABLE %s ENABLE ROW LEVEL SECURITY',t);
   EXECUTE format('ALTER TABLE %s FORCE ROW LEVEL SECURITY',t);
   EXECUTE format('CREATE POLICY company_scope ON %s USING(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid) WITH CHECK(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid)',t);

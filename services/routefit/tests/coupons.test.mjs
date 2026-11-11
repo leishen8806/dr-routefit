@@ -54,3 +54,8 @@ test('coupon rule 8: repeated device or phone accounts pause redemption without 
  assert.throws(()=>lockCoupon({coupon,order,risk}),{code:'COUPON_REDEMPTION_PAUSED'});
  assert.deepEqual(assessCouponRisk({deviceId:'device-hash',phoneHash:'phone-hash',accountIds:['account-1','account-2']}),{state:'CLEAR',reason:null,accountCount:2});
 });
+
+test('coupon lock rejects a batch before it starts or after it expires',()=>{
+ assert.throws(()=>lockCoupon({coupon:{...coupon,startsAt:'2026-11-12T00:00:00Z',endsAt:'2026-11-13T00:00:00Z'},order,now:'2026-11-11T00:00:00Z'}),{code:'COUPON_NOT_ACTIVE'});
+ assert.throws(()=>lockCoupon({coupon:{...coupon,startsAt:'2026-11-09T00:00:00Z',endsAt:'2026-11-10T00:00:00Z'},order,now:'2026-11-11T00:00:00Z'}),{code:'COUPON_EXPIRED'});
+});

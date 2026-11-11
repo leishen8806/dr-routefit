@@ -9,10 +9,14 @@ CREATE TABLE marketing.coupon_batch (
  minimum_spend_minor bigint NOT NULL CHECK(minimum_spend_minor>=0),
  budget_minor bigint NOT NULL CHECK(budget_minor>=0),
  idempotency_key text NOT NULL CHECK(length(btrim(idempotency_key)) BETWEEN 1 AND 128),
+ code text NOT NULL CHECK(length(btrim(code)) BETWEEN 1 AND 64),
+ starts_at timestamptz NOT NULL,
+ ends_at timestamptz NOT NULL,
  state text NOT NULL CHECK(state IN ('DRAFT','APPROVED','STOPPED')),
  version bigint NOT NULL CHECK(version BETWEEN 1 AND 9000000000000),
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
- UNIQUE(company_id,id), UNIQUE(company_id,idempotency_key)
+ UNIQUE(company_id,id), UNIQUE(company_id,idempotency_key), UNIQUE(company_id,code),
+ CHECK(starts_at<ends_at)
 );
 CREATE TABLE marketing.coupon (
  id uuid PRIMARY KEY,

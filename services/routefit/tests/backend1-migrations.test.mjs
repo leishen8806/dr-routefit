@@ -14,7 +14,7 @@ test('Backend1 migration range defines the assigned pricing, order, merchant, an
   '066_backend1_package_lines.sql':['orders.package_line','ALTER TABLE orders.draft'],
   '067_backend1_merchant_contracts.sql':['party.merchant_contract','party.sku_dimension','party.account_freeze'],
   '068_backend1_coupons.sql':['marketing.coupon_batch','marketing.coupon'],
-  '069_backend1_rls_handoff.sql':['marketing.coupon_redemption','marketing.risk_flag']
+  '069_backend1_rls_handoff.sql':['marketing.coupon_redemption','marketing.risk_flag','marketing.coupon_risk_signal']
  };
  for(const [name,fragments] of Object.entries(expected)){
   const sql=await migration(name);
@@ -42,7 +42,7 @@ test('Backend1 tables enforce the standard company RLS policy and routefit_api g
   '066_backend1_package_lines.sql':['orders.package_line'],
   '067_backend1_merchant_contracts.sql':['party.merchant_contract','party.sku_dimension','party.merchant_contract_event','party.account_freeze'],
   '068_backend1_coupons.sql':['marketing.coupon_batch','marketing.coupon'],
-  '069_backend1_rls_handoff.sql':['marketing.coupon_redemption','marketing.risk_flag']
+  '069_backend1_rls_handoff.sql':['marketing.coupon_redemption','marketing.risk_flag','marketing.coupon_risk_signal']
  };
  for(const [name,names] of Object.entries(tables)){
  const sql=await migration(name);
