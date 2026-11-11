@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {writeDriverSync} from '../adapters/driver.mjs';
+import {readDriver,writeDriverSync} from '../adapters/driver.mjs';
 
 const companyId='11111111-1111-4111-8111-111111111111',driverId='22222222-2222-4222-8222-222222222222',deviceId='33333333-3333-4333-8333-333333333333',assignmentId='44444444-4444-4444-8444-444444444444',orderId='55555555-5555-4555-8555-555555555555';
 const principal={companyId,principalId:driverId};
@@ -29,4 +29,20 @@ test('offline sync permanently deduplicates an applied arrival and rejects chang
 test('offline cash report is recorded for independent finance review rather than becoming a receipt',async()=>{
  const db=client(),event={...arrived('88888888-8888-4888-8888-888888888888',1),type:'CASH_REPORTED',payload:{orderId,orderVersion:1,deliveryAmountMinor:100,insuranceAmountMinor:0,codAmountMinor:0,currency:'USD',cashVoucherRef:'CASH-1',evidenceFileIds:['99999999-9999-4999-8999-999999999999'],observedAt:new Date().toISOString()}};
  const result=await writeDriverSync(db,principal,{deviceId,events:[event]});assert.deepEqual(result.results[0],{eventId:event.eventId,result:'NEEDS_REVIEW',resourceId:assignmentId,resourceVersion:1,errorCode:'SYNC_CASH_FINANCE_REVIEW_REQUIRED'});
+});
+
+test('driver order reads expose server-masked contact phones and never the stored phone',async()=>{
+ const db={query:async(sql)=>{
+  if(sql.includes("FROM org.principal WHERE"))return {rows:[{kind:'DRIVER',person_id:'66666666-6666-4666-8666-666666666666'}],rowCount:1};
+  if(sql.includes('FROM dispatch.assignment'))return {rows:[{ok:1}],rowCount:1};
+  if(sql.includes('SELECT snapshot FROM orders.draft'))return {rows:[{snapshot:{order:{id:orderId},pickup:{phone:'+85512345678'},delivery:{phone:'+85587654321'},items:[],quoteId:null}}],rowCount:1};
+  if(sql.includes('FROM finance.allocation_reversal'))return {rows:[],rowCount:0};
+  if(sql.includes('FROM finance.prepayment_receipt'))return {rows:[{reported:'0'}],rowCount:1};
+  throw Error('Unexpected query: '+sql);
+ }};
+ const result=await readDriver(db,principal,'order',orderId,null);
+ assert.equal(result.pickup.phone,'*******5678');
+ assert.equal(result.delivery.phone,'*******4321');
+ assert.notEqual(result.pickup.phone,'+85512345678');
+ assert.notEqual(result.delivery.phone,'+85587654321');
 });
