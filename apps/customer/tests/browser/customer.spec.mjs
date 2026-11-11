@@ -31,16 +31,16 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await page.getByTestId('customer-home-tab-send').click();
   await page.getByTestId('customer-home-language-en').click();
   await expect(page.getByText('Sending is coming soon')).toBeVisible();
-  const tabTitles = {
-    orders: 'Your orders will appear here',
-    messages: 'Messages are coming soon',
-    profile: 'Account settings are coming soon',
-    send: 'Sending is coming soon',
+  const tabContent = {
+    orders: page.getByTestId('customer-orders-example-detail'),
+    messages: page.getByTestId('customer-messages-example'),
+    profile: page.getByTestId('customer-profile-example'),
+    send: page.getByText('Sending is coming soon'),
   };
-  for (const [tab, title] of Object.entries(tabTitles)) {
+  for (const [tab, content] of Object.entries(tabContent)) {
     await page.getByTestId(`customer-home-tab-${tab}`).click();
     await expect(page.getByTestId(`customer-home-tab-${tab}`)).toHaveAttribute('aria-selected', 'true');
-    await expect(page.getByText(title)).toBeVisible();
+    await expect(content).toBeVisible();
   }
 
   await page.getByTestId('customer-home-language-zh').click();
