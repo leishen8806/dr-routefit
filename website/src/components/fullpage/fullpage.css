@@ -8,8 +8,9 @@
   --fp-header-height: 64px;
 }
 
-.fullpage-html { scroll-behavior: smooth; scroll-padding-top: var(--fp-header-height); }
+.fullpage-html { scroll-behavior: smooth; scroll-padding-top: 0; }
 .fullpage-html .site-header { display: none; }
+.fullpage-html .site-footer { scroll-snap-align: end; }
 .fullpage-home { overflow: clip; background: #eef3f2; }
 .fullpage-home :focus-visible { outline-color: var(--fp-amber); }
 .fullpage-topbar {
@@ -57,7 +58,7 @@
   align-content: safe center;
   padding: calc(var(--fp-header-height) + 24px) 0 24px;
   overflow: hidden;
-  scroll-margin-top: var(--fp-header-height);
+  scroll-margin-top: 0;
 }
 
 .panel-shell {
