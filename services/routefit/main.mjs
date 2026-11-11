@@ -6,6 +6,8 @@ import {developmentAuth,developmentServiceAuth} from './adapters/development-aut
 import {assertRuntimeRole} from './adapters/postgres.mjs';
 import {localBrowser} from './adapters/local-browser.mjs';
 import {fileURLToPath} from 'node:url';
+import {mockLogin,mockLoginEnabled} from './adapters/mock-login.mjs';
+import {rateLimit} from './application/http.mjs';
 import {prepareEvidenceDirectory} from './evidence-directory.mjs';
 
 if(process.env.NODE_ENV==='production'||process.env.ROUTEFIT_AUTH_MODE!=='development')throw new Error('Only explicit local development mode is implemented');
@@ -27,6 +29,10 @@ const codeSink=process.env.ROUTEFIT_RECIPIENT_CODE_SINK?resolve(process.env.ROUT
 const recipientCodeSender=codeSink?async({code,expiresAt})=>{await mkdir(resolve(codeSink,'..'),{recursive:true});await appendFile(codeSink,JSON.stringify({code,expiresAt})+'\n',{encoding:'utf8',mode:0o600});}:undefined;
 const requestRateLimit=Number(process.env.ROUTEFIT_DEV_RATE_LIMIT||120);
 if(!Number.isInteger(requestRateLimit)||requestRateLimit<1)throw new Error('Invalid ROUTEFIT_DEV_RATE_LIMIT');
-const server=apiServer({pool,authenticate,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,requestRateLimit,log:entry=>console.log(JSON.stringify(entry))});
+// Mock login (CMP-1464): fixed-code, development only. Off unless NODE_ENV=development|test AND ROUTEFIT_MOCK_LOGIN=1; production already aborted above.
+const mockLimits=new Map();
+const identities=sessions.filter(s=>s.mockLogin&&['driver','customer'].includes(s.mockLogin.audience)).map(s=>({audience:s.mockLogin.audience,phone:s.mockLogin.phone,tokenHash:s.tokenHash}));
+const mockLoginHandler=mockLoginEnabled()?mockLogin({identities,authenticate,rateLimit:key=>rateLimit(mockLimits,String(key),10)}):undefined;
+const server=apiServer({pool,authenticate,mockLogin:mockLoginHandler,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,requestRateLimit,log:entry=>console.log(JSON.stringify(entry))});
 server.listen(port,'127.0.0.1',()=>console.log(`RouteFit local pricing API: http://127.0.0.1:${port}`));
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>server.close(()=>pool.end()));

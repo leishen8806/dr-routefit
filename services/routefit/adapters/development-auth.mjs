@@ -18,7 +18,16 @@ export function developmentAuth(sessions,allowedOrigin){
   ensure(/^[0-9a-f]{64}$/.test(s.tokenHash)&&/^[0-9a-f]{64}$/.test(s.csrfHash)&&uuid.test(s.companyId)&&uuid.test(s.principalId)&&Number.isFinite(Date.parse(s.expiresAt))&&Array.isArray(s.permissions)&&s.permissions.every(p=>developmentPermissions.includes(p)),500,'INVALID_DEV_SESSIONS','开发会话配置无效');
   ensure(!map.has(s.tokenHash),500,'INVALID_DEV_SESSIONS','开发会话重复');map.set(s.tokenHash,Object.freeze({...s}));
  }
+ const bearerPrefix={driver:'/api/driver/v1/',customer:'/api/customer/v1/'};
  const authenticate=req=>{
+  if(req.headers.authorization!==undefined){
+   // Mock-login bearer tokens: only for the issued audience's own path prefix, never combined with cookies, no CSRF needed (not cookie-borne).
+   ensure(!req.headers.cookie,401,'UNAUTHENTICATED','需要有效会话');
+   const m=/^Bearer ([0-9a-f]{64})$/.exec(req.headers.authorization);ensure(m,401,'UNAUTHENTICATED','需要有效会话');
+   const p=map.get(digest(m[1]));ensure(p&&p.mock&&Date.parse(p.expiresAt)>Date.now(),401,'UNAUTHENTICATED','会话无效或已过期');
+   ensure(String(req.url||'').startsWith(bearerPrefix[p.audience]),403,'FORBIDDEN','令牌不适用于此接口');
+   return p;
+  }
   ensure(!req.headers.origin||req.headers.origin===allowedOrigin,403,'ORIGIN_FORBIDDEN','请求来源不在允许范围');
   const matches=(req.headers.cookie||'').split(';').map(s=>s.trim()).filter(s=>s.startsWith('rf_session='));
   ensure(matches.length===1,401,'UNAUTHENTICATED','需要有效会话');const token=matches[0].slice(11);
@@ -30,7 +39,7 @@ export function developmentAuth(sessions,allowedOrigin){
   }
   return p;
  };
- authenticate.source=hash=>{const p=map.get(hash);ensure(p&&!p.browser&&Date.parse(p.expiresAt)>Date.now(),401,'UNAUTHENTICATED','开发身份无效或已过期，请在本机续期并重启');return p;};
+ authenticate.source=hash=>{const p=map.get(hash);ensure(p&&!p.browser&&!p.mock&&Date.parse(p.expiresAt)>Date.now(),401,'UNAUTHENTICATED','开发身份无效或已过期，请在本机续期并重启');return p;};
  authenticate.issue=hash=>{
   const source=authenticate.source(hash),now=Date.now();
   for(const [key,value] of map)if(value.browser&&Date.parse(value.expiresAt)<=now)map.delete(key);
@@ -39,7 +48,18 @@ export function developmentAuth(sessions,allowedOrigin){
   const session={...source,tokenHash:digest(token),csrfHash:digest(csrf),csrf,browser:true,expiresAt:new Date(Math.min(now+8*3600000,Date.parse(source.expiresAt))).toISOString()};
   map.set(session.tokenHash,Object.freeze(session));return {token,session};
  };
- authenticate.revoke=p=>{if(p.browser)map.delete(p.tokenHash);};
+ authenticate.issueMock=(hash,audience)=>{
+  ensure(['driver','customer'].includes(audience),500,'INVALID_AUDIENCE','模拟登录端类型无效');
+  const source=authenticate.source(hash),now=Date.now();
+  ensure(source.permissions.some(x=>x.startsWith(audience==='driver'?'driver:':'portal:')),403,'FORBIDDEN','该身份不属于此端');
+  ensure(audience==='driver'||!source.permissions.some(x=>x.startsWith('driver:')),403,'FORBIDDEN','该身份不属于此端');
+  for(const [key,value] of map)if(value.mock&&Date.parse(value.expiresAt)<=now)map.delete(key);
+  ensure([...map.values()].filter(x=>x.mock).length<128,429,'SESSION_LIMIT','开发会话过多，请重启服务');
+  const token=randomBytes(32).toString('hex');
+  const session={...source,tokenHash:digest(token),csrfHash:source.csrfHash,browser:false,mock:true,audience,expiresAt:new Date(Math.min(now+8*3600000,Date.parse(source.expiresAt))).toISOString()};
+  map.set(session.tokenHash,Object.freeze(session));return {token,session};
+ };
+ authenticate.revoke=p=>{if(p.browser||p.mock)map.delete(p.tokenHash);};
  return authenticate;
 }
 
