@@ -19,6 +19,12 @@ test('Backend1 module contract makes every owned operation reviewable under stan
     'listMerchants', 'createMerchant', 'getMerchant',
     'approveMerchant', 'rejectMerchant', 'suspendMerchant', 'resumeMerchant',
     'listMerchantContracts', 'createMerchantContractVersion', 'approveMerchantContract',
+    'listUsers', 'getUser',
+    'listCouponBatches', 'createCouponBatchBaseline', 'getCouponBatch',
+    'submitCouponBatch', 'approveCouponBatch', 'rejectCouponBatch', 'stopCouponBatch',
+    'listCouponRedemptions', 'listCouponRiskFlags', 'resolveCouponRiskFlag',
+    'batchCreateCustomerOrders', 'listCustomerSkuDimensions', 'createCustomerSkuDimension',
+    'listCustomerCoupons', 'claimCustomerCoupon', 'listCustomerCodItems',
   ];
   const moduleOperations = Object.values(module.paths)
     .flatMap(path => Object.values(path));
