@@ -89,3 +89,28 @@ test('request validation: method, media type, body shape, remote address, rate l
  await call(limited,D,{phone:'+85510000001',code:'1'});await call(limited,D,{phone:'+85510000001',code:'1'});
  assert.equal((await call(limited,D,{phone:'+85510000001',code:'1'})).error.status,429);
 });
+
+// CMP-1466 SEC-1/2/3 regression tests
+test('SEC-1: mock token cannot be used as rf_session cookie',async()=>{
+ const {handler,authenticate}=setup();
+ const r=await call(handler,D,{phone:'+85510000001',code:MOCK_LOGIN_CODE});
+ assert.throws(()=>authenticate({method:'GET',url:'/api/ops/v1/orders',headers:{cookie:'rf_session='+r.body.accessToken}}),{code:'UNAUTHENTICATED'});
+ assert.throws(()=>authenticate({method:'GET',url:'/api/driver/v1/tasks',headers:{cookie:'rf_session='+r.body.accessToken}}),{code:'UNAUTHENTICATED'});
+});
+
+test('SEC-2: path traversal in request target does not pass the prefix check',async()=>{
+ const {handler,authenticate}=setup();
+ const r=await call(handler,D,{phone:'+85510000001',code:MOCK_LOGIN_CODE});
+ for(const url of ['/api/driver/v1/../../ops/v1/orders','/api/driver/v1/%2e%2e/%2e%2e/ops/v1/orders','/api/driver/v1/%2E%2e/x','/api/driver/v1/./tasks','/api/driver/v1/a%2f..%2f..%2fops','/api/driver/v1//..//x'])
+  assert.throws(()=>authenticate({method:'GET',url,headers:{authorization:'Bearer '+r.body.accessToken}}),{code:'FORBIDDEN'},url);
+ assert.equal(authenticate({method:'GET',url:'/api/driver/v1/tasks?x=1',headers:{authorization:'Bearer '+r.body.accessToken}}).principalId,driver.principalId);
+});
+
+test('SEC-3: mock session permissions are trimmed to the audience',async()=>{
+ const mixed=session('driver',['driver:tasks:read','orders:read','pricing:write','portal:orders:read']);
+ const authenticate=developmentAuth([mixed],origin);
+ assert.deepEqual(authenticate.issueMock(mixed.tokenHash,'driver').session.permissions,['driver:tasks:read']);
+ const mixed2=session('customer',['portal:orders:read','orders:read','finance:export']);
+ const a2=developmentAuth([mixed2],origin);
+ assert.deepEqual(a2.issueMock(mixed2.tokenHash,'customer').session.permissions,['portal:orders:read']);
+});
