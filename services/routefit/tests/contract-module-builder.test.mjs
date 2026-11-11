@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import test from 'node:test';
 
 import {assembleContract, validateModuleStandards} from '../../../scripts/build-contract-modules.mjs';
@@ -55,4 +56,27 @@ test('requires an A or B tier and a required If-Match header for mutations',()=>
   valid.paths['/api/ops/v1/route-plan/{id}'].patch.parameters[1].required=true;
   delete valid.paths['/api/ops/v1/route-plan/{id}'].patch['x-baseline-tier'];
   assert.throws(()=>validateModuleStandards(valid,base),/x-baseline-tier/);
+});
+
+test('validates recorded legacy operations before they can be claimed by a module',()=>{
+  const legacyBase=structuredClone(base);
+  legacyBase.paths['/api/ops/v1/finance/payout-approvals']={get:{operationId:'listPayoutApprovals'}};
+  const recorded={...structuredClone(operation),operationId:'listPayoutApprovals',path:'/api/ops/v1/finance/payout-approvals',method:'GET'};
+  delete recorded['x-owner'];
+  const module={
+    module:'payout-approvals',
+    paths:{},
+    'x-recorded-operations':[recorded]
+  };
+  assert.throws(()=>validateModuleStandards(module,legacyBase),/x-owner/);
+});
+
+test('records all five A-tier payout approval operations in the BackendSenior module',()=>{
+  const module=JSON.parse(readFileSync(new URL('../../../contracts/modules/backendsenior-payout-approvals.json',import.meta.url)));
+  const recorded=module['x-recorded-operations'];
+  assert.equal(recorded.length,5);
+  assert.deepEqual(recorded.map(operation=>operation.operationId).sort(),[
+    'approvePayoutApproval','confirmPayoutPaid','getPayoutApproval','listPayoutApprovals','rejectPayoutApproval'
+  ]);
+  assert.ok(recorded.every(operation=>operation['x-baseline-tier']==='A'&&operation['x-owner']==='BackendSenior'));
 });

@@ -54,6 +54,18 @@ export function validateModuleStandards(module,base){
       }
     }
   }
+  const recorded=module['x-recorded-operations']??[];
+  if(!Array.isArray(recorded))fail(module,'x-recorded-operations must be an array');
+  for(const operation of recorded){
+    const method=operation?.method?.toLowerCase();
+    if(!method||!operation?.path||!base.paths?.[operation.path]?.[method])fail(module,`${operation?.operationId??'recorded operation'} must match an existing path and method`);
+    for(const key of ['operationId','x-permissions','x-stage','x-baseline-tier','x-implementation-status','x-version-resource','x-owner']){
+      if(operation[key]===undefined||operation[key]===null||operation[key]==='')fail(module,`${operation?.operationId??'recorded operation'} requires ${key}`);
+    }
+    if(!Array.isArray(operation['x-permissions']))fail(module,`${operation.operationId} x-permissions must be an array`);
+    if(!['A','B'].includes(operation['x-baseline-tier']))fail(module,`${operation.operationId} x-baseline-tier must be A or B`);
+    if(!operation['x-examples']?.success||!operation['x-examples']?.rejected)fail(module,`${operation.operationId} requires success and rejected x-examples`);
+  }
   for(const [name,schema] of Object.entries(module.components?.schemas??{})){
     visitSchema(schema,node=>{
       for(const [key,value] of Object.entries(node.properties??{})){
