@@ -13,13 +13,14 @@ interface Props {
   title?: string;
   description?: string;
   pathname?: string;
+  fullpage?: boolean;
 }
 
-const { lang, title = content[lang].meta.title, description = content[lang].meta.description, pathname = Astro.url.pathname } = Astro.props;
+const { lang, title = content[lang].meta.title, description = content[lang].meta.description, pathname = Astro.url.pathname, fullpage = false } = Astro.props;
 const canonical = new URL(pathname, Astro.site);
 ---
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} class:list={{ 'fullpage-html': fullpage }}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
