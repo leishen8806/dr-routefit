@@ -105,6 +105,28 @@ test('a driver can reach profile, cancel a sample withdrawal, and return to prof
   assert.equal(cancelled.withdrawalState, 'idle');
 });
 
+test('the approved local registration can go online, accept a trip, and reach withdrawal confirmation', () => {
+  const details = {
+    fullName: 'Sample Driver', vehicleType: 'box_truck', plateNumber: '2BB-4471', acceptedTerms: true,
+    documents: { idFront: true, idBack: true, license: true, vehicle: true },
+  };
+  const profile = transitionDemoDriverFlow(createDemoDriverFlow(), { type: 'start_registration' });
+  const vehicle = transitionDemoDriverFlow(profile, { type: 'continue_registration' });
+  const documents = transitionDemoDriverFlow(vehicle, { type: 'continue_registration' });
+  const ready = transitionDemoDriverFlow(documents, { type: 'set_registration_ready', registration: details });
+  const review = transitionDemoDriverFlow(ready, { type: 'submit_registration' });
+  const approved = transitionDemoDriverFlow(review, { type: 'approve_demo' });
+  const offer = transitionDemoDriverFlow(approved, { type: 'show_offer' });
+  const trips = transitionDemoDriverFlow(offer, { type: 'accept_offer' });
+  const profileTab = transitionDemoDriverFlow(trips, { type: 'show_profile' });
+  const withdrawal = transitionDemoDriverFlow(profileTab, { type: 'start_withdrawal' });
+
+  assert.equal(offer.screen, 'offer');
+  assert.equal(trips.screen, 'trips');
+  assert.equal(profileTab.screen, 'profile');
+  assert.equal(withdrawal.screen, 'withdrawal_confirm');
+});
+
 test('review, trip selection, and withdrawal confirmation expose reversible local paths', () => {
   const review = { ...createDemoDriverFlow(), screen: 'review', reviewState: 'submitted' };
   const returned = transitionDemoDriverFlow(review, { type: 'return_review' });
