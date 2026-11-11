@@ -49,6 +49,8 @@ import { errorText, languageOptions, text, type MessageKey } from './src/message
 import { openOfflineEventQueue } from './src/offline-queue.mjs';
 import { createOfflineQueueStore } from './src/offline-store';
 import { rejectConfirmationStep } from './src/task-actions.mjs';
+import { DriverDemoScreens, type DemoRegistration } from './src/DriverDemoScreens';
+import { createDemoDriverFlow, transitionDemoDriverFlow } from './src/demo-driver-flow.mjs';
 
 export default function App() {
   const [language, setLanguage] = useState<DriverLanguage>('zh-Hans');
@@ -82,6 +84,14 @@ export default function App() {
   const [quarantinedEvents, setQuarantinedEvents] = useState(0);
   const [queueFailed, setQueueFailed] = useState(false);
   const [syncBusy, setSyncBusy] = useState(false);
+  const [demoFlow, setDemoFlow] = useState(createDemoDriverFlow);
+  const [demoRegistration, setDemoRegistration] = useState<DemoRegistration>({
+    fullName: '',
+    vehicleType: '',
+    plateNumber: '',
+    acceptedTerms: false,
+    documents: { idFront: false, idBack: false, license: false, vehicle: false },
+  });
   const actionInFlight = useRef(false);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const queueRef = useRef<Awaited<ReturnType<typeof openOfflineEventQueue>> | null>(null);
@@ -410,6 +420,22 @@ export default function App() {
             ))}
           </View>
           {language === 'km' ? <Text style={styles.caption}>{t('kmPending')}</Text> : null}
+        </View>
+
+        <View style={styles.login}>
+          <DriverDemoScreens
+            language={language}
+            onRegistrationChange={setDemoRegistration}
+            onTransition={(type, payload = {}) => {
+              setDemoFlow((current) => transitionDemoDriverFlow(current, { type, ...payload }));
+            }}
+            registration={demoRegistration}
+            registrationReady={demoFlow.registrationReady}
+            reviewState={demoFlow.reviewState}
+            screen={demoFlow.screen}
+            online={demoFlow.online}
+            withdrawalState={demoFlow.withdrawalState}
+          />
         </View>
 
         <View style={styles.login}>
