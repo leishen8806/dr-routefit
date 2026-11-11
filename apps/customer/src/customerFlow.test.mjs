@@ -14,6 +14,7 @@ test('creates a mock draft that keeps COD separate from delivery fees', () => {
   assert.equal(order.status, 'draft');
   assert.equal(order.quote.status, 'pending');
   assert.equal(order.cod.amountMinor, 125000n);
+  assert.equal(order.cod.status, 'declared');
   assert.equal(order.payment.status, 'not_requested');
   assert.equal(order.isExample, true);
 });

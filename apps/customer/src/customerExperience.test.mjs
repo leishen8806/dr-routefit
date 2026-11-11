@@ -76,6 +76,16 @@ test('labels the payment confirmation as an example-only frontend action', () =>
   assert.equal(intent.action, 'frontend_only');
 });
 
+test('exposes the example quote as display configuration without calculating a price', () => {
+  const configuration = createCustomerExperience().getDemoConfiguration();
+
+  assert.deepEqual(configuration.quote, {
+    isExample: true,
+    displayAmount: '8.5000 USD',
+    vehicleLabel: 'Example vehicle',
+  });
+});
+
 test('sequences the example startup ad before the home popup and keeps one promotion visible', () => {
   const sequence = createPromotionSequence();
 

@@ -39,6 +39,14 @@ const profile = Object.freeze({
 
 const orders = Object.freeze([order]);
 
+const demoConfiguration = Object.freeze({
+  quote: Object.freeze({
+    isExample: true,
+    displayAmount: '8.5000 USD',
+    vehicleLabel: 'Example vehicle',
+  }),
+});
+
 export function createCustomerExperience() {
   return Object.freeze({
     getOverview() {
@@ -85,6 +93,9 @@ export function createCustomerExperience() {
         requiresConfirmation: true,
         action: order.payment.action,
       });
+    },
+    getDemoConfiguration() {
+      return demoConfiguration;
     },
   });
 }
