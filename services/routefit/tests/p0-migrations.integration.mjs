@@ -75,6 +75,15 @@ test('P0 database controls reject payout and appeal separation bypasses', async 
    }
   });
 
+  await t.test('payroll plan version rejects different principals for the same natural person', async () => {
+   const samePersonPrincipal = randomUUID();
+   await fixture.owner.query("INSERT INTO org.principal(id,company_id,kind,display_name,idp_subject,status,person_id) VALUES($1,$2,'STAFF','DEMO Same Person',$3,'ACTIVE',$4)", [samePersonPrincipal, companyId, 'local:'+samePersonPrincipal, preparer.person_id]);
+   await assert.rejects(
+    fixture.owner.query("INSERT INTO payroll.plan_version(id,company_id,plan_id,version,state,currency,effective_from,prepared_by_principal_id,approved_by_principal_id,snapshot) VALUES($1,$2,$3,1,'approved','USD',clock_timestamp(),$4,$5,'{}')", [randomUUID(), companyId, randomUUID(), preparerPrincipal, samePersonPrincipal]),
+    error => error.code === '23514'
+   );
+  });
+
   await t.test('optimization route rejects an order outside its company', async () => {
    const companyB = fixture.principals[1].companyId, customerB = fixture.customers[1], foreignOrderId = randomUUID();
    const foreignSnapshot = {order: {state: 'draft', version: 1, id: foreignOrderId, customerId: customerB}, draft: {customerId: customerB}};

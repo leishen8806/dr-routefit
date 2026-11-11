@@ -69,6 +69,18 @@ CREATE TABLE payroll.run_line (
 
 CREATE TRIGGER payroll_plan_version_append_only BEFORE UPDATE OR DELETE ON payroll.plan_version FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
 CREATE TRIGGER payroll_run_line_append_only BEFORE UPDATE OR DELETE ON payroll.run_line FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
+CREATE FUNCTION payroll.enforce_plan_version_person_separation() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE prepared_person_id uuid; approved_person_id uuid;
+BEGIN
+ SELECT person_id INTO prepared_person_id FROM org.principal WHERE company_id=NEW.company_id AND id=NEW.prepared_by_principal_id;
+ IF prepared_person_id IS NULL THEN RAISE EXCEPTION 'Payroll plan preparer principal must belong to a person' USING ERRCODE='23514'; END IF;
+ IF NEW.approved_by_principal_id IS NULL THEN RETURN NEW; END IF;
+ SELECT person_id INTO approved_person_id FROM org.principal WHERE company_id=NEW.company_id AND id=NEW.approved_by_principal_id;
+ IF approved_person_id IS NULL OR approved_person_id=prepared_person_id THEN RAISE EXCEPTION 'Payroll plan approval requires a different natural person' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END;
+$$;
+CREATE TRIGGER payroll_plan_version_requires_distinct_people BEFORE INSERT ON payroll.plan_version FOR EACH ROW EXECUTE FUNCTION payroll.enforce_plan_version_person_separation();
 CREATE FUNCTION payroll.require_approved_plan_version() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE plan_state text;
 BEGIN
