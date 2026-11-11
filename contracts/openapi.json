@@ -32427,7 +32427,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.dimensionRule.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32509,7 +32509,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.dimensionRule.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32564,7 +32564,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.vehicleTariff.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32646,7 +32646,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.vehicleTariff.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32701,7 +32701,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.valueAddedService.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32783,7 +32783,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.valueAddedService.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32838,7 +32838,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.fxRate.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32920,7 +32920,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.fxRate.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32975,7 +32975,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.quoteTrial.configurationVersion",
         "x-owner": "Backend1",
         "parameters": [
@@ -33029,7 +33029,7 @@
         "x-permissions-note": "Awaiting Lead decision for customer quote permission.",
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.quoteTrial.configurationVersion",
         "x-owner": "Backend1",
         "parameters": [
@@ -33083,7 +33083,7 @@
         "x-permissions-note": "Awaiting Lead decision for customer service-option permission.",
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "pricing.fxRate.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33167,7 +33167,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchant.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33249,7 +33249,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchant.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33304,7 +33304,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchant.version",
         "x-owner": "Backend1",
         "responses": {
@@ -33349,7 +33349,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchant.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33401,7 +33401,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchant.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33453,7 +33453,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchant.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33505,7 +33505,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchant.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33557,7 +33557,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchantContract.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33636,7 +33636,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchantContract.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33688,7 +33688,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "merchantContract.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33740,7 +33740,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "user.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33817,7 +33817,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "user.version",
         "x-owner": "Backend1",
         "responses": {
@@ -33859,7 +33859,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponBatch.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33934,7 +33934,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponBatch.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33986,7 +33986,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponBatch.version",
         "x-owner": "Backend1",
         "responses": {
@@ -34028,7 +34028,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponBatch.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34080,7 +34080,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponBatch.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34132,7 +34132,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponBatch.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34184,7 +34184,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponBatch.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34236,7 +34236,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponRedemption.idempotencyKey",
         "x-owner": "Backend1",
         "parameters": [
@@ -34313,7 +34313,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponRiskFlag.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34390,7 +34390,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "couponRiskFlag.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34441,7 +34441,7 @@
         "x-permissions-note": "Awaiting Lead decision for customer order permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "order.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34492,7 +34492,7 @@
         "x-permissions-note": "Awaiting Lead decision for customer SKU permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "skuDimension.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34566,7 +34566,7 @@
         "x-permissions-note": "Awaiting Lead decision for customer SKU permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "skuDimension.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34617,7 +34617,7 @@
         "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "coupon.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34693,7 +34693,7 @@
         "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "coupon.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -34744,7 +34744,7 @@
         "x-permissions-note": "Awaiting Lead decision for customer COD permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "order.version",
         "x-owner": "Backend1",
         "parameters": [
