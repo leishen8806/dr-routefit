@@ -75,6 +75,7 @@ CREATE TABLE kpi.appeal (
  FOREIGN KEY(company_id,assessment_id) REFERENCES kpi.assessment(company_id,id),
  FOREIGN KEY(company_id,reward_penalty_id) REFERENCES kpi.reward_penalty(company_id,id),
  CHECK(decision_person_id IS NULL OR decision_person_id<>reward_penalty_author_person_id),
+ CHECK(decision_person_id IS NULL OR decision_person_id<>submitted_by_person_id),
  CHECK((state='submitted' AND decision_person_id IS NULL AND decision_reason IS NULL AND decided_at IS NULL) OR (state IN ('accepted','rejected') AND decision_person_id IS NOT NULL AND decision_reason IS NOT NULL AND decided_at IS NOT NULL))
 );
 
@@ -117,6 +118,7 @@ ALTER TABLE kpi.appeal ENABLE ROW LEVEL SECURITY;
 ALTER TABLE kpi.appeal FORCE ROW LEVEL SECURITY;
 CREATE POLICY company_scope ON kpi.appeal USING(company_id=NULLIF(current_setting('app.company_id',true),'')::uuid) WITH CHECK(company_id=NULLIF(current_setting('app.company_id',true),'')::uuid);
 
+GRANT USAGE ON SCHEMA kpi TO routefit_api;
 GRANT SELECT,INSERT ON kpi.definition_version,kpi.assessment,kpi.reward_penalty,kpi.appeal TO routefit_api;
 GRANT UPDATE ON kpi.appeal TO routefit_api;
 

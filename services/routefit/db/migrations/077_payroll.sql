@@ -89,6 +89,7 @@ ALTER TABLE payroll.run_line ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payroll.run_line FORCE ROW LEVEL SECURITY;
 CREATE POLICY company_scope ON payroll.run_line USING(company_id=NULLIF(current_setting('app.company_id',true),'')::uuid) WITH CHECK(company_id=NULLIF(current_setting('app.company_id',true),'')::uuid);
 
+GRANT USAGE ON SCHEMA payroll TO routefit_api;
 GRANT SELECT,INSERT ON payroll.plan_version,payroll.run,payroll.run_line TO routefit_api;
 GRANT UPDATE ON payroll.run TO routefit_api;
 
