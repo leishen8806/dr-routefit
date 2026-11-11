@@ -35757,9 +35757,14 @@
           "rejected": {
             "status": 401,
             "body": {
-              "code": "UNAUTHENTICATED",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "UNAUTHENTICATED",
+                "message": "Authentication required (sample)",
+                "messageKey": "error.unauthenticated",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -35873,9 +35878,14 @@
           "rejected": {
             "status": 400,
             "body": {
-              "code": "VALIDATION_FAILED",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "Validation failed (sample)",
+                "messageKey": "error.validation_failed",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -36024,9 +36034,14 @@
           "rejected": {
             "status": 401,
             "body": {
-              "code": "UNAUTHENTICATED",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "UNAUTHENTICATED",
+                "message": "Authentication required (sample)",
+                "messageKey": "error.unauthenticated",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -36140,9 +36155,14 @@
           "rejected": {
             "status": 400,
             "body": {
-              "code": "VALIDATION_FAILED",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "Validation failed (sample)",
+                "messageKey": "error.validation_failed",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -36306,9 +36326,14 @@
           "rejected": {
             "status": 401,
             "body": {
-              "code": "SIGNATURE_INVALID",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "SIGNATURE_INVALID",
+                "message": "Signature invalid (sample)",
+                "messageKey": "error.signature_invalid",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -36446,9 +36471,14 @@
           "rejected": {
             "status": 403,
             "body": {
-              "code": "FORBIDDEN",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -36767,9 +36797,14 @@
           "rejected": {
             "status": 400,
             "body": {
-              "code": "VALIDATION_FAILED",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "Validation failed (sample)",
+                "messageKey": "error.validation_failed",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -36911,9 +36946,14 @@
           "rejected": {
             "status": 403,
             "body": {
-              "code": "FORBIDDEN",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -37086,9 +37126,14 @@
           "rejected": {
             "status": 403,
             "body": {
-              "code": "FORBIDDEN",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -37235,9 +37280,14 @@
           "rejected": {
             "status": 422,
             "body": {
-              "code": "HARD_CONSTRAINT_VIOLATION",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "HARD_CONSTRAINT_VIOLATION",
+                "message": "Hard constraint violation (sample)",
+                "messageKey": "error.hard_constraint_violation",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -37348,9 +37398,14 @@
           "rejected": {
             "status": 403,
             "body": {
-              "code": "FORBIDDEN",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },

@@ -133,9 +133,14 @@
           "rejected": {
             "status": 403,
             "body": {
-              "code": "FORBIDDEN",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         }

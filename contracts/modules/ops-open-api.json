@@ -313,9 +313,14 @@
           "rejected": {
             "status": 400,
             "body": {
-              "code": "VALIDATION_FAILED",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "Validation failed (sample)",
+                "messageKey": "error.validation_failed",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -456,9 +461,14 @@
           "rejected": {
             "status": 403,
             "body": {
-              "code": "FORBIDDEN",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -630,9 +640,14 @@
           "rejected": {
             "status": 403,
             "body": {
-              "code": "FORBIDDEN",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         }

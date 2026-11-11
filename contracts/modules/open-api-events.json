@@ -149,9 +149,14 @@
           "rejected": {
             "status": 401,
             "body": {
-              "code": "SIGNATURE_INVALID",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "SIGNATURE_INVALID",
+                "message": "Signature invalid (sample)",
+                "messageKey": "error.signature_invalid",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         }

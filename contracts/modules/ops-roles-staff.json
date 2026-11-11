@@ -142,9 +142,14 @@
           "rejected": {
             "status": 422,
             "body": {
-              "code": "HARD_CONSTRAINT_VIOLATION",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "HARD_CONSTRAINT_VIOLATION",
+                "message": "Hard constraint violation (sample)",
+                "messageKey": "error.hard_constraint_violation",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -254,9 +259,14 @@
           "rejected": {
             "status": 403,
             "body": {
-              "code": "FORBIDDEN",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         }
