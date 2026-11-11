@@ -123,7 +123,7 @@
         "x-stage": "R2",
         "x-tier": "A",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "Role",
         "x-owner": "OpsLead",
         "x-examples": {
@@ -226,7 +226,7 @@
         "x-stage": "R2",
         "x-tier": "A",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "none",
         "x-owner": "OpsLead",
         "x-examples": {
@@ -383,7 +383,7 @@
         "x-stage": "R2",
         "x-tier": "A",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "Staff",
         "x-owner": "OpsLead",
         "x-examples": {
@@ -538,7 +538,7 @@
         "x-stage": "R2",
         "x-tier": "A",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "Staff",
         "x-owner": "OpsLead",
         "x-examples": {
@@ -693,7 +693,7 @@
         "x-stage": "R2",
         "x-tier": "A",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "Staff",
         "x-owner": "OpsLead",
         "x-examples": {

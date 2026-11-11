@@ -128,7 +128,7 @@
         "x-stage": "R2",
         "x-tier": "B",
         "x-baseline-tier": "B",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "none",
         "x-owner": "OpsLead",
         "x-examples": {
