@@ -18,6 +18,8 @@ test('open platform write schemas keep secret handling, versioning, and payout-r
 
   assert.equal(schemas.OpenApiKeyCreate.properties.secret, undefined);
   assert.equal(schemas.OpenApiKeyAction.required.includes('version'), true);
+  assert.equal(schemas.WebhookEndpointCreate.required.includes('clientId'), true);
+  assert.equal(schemas.WebhookEndpointCreate.properties.clientId.type, 'string');
   assert.equal(schemas.AdCampaignAction.properties.action.enum.includes('approve'), true);
   assert.doesNotThrow(() => validate('RoleCreate', {name: 'cashier', permissions: ['payouts:confirm-paid']}));
   assert.throws(
