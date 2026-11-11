@@ -1,6 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {ApiError,ensure} from '../domain/errors.mjs';
 import {activateMerchantContract as activateContract,expireMerchantContract as expireContract} from '../domain/merchant-contracts.mjs';
+import {lockCoupon as lockCouponDomain} from '../domain/coupons.mjs';
 import {freezeUser as freezeUserDomain,unfreezeUser as unfreezeUserDomain} from '../domain/user-freeze.mjs';
 
 export async function createCouponBatch({client,companyId,idempotencyKey},{discountType,amountMinor,currency,budgetMinor,minimumSpendMinor=0}){
@@ -102,4 +103,42 @@ export async function unfreezeUser({client,companyId,userId,version}){
   RETURNING principal_id,action,version`,[randomUUID(),companyId,userId,current.freezeReason,nextVersion]);
  const row=result.rows[0];
  return {userId:row.principal_id,state:next.state,version:Number(row.version)};
+}
+
+export async function lockOrderCoupon({client,companyId,orderId},{couponId}){
+ const couponRow=(await client.query(`SELECT c.id,c.state,b.state AS batch_state,b.amount_minor,b.minimum_spend_minor,
+  b.budget_minor-COALESCE((SELECT sum(r.discount_minor) FROM marketing.coupon_redemption r
+   WHERE r.company_id=b.company_id AND r.state<>'RELEASED'),0) AS budget_remaining_minor
+  FROM marketing.coupon c
+  JOIN marketing.coupon_batch b ON (b.company_id,b.id)=(c.company_id,c.batch_id)
+  WHERE c.company_id=$1 AND c.id=$2`,[companyId,couponId])).rows[0];
+ if(!couponRow)throw new ApiError(404,'NOT_FOUND','Coupon was not found');
+ const orderRow=(await client.query(`SELECT snapshot,cod_amount_minor,payment_method
+  FROM orders.draft WHERE company_id=$1 AND id=$2`,[companyId,orderId])).rows[0];
+ if(!orderRow)throw new ApiError(404,'NOT_FOUND','Order was not found');
+ const existing=(await client.query(`SELECT coupon_id FROM marketing.coupon_redemption
+  WHERE company_id=$1 AND order_id=$2`,[companyId,orderId])).rows[0];
+ const risk=(await client.query(`SELECT 1 FROM marketing.risk_flag
+  WHERE company_id=$1 AND state='OPEN' AND (coupon_id=$2 OR order_id=$3)
+  LIMIT 1`,[companyId,couponId,orderId])).rows[0];
+ const storedOrder=orderRow.snapshot.order;
+ const locked=lockCouponDomain({
+  coupon:{id:couponRow.id,approved:couponRow.batch_state==='APPROVED',amountMinor:Number(couponRow.amount_minor),minimumSpendMinor:Number(couponRow.minimum_spend_minor),budgetRemainingMinor:Number(couponRow.budget_remaining_minor)},
+  order:{id:orderId,merchandiseMinor:Number(storedOrder.merchandiseMinor),shippingMinor:Number(storedOrder.shippingMinor),codMinor:Number(orderRow.cod_amount_minor??0),insuranceMinor:Number(storedOrder.insuranceMinor??0),paymentMethod:orderRow.payment_method},
+  existingCouponId:existing?.coupon_id??null,
+  alreadyUsed:couponRow.state==='REDEEMED',
+  risk:{state:risk?'PAUSED':'CLEAR'}
+ });
+ const result=await client.query(`WITH locked_coupon AS (
+  UPDATE marketing.coupon SET state='LOCKED'
+  WHERE company_id=$1 AND id=$2 AND state='ISSUED'
+  RETURNING id
+ ), redemption AS (
+  INSERT INTO marketing.coupon_redemption(id,company_id,coupon_id,order_id,state,discount_minor)
+  SELECT $3,$1,id,$4,'LOCKED',$5 FROM locked_coupon
+  RETURNING coupon_id,order_id,state,discount_minor
+ ) SELECT coupon_id,order_id,state,discount_minor FROM redemption`,[companyId,couponId,randomUUID(),orderId,locked.discountMinor]);
+ const row=result.rows[0];
+ if(!row)throw new ApiError(409,'COUPON_ALREADY_USED','Coupon is no longer available');
+ return {...locked,couponId:row.coupon_id,orderId:row.order_id,state:row.state,discountMinor:Number(row.discount_minor)};
 }

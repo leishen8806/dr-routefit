@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {backend1Handlers,createBackend1Handlers} from '../application/backend1-handlers.mjs';
-import {activateMerchantContract as activateMerchantContractRepository,createCouponBatch,expireMerchantContract as expireMerchantContractRepository,freezeUser as freezeUserRepository,getMerchantContract,listCoupons,listMerchantSkuDimensions,unfreezeUser as unfreezeUserRepository} from '../adapters/backend1.mjs';
+import {activateMerchantContract as activateMerchantContractRepository,createCouponBatch,expireMerchantContract as expireMerchantContractRepository,freezeUser as freezeUserRepository,getMerchantContract,listCoupons,listMerchantSkuDimensions,lockOrderCoupon as lockOrderCouponRepository,unfreezeUser as unfreezeUserRepository} from '../adapters/backend1.mjs';
 
 test('Backend1 handlers pass authenticated context and validated input to their repository boundary', async () => {
  const calls=[];
@@ -179,4 +179,33 @@ test('default Backend1 unfreeze handler uses the append-only user freeze reposit
  }};
  const result=await backend1Handlers.unfreezeUser({client,companyId:'00000000-0000-0000-0000-000000000001',userId:'00000000-0000-0000-0000-000000000003',version:2},{});
  assert.deepEqual(result,{status:200,body:{userId:'00000000-0000-0000-0000-000000000003',state:'ACTIVE',version:3}});
+});
+
+test('coupon lock repository runs the domain rules then atomically locks and appends history', async () => {
+ const calls=[];
+ const client={query:async(sql,params)=>{
+  calls.push({sql,params});
+  if(calls.length===1)return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000'}]};
+  if(calls.length===2)return {rows:[{snapshot:{order:{id:'00000000-0000-0000-0000-000000000020',merchandiseMinor:1200,shippingMinor:200,insuranceMinor:100}},cod_amount_minor:'400',payment_method:'PREPAID'}]};
+  if(calls.length===3)return {rows:[]};
+  if(calls.length===4)return {rows:[]};
+  return {rows:[{coupon_id:'00000000-0000-0000-0000-000000000010',order_id:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discount_minor:'200'}]};
+ }};
+ const result=await lockOrderCouponRepository({client,companyId:'00000000-0000-0000-0000-000000000001',orderId:'00000000-0000-0000-0000-000000000020'},{couponId:'00000000-0000-0000-0000-000000000010'});
+ assert.deepEqual(result,{couponId:'00000000-0000-0000-0000-000000000010',orderId:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discountMinor:200,driverCommissionBaseMinor:1700,fraudReviewRequired:true});
+ assert.match(calls[4].sql,/UPDATE marketing\.coupon/);
+ assert.match(calls[4].sql,/INSERT INTO marketing\.coupon_redemption/);
+});
+
+test('default Backend1 coupon lock handler uses the coupon lock repository', async () => {
+ let call=0;
+ const client={query:async()=>{
+  call+=1;
+  if(call===1)return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000'}]};
+  if(call===2)return {rows:[{snapshot:{order:{id:'00000000-0000-0000-0000-000000000020',merchandiseMinor:1200,shippingMinor:200,insuranceMinor:100}},cod_amount_minor:'400',payment_method:'PREPAID'}]};
+  if(call<5)return {rows:[]};
+  return {rows:[{coupon_id:'00000000-0000-0000-0000-000000000010',order_id:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discount_minor:'200'}]};
+ }};
+ const result=await backend1Handlers.lockOrderCoupon({client,companyId:'00000000-0000-0000-0000-000000000001',orderId:'00000000-0000-0000-0000-000000000020'},{couponId:'00000000-0000-0000-0000-000000000010'});
+ assert.deepEqual(result,{status:200,body:{couponId:'00000000-0000-0000-0000-000000000010',orderId:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discountMinor:200,driverCommissionBaseMinor:1700,fraudReviewRequired:true}});
 });
