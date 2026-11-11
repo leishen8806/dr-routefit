@@ -199,8 +199,20 @@ const panelIndex = (index: number) => index === 0 ? '01 / 06' : `0${index + 1} /
   const panels = [...document.querySelectorAll<HTMLElement>('.fullpage-home [data-screen]')];
   const dots = [...document.querySelectorAll<HTMLAnchorElement>('.fullpage-dots a')];
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const desktop = window.matchMedia('(min-width: 1024px) and (min-height: 820px)');
+  const desktop = window.matchMedia('(min-width: 1024px) and (min-height: 700px)');
   let activeIndex = 0;
+
+  const updateSnapMode = () => {
+    document.documentElement.classList.remove('fullpage-snap-ready');
+    if (reducedMotion || !desktop.matches) return;
+    const fits = panels.every((panel) => {
+      const shell = panel.querySelector<HTMLElement>('.panel-shell');
+      const style = getComputedStyle(panel);
+      const available = innerHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+      return shell && shell.getBoundingClientRect().height <= available + 1;
+    });
+    document.documentElement.classList.toggle('fullpage-snap-ready', Boolean(fits));
+  };
 
   if (reducedMotion) {
     panels.forEach((panel) => panel.classList.add('is-visible'));
@@ -223,14 +235,23 @@ const panelIndex = (index: number) => index === 0 ? '01 / 06' : `0${index + 1} /
   }, { threshold: [0.45, 0.7] });
   panels.forEach((panel) => activeObserver.observe(panel));
 
+  requestAnimationFrame(updateSnapMode);
+  document.fonts?.ready.then(updateSnapMode);
+
   let resizeFrame = 0;
   window.addEventListener('resize', () => {
     cancelAnimationFrame(resizeFrame);
-    resizeFrame = requestAnimationFrame(() => panels[activeIndex]?.scrollIntoView({ block: 'start', behavior: 'auto' }));
+    resizeFrame = requestAnimationFrame(() => {
+      updateSnapMode();
+      const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      panels[activeIndex]?.scrollIntoView({ block: 'start', behavior: 'auto' });
+      document.documentElement.style.scrollBehavior = previousScrollBehavior;
+    });
   });
 
   document.addEventListener('keydown', (event) => {
-    if (!desktop.matches || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (!document.documentElement.classList.contains('fullpage-snap-ready') || event.altKey || event.ctrlKey || event.metaKey) return;
     if ((event.target as HTMLElement | null)?.closest('a, button, input, textarea, select, summary')) return;
     const forward = event.key === 'ArrowDown' || event.key === 'PageDown' || (event.key === ' ' && !event.shiftKey);
     const backward = event.key === 'ArrowUp' || event.key === 'PageUp' || (event.key === ' ' && event.shiftKey);

@@ -55,7 +55,6 @@
   display: grid;
   min-height: 100svh;
   align-content: flex-start;
-  align-content: safe center;
   padding: calc(var(--fp-header-height) + 24px) 0 24px;
   overflow: hidden;
   scroll-margin-top: 0;
@@ -272,12 +271,34 @@ html[lang="km"] .panel-disclosure p { line-height: 1.75; }
   #screen-1 .panel-button { min-height: 44px; }
 }
 
-@media (min-width: 1024px) and (min-height: 820px) {
-  .fullpage-html { scroll-snap-type: y mandatory; }
-  .fullpage-panel { scroll-snap-align: start; scroll-snap-stop: always; }
+@media (min-width: 1024px) and (min-height: 700px) and (max-height: 819px) {
+  .fullpage-panel { padding: calc(var(--fp-header-height) + 16px) 0 16px; }
+  .panel-index { margin-bottom: 8px; }
+  .panel-copy h1,
+  .panel-copy h2 { font-size: clamp(2.35rem, 3.4vw, 3.2rem); }
+  html[lang="zh"] .panel-copy h1,
+  html[lang="zh"] .panel-copy h2 { font-size: clamp(2rem, 2.7vw, 3rem); }
+  html[lang="en"] .panel-copy h1,
+  html[lang="en"] .panel-copy h2 { font-size: clamp(2.4rem, 3vw, 3rem); }
+  html[lang="km"] .panel-copy h1,
+  html[lang="km"] .panel-copy h2 { font-size: clamp(2.15rem, 3vw, 3.1rem); line-height: 1.42; }
+  .panel-lead { margin-top: 12px; font-size: .98rem; line-height: 1.5; }
+  html[lang="km"] .panel-lead,
+  html[lang="km"] .panel-facts,
+  html[lang="km"] .panel-disclosure p { line-height: 1.55; }
+  .panel-facts { gap: 5px; margin-top: 10px; font-size: .9rem; line-height: 1.45; }
+  .panel-disclosure { margin-top: 10px; }
+  .panel-actions { margin-top: 14px; }
+  .panel-badge { margin-top: 12px; }
+  .entry-grid { margin-top: 16px; }
 }
 
-@media (max-width: 1023px), (max-height: 819px) {
+@media (min-width: 1024px) and (min-height: 700px) {
+  .fullpage-html.fullpage-snap-ready { scroll-snap-type: y mandatory; }
+  .fullpage-html.fullpage-snap-ready .fullpage-panel { align-content: safe center; scroll-snap-align: start; scroll-snap-stop: always; }
+}
+
+@media (max-width: 1023px), (max-height: 699px) {
   .fullpage-html { scroll-snap-type: none; }
   .fullpage-panel { padding: calc(var(--fp-header-height) + 24px) 0 48px; scroll-snap-align: none; }
   .panel-shell,

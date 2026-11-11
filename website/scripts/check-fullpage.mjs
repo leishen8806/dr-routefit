@@ -6,6 +6,10 @@ import { baseURL, startPreview, stopPreview } from './preview-server.mjs';
 const server = await startPreview();
 const browser = await chromium.launch();
 const evidence = process.env.EVIDENCE_DIR || path.join(process.cwd(), 'test-results', 'playwright');
+const waitForLayout = (page) => page.evaluate(async () => {
+  await document.fonts.ready;
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+});
 const viewports = [
   { width: 1440, height: 900 },
   { width: 1280, height: 800 },
@@ -14,17 +18,24 @@ const viewports = [
 ];
 const snapViewports = [
   { width: 1920, height: 1000 },
-  ...viewports.filter(({ width, height }) => width >= 1024 && height >= 820),
+  { width: 1440, height: 900 },
 ];
 const trifoldViewports = [
-  { label: 'single-portrait', width: 390, height: 840, snap: false },
-  { label: 'single-landscape', width: 840, height: 390, snap: false },
-  { label: 'dual-portrait', width: 750, height: 840, snap: false },
-  { label: 'dual-landscape', width: 840, height: 750, snap: false },
-  { label: 'triple-portrait', width: 780, height: 1100, snap: false },
-  { label: 'triple-landscape', width: 1100, height: 780, snap: false },
-  { label: 'extreme-portrait', width: 700, height: 1100, snap: false },
-  { label: 'extreme-landscape', width: 1100, height: 700, snap: false },
+  { label: 'single-portrait', width: 390, height: 840 },
+  { label: 'single-landscape', width: 840, height: 390 },
+  { label: 'dual-portrait', width: 750, height: 840 },
+  { label: 'dual-landscape', width: 840, height: 750 },
+  { label: 'triple-portrait', width: 780, height: 1100 },
+  { label: 'triple-landscape', width: 1100, height: 780 },
+  { label: 'extreme-portrait', width: 700, height: 1100 },
+  { label: 'extreme-landscape', width: 1100, height: 700 },
+];
+const adaptiveViewports = [
+  { label: 'laptop-1440x790', width: 1440, height: 790, expectedSnap: true },
+  { label: 'laptop-1536x730', width: 1536, height: 730, expectedSnap: true },
+  { label: 'short-1366x660', width: 1366, height: 660, expectedSnap: false },
+  { label: 'laptop-1280x720', width: 1280, height: 720 },
+  { label: 'threshold-1024x700', width: 1024, height: 700 },
 ];
 
 try {
@@ -48,7 +59,7 @@ try {
         return { horizontalGap, verticalGap };
       }));
       for (const layout of layouts) {
-        const gap = viewport.width >= 1024 && viewport.height >= 820 ? layout.horizontalGap : layout.verticalGap;
+        const gap = viewport.width >= 1024 && viewport.height >= 700 ? layout.horizontalGap : layout.verticalGap;
         if (gap < 47) throw new Error(`${lang}/${viewport.width}: copy-to-scene gap ${gap.toFixed(1)}px`);
       }
 
@@ -117,22 +128,26 @@ try {
     for (const viewport of snapViewports) {
       const page = await browser.newPage({ viewport });
       await page.goto(`${baseURL}/${lang}/`);
+      await waitForLayout(page);
+      const snapEnabled = await page.evaluate(() => document.documentElement.classList.contains('fullpage-snap-ready'));
       await page.evaluate(() => window.scrollTo(0, 0));
-      for (let index = 0; index < 6; index += 1) {
-        if (index > 0) await page.keyboard.press('PageDown');
-        await page.waitForFunction((panelIndex) => {
-          const panel = document.querySelectorAll('.fullpage-panel')[panelIndex];
-          return panel && Math.abs(panel.getBoundingClientRect().top) <= 1;
-        }, index);
-        const position = await page.evaluate((panelIndex) => {
-          const panels = [...document.querySelectorAll('.fullpage-panel')];
-          return {
-            top: panels[panelIndex].getBoundingClientRect().top,
-            previousBottom: panelIndex === 0 ? 0 : panels[panelIndex - 1].getBoundingClientRect().bottom,
-          };
-        }, index);
-        if (Math.abs(position.top) > 1 || position.previousBottom > 1) {
-          throw new Error(`${lang}/${viewport.width}/screen-${index + 1}: previous screen remains visible after snap`);
+      if (snapEnabled) {
+        for (let index = 0; index < 6; index += 1) {
+          if (index > 0) await page.keyboard.press('PageDown');
+          await page.waitForFunction((panelIndex) => {
+            const panel = document.querySelectorAll('.fullpage-panel')[panelIndex];
+            return panel && Math.abs(panel.getBoundingClientRect().top) <= 1;
+          }, index);
+          const position = await page.evaluate((panelIndex) => {
+            const panels = [...document.querySelectorAll('.fullpage-panel')];
+            return {
+              top: panels[panelIndex].getBoundingClientRect().top,
+              previousBottom: panelIndex === 0 ? 0 : panels[panelIndex - 1].getBoundingClientRect().bottom,
+            };
+          }, index);
+          if (Math.abs(position.top) > 1 || position.previousBottom > 1) {
+            throw new Error(`${lang}/${viewport.width}/screen-${index + 1}: previous screen remains visible after snap`);
+          }
         }
       }
       await page.keyboard.press('End');
@@ -163,12 +178,14 @@ try {
   }
 
   for (const lang of ['zh', 'en', 'km']) {
-    for (const viewport of trifoldViewports) {
+    for (const viewport of [...trifoldViewports, ...adaptiveViewports]) {
       const page = await browser.newPage({ viewport });
       await page.goto(`${baseURL}/${lang}/`);
+      await waitForLayout(page);
       await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; });
       const snap = await page.evaluate(() => getComputedStyle(document.documentElement).scrollSnapType);
-      if ((snap !== 'none') !== viewport.snap) throw new Error(`${lang}/${viewport.label}: unexpected snap mode ${snap}`);
+      const snapEnabled = snap !== 'none';
+      if (viewport.expectedSnap !== undefined && snapEnabled !== viewport.expectedSnap) throw new Error(`${lang}/${viewport.label}: unexpected snap mode ${snap}`);
       const panels = page.locator('.fullpage-panel');
       for (let index = 0; index < await panels.count(); index += 1) {
         const panel = panels.nth(index);
@@ -176,8 +193,8 @@ try {
         await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
         const clipped = await panel.evaluate((node, snapEnabled) => {
           const panelRect = node.getBoundingClientRect();
-          const content = [...node.querySelectorAll('.panel-copy h1, .panel-copy h2, .panel-copy p, .panel-copy li, .panel-copy a')]
-            .filter((item) => item.getBoundingClientRect().width > 0 && item.getBoundingClientRect().height > 0);
+          const content = [...node.querySelectorAll('.panel-copy h1, .panel-copy h2, .panel-copy p, .panel-copy li, .panel-copy a, .panel-copy summary')]
+            .filter((item) => item.checkVisibility() && item.getBoundingClientRect().width > 0 && item.getBoundingClientRect().height > 0);
           const item = content.find((candidate) => {
             const rect = candidate.getBoundingClientRect();
             return rect.left < -1 || rect.right > innerWidth + 1 || rect.top < panelRect.top - 1 || rect.bottom > panelRect.bottom + 1
@@ -192,9 +209,9 @@ try {
             panel: { top: panelRect.top, bottom: panelRect.bottom },
             viewport: { width: innerWidth, height: innerHeight },
           };
-        }, viewport.snap);
+        }, snapEnabled);
         if (clipped) throw new Error(`${lang}/${viewport.label}/screen-${index + 1}: copy or action is clipped ${JSON.stringify(clipped)}`);
-        if (viewport.snap) {
+        if (snapEnabled) {
           const position = await page.evaluate((panelIndex) => {
             const all = document.querySelectorAll('.fullpage-panel');
             return {
@@ -209,6 +226,7 @@ try {
       await page.waitForFunction(() => Math.abs(document.documentElement.scrollHeight - innerHeight - scrollY) <= 1);
       await page.locator(`.site-footer a[href="/${lang}/terms/"]`).click({ trial: true });
       await page.locator(`.site-footer a[href="/${lang}/privacy/"]`).click({ trial: true });
+      console.log(`FULLPAGE_MODE lang=${lang} viewport=${viewport.width}x${viewport.height} mode=${snapEnabled ? 'SNAP' : 'NORMAL'} clipped=0`);
       await page.close();
     }
   }
@@ -220,7 +238,7 @@ try {
     await page.waitForFunction(() => document.querySelector('.fullpage-dots a:nth-child(3)')?.getAttribute('aria-current') === 'step');
     for (const size of [{ width: 390, height: 840 }, { width: 750, height: 840 }, { width: 1100, height: 780 }, { width: 390, height: 840 }, { width: 1100, height: 780 }]) {
       await page.setViewportSize(size);
-      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await waitForLayout(page);
       const layout = await page.locator('#screen-3').evaluate((node) => {
         const rect = node.getBoundingClientRect();
         const center = document.elementFromPoint(innerWidth / 2, innerHeight / 2);
@@ -254,7 +272,7 @@ try {
   if (reducedResult.snap !== 'none' || reducedResult.hidden) throw new Error('reduced motion does not disable snap and reveals');
   await reduced.close();
 
-  console.log('FULLPAGE_CHECK=PASS LANGUAGES=3 VIEWPORTS=4 SCREENS=6 KEYBOARD=PASS FOOTER=PASS REDUCED_MOTION=PASS TRIFOLD=PASS TRIFOLD_STATES=8 RESIZE=PASS');
+  console.log('FULLPAGE_CHECK=PASS LANGUAGES=3 VIEWPORTS=4 SCREENS=6 KEYBOARD=PASS FOOTER=PASS REDUCED_MOTION=PASS TRIFOLD=PASS TRIFOLD_STATES=8 ADAPTIVE_STATES=5 RESIZE=PASS');
 } finally {
   await browser.close();
   await stopPreview(server);
