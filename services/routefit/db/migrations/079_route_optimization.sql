@@ -65,8 +65,27 @@ BEGIN
 END;
 $$;
 
+CREATE FUNCTION dispatch.enforce_optimization_route_ownership() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF jsonb_typeof(NEW.order_ids)<>'array' THEN RAISE EXCEPTION 'Optimization route orders must be an array' USING ERRCODE='23514'; END IF;
+ IF EXISTS(
+  SELECT 1 FROM jsonb_array_elements_text(NEW.order_ids) AS route_order(id)
+  WHERE CASE WHEN route_order.id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+   THEN NOT EXISTS(SELECT 1 FROM orders.draft AS order_record WHERE order_record.company_id=NEW.company_id AND order_record.id=route_order.id::uuid)
+   ELSE true END
+ ) THEN RAISE EXCEPTION 'Optimization route orders must belong to the company' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(
+  SELECT 1 FROM dispatch.optimization_run
+  WHERE company_id=NEW.company_id AND id=NEW.optimization_run_id
+    AND NEW.order_ids <@ COALESCE(input_snapshot->'orderIds','[]'::jsonb)
+ ) THEN RAISE EXCEPTION 'Optimization route orders must be part of the run input' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END;
+$$;
+
 CREATE TRIGGER optimization_run_transition BEFORE UPDATE OR DELETE ON dispatch.optimization_run FOR EACH ROW EXECUTE FUNCTION dispatch.enforce_optimization_run_transition();
 CREATE TRIGGER optimization_run_event_after_transition AFTER UPDATE ON dispatch.optimization_run FOR EACH ROW EXECUTE FUNCTION dispatch.append_optimization_run_event();
+CREATE TRIGGER optimization_route_ownership BEFORE INSERT ON dispatch.optimization_route FOR EACH ROW EXECUTE FUNCTION dispatch.enforce_optimization_route_ownership();
 CREATE TRIGGER optimization_route_append_only BEFORE UPDATE OR DELETE ON dispatch.optimization_route FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
 CREATE TRIGGER optimization_run_event_append_only BEFORE UPDATE OR DELETE ON dispatch.optimization_run_event FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
 

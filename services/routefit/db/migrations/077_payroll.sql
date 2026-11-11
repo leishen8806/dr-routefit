@@ -20,7 +20,9 @@ CREATE TABLE payroll.plan_version (
  UNIQUE(company_id,plan_id,version),
  FOREIGN KEY(company_id,prepared_by_principal_id) REFERENCES org.principal(company_id,id),
  FOREIGN KEY(company_id,approved_by_principal_id) REFERENCES org.principal(company_id,id),
- CHECK((state='draft' AND approved_by_principal_id IS NULL) OR (state IN ('approved','retired') AND approved_by_principal_id IS NOT NULL))
+ CHECK((state='draft' AND approved_by_principal_id IS NULL) OR (state IN ('approved','retired') AND approved_by_principal_id IS NOT NULL)),
+ CHECK(NOT deductions_enabled OR (state='approved' AND approved_by_principal_id IS NOT NULL)),
+ CHECK(approved_by_principal_id IS NULL OR prepared_by_principal_id<>approved_by_principal_id)
 );
 
 CREATE TABLE payroll.run (
@@ -67,6 +69,15 @@ CREATE TABLE payroll.run_line (
 
 CREATE TRIGGER payroll_plan_version_append_only BEFORE UPDATE OR DELETE ON payroll.plan_version FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
 CREATE TRIGGER payroll_run_line_append_only BEFORE UPDATE OR DELETE ON payroll.run_line FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
+CREATE FUNCTION payroll.require_approved_plan_version() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE plan_state text;
+BEGIN
+ SELECT state INTO plan_state FROM payroll.plan_version WHERE company_id=NEW.company_id AND id=NEW.plan_version_id;
+ IF plan_state IS DISTINCT FROM 'approved' THEN RAISE EXCEPTION 'Payroll runs require an approved plan version' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END;
+$$;
+CREATE TRIGGER payroll_run_requires_approved_plan BEFORE INSERT ON payroll.run FOR EACH ROW EXECUTE FUNCTION payroll.require_approved_plan_version();
 
 ALTER TABLE payroll.plan_version ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payroll.plan_version FORCE ROW LEVEL SECURITY;

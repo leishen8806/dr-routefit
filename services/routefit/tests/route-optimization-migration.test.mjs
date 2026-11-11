@@ -15,6 +15,10 @@ test('route optimization migration stores company-scoped runs, routes and immuta
   assert.match(sql, /version bigint NOT NULL CHECK\(version>=1\)/);
   assert.match(sql, /CREATE TRIGGER optimization_run_transition/);
   assert.match(sql, /CREATE TRIGGER optimization_route_append_only/);
+  assert.match(sql, /CREATE FUNCTION dispatch\.enforce_optimization_route_ownership\(\)/);
+  assert.match(sql, /CREATE TRIGGER optimization_route_ownership/);
+  assert.match(sql, /FROM jsonb_array_elements_text\(NEW\.order_ids\)/);
+  assert.match(sql, /FROM dispatch\.optimization_run/);
   assert.match(sql, /CREATE TRIGGER optimization_run_event_append_only/);
   for (const table of ['dispatch.optimization_run', 'dispatch.optimization_route', 'dispatch.optimization_run_event']) {
     const name = table.replace('.', '\\.');

@@ -12,6 +12,12 @@ test('payout approval migration is transactional, company-scoped and separates a
  assert.match(sql,/CREATE TABLE finance\.payout_approval_event/);
  assert.match(sql,/money_amount_minor bigint NOT NULL/);
  assert.match(sql,/CHECK\(approved_by_person_id IS NULL OR confirmed_by_person_id IS NULL OR approved_by_person_id<>confirmed_by_person_id\)/);
+ assert.match(sql,/CHECK\(approved_by_person_id IS NULL OR prepared_by_person_id<>approved_by_person_id\)/);
+ assert.match(sql,/approved_by_person_id<>OLD\.approved_by_person_id/);
+ assert.match(sql,/approved_by_principal_id<>OLD\.approved_by_principal_id/);
+ assert.match(sql,/NEW\.confirmed_by_person_id<>OLD\.approved_by_person_id/);
+ assert.match(sql,/TG_OP='INSERT'/);
+ assert.match(sql,/NEW\.state<>'submitted'/);
  assert.match(sql,/ALTER TABLE finance\.payout_approval ENABLE ROW LEVEL SECURITY/);
  assert.match(sql,/ALTER TABLE finance\.payout_approval FORCE ROW LEVEL SECURITY/);
  assert.match(sql,/ALTER TABLE finance\.payout_approval_event ENABLE ROW LEVEL SECURITY/);

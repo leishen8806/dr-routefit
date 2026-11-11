@@ -22,5 +22,6 @@ test('writeOptimizationRun stores a company-scoped immutable input and every gen
  assert.deepEqual(calls[0].params[6],input);
  assert.match(calls[1].sql,/INSERT INTO dispatch\.optimization_route/);
  assert.equal(calls[1].params[1],principal.companyId);
+ assert.equal(calls[1].params[6],JSON.stringify(plan.routes[0].orderIds));
  assert.deepEqual(calls[1].params[8],plan.routes[0]);
 });

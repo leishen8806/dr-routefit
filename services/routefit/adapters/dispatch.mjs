@@ -17,7 +17,7 @@ export async function writeOptimizationRun(client,principal,input,plan,idempoten
  let sequenceNo=1;
  for(const route of result.routes){
   ensure(uuid.test(route.vehicleId)&&typeof route.slot==='string'&&route.slot.length>0&&Array.isArray(route.orderIds)&&route.orderIds.every(orderId=>uuid.test(orderId))&&Number.isInteger(route.usedVolume)&&route.usedVolume>=0,422,'OPTIMIZATION_RESULT_INVALID','自动排线路线无效');
-  await client.query('INSERT INTO dispatch.optimization_route(id,company_id,optimization_run_id,vehicle_id,slot,sequence_no,order_ids,used_volume,snapshot) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)',[randomUUID(),principal.companyId,id,route.vehicleId,route.slot,sequenceNo++,route.orderIds,route.usedVolume,route]);
+  await client.query('INSERT INTO dispatch.optimization_route(id,company_id,optimization_run_id,vehicle_id,slot,sequence_no,order_ids,used_volume,snapshot) VALUES($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9)',[randomUUID(),principal.companyId,id,route.vehicleId,route.slot,sequenceNo++,JSON.stringify(route.orderIds),route.usedVolume,route]);
  }
  return result;
 }

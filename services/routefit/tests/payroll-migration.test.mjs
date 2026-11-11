@@ -13,6 +13,10 @@ test('payroll migration version-controls example plans and preserves company-sco
   assert.match(sql, /CREATE TABLE payroll\.run_line/);
   assert.match(sql, /example_label text NOT NULL DEFAULT '示例'/);
   assert.match(sql, /deductions_enabled boolean NOT NULL DEFAULT false/);
+  assert.match(sql, /CHECK\(NOT deductions_enabled OR \(state='approved' AND approved_by_principal_id IS NOT NULL\)\)/);
+  assert.match(sql, /CHECK\(approved_by_principal_id IS NULL OR prepared_by_principal_id<>approved_by_principal_id\)/);
+  assert.match(sql, /CREATE FUNCTION payroll\.require_approved_plan_version\(\)/);
+  assert.match(sql, /CREATE TRIGGER payroll_run_requires_approved_plan/);
   assert.match(sql, /money_gross_minor bigint NOT NULL/);
   assert.match(sql, /money_deduction_minor bigint NOT NULL/);
   assert.match(sql, /CHECK\(money_deduction_minor<=money_gross_minor\)/);
