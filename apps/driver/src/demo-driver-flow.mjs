@@ -39,8 +39,11 @@ export function transitionDemoDriverFlow(flow, event) {
         ? { ...flow, reviewState: nextReviewState(flow.reviewState, 'resubmit') }
         : flow;
     case 'show_offer':
-      return flow.screen === 'review' && flow.reviewState === 'approved'
-        ? { ...flow, screen: 'offer', online: true }
+      if (flow.screen === 'review') {
+        return flow.reviewState === 'approved' ? { ...flow, screen: 'offer', online: true } : flow;
+      }
+      return ['offer', 'trips', 'wallet', 'profile'].includes(flow.screen)
+        ? { ...flow, screen: 'offer' }
         : flow;
     case 'go_offline':
       return flow.screen === 'offer' ? { ...flow, online: false } : flow;

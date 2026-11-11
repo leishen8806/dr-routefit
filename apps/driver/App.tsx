@@ -430,6 +430,7 @@ export default function App() {
               setDemoFlow((current) => transitionDemoDriverFlow(current, { type, ...payload }));
             }}
             registration={demoRegistration}
+            registrationReady={demoFlow.registrationReady}
             reviewState={demoFlow.reviewState}
             screen={demoFlow.screen}
             online={demoFlow.online}

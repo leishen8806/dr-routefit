@@ -33,6 +33,18 @@ test('an approved driver can go online and offline before accepting a sample off
   assert.equal(onlineAgain.online, true);
 });
 
+test('trips, wallet, and profile can each return to the offer and change availability', () => {
+  for (const screen of ['trips', 'wallet', 'profile']) {
+    const returned = transitionDemoDriverFlow({ ...createDemoDriverFlow(), screen, online: false }, { type: 'show_offer' });
+    const online = transitionDemoDriverFlow(returned, { type: 'go_online' });
+    const offline = transitionDemoDriverFlow(online, { type: 'go_offline' });
+
+    assert.equal(returned.screen, 'offer', `${screen} returns to the offer`);
+    assert.equal(online.online, true, `${screen} return can go online`);
+    assert.equal(offline.online, false, `${screen} return can go offline`);
+  }
+});
+
 test('registration only becomes ready when supplied details are complete', () => {
   const flow = {
     ...createDemoDriverFlow(),
