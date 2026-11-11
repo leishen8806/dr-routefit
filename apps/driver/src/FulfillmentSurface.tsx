@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View, type PressableInstance } from 'react-native';
-import { createDialogController, createOverlayManager, createToastState, designTokens, detailDrawerState, dismissToast, enqueueToast, nativeDialogA11yProps, nativeToastA11yProps } from '@routefit/shared';
+import { createOverlayManager, createToastState, designTokens, detailDrawerState, dismissToast, enqueueToast, nativeDialogA11yProps, nativeToastA11yProps } from '@routefit/shared';
 
 import type { DriverLanguage } from './driver-api';
 import { collectionConfirmationState, collectionDialogResult, deliverySubmissionState, fulfillmentSurfacePlan, offlineNotice, problemReportState, undeliveredReasonState } from './fulfillment.mjs';
 import { text } from './messages';
+import { createCollectionDialogSession } from './fulfillment-dialog.mjs';
 
 export type FulfillmentSurfaceProps = {
   language: DriverLanguage;
@@ -31,7 +32,14 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
   const collectionCancelRef = useRef<PressableInstance | null>(null);
   const collectionConfirmRef = useRef<PressableInstance | null>(null);
   const collectionContainerRef = useRef<PressableInstance | null>(null);
-  const overlayManagerRef = useRef(createOverlayManager());
+  const collectionDialogSessionRef = useRef<ReturnType<typeof createCollectionDialogSession> | null>(null);
+  const overlayManager = useMemo(() => createOverlayManager(), []);
+  const collectionFocusTargets = useMemo(() => ({
+    trigger: { focus: () => collectionTriggerRef.current?.focus() },
+    cancel: { focus: () => collectionCancelRef.current?.focus() },
+    confirm: { focus: () => collectionConfirmRef.current?.focus() },
+    container: { focus: () => collectionContainerRef.current?.focus() },
+  }), []);
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
   const plan = fulfillmentSurfacePlan(stage, language);
   const { status, panels } = plan;
@@ -44,7 +52,7 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
 
   function closeCollection(action: 'cancel' | 'escape' | 'confirm') {
     const result = collectionDialogResult(action);
-    overlayManagerRef.current.closeActive();
+    overlayManager.closeActive();
     setDialogOpen(false);
     if (result.record && collection?.canRecord && !recorded) {
       setRecorded(true);
@@ -56,21 +64,21 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
     setDialogOpen(true);
   }
 
-  function createCollectionDialog() {
-    return createDialogController({
+  function showCollectionDialog() {
+    const session = createCollectionDialogSession({
+      manager: overlayManager,
       titleId: 'collection-confirmation-title',
-      trigger: { focus: () => collectionTriggerRef.current?.focus() },
-      focusables: [
-        { focus: () => collectionCancelRef.current?.focus() },
-        { focus: () => collectionConfirmRef.current?.focus() },
-      ],
-      container: { focus: () => collectionContainerRef.current?.focus() },
+      trigger: collectionFocusTargets.trigger,
+      focusables: [collectionFocusTargets.cancel, collectionFocusTargets.confirm],
+      container: collectionFocusTargets.container,
       onCancel: () => setDialogOpen(false),
     });
+    collectionDialogSessionRef.current = session;
+    session.onShow();
   }
 
   function handleDialogKeyDown(event: { nativeEvent: { key?: string; shiftKey?: boolean }; preventDefault?: () => void }, target: { focus: () => void }) {
-    createCollectionDialog().onKeyDown({
+    collectionDialogSessionRef.current?.onKeyDown({
       key: event.nativeEvent.key ?? '',
       shiftKey: Boolean(event.nativeEvent.shiftKey),
       target,
@@ -160,13 +168,13 @@ export function FulfillmentSurface({ language, stage, offline = false }: Fulfill
         </View>
       ) : null}
       {toastState.active ? <Pressable {...nativeToastA11yProps()} accessibilityRole="alert" onPress={() => setToastState((current) => dismissToast(current))}><Text style={styles.notice}>{toastState.active.message}</Text></Pressable> : null}
-      <Modal onRequestClose={() => closeCollection('escape')} onShow={() => overlayManagerRef.current.open(createCollectionDialog())} transparent visible={dialogOpen}>
-        <Pressable {...nativeDialogA11yProps(t('collectionConfirm'))} onKeyDown={(event) => handleDialogKeyDown(event, { focus: () => collectionContainerRef.current?.focus() })} ref={collectionContainerRef} style={styles.backdrop}>
+      <Modal onRequestClose={() => closeCollection('escape')} onShow={showCollectionDialog} transparent visible={dialogOpen}>
+        <Pressable {...nativeDialogA11yProps(t('collectionConfirm'))} onKeyDown={(event) => handleDialogKeyDown(event, collectionFocusTargets.container)} ref={collectionContainerRef} style={styles.backdrop}>
           <View style={styles.dialog}>
             <Text accessibilityRole="header" nativeID="collection-confirmation-title" style={styles.title}>{t('collectionConfirm')}</Text>
             <Text style={styles.caption}>{t('collectionExampleOnly')}</Text>
-            <Pressable accessibilityRole="button" onKeyDown={(event) => handleDialogKeyDown(event, { focus: () => collectionCancelRef.current?.focus() })} onPress={() => closeCollection('cancel')} ref={collectionCancelRef} style={styles.secondaryButton}><Text>{t('collectionCancel')}</Text></Pressable>
-            <Pressable accessibilityRole="button" onKeyDown={(event) => handleDialogKeyDown(event, { focus: () => collectionConfirmRef.current?.focus() })} onPress={() => closeCollection('confirm')} ref={collectionConfirmRef} style={styles.button}><Text style={styles.buttonText}>{t('collectionRecord')}</Text></Pressable>
+            <Pressable accessibilityRole="button" onKeyDown={(event) => handleDialogKeyDown(event, collectionFocusTargets.cancel)} onPress={() => closeCollection('cancel')} ref={collectionCancelRef} style={styles.secondaryButton}><Text>{t('collectionCancel')}</Text></Pressable>
+            <Pressable accessibilityRole="button" onKeyDown={(event) => handleDialogKeyDown(event, collectionFocusTargets.confirm)} onPress={() => closeCollection('confirm')} ref={collectionConfirmRef} style={styles.button}><Text style={styles.buttonText}>{t('collectionRecord')}</Text></Pressable>
           </View>
         </Pressable>
       </Modal>

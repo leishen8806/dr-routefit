@@ -11,19 +11,16 @@ test('keeps the fulfillment controls in an independently mountable surface', asy
   assert.match(source, /panels\.includes\('warehouse'\)/);
   assert.match(source, /panels\.includes\('load_scan'\)/);
   assert.match(source, /panels\.includes\('delivery_proof'\)/);
-  assert.match(source, /createDialogController/);
-  assert.match(source, /function createCollectionDialog\(\)/);
-  assert.match(source, /focusables: \[/);
+  assert.match(source, /createCollectionDialogSession/);
+  assert.match(source, /collectionDialogSessionRef\.current\?\.onKeyDown/);
   assert.match(source, /onKeyDown=/);
   assert.match(source, /createOverlayManager/);
 });
 
-test('does not read refs while constructing collection dialog controls', async () => {
+test('does not construct collection dialogs during render', async () => {
   const source = await readFile(new URL('./FulfillmentSurface.tsx', import.meta.url), 'utf8');
 
-  assert.doesNotMatch(source, /useRef\(\{ focus: \(\) => .*?\.current/);
-  assert.doesNotMatch(source, /if \(!collectionDialogRef\.current\)/);
-  assert.doesNotMatch(source, /const collectionDialog = collectionDialogRef\.current/);
+  assert.doesNotMatch(source, /createDialogController\(/);
 });
 
 test('mounts the independent fulfillment surface from the trip detail', async () => {
