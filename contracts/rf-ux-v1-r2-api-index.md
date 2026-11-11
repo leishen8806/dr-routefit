@@ -70,20 +70,20 @@
 
 | 路径 | 用途和页面 | 负责岗位 | 模块清单 | 状态 |
 | --- | --- | --- | --- | --- |
-| `GET /api/ops/v1/api-clients` | 后台开放接口客户端列表 | OpsLead | `open-platform-r2-api.md` | 待定义 |
-| `POST /api/ops/v1/api-clients` | 后台创建开放接口客户端 | OpsLead | 同上 | 待定义 |
+| `GET /api/ops/v1/api-clients` | 后台开放接口客户端列表 | OpsLead | `open-platform-r2-api.md` | 已定义 |
+| `POST /api/ops/v1/api-clients` | 后台创建开放接口客户端 | OpsLead | 同上 | 已定义 |
 | `GET /api/ops/v1/api-clients/{id}` | 接入方详情 | OpsLead | 同上 | 待定义 |
 | `POST /api/ops/v1/api-clients/{id}/api-keys` | 创建接口密钥 | OpsLead | 同上 | 待定义 |
 | `POST /api/ops/v1/api-keys/{id}/actions/rotate` | 轮换接口密钥 | OpsLead | 同上 | 待定义 |
 | `POST /api/ops/v1/api-keys/{id}/actions/revoke` | 停用接口密钥 | OpsLead | 同上 | 待定义 |
-| `GET /api/ops/v1/webhook-endpoints` | 回调地址列表 | OpsLead | 同上 | 待定义 |
-| `POST /api/ops/v1/webhook-endpoints` | 创建回调地址 | OpsLead | 同上 | 待定义 |
+| `GET /api/ops/v1/webhook-endpoints` | 回调地址列表 | OpsLead | 同上 | 已定义 |
+| `POST /api/ops/v1/webhook-endpoints` | 创建回调地址 | OpsLead | 同上 | 已定义 |
 | `POST /api/ops/v1/webhook-endpoints/{id}/actions/test` | 测试回调 | OpsLead | 同上 | 待定义 |
 | `GET /api/ops/v1/webhook-deliveries` | 回调投递记录 | OpsLead | 同上 | 待定义 |
 | `POST /api/ops/v1/webhook-deliveries/{id}/actions/retry` | 重试回调 | OpsLead | 同上 | 待定义 |
-| `GET /api/ops/v1/api-call-logs` | 开放接口调用日志 | OpsLead | 同上 | 待定义 |
-| `GET /api/ops/v1/ad-campaigns` | 后台广告位列表 | OpsLead | 同上 | 待定义 |
-| `POST /api/ops/v1/ad-campaigns` | 后台创建广告位 | OpsLead | 同上 | 待定义 |
+| `GET /api/ops/v1/api-call-logs` | 开放接口调用日志 | OpsLead | 同上 | 已定义 |
+| `GET /api/ops/v1/ad-campaigns` | 后台广告位列表 | OpsLead | 同上 | 已定义 |
+| `POST /api/ops/v1/ad-campaigns` | 后台创建广告位 | OpsLead | 同上 | 已定义 |
 | `PUT /api/ops/v1/ad-campaigns/{id}` | 编辑广告位 | OpsLead | 同上 | 待定义 |
 | `POST /api/ops/v1/ad-campaigns/{id}/actions/submit` | 提交广告审核 | OpsLead | 同上 | 待定义 |
 | `POST /api/ops/v1/ad-campaigns/{id}/actions/approve` | 批准广告 | OpsLead | 同上 | 待定义 |
@@ -92,18 +92,18 @@
 | `POST /api/ops/v1/ad-campaigns/{id}/actions/revoke-offline` | 撤销下线 | OpsLead | 同上 | 待定义 |
 | `POST /api/ops/v1/ad-campaigns/{id}/actions/revoke` | 撤销广告 | OpsLead | 同上 | 待定义 |
 | `GET /api/ops/v1/ad-campaigns/{id}/stats` | 广告统计 | OpsLead | 同上 | 待定义 |
-| `GET /api/ops/v1/roles` | 后台角色列表 | OpsLead | 同上 | 待定义 |
-| `POST /api/ops/v1/roles` | 后台创建角色 | OpsLead | 同上 | 待定义 |
+| `GET /api/ops/v1/roles` | 后台角色列表 | OpsLead | 同上 | 已定义 |
+| `POST /api/ops/v1/roles` | 后台创建角色 | OpsLead | 同上 | 已定义 |
 | `PUT /api/ops/v1/roles/{id}` | 编辑角色 | OpsLead | 同上 | 待定义 |
 | `GET /api/ops/v1/roles/permission-matrix` | 角色权限矩阵 | OpsLead | 同上 | 待定义 |
-| `GET /api/ops/v1/staff` | 后台员工列表 | OpsLead | 同上 | 待定义 |
-| `POST /api/ops/v1/staff` | 后台创建员工 | OpsLead | 同上 | 待定义 |
+| `GET /api/ops/v1/staff` | 后台员工列表 | OpsLead | 同上 | 已定义 |
+| `POST /api/ops/v1/staff` | 后台创建员工 | OpsLead | 同上 | 已定义 |
 | `PUT /api/ops/v1/staff/{id}` | 编辑员工 | OpsLead | 同上 | 待定义 |
-| `GET /api/ops/v1/audit-logs` | 操作日志 | OpsLead | 同上 | 待定义 |
-| `GET /api/ops/v1/dashboard/summary` | 后台首页汇总 | OpsLead | 同上 | 待定义 |
+| `GET /api/ops/v1/audit-logs` | 操作日志 | OpsLead | 同上 | 已定义 |
+| `GET /api/ops/v1/dashboard/summary` | 后台首页汇总 | OpsLead | 同上 | 已定义 |
 | `GET /api/ops/v1/dashboard/trend30d` | 后台首页趋势 | OpsLead | 同上 | 待定义 |
-| `POST /api/open/v1/quotes` | 开放报价 | OpsLead | 同上 | 待定义 |
-| `POST /api/open/v1/orders` | 开放创建订单 | OpsLead | 同上 | 待定义 |
+| `POST /api/open/v1/quotes` | 开放报价 | OpsLead | 同上 | 已定义 |
+| `POST /api/open/v1/orders` | 开放创建订单 | OpsLead | 同上 | 已定义 |
 | `GET /api/open/v1/orders/{id}` | 开放查订单 | OpsLead | 同上 | 待定义 |
 | `POST /api/open/v1/orders/{id}/actions/cancel` | 开放取消订单 | OpsLead | 同上 | 待定义 |
 | `GET /api/open/v1/orders/{id}/tracking` | 开放订单轨迹 | OpsLead | 同上 | 待定义 |
