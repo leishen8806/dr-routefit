@@ -56,6 +56,25 @@ test('P0 database controls reject payout and appeal separation bypasses', async 
    }
   });
 
+  await t.test('runtime role cannot update payroll runs without an update guard', async () => {
+   const runtime = new pg.Pool({connectionString: fixture.runtimeUrl, max: 1});
+   try {
+    await runtime.query('SET ROLE routefit_api');
+    for (const statement of [
+     "UPDATE payroll.run SET state='payout_pending' WHERE false",
+     "UPDATE payroll.run SET state='closed' WHERE false",
+     "UPDATE payroll.run SET snapshot='{}'::jsonb WHERE false",
+     "UPDATE payroll.run SET period_start=CURRENT_DATE WHERE false",
+     "UPDATE payroll.run SET period_end=CURRENT_DATE WHERE false",
+     'UPDATE payroll.run SET version=version+1 WHERE false',
+    ]) {
+     await assert.rejects(runtime.query(statement), error => error.code === '42501');
+    }
+   } finally {
+    await runtime.end();
+   }
+  });
+
   await t.test('optimization route rejects an order outside its company', async () => {
    const companyB = fixture.principals[1].companyId, customerB = fixture.customers[1], foreignOrderId = randomUUID();
    const foreignSnapshot = {order: {state: 'draft', version: 1, id: foreignOrderId, customerId: customerB}, draft: {customerId: customerB}};

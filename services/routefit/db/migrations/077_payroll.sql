@@ -91,6 +91,5 @@ CREATE POLICY company_scope ON payroll.run_line USING(company_id=NULLIF(current_
 
 GRANT USAGE ON SCHEMA payroll TO routefit_api;
 GRANT SELECT,INSERT ON payroll.plan_version,payroll.run,payroll.run_line TO routefit_api;
-GRANT UPDATE ON payroll.run TO routefit_api;
 
 COMMIT;

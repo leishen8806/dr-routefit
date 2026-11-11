@@ -12,6 +12,10 @@ const viewports = [
   { width: 1024, height: 768 },
   { width: 390, height: 844 },
 ];
+const snapViewports = [
+  { width: 1920, height: 1000 },
+  ...viewports.filter(({ width }) => width >= 1024),
+];
 
 try {
   for (const lang of ['zh', 'en', 'km']) {
@@ -98,6 +102,55 @@ try {
     }
   }
 
+  for (const lang of ['zh', 'en', 'km']) {
+    for (const viewport of snapViewports) {
+      const page = await browser.newPage({ viewport });
+      await page.goto(`${baseURL}/${lang}/`);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      for (let index = 0; index < 6; index += 1) {
+        if (index > 0) await page.keyboard.press('PageDown');
+        await page.waitForFunction((panelIndex) => {
+          const panel = document.querySelectorAll('.fullpage-panel')[panelIndex];
+          return panel && Math.abs(panel.getBoundingClientRect().top) <= 1;
+        }, index);
+        const position = await page.evaluate((panelIndex) => {
+          const panels = [...document.querySelectorAll('.fullpage-panel')];
+          return {
+            top: panels[panelIndex].getBoundingClientRect().top,
+            previousBottom: panelIndex === 0 ? 0 : panels[panelIndex - 1].getBoundingClientRect().bottom,
+          };
+        }, index);
+        if (Math.abs(position.top) > 1 || position.previousBottom > 1) {
+          throw new Error(`${lang}/${viewport.width}/screen-${index + 1}: previous screen remains visible after snap`);
+        }
+      }
+      await page.keyboard.press('End');
+      await page.waitForFunction(() => {
+        const footer = document.querySelector('.site-footer')?.getBoundingClientRect();
+        return footer && footer.top >= -1 && footer.bottom <= innerHeight + 1;
+      });
+      const footer = page.locator('.site-footer');
+      const footerBounds = await footer.evaluate((node) => {
+        const rect = node.getBoundingClientRect();
+        return { top: rect.top, bottom: rect.bottom, viewport: innerHeight };
+      });
+      if (footerBounds.top < -1 || footerBounds.bottom > footerBounds.viewport + 1) {
+        throw new Error(`${lang}/${viewport.width}: footer is not fully visible`);
+      }
+      await page.locator(`.site-footer a[href="/${lang}/terms/"]`).click({ trial: true });
+      await page.locator(`.site-footer a[href="/${lang}/privacy/"]`).click({ trial: true });
+      await page.close();
+    }
+  }
+
+  for (const lang of ['zh', 'en', 'km']) {
+    const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await mobile.goto(`${baseURL}/${lang}/`);
+    const mobileSnap = await mobile.evaluate(() => getComputedStyle(document.documentElement).scrollSnapType);
+    if (mobileSnap !== 'none') throw new Error(`${lang}/390: mobile scroll snap changed`);
+    await mobile.close();
+  }
+
   const keyboard = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   await keyboard.goto(`${baseURL}/zh/`);
   await keyboard.keyboard.press('PageDown');
@@ -121,7 +174,7 @@ try {
   if (reducedResult.snap !== 'none' || reducedResult.hidden) throw new Error('reduced motion does not disable snap and reveals');
   await reduced.close();
 
-  console.log('FULLPAGE_CHECK=PASS LANGUAGES=3 VIEWPORTS=4 SCREENS=6 KEYBOARD=PASS REDUCED_MOTION=PASS');
+  console.log('FULLPAGE_CHECK=PASS LANGUAGES=3 VIEWPORTS=4 SCREENS=6 KEYBOARD=PASS FOOTER=PASS REDUCED_MOTION=PASS');
 } finally {
   await browser.close();
   await stopPreview(server);
