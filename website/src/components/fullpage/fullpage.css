@@ -272,12 +272,12 @@ html[lang="km"] .panel-disclosure p { line-height: 1.75; }
   #screen-1 .panel-button { min-height: 44px; }
 }
 
-@media (min-width: 1024px) and (min-height: 700px) {
+@media (min-width: 1024px) and (min-height: 820px) {
   .fullpage-html { scroll-snap-type: y mandatory; }
   .fullpage-panel { scroll-snap-align: start; scroll-snap-stop: always; }
 }
 
-@media (max-width: 1023px), (max-height: 699px) {
+@media (max-width: 1023px), (max-height: 819px) {
   .fullpage-html { scroll-snap-type: none; }
   .fullpage-panel { padding: calc(var(--fp-header-height) + 24px) 0 48px; scroll-snap-align: none; }
   .panel-shell,

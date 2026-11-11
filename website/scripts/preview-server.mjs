@@ -15,7 +15,7 @@ export async function startPreview() {
   child.stdout.on('data', (chunk) => { output += chunk; });
   child.stderr.on('data', (chunk) => { output += chunk; });
 
-  for (let attempt = 0; attempt < 50; attempt += 1) {
+  for (let attempt = 0; attempt < 1800; attempt += 1) {
     if (child.exitCode !== null) throw new Error(`Preview exited early: ${output.trim()}`);
     try {
       const response = await fetch(`${baseURL}/km/`);
