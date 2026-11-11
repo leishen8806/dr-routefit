@@ -8,7 +8,29 @@ test('Backend1 module contract makes every owned operation reviewable under stan
   const module = JSON.parse(await readFile(moduleFile, 'utf8'));
 
   assert.equal(module.module, 'backend1-routefit-r2');
-  assert.deepEqual(module.paths, {});
+  const requiredAOperations = [
+    'listDimensionRules', 'createDimensionRule',
+    'listVehicleTariffs', 'createVehicleTariff',
+    'listValueAddedServices', 'createValueAddedService',
+    'listFxRates', 'createFxRate', 'createPricingQuoteTrial',
+    'createCustomerQuoteTrial', 'listCustomerServiceOptions'
+  ];
+  const moduleOperations = Object.values(module.paths)
+    .flatMap(path => Object.values(path));
+
+  assert.deepEqual(
+    moduleOperations.map(operation => operation.operationId).sort(),
+    requiredAOperations.slice().sort()
+  );
+
+  for (const operation of moduleOperations) {
+    assert.equal(operation['x-stage'], 'R2');
+    assert.equal(operation['x-baseline-tier'], 'A');
+    assert.equal(operation['x-implementation-status'], 'PLANNED');
+    assert.equal(operation['x-owner'], 'Backend1');
+    assert.ok(operation['x-examples']?.success);
+    assert.ok(operation['x-examples']?.rejected);
+  }
   assert.equal(module['x-recorded-operations'].length, 16);
 
   for (const operation of module['x-recorded-operations']) {
