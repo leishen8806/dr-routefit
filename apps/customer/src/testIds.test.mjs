@@ -12,3 +12,7 @@ test('exposes the customer acceptance test IDs from the shared browser flow', ()
     assert.match(homePageSource, new RegExp(testId));
   }
 });
+
+test('uses only available shared spacing tokens in the customer page', () => {
+  assert.doesNotMatch(homePageSource, /designTokens\.space\.x5/);
+});
