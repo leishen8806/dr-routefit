@@ -1,4 +1,5 @@
 CREATE SCHEMA marketing;
+GRANT USAGE ON SCHEMA marketing TO routefit_api;
 CREATE TABLE marketing.coupon_batch (
  id uuid PRIMARY KEY,
  company_id uuid NOT NULL REFERENCES org.company(id),
@@ -24,3 +25,12 @@ CREATE TABLE marketing.coupon (
  FOREIGN KEY(company_id,batch_id) REFERENCES marketing.coupon_batch(company_id,id),
  FOREIGN KEY(company_id,subject_principal_id) REFERENCES org.principal(company_id,id)
 );
+
+DO $$ DECLARE t text; BEGIN
+ FOREACH t IN ARRAY ARRAY['marketing.coupon_batch','marketing.coupon'] LOOP
+  EXECUTE format('ALTER TABLE %s ENABLE ROW LEVEL SECURITY',t);
+  EXECUTE format('ALTER TABLE %s FORCE ROW LEVEL SECURITY',t);
+  EXECUTE format('CREATE POLICY company_scope ON %s USING(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid) WITH CHECK(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid)',t);
+  EXECUTE format('GRANT SELECT,INSERT,UPDATE ON %s TO routefit_api',t);
+ END LOOP;
+END $$;

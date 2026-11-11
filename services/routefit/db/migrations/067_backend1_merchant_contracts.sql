@@ -50,3 +50,18 @@ CREATE TABLE party.account_freeze (
  UNIQUE(company_id,id), UNIQUE(company_id,principal_id,version),
  FOREIGN KEY(company_id,principal_id) REFERENCES org.principal(company_id,id)
 );
+
+DO $$ DECLARE t text; BEGIN
+ FOREACH t IN ARRAY ARRAY['party.merchant_contract','party.sku_dimension'] LOOP
+  EXECUTE format('ALTER TABLE %s ENABLE ROW LEVEL SECURITY',t);
+  EXECUTE format('ALTER TABLE %s FORCE ROW LEVEL SECURITY',t);
+  EXECUTE format('CREATE POLICY company_scope ON %s USING(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid) WITH CHECK(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid)',t);
+  EXECUTE format('GRANT SELECT,INSERT,UPDATE ON %s TO routefit_api',t);
+ END LOOP;
+ FOREACH t IN ARRAY ARRAY['party.merchant_contract_event','party.account_freeze'] LOOP
+  EXECUTE format('ALTER TABLE %s ENABLE ROW LEVEL SECURITY',t);
+  EXECUTE format('ALTER TABLE %s FORCE ROW LEVEL SECURITY',t);
+  EXECUTE format('CREATE POLICY company_scope ON %s USING(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid) WITH CHECK(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid)',t);
+  EXECUTE format('GRANT SELECT,INSERT ON %s TO routefit_api',t);
+ END LOOP;
+END $$;

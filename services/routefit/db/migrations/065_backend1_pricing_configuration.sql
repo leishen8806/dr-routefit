@@ -51,3 +51,12 @@ CREATE TABLE pricing.fx_rate (
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  UNIQUE(company_id,id), UNIQUE(company_id,version)
 );
+
+DO $$ DECLARE t text; BEGIN
+ FOREACH t IN ARRAY ARRAY['pricing.dimension_rule','pricing.vehicle_tariff','pricing.value_added_service','pricing.fx_rate'] LOOP
+  EXECUTE format('ALTER TABLE %s ENABLE ROW LEVEL SECURITY',t);
+  EXECUTE format('ALTER TABLE %s FORCE ROW LEVEL SECURITY',t);
+  EXECUTE format('CREATE POLICY company_scope ON %s USING(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid) WITH CHECK(company_id=NULLIF(current_setting(''app.company_id'',true),'''')::uuid)',t);
+  EXECUTE format('GRANT SELECT,INSERT,UPDATE ON %s TO routefit_api',t);
+ END LOOP;
+END $$;
