@@ -6,7 +6,7 @@ import {assembleContract, validateModuleStandards} from '../../../scripts/build-
 const base={openapi:'3.1.0',info:{title:'test',version:'1'},paths:{},components:{schemas:{Money:{type:'object'},Error:{type:'object'}},responses:{BadRequest:{description:'bad'},Unauthorized:{description:'unauthorized'},Forbidden:{description:'forbidden'},NotFound:{description:'not found'},TooManyRequests:{description:'rate limited'},ServiceUnavailable:{description:'unavailable'}}}};
 const operation={
   operationId:'listRoutePlans',summary:'List route plans',
-  'x-permissions':['dispatch:read'],'x-stage':'A','x-implementation-status':'DESIGNED_NOT_DEPLOYED','x-version-resource':'read only','x-owner':'BackendSenior',
+  'x-permissions':['dispatch:read'],'x-stage':'R2','x-baseline-tier':'A','x-implementation-status':'DESIGNED_NOT_DEPLOYED','x-version-resource':'read only','x-owner':'BackendSenior',
   parameters:[{name:'limit',in:'query',required:false,schema:{type:'integer'}},{name:'cursor',in:'query',required:false,schema:{type:'string'}}],
   responses:{'200':{description:'ok',content:{'application/json':{schema:{type:'object',properties:{items:{type:'array',items:{type:'object'}},nextCursor:{type:['string','null']}},required:['items','nextCursor']},examples:{success:{value:{items:[],nextCursor:null}}}}}},'400':{$ref:'#/components/responses/BadRequest'},'401':{$ref:'#/components/responses/Unauthorized'},'403':{$ref:'#/components/responses/Forbidden'},'404':{$ref:'#/components/responses/NotFound'},'429':{$ref:'#/components/responses/TooManyRequests'},'503':{$ref:'#/components/responses/ServiceUnavailable'}},
   'x-examples':{success:{items:[],nextCursor:null},rejected:{code:'FORBIDDEN'}}
@@ -42,4 +42,17 @@ test('rejects missing idempotency, versioning, pagination, money, errors, metada
   const noExamples=without('x-examples');
   assert.throws(()=>validateModuleStandards({...module,paths:{'/api/ops/v1/route-plans':{get:noExamples}}},base),/x-examples/);
   assert.throws(()=>validateModuleStandards({...module,components:{schemas:{Fare:{type:'object',properties:{amount:{type:'integer'}}}}}} ,base),/Money schema/);
+});
+
+test('requires an A or B tier and a required If-Match header for mutations',()=>{
+  const module={module:'dispatch',paths:{'/api/ops/v1/route-plan/{id}':{patch:{...structuredClone(operation),parameters:[
+    {name:'Idempotency-Key',in:'header',required:true},
+    {name:'If-Match',in:'header',required:false}
+  ]}}},components:{schemas:{}}};
+  assert.throws(()=>validateModuleStandards(module,base),/required If-Match header/);
+
+  const valid=structuredClone(module);
+  valid.paths['/api/ops/v1/route-plan/{id}'].patch.parameters[1].required=true;
+  delete valid.paths['/api/ops/v1/route-plan/{id}'].patch['x-baseline-tier'];
+  assert.throws(()=>validateModuleStandards(valid,base),/x-baseline-tier/);
 });
