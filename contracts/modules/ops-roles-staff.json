@@ -1,0 +1,857 @@
+{
+  "module": "ops-roles-staff",
+  "description": "CMP-1326（OpsLead）模块契约；第一版实现状态 PLANNED，待 Reviewer3 复核。",
+  "paths": {
+    "/api/ops/v1/roles/{roleId}/actions/set-permissions": {
+      "post": {
+        "operationId": "setRolePermissions",
+        "summary": "设置角色权限矩阵（同一角色不得同时含出款审批与确认付款；系统角色不可改）",
+        "description": "设置角色权限矩阵（同一角色不得同时含出款审批与确认付款；系统角色不可改）。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "所有业务写请求必需。同主体+方法+规范路径+键去重；同键异内容409。持久业务交易ID不因响应缓存过期失去去重。"
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            },
+            "description": "当前主聚合强ETag；相关聚合版本仍单独复验，不接受*。"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
+                }
+              },
+              "Idempotent-Replayed": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error412"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "roles:write"
+        ],
+        "x-stage": "R2",
+        "x-tier": "A",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "Role",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "name": "运营（示例）",
+              "permissions": [
+                "payouts:read",
+                "payouts:approve"
+              ],
+              "version": 3
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "code": "HARD_CONSTRAINT_VIOLATION",
+              "retryable": false,
+              "requestId": "req-示例-0001"
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleSetPermissions"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ops/v1/permission-catalog": {
+      "get": {
+        "operationId": "getPermissionCatalog",
+        "summary": "全部模块和权限点目录",
+        "description": "全部模块和权限点目录。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionCatalog"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "roles:read"
+        ],
+        "x-stage": "R2",
+        "x-tier": "A",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "none",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "modules": [
+                {
+                  "module": "payouts",
+                  "label": "出款审批",
+                  "permissions": [
+                    {
+                      "code": "payouts:approve",
+                      "label": "审批出款"
+                    },
+                    {
+                      "code": "payouts:confirm-paid",
+                      "label": "确认已出款"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "code": "FORBIDDEN",
+              "retryable": false,
+              "requestId": "req-示例-0001"
+            }
+          }
+        }
+      }
+    },
+    "/api/ops/v1/staff/{staffId}/actions/disable": {
+      "post": {
+        "operationId": "disableStaff",
+        "summary": "停用员工（停用后立即不可登录，不能停用自己）",
+        "description": "停用员工（停用后立即不可登录，不能停用自己）。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "staffId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "所有业务写请求必需。同主体+方法+规范路径+键去重；同键异内容409。持久业务交易ID不因响应缓存过期失去去重。"
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            },
+            "description": "当前主聚合强ETag；相关聚合版本仍单独复验，不接受*。"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
+                }
+              },
+              "Idempotent-Replayed": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Staff"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error412"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "staff:write"
+        ],
+        "x-stage": "R2",
+        "x-tier": "A",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "Staff",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "roles": [],
+              "state": "disabled",
+              "version": 2
+            }
+          },
+          "rejected": {
+            "status": 409,
+            "body": {
+              "code": "INVALID_TRANSITION",
+              "retryable": false,
+              "requestId": "req-示例-0001"
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffStateAction"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ops/v1/staff/{staffId}/actions/enable": {
+      "post": {
+        "operationId": "enableStaff",
+        "summary": "启用员工",
+        "description": "启用员工。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "staffId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "所有业务写请求必需。同主体+方法+规范路径+键去重；同键异内容409。持久业务交易ID不因响应缓存过期失去去重。"
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            },
+            "description": "当前主聚合强ETag；相关聚合版本仍单独复验，不接受*。"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
+                }
+              },
+              "Idempotent-Replayed": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Staff"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error412"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "staff:write"
+        ],
+        "x-stage": "R2",
+        "x-tier": "A",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "Staff",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "roles": [],
+              "state": "active",
+              "version": 2
+            }
+          },
+          "rejected": {
+            "status": 409,
+            "body": {
+              "code": "INVALID_TRANSITION",
+              "retryable": false,
+              "requestId": "req-示例-0001"
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffStateAction"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ops/v1/staff/{staffId}": {
+      "patch": {
+        "operationId": "patchStaff",
+        "summary": "修改员工的角色（用 PATCH，不用 PUT；员工授权线待 CMP-1475 的 088 修复后才可用）",
+        "description": "修改员工的角色（用 PATCH，不用 PUT；员工授权线待 CMP-1475 的 088 修复后才可用）。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "staffId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "所有业务写请求必需。同主体+方法+规范路径+键去重；同键异内容409。持久业务交易ID不因响应缓存过期失去去重。"
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            },
+            "description": "当前主聚合强ETag；相关聚合版本仍单独复验，不接受*。"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
+                }
+              },
+              "Idempotent-Replayed": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Staff"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error412"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "staff:write"
+        ],
+        "x-stage": "R2",
+        "x-tier": "A",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "Staff",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "roles": [],
+              "state": "active",
+              "version": 2
+            }
+          },
+          "rejected": {
+            "status": 412,
+            "body": {
+              "code": "VERSION_CONFLICT",
+              "retryable": false,
+              "requestId": "req-示例-0001"
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffUpdate"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RoleSetPermissions": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "permissions",
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9000000000000
+          },
+          "permissions": {
+            "type": "array",
+            "maxItems": 300,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*(:[a-z][a-z0-9-]*)+$"
+            }
+          }
+        }
+      },
+      "PermissionCatalog": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "modules"
+        ],
+        "properties": {
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "module",
+                "label",
+                "permissions"
+              ],
+              "properties": {
+                "module": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "permissions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "code",
+                      "label"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "StaffStateAction": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9000000000000
+          }
+        }
+      }
+    }
+  },
+  "x-recorded-operations": [
+    {
+      "operationId": "patchRole",
+      "path": "/api/ops/v1/roles/{roleId}",
+      "method": "PATCH",
+      "x-permissions": [
+        "roles:write"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "Role",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+            "name": "运营（示例）",
+            "permissions": [
+              "payouts:read"
+            ],
+            "version": 3
+          }
+        },
+        "rejected": {
+          "status": 412,
+          "body": {
+            "code": "VERSION_CONFLICT",
+            "retryable": false,
+            "requestId": "req-示例-0001"
+          }
+        }
+      }
+    }
+  ]
+}
