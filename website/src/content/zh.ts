@@ -25,8 +25,8 @@ export const zh: SiteCopy = {
       { label: '车对货', titleLines: ['货有大小，', '车要选对'] },
       { label: '路对线', titleLines: ['路线清楚，', '调度才有把握'] },
       { label: '准时送到', titleLines: ['约好的时间，', '认真守住'] },
-      { label: '每一步有记录', titleLines: ['交到谁手里，', '都留得下凭证'] },
-      { label: '合作入口', titleLines: ['把下一单，', '稳稳送到'] }
+      { label: '每步有记录', titleLines: ['交到谁手里，', '都留得下凭证'] },
+      { label: '合作', titleLines: ['把下一单，', '稳稳送到'] }
     ]
   },
   quick: [

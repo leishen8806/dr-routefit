@@ -5,7 +5,18 @@ interface Props { lang: Language; copy: SiteCopy }
 const { lang, copy } = Astro.props;
 const screens = copy.fullpage.screens;
 const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : href;
+const languages = [{ code: 'km', label: 'ខ្មែរ' }, { code: 'en', label: 'English' }, { code: 'zh', label: '中文' }] as const;
+const panelIndex = (index: number) => index === 0 ? '01 / 06' : `0${index + 1} / 06 · ${screens[index].label}`;
 ---
+<header class="fullpage-topbar">
+  <a class="topbar-mark" href={`/${lang}/`} aria-label={`DR RouteFit · ${copy.nav.home}`}><img src="/logo.svg" alt="DR RouteFit" /></a>
+  <div class="topbar-actions">
+    <nav class="topbar-languages" aria-label={copy.nav.language}>
+      {languages.map((item) => <a class="language-link" href={`/${item.code}/`} lang={item.code} aria-current={item.code === lang ? 'true' : undefined}>{item.label}</a>)}
+    </nav>
+    <a class="topbar-contact" href={`/${lang}/contact/`}>{copy.nav.contact}</a>
+  </div>
+</header>
 <div class="fullpage-home" aria-label={copy.fullpage.ariaLabel}>
   <nav class="fullpage-dots" aria-label={copy.fullpage.sectionsLabel}>
     {screens.map((screen, index) => (
@@ -18,7 +29,7 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
   <section id="screen-1" class="fullpage-panel panel-dawn" data-screen="1" aria-labelledby="screen-1-title">
     <div class="panel-shell">
       <div class="panel-copy" data-motion="copy">
-        <p class="panel-index">01 / 06 · {screens[0].label}</p>
+        <p class="panel-index">{panelIndex(0)}</p>
         <h1 id="screen-1-title">{screens[0].titleLines.map((line) => <span class="title-line">{line}</span>)}</h1>
         <p class="panel-lead">{copy.hero.body}</p>
         <ul class="panel-facts">
@@ -65,7 +76,7 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
     <span id="services" class="panel-anchor" aria-hidden="true"></span>
     <div class="panel-shell panel-shell-reverse">
       <div class="panel-copy" data-motion="copy">
-        <p class="panel-index">02 / 06 · {screens[1].label}</p>
+        <p class="panel-index">{panelIndex(1)}</p>
         <h2 id="screen-2-title">{screens[1].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
         <p class="panel-lead">{copy.values.items[0].body}</p>
         <ul class="panel-facts"><li>{copy.process.items[1].body}</li></ul>
@@ -92,7 +103,7 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
   <section id="screen-3" class="fullpage-panel panel-river" data-screen="3" aria-labelledby="screen-3-title">
     <div class="panel-shell">
       <div class="panel-copy" data-motion="copy">
-        <p class="panel-index">03 / 06 · {screens[2].label}</p>
+        <p class="panel-index">{panelIndex(2)}</p>
         <h2 id="screen-3-title">{screens[2].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
         <p class="panel-lead">{copy.values.items[1].body}</p>
         <ul class="panel-facts"><li><strong>{copy.coverage.title}</strong> — {copy.coverage.body}</li><li>{copy.faq.items[2].answer}</li></ul>
@@ -117,7 +128,7 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
   <section id="screen-4" class="fullpage-panel panel-shop" data-screen="4" aria-labelledby="screen-4-title">
     <div class="panel-shell panel-shell-reverse">
       <div class="panel-copy" data-motion="copy">
-        <p class="panel-index">04 / 06 · {screens[3].label}</p>
+        <p class="panel-index">{panelIndex(3)}</p>
         <h2 id="screen-4-title">{screens[3].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
         <p class="panel-lead">{copy.values.items[2].body}</p>
         <ul class="panel-facts"><li>{copy.process.items[2].body}</li></ul>
@@ -138,7 +149,7 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
     <span id="track" class="panel-anchor" aria-hidden="true"></span>
     <div class="panel-shell">
       <div class="panel-copy" data-motion="copy">
-        <p class="panel-index">05 / 06 · {screens[4].label}</p>
+        <p class="panel-index">{panelIndex(4)}</p>
         <h2 id="screen-5-title">{screens[4].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
         <p class="panel-lead">{copy.values.items[3].body}</p>
         <ul class="panel-facts"><li>{copy.process.items[3].body}</li><li>{copy.faq.items[3].answer}</li></ul>
@@ -161,7 +172,7 @@ const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : hr
     <span id="about" class="panel-anchor" aria-hidden="true"></span><span id="help" class="panel-anchor" aria-hidden="true"></span>
     <div class="panel-shell panel-shell-final">
       <div class="panel-copy panel-copy-final" data-motion="copy">
-        <p class="panel-index">06 / 06 · {screens[5].label}</p>
+        <p class="panel-index">{panelIndex(5)}</p>
         <h2 id="screen-6-title">{screens[5].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
         <p class="panel-lead">{copy.audiences[1].body}</p>
         <ul class="panel-facts"><li>{copy.audiences[0].body}</li><li>{copy.faq.items[0].answer}</li></ul>

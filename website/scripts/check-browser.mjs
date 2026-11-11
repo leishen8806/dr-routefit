@@ -114,7 +114,7 @@ try {
   await blockedStorage.goto(`${baseURL}/`);
   await blockedStorage.waitForURL('**/km/');
   if (storageErrors.length) throw new Error(`storage blocked: ${storageErrors.join(', ')}`);
-  await blockedStorage.locator('a.language-link[lang="zh"]').first().click();
+  await blockedStorage.locator('a.language-link[lang="zh"]:visible').first().click();
   await blockedStorage.waitForURL('**/zh/');
   await blockedContext.close();
 
@@ -137,9 +137,9 @@ try {
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await mobile.goto(`${baseURL}/zh/`);
-  await mobile.locator('.mobile-menu > summary').focus();
+  await mobile.locator('.fullpage-topbar .topbar-contact').focus();
   await mobile.keyboard.press('Enter');
-  if (!(await mobile.locator('.mobile-menu').getAttribute('open') !== null)) throw new Error('mobile menu is not keyboard operable');
+  await mobile.waitForURL('**/zh/contact/');
 
   const sitemap = await (await wide.request.get(`${baseURL}/sitemap.xml`)).text();
   const sitemapUrls = [...sitemap.matchAll(/<loc>/g)].length;

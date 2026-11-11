@@ -43,11 +43,30 @@ try {
       if (mapFill > 1) throw new Error(`${lang}/${viewport.width}: route map does not fill its card`);
 
       if (viewport.width >= 1024) {
+        const topbar = await page.locator('.fullpage-topbar').evaluate((node) => {
+          const rect = node.getBoundingClientRect();
+          return { visible: rect.width > 0 && rect.height > 0, height: rect.height, top: rect.top, position: getComputedStyle(node).position };
+        });
+        if (!topbar.visible || topbar.height > 64 || Math.abs(topbar.top) > 1 || topbar.position !== 'fixed') throw new Error(`${lang}/${viewport.width}: fixed topbar is missing or too tall`);
+        if (await page.locator('.fullpage-topbar .topbar-mark:visible').count() !== 1 || await page.locator('.fullpage-topbar .topbar-languages a:visible').count() !== 3 || await page.locator('.fullpage-topbar .topbar-contact:visible').count() !== 1) throw new Error(`${lang}/${viewport.width}: topbar controls are incomplete`);
+        const panels = page.locator('.fullpage-panel');
+        for (let index = 0; index < await panels.count(); index += 1) {
+          const panel = panels.nth(index);
+          await panel.scrollIntoViewIfNeeded();
+          const title = panel.locator('.panel-copy h1, .panel-copy h2');
+          const metrics = await title.evaluate((node) => {
+            const rect = node.getBoundingClientRect();
+            return { top: rect.top };
+          });
+          if (metrics.top < topbar.height + 16) throw new Error(`${lang}/${viewport.width}/screen-${index + 1}: title overlaps topbar clearance`);
+        }
         const dots = page.locator('.fullpage-dots a');
         if (await dots.count() !== 6) throw new Error(`${lang}/${viewport.width}: incomplete section dots`);
         const unlabeled = await dots.evaluateAll((nodes) => nodes.some((node) => !node.getAttribute('aria-label')));
         if (unlabeled) throw new Error(`${lang}/${viewport.width}: unlabeled section dot`);
       }
+      const panelIndexes = await page.locator('.panel-index').allTextContents();
+      if (panelIndexes[0].trim() !== '01 / 06' || panelIndexes.slice(1).some((label) => !/^0[2-6] \/ 06 · \S/.test(label.trim()))) throw new Error(`${lang}/${viewport.width}: panel labels do not follow the approved format`);
       await page.close();
     }
   }
@@ -59,6 +78,12 @@ try {
   await keyboard.keyboard.press('ArrowDown');
   await keyboard.waitForFunction(() => document.querySelector('.fullpage-dots a:nth-child(3)')?.getAttribute('aria-current') === 'step');
   await keyboard.close();
+
+  const english = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  await english.goto(`${baseURL}/en/`);
+  const englishFinalTitle = await english.locator('#screen-6-title .title-line').evaluateAll((nodes) => nodes.map((node) => node.textContent?.trim()).join(' '));
+  if (englishFinalTitle !== "Let's deliver your next order together") throw new Error('en: final screen title is not approved');
+  await english.close();
 
   const reduced = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   await reduced.goto(`${baseURL}/en/`);
