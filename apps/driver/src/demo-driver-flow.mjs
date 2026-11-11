@@ -7,11 +7,15 @@ export function createDemoDriverFlow() {
     registrationReady: false,
     selectedTripId: null,
     withdrawalState: 'idle',
+    withdrawalReturnScreen: 'profile',
+    online: false,
   };
 }
 
 export function transitionDemoDriverFlow(flow, event) {
   switch (event.type) {
+    case 'sign_in_demo':
+      return flow.screen === 'login' ? { ...flow, screen: 'offer', online: true } : flow;
     case 'start_registration':
       return { ...flow, screen: 'registration_profile', reviewState: 'draft' };
     case 'set_registration_ready':
@@ -36,9 +40,15 @@ export function transitionDemoDriverFlow(flow, event) {
         : flow;
     case 'show_offer':
       return flow.screen === 'review' && flow.reviewState === 'approved'
-        ? { ...flow, screen: 'offer' }
+        ? { ...flow, screen: 'offer', online: true }
         : flow;
+    case 'go_offline':
+      return flow.screen === 'offer' ? { ...flow, online: false } : flow;
+    case 'go_online':
+      return flow.screen === 'offer' ? { ...flow, online: true } : flow;
     case 'accept_offer':
+      return flow.screen === 'offer' && flow.online ? { ...flow, screen: 'trips' } : flow;
+    case 'decline_offer':
       return flow.screen === 'offer' ? { ...flow, screen: 'trips' } : flow;
     case 'open_trip': {
       const trip = selectTrip(event.trips ?? [], event.tripId);
@@ -49,18 +59,22 @@ export function transitionDemoDriverFlow(flow, event) {
     case 'show_trips':
       return { ...flow, screen: 'trips' };
     case 'show_profile':
-      return { ...flow, screen: 'profile' };
+      return ['offer', 'trips', 'wallet', 'profile'].includes(flow.screen)
+        ? { ...flow, screen: 'profile' }
+        : flow;
+    case 'show_wallet':
+      return { ...flow, screen: 'wallet' };
     case 'start_withdrawal':
-      return flow.screen === 'profile'
-        ? { ...flow, screen: 'withdrawal_confirm', withdrawalState: 'confirming' }
+      return (flow.screen === 'profile' || flow.screen === 'wallet')
+        ? { ...flow, screen: 'withdrawal_confirm', withdrawalState: 'confirming', withdrawalReturnScreen: flow.screen }
         : flow;
     case 'confirm_withdrawal':
       return flow.screen === 'withdrawal_confirm'
-        ? { ...flow, screen: 'profile', withdrawalState: 'submitted' }
+        ? { ...flow, screen: flow.withdrawalReturnScreen, withdrawalState: 'submitted' }
         : flow;
     case 'cancel_withdrawal':
       return flow.screen === 'withdrawal_confirm'
-        ? { ...flow, screen: 'profile', withdrawalState: 'idle' }
+        ? { ...flow, screen: flow.withdrawalReturnScreen, withdrawalState: 'idle' }
         : flow;
     default:
       return flow;

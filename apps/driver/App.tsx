@@ -432,6 +432,7 @@ export default function App() {
             registration={demoRegistration}
             reviewState={demoFlow.reviewState}
             screen={demoFlow.screen}
+            online={demoFlow.online}
             withdrawalState={demoFlow.withdrawalState}
           />
         </View>

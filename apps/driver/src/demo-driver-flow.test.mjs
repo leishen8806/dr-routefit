@@ -12,6 +12,27 @@ test('login starts the local registration journey without an API call', () => {
   assert.equal(next.reviewState, 'draft');
 });
 
+test('a returning demo driver can sign in, decline an offer, and open the wallet locally', () => {
+  const signedIn = transitionDemoDriverFlow(createDemoDriverFlow(), { type: 'sign_in_demo' });
+  const declined = transitionDemoDriverFlow(signedIn, { type: 'decline_offer' });
+  const wallet = transitionDemoDriverFlow(declined, { type: 'show_wallet' });
+
+  assert.equal(signedIn.screen, 'offer');
+  assert.equal(declined.screen, 'trips');
+  assert.equal(wallet.screen, 'wallet');
+});
+
+test('an approved driver can go online and offline before accepting a sample offer', () => {
+  const approved = { ...createDemoDriverFlow(), screen: 'review', reviewState: 'approved' };
+  const online = transitionDemoDriverFlow(approved, { type: 'show_offer' });
+  const offline = transitionDemoDriverFlow(online, { type: 'go_offline' });
+  const onlineAgain = transitionDemoDriverFlow(offline, { type: 'go_online' });
+
+  assert.equal(online.online, true);
+  assert.equal(offline.online, false);
+  assert.equal(onlineAgain.online, true);
+});
+
 test('registration only becomes ready when supplied details are complete', () => {
   const flow = {
     ...createDemoDriverFlow(),
@@ -58,8 +79,8 @@ test('registration advances through profile, vehicle, and document steps in orde
   assert.equal(documents.screen, 'registration_documents');
 });
 
-test('accepting a sample offer opens the selected sample trip locally', () => {
-  const flow = { ...createDemoDriverFlow(), screen: 'offer' };
+test('accepting an online sample offer opens the selected sample trip locally', () => {
+  const flow = { ...createDemoDriverFlow(), screen: 'offer', online: true };
   const accepted = transitionDemoDriverFlow(flow, { type: 'accept_offer' });
   const detailed = transitionDemoDriverFlow(accepted, {
     type: 'open_trip',
@@ -94,8 +115,9 @@ test('sample withdrawal uses a separate confirmation before it is submitted', ()
 });
 
 test('a driver can reach profile, cancel a sample withdrawal, and return to profile', () => {
-  const initial = createDemoDriverFlow();
-  const profile = transitionDemoDriverFlow(initial, { type: 'show_profile' });
+  const signedIn = transitionDemoDriverFlow(createDemoDriverFlow(), { type: 'sign_in_demo' });
+  const trips = transitionDemoDriverFlow(signedIn, { type: 'decline_offer' });
+  const profile = transitionDemoDriverFlow(trips, { type: 'show_profile' });
   const confirmation = transitionDemoDriverFlow(profile, { type: 'start_withdrawal' });
   const cancelled = transitionDemoDriverFlow(confirmation, { type: 'cancel_withdrawal' });
 
@@ -103,6 +125,16 @@ test('a driver can reach profile, cancel a sample withdrawal, and return to prof
   assert.equal(confirmation.screen, 'withdrawal_confirm');
   assert.equal(cancelled.screen, 'profile');
   assert.equal(cancelled.withdrawalState, 'idle');
+});
+
+test('a wallet withdrawal returns to the wallet after confirmation', () => {
+  const signedIn = transitionDemoDriverFlow(createDemoDriverFlow(), { type: 'sign_in_demo' });
+  const wallet = transitionDemoDriverFlow(signedIn, { type: 'show_wallet' });
+  const confirmation = transitionDemoDriverFlow(wallet, { type: 'start_withdrawal' });
+  const submitted = transitionDemoDriverFlow(confirmation, { type: 'confirm_withdrawal' });
+
+  assert.equal(submitted.screen, 'wallet');
+  assert.equal(submitted.withdrawalState, 'submitted');
 });
 
 test('the approved local registration can go online, accept a trip, and reach withdrawal confirmation', () => {
