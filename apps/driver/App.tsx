@@ -99,6 +99,7 @@ export default function App() {
 
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
   const auth = () => developmentSessionAuth(token, csrfToken);
+  const showDevelopmentControls = __DEV__;
 
   function refreshQueue(queue = queueRef.current) {
     if (!queue) return;
@@ -422,58 +423,62 @@ export default function App() {
           {language === 'km' ? <Text style={styles.caption}>{t('kmPending')}</Text> : null}
         </View>
 
-        <View style={styles.login}>
-          <DriverDemoScreens
-            language={language}
-            onRegistrationChange={setDemoRegistration}
-            onTransition={(type, payload = {}) => {
-              setDemoFlow((current) => transitionDemoDriverFlow(current, { type, ...payload }));
-            }}
-            registration={demoRegistration}
-            registrationReady={demoFlow.registrationReady}
-            reviewState={demoFlow.reviewState}
-            screen={demoFlow.screen}
-            online={demoFlow.online}
-            withdrawalState={demoFlow.withdrawalState}
-          />
-        </View>
+        {showDevelopmentControls ? (
+          <View style={styles.login}>
+            <DriverDemoScreens
+              language={language}
+              onRegistrationChange={setDemoRegistration}
+              onTransition={(type, payload = {}) => {
+                setDemoFlow((current) => transitionDemoDriverFlow(current, { type, ...payload }));
+              }}
+              registration={demoRegistration}
+              registrationReady={demoFlow.registrationReady}
+              reviewState={demoFlow.reviewState}
+              screen={demoFlow.screen}
+              online={demoFlow.online}
+              withdrawalState={demoFlow.withdrawalState}
+            />
+          </View>
+        ) : null}
 
-        <View style={styles.login}>
-          <Text style={styles.label}>{t('tokenLabel')}</Text>
-          <TextInput
-            accessibilityLabel={t('tokenLabel')}
-            autoCapitalize="none"
-            autoCorrect={false}
-            onChangeText={setToken}
-            placeholder={t('secretPlaceholder')}
-            secureTextEntry
-            style={styles.input}
-            value={token}
-          />
-          <Text style={styles.label}>{t('csrfLabel')}</Text>
-          <TextInput
-            accessibilityLabel={t('csrfLabel')}
-            autoCapitalize="none"
-            autoCorrect={false}
-            onChangeText={setCsrfToken}
-            placeholder={t('secretPlaceholder')}
-            secureTextEntry
-            style={styles.input}
-            value={csrfToken}
-          />
-          <Pressable
-            accessibilityRole="button"
-            disabled={Boolean(loading) || !credentialsReady}
-            onPress={() => refreshAssignments()}
-            style={({ pressed }) => [
-              styles.button,
-              (Boolean(loading) || !credentialsReady) && styles.buttonDisabled,
-              pressed && styles.buttonPressed,
-            ]}
-          >
-            <Text style={styles.buttonText}>{assignments ? t('refreshTasks') : t('connectTasks')}</Text>
-          </Pressable>
-        </View>
+        {showDevelopmentControls ? (
+          <View style={styles.login}>
+            <Text style={styles.label}>{t('tokenLabel')}</Text>
+            <TextInput
+              accessibilityLabel={t('tokenLabel')}
+              autoCapitalize="none"
+              autoCorrect={false}
+              onChangeText={setToken}
+              placeholder={t('secretPlaceholder')}
+              secureTextEntry
+              style={styles.input}
+              value={token}
+            />
+            <Text style={styles.label}>{t('csrfLabel')}</Text>
+            <TextInput
+              accessibilityLabel={t('csrfLabel')}
+              autoCapitalize="none"
+              autoCorrect={false}
+              onChangeText={setCsrfToken}
+              placeholder={t('secretPlaceholder')}
+              secureTextEntry
+              style={styles.input}
+              value={csrfToken}
+            />
+            <Pressable
+              accessibilityRole="button"
+              disabled={Boolean(loading) || !credentialsReady}
+              onPress={() => refreshAssignments()}
+              style={({ pressed }) => [
+                styles.button,
+                (Boolean(loading) || !credentialsReady) && styles.buttonDisabled,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <Text style={styles.buttonText}>{assignments ? t('refreshTasks') : t('connectTasks')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
 
         {loading ? <ActivityIndicator accessibilityLabel={loading === 'list' ? t('loadingTasks') : t('loadingDetails')} size="large" /> : null}
         {queueFailed ? <Text accessibilityRole="alert" style={styles.error}>{t('queueLoadFailed')}</Text> : null}
