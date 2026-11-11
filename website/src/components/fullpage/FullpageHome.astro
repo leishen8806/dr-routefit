@@ -199,7 +199,47 @@ const panelIndex = (index: number) => index === 0 ? '01 / 06' : `0${index + 1} /
   const panels = [...document.querySelectorAll<HTMLElement>('.fullpage-home [data-screen]')];
   const dots = [...document.querySelectorAll<HTMLAnchorElement>('.fullpage-dots a')];
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const desktop = window.matchMedia('(min-width: 1024px) and (min-height: 700px)');
+  const desktop = window.matchMedia('(min-width: 1024px)');
+  let activeIndex = 0;
+
+  const panelsFitViewport = () => panels.every((panel) => {
+    const shell = panel.querySelector<HTMLElement>('.panel-shell');
+    if (!shell) return false;
+    const panelRect = panel.getBoundingClientRect();
+    const style = getComputedStyle(panel);
+    const contentTop = parseFloat(style.paddingTop);
+    const contentBottom = innerHeight - parseFloat(style.paddingBottom);
+    const visible = [shell, ...shell.querySelectorAll<HTMLElement>('.panel-copy h1, .panel-copy h2, .panel-copy p, .panel-copy li, .panel-copy summary, .panel-copy a, .panel-copy button, .panel-copy .panel-disclosure, .panel-copy .panel-badge, .panel-copy .entry-grid, .panel-scene')].filter((item) => {
+      const rect = item.getBoundingClientRect();
+      return item.checkVisibility() && rect.width > 0 && rect.height > 0;
+    });
+    const highest = Math.min(...visible.map((item) => item.getBoundingClientRect().top - panelRect.top));
+    const lowest = Math.max(...visible.map((item) => item.getBoundingClientRect().bottom - panelRect.top));
+    return highest >= contentTop - 1 && lowest <= contentBottom + 1;
+  });
+
+  const updateSnapMode = () => {
+    const root = document.documentElement;
+    root.classList.remove('fullpage-snap-ready', 'fullpage-compact');
+    root.dataset.fullpageLayoutStep = 'scroll';
+    if (reducedMotion || !desktop.matches) return;
+    root.classList.add('fullpage-measuring');
+    if (panelsFitViewport()) {
+      root.classList.add('fullpage-snap-ready');
+      root.dataset.fullpageLayoutStep = '1';
+      root.classList.remove('fullpage-measuring');
+      return;
+    }
+    root.classList.add('fullpage-compact');
+    if (panelsFitViewport()) {
+      root.classList.add('fullpage-snap-ready');
+      root.dataset.fullpageLayoutStep = '2';
+      root.classList.remove('fullpage-measuring');
+      return;
+    }
+    root.dataset.fullpageLayoutStep = '3';
+    root.classList.remove('fullpage-measuring');
+  };
 
   if (reducedMotion) {
     panels.forEach((panel) => panel.classList.add('is-visible'));
@@ -217,13 +257,28 @@ const panelIndex = (index: number) => index === 0 ? '01 / 06' : `0${index + 1} /
   const activeObserver = new IntersectionObserver((entries) => {
     const active = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
     if (!active) return;
-    const activeIndex = panels.indexOf(active.target as HTMLElement);
+    activeIndex = panels.indexOf(active.target as HTMLElement);
     dots.forEach((dot, index) => index === activeIndex ? dot.setAttribute('aria-current', 'step') : dot.removeAttribute('aria-current'));
   }, { threshold: [0.45, 0.7] });
   panels.forEach((panel) => activeObserver.observe(panel));
 
+  requestAnimationFrame(updateSnapMode);
+  document.fonts?.ready.then(updateSnapMode);
+
+  let resizeFrame = 0;
+  window.addEventListener('resize', () => {
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(() => {
+      updateSnapMode();
+      const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      panels[activeIndex]?.scrollIntoView({ block: 'start', behavior: 'auto' });
+      document.documentElement.style.scrollBehavior = previousScrollBehavior;
+    });
+  });
+
   document.addEventListener('keydown', (event) => {
-    if (!desktop.matches || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (!document.documentElement.classList.contains('fullpage-snap-ready') || event.altKey || event.ctrlKey || event.metaKey) return;
     if ((event.target as HTMLElement | null)?.closest('a, button, input, textarea, select, summary')) return;
     const forward = event.key === 'ArrowDown' || event.key === 'PageDown' || (event.key === ' ' && !event.shiftKey);
     const backward = event.key === 'ArrowUp' || event.key === 'PageUp' || (event.key === ' ' && event.shiftKey);
