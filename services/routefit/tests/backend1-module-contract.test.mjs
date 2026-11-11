@@ -15,17 +15,22 @@ test('Backend1 module contract makes every owned operation reviewable under stan
     'listFxRates', 'createFxRate', 'createPricingQuoteTrial',
     'createCustomerQuoteTrial', 'listCustomerServiceOptions'
   ];
+  const requiredBOperations = [
+    'listMerchants', 'createMerchant', 'getMerchant',
+    'approveMerchant', 'rejectMerchant', 'suspendMerchant', 'resumeMerchant',
+    'listMerchantContracts', 'createMerchantContractVersion', 'approveMerchantContract',
+  ];
   const moduleOperations = Object.values(module.paths)
     .flatMap(path => Object.values(path));
 
   assert.deepEqual(
     moduleOperations.map(operation => operation.operationId).sort(),
-    requiredAOperations.slice().sort()
+    [...requiredAOperations, ...requiredBOperations].sort()
   );
 
   for (const operation of moduleOperations) {
     assert.equal(operation['x-stage'], 'R2');
-    assert.equal(operation['x-baseline-tier'], 'A');
+    assert.ok(['A', 'B'].includes(operation['x-baseline-tier']));
     assert.equal(operation['x-implementation-status'], 'PLANNED');
     assert.equal(operation['x-owner'], 'Backend1');
     assert.ok(operation['x-examples']?.success);
