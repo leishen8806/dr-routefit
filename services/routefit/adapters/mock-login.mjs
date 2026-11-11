@@ -3,7 +3,7 @@ import {ApiError,ensure} from '../domain/errors.mjs';
 
 // shortcut: development-only mock login (CMP-1464). Fixed demo code, no SMS/Telegram. Must stay off in production.
 export const MOCK_LOGIN_CODE='123456';
-export const MOCK_LOGIN_PATHS={'/api/driver/v1/auth/mock-login':'driver','/api/customer/v1/auth/mock-login':'customer'};
+export const MOCK_LOGIN_PATHS={'/api/driver/v1/auth/mock-sessions':'driver','/api/customer/v1/auth/mock-sessions':'customer'};
 const phonePattern=/^\+?[0-9]{6,15}$/;
 
 // Fail closed: every condition must be explicitly present. Missing NODE_ENV counts as "not development".
@@ -12,14 +12,14 @@ export function mockLoginEnabled(env=process.env){
 }
 
 const same=(a,b)=>{const x=Buffer.from(String(a)),y=Buffer.from(String(b));return x.length===y.length&&timingSafeEqual(x,y);};
-const fail=()=>new ApiError(401,'INVALID_CREDENTIALS','手机号或验证码不正确');
+const fail=()=>new ApiError(401,'UNAUTHENTICATED','手机号或验证码不正确');
 
 async function readJson(req){
  ensure(/^application\/json(?:\s*;.*)?$/i.test(req.headers['content-type']||''),415,'UNSUPPORTED_MEDIA_TYPE','请使用application/json');
  let size=0;const chunks=[];
  for await(const chunk of req){size+=chunk.length;ensure(size<=2048,413,'BODY_TOO_LARGE','请求体过大');chunks.push(chunk);}
- let body;try{body=JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{ensure(false,422,'INVALID_BODY','请求体必须是JSON');}
- ensure(body&&typeof body==='object'&&!Array.isArray(body)&&Object.keys(body).sort().join()==='code,phone'&&typeof body.phone==='string'&&typeof body.code==='string',422,'INVALID_BODY','只接受 phone 和 code');
+ let body;try{body=JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{ensure(false,400,'VALIDATION_FAILED','请求体必须是JSON');}
+ ensure(body&&typeof body==='object'&&!Array.isArray(body)&&Object.keys(body).sort().join()==='code,phone'&&typeof body.phone==='string'&&typeof body.code==='string',400,'VALIDATION_FAILED','只接受 phone 和 code');
  return body;
 }
 

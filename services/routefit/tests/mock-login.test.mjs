@@ -18,7 +18,7 @@ const call=async(handler,path,body,over={})=>{
  let out=null;const send=(status,b)=>{out={status,body:b};};
  try{const handled=await handler(req,{},send);return {handled,...out};}catch(e){return {error:e};}
 };
-const D='/api/driver/v1/auth/mock-login',C='/api/customer/v1/auth/mock-login';
+const D='/api/driver/v1/auth/mock-sessions',C='/api/customer/v1/auth/mock-sessions';
 
 test('enabled only for explicit development/test with flag',()=>{
  assert.equal(mockLoginEnabled(devEnv),true);
@@ -59,7 +59,7 @@ test('customer login works and token is limited to customer paths',async()=>{
 test('wrong code, unknown phone, wrong audience all give the same 401',async()=>{
  const {handler}=setup();
  const cases=[[D,{phone:'+85510000001',code:'000000'}],[D,{phone:'+85510000777',code:MOCK_LOGIN_CODE}],[C,{phone:'+85510000001',code:MOCK_LOGIN_CODE}],[D,{phone:'abc',code:MOCK_LOGIN_CODE}]];
- for(const [path,body] of cases){const r=await call(handler,path,body);assert.equal(r.error.status,401);assert.equal(r.error.code,'INVALID_CREDENTIALS');}
+ for(const [path,body] of cases){const r=await call(handler,path,body);assert.equal(r.error.status,401);assert.equal(r.error.code,'UNAUTHENTICATED');}
 });
 
 test('identity without matching permissions cannot get a token for that audience',async()=>{
@@ -81,8 +81,8 @@ test('request validation: method, media type, body shape, remote address, rate l
  const {handler}=setup();
  assert.equal((await call(handler,D,{phone:'+85510000001',code:MOCK_LOGIN_CODE},{req:{method:'GET'}})).error.status,405);
  assert.equal((await call(handler,D,{phone:'+85510000001',code:MOCK_LOGIN_CODE},{headers:{'content-type':'text/plain'}})).error.status,415);
- assert.equal((await call(handler,D,{phone:'+85510000001',code:MOCK_LOGIN_CODE,role:'admin'})).error.status,422);
- assert.equal((await call(handler,D,'not json')).error.status,422);
+ assert.equal((await call(handler,D,{phone:'+85510000001',code:MOCK_LOGIN_CODE,role:'admin'})).error.status,400);
+ assert.equal((await call(handler,D,'not json')).error.status,400);
  assert.equal((await call(handler,D,{phone:'+85510000001',code:MOCK_LOGIN_CODE},{req:{socket:{remoteAddress:'10.0.0.5'}}})).error.status,403);
  const authenticate=developmentAuth([driver],origin);let n=0;
  const limited=mockLogin({env:devEnv,identities,authenticate,rateLimit:()=>{if(++n>2)throw Object.assign(new Error('x'),{status:429});}});

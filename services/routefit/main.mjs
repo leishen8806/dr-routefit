@@ -31,8 +31,10 @@ const requestRateLimit=Number(process.env.ROUTEFIT_DEV_RATE_LIMIT||120);
 if(!Number.isInteger(requestRateLimit)||requestRateLimit<1)throw new Error('Invalid ROUTEFIT_DEV_RATE_LIMIT');
 // Mock login (CMP-1464): fixed-code, development only. Off unless NODE_ENV=development|test AND ROUTEFIT_MOCK_LOGIN=1; production already aborted above.
 const mockLimits=new Map();
+// Example default (configurable): 10 attempts per minute; ROUTEFIT_MOCK_LOGIN_RATE_LIMIT overrides within 1..1000.
+const mockLoginRateLimit=(n=>Number.isInteger(n)&&n>=1&&n<=1000?n:10)(Number(process.env.ROUTEFIT_MOCK_LOGIN_RATE_LIMIT));
 const identities=sessions.filter(s=>s.mockLogin&&['driver','customer'].includes(s.mockLogin.audience)).map(s=>({audience:s.mockLogin.audience,phone:s.mockLogin.phone,tokenHash:s.tokenHash}));
-const mockLoginHandler=mockLoginEnabled()?mockLogin({identities,authenticate,rateLimit:key=>rateLimit(mockLimits,String(key),10)}):undefined;
+const mockLoginHandler=mockLoginEnabled()?mockLogin({identities,authenticate,rateLimit:key=>rateLimit(mockLimits,String(key),mockLoginRateLimit)}):undefined;
 const server=apiServer({pool,authenticate,mockLogin:mockLoginHandler,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,requestRateLimit,log:entry=>console.log(JSON.stringify(entry))});
 server.listen(port,'127.0.0.1',()=>console.log(`RouteFit local pricing API: http://127.0.0.1:${port}`));
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>server.close(()=>pool.end()));
