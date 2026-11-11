@@ -4,7 +4,13 @@ import {activateMerchantContract as activateContract,expireMerchantContract as e
 import {assessCouponRisk,lockCoupon as lockCouponDomain,redeemCoupon as redeemCouponDomain,releaseCoupon as releaseCouponDomain} from '../domain/coupons.mjs';
 import {freezeUser as freezeUserDomain,unfreezeUser as unfreezeUserDomain} from '../domain/user-freeze.mjs';
 
+function assertCouponWindow(startsAt,endsAt){
+ const startsAtMs=Date.parse(startsAt),endsAtMs=Date.parse(endsAt);
+ ensure(Number.isFinite(startsAtMs)&&Number.isFinite(endsAtMs)&&startsAtMs<endsAtMs,422,'INVALID_COUPON_WINDOW','Coupon activation window must start before it ends');
+}
+
 export async function createCouponBatch({client,companyId,idempotencyKey},{code,discountType,amountMinor,currency,budgetMinor,minimumSpendMinor=0,startsAt,endsAt}){
+ assertCouponWindow(startsAt,endsAt);
  const kind=discountType==='fixed'?'AMOUNT_OFF':'THRESHOLD_OFF';
  const result=await client.query(`INSERT INTO marketing.coupon_batch
   (id,company_id,kind,currency,amount_minor,minimum_spend_minor,budget_minor,idempotency_key,code,starts_at,ends_at,state,version)
@@ -106,6 +112,10 @@ export async function unfreezeUser({client,companyId,userId,version}){
 }
 
 export async function lockOrderCoupon({client,companyId,principalId,orderId,idempotencyKey,riskSignals},{couponId}){
+ ensure(riskSignals&&typeof riskSignals==='object',422,'RISK_SIGNALS_REQUIRED','Coupon lock requires trusted risk signals');
+ const {deviceFingerprintHash,phoneHash,observedAt=new Date().toISOString()}=riskSignals;
+ ensure(/^[a-f0-9]{64}$/.test(deviceFingerprintHash)&&/^[a-f0-9]{64}$/.test(phoneHash),422,'INVALID_RISK_SIGNAL','Coupon risk signals must be SHA-256 hashes');
+ ensure(typeof principalId==='string'&&principalId.length>0,422,'INVALID_RISK_SIGNAL','Coupon risk signals require an authenticated principal');
  const couponRow=(await client.query(`SELECT c.id,c.state,b.state AS batch_state,b.amount_minor,b.minimum_spend_minor,b.starts_at,b.ends_at,
   b.budget_minor-COALESCE((SELECT sum(r.discount_minor) FROM marketing.coupon_redemption r
    WHERE r.company_id=b.company_id AND r.state<>'RELEASED'),0) AS budget_remaining_minor
@@ -121,23 +131,18 @@ export async function lockOrderCoupon({client,companyId,principalId,orderId,idem
  let risk=(await client.query(`SELECT 1 FROM marketing.risk_flag
   WHERE company_id=$1 AND state='OPEN' AND (coupon_id=$2 OR order_id=$3)
   LIMIT 1`,[companyId,couponId,orderId])).rows[0];
- if(riskSignals){
-  const {deviceFingerprintHash,phoneHash,observedAt=new Date().toISOString()}=riskSignals;
-  ensure(/^[a-f0-9]{64}$/.test(deviceFingerprintHash)&&/^[a-f0-9]{64}$/.test(phoneHash),422,'INVALID_RISK_SIGNAL','Coupon risk signals must be SHA-256 hashes');
-  ensure(typeof principalId==='string'&&principalId.length>0,422,'INVALID_RISK_SIGNAL','Coupon risk signals require an authenticated principal');
-  await client.query(`INSERT INTO marketing.coupon_risk_signal
-   (id,company_id,principal_id,device_fingerprint_hash,phone_hash,observed_at)
-   VALUES($1,$2,$3,$4,$5,$6)
-   ON CONFLICT(company_id,principal_id,device_fingerprint_hash,phone_hash)
-   DO UPDATE SET observed_at=EXCLUDED.observed_at`,[randomUUID(),companyId,principalId,deviceFingerprintHash,phoneHash,observedAt]);
-  const accounts=(await client.query(`SELECT DISTINCT principal_id FROM marketing.coupon_risk_signal
-   WHERE company_id=$1 AND (device_fingerprint_hash=$2 OR phone_hash=$3)`,[companyId,deviceFingerprintHash,phoneHash])).rows.map(row=>row.principal_id);
-  const assessed=assessCouponRisk({deviceId:deviceFingerprintHash,phoneHash,accountIds:accounts});
-  if(assessed.state==='PAUSED'){
-   await client.query(`INSERT INTO marketing.risk_flag(id,company_id,coupon_id,order_id,code,state)
-    VALUES($1,$2,$3,$4,'COUPON_REVIEW_REQUIRED','OPEN')`,[randomUUID(),companyId,couponId,orderId]);
-   risk={state:'OPEN'};
-  }
+ await client.query(`INSERT INTO marketing.coupon_risk_signal
+  (id,company_id,principal_id,device_fingerprint_hash,phone_hash,observed_at)
+  VALUES($1,$2,$3,$4,$5,$6)
+  ON CONFLICT(company_id,principal_id,device_fingerprint_hash,phone_hash)
+  DO UPDATE SET observed_at=EXCLUDED.observed_at`,[randomUUID(),companyId,principalId,deviceFingerprintHash,phoneHash,observedAt]);
+ const accounts=(await client.query(`SELECT DISTINCT principal_id FROM marketing.coupon_risk_signal
+  WHERE company_id=$1 AND (device_fingerprint_hash=$2 OR phone_hash=$3)`,[companyId,deviceFingerprintHash,phoneHash])).rows.map(row=>row.principal_id);
+ const assessed=assessCouponRisk({deviceId:deviceFingerprintHash,phoneHash,accountIds:accounts});
+ if(assessed.state==='PAUSED'){
+  await client.query(`INSERT INTO marketing.risk_flag(id,company_id,coupon_id,order_id,code,state)
+   VALUES($1,$2,$3,$4,'COUPON_REVIEW_REQUIRED','OPEN')`,[randomUUID(),companyId,couponId,orderId]);
+  risk={state:'OPEN'};
  }
  const storedOrder=orderRow.snapshot.order;
  const locked=lockCouponDomain({

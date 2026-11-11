@@ -41,6 +41,15 @@ test('coupon batch repository persists its code and activation window', async ()
  assert.deepEqual(calls[0].params.slice(-3),['DEMO','2026-11-10T00:00:00Z','2026-11-11T00:00:00Z']);
 });
 
+test('coupon batch repository rejects a reversed activation window before writing', async () => {
+ const client={query:async()=>{throw new Error('coupon batch insert must not run for an invalid window');}};
+ await assert.rejects(
+  ()=>createCouponBatch({client,companyId:'00000000-0000-0000-0000-000000000001',idempotencyKey:'coupon-batch-invalid-window'},
+   {code:'DEMO',discountType:'fixed',amountMinor:100,currency:'USD',budgetMinor:1000,startsAt:'2026-11-11T00:00:00Z',endsAt:'2026-11-10T00:00:00Z'}),
+  {code:'INVALID_COUPON_WINDOW'}
+ );
+});
+
 test('coupon list repository scopes results to the company and maps issued coupons to available', async () => {
  const calls=[];
  const client={query:async(sql,params)=>{
@@ -192,18 +201,20 @@ test('default Backend1 unfreeze handler uses the append-only user freeze reposit
 
 test('coupon lock repository runs the domain rules then atomically locks and appends history', async () => {
  const calls=[];
+ const deviceFingerprintHash='c'.repeat(64),phoneHash='d'.repeat(64);
  const client={query:async(sql,params)=>{
   calls.push({sql,params});
-  if(calls.length===1)return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000'}]};
-  if(calls.length===2)return {rows:[{snapshot:{order:{id:'00000000-0000-0000-0000-000000000020',merchandiseMinor:1200,shippingMinor:200,insuranceMinor:100}},cod_amount_minor:'400',payment_method:'PREPAID'}]};
-  if(calls.length===3)return {rows:[]};
-  if(calls.length===4)return {rows:[]};
+  if(sql.includes('FROM marketing.coupon c'))return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000',starts_at:'2026-11-10T00:00:00.000Z',ends_at:'2026-11-12T00:00:00.000Z'}]};
+  if(sql.includes('FROM orders.draft'))return {rows:[{snapshot:{order:{id:'00000000-0000-0000-0000-000000000020',merchandiseMinor:1200,shippingMinor:200,insuranceMinor:100}},cod_amount_minor:'400',payment_method:'PREPAID'}]};
+  if(sql.includes('SELECT DISTINCT principal_id'))return {rows:[{principal_id:'00000000-0000-0000-0000-000000000099'}]};
+  if(sql.includes('SELECT coupon_id FROM marketing.coupon_redemption'))return {rows:[]};
+  if(sql.includes('marketing.risk_flag'))return {rows:[]};
   return {rows:[{coupon_id:'00000000-0000-0000-0000-000000000010',order_id:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discount_minor:'200'}]};
  }};
- const result=await lockOrderCouponRepository({client,companyId:'00000000-0000-0000-0000-000000000001',orderId:'00000000-0000-0000-0000-000000000020'},{couponId:'00000000-0000-0000-0000-000000000010'});
+ const result=await lockOrderCouponRepository({client,companyId:'00000000-0000-0000-0000-000000000001',principalId:'00000000-0000-0000-0000-000000000099',orderId:'00000000-0000-0000-0000-000000000020',riskSignals:{deviceFingerprintHash,phoneHash}},{couponId:'00000000-0000-0000-0000-000000000010'});
  assert.deepEqual(result,{couponId:'00000000-0000-0000-0000-000000000010',orderId:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discountMinor:200,driverCommissionBaseMinor:1700,fraudReviewRequired:true});
- assert.match(calls[4].sql,/UPDATE marketing\.coupon/);
- assert.match(calls[4].sql,/INSERT INTO marketing\.coupon_redemption/);
+ assert.ok(calls.some(call=>/UPDATE marketing\.coupon/.test(call.sql)));
+ assert.ok(calls.some(call=>/INSERT INTO marketing\.coupon_redemption/.test(call.sql)));
 });
 
 test('coupon lock persists hashed risk signals and pauses three accounts sharing one device', async () => {
@@ -224,16 +235,26 @@ test('coupon lock persists hashed risk signals and pauses three accounts sharing
  assert.ok(calls.some(call=>call.sql.includes('INSERT INTO marketing.coupon_risk_signal')),'hash-only signal must be persisted before the risk decision');
 });
 
+test('coupon lock rejects when no risk signals are supplied before reading or locking a coupon', async () => {
+ const client={query:async()=>{throw new Error('coupon lock must fail closed before database access');}};
+ await assert.rejects(
+  ()=>lockOrderCouponRepository({client,companyId:'00000000-0000-0000-0000-000000000001',principalId:'00000000-0000-0000-0000-000000000099',orderId:'00000000-0000-0000-0000-000000000020'},
+   {couponId:'00000000-0000-0000-0000-000000000010'}),
+  {code:'RISK_SIGNALS_REQUIRED'}
+ );
+});
+
 test('default Backend1 coupon lock handler uses the coupon lock repository', async () => {
  let call=0;
+ const deviceFingerprintHash='e'.repeat(64),phoneHash='f'.repeat(64);
  const client={query:async()=>{
   call+=1;
-  if(call===1)return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000'}]};
+  if(call===1)return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000',starts_at:'2026-11-10T00:00:00.000Z',ends_at:'2026-11-12T00:00:00.000Z'}]};
   if(call===2)return {rows:[{snapshot:{order:{id:'00000000-0000-0000-0000-000000000020',merchandiseMinor:1200,shippingMinor:200,insuranceMinor:100}},cod_amount_minor:'400',payment_method:'PREPAID'}]};
-  if(call<5)return {rows:[]};
+  if(call<7)return {rows:[]};
   return {rows:[{coupon_id:'00000000-0000-0000-0000-000000000010',order_id:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discount_minor:'200'}]};
  }};
- const result=await backend1Handlers.lockOrderCoupon({client,companyId:'00000000-0000-0000-0000-000000000001',orderId:'00000000-0000-0000-0000-000000000020'},{couponId:'00000000-0000-0000-0000-000000000010'});
+ const result=await backend1Handlers.lockOrderCoupon({client,companyId:'00000000-0000-0000-0000-000000000001',principalId:'00000000-0000-0000-0000-000000000099',orderId:'00000000-0000-0000-0000-000000000020',riskSignals:{deviceFingerprintHash,phoneHash}},{couponId:'00000000-0000-0000-0000-000000000010'});
  assert.deepEqual(result,{status:200,body:{couponId:'00000000-0000-0000-0000-000000000010',orderId:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discountMinor:200,driverCommissionBaseMinor:1700,fraudReviewRequired:true}});
 });
 
