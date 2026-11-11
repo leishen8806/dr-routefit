@@ -70,7 +70,6 @@ html[lang="km"] .eyebrow { font-size: .9rem; letter-spacing: .04em; }
 html[lang="km"] .hero h1 { font-size: clamp(2.4rem, 5vw, 4.4rem); }
 .hero .lead { margin-top: 26px; }
 .button-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
-.slogan { margin-top: 28px; color: var(--navy); font-size: .88rem; font-weight: 500; }
 .route-visual { position: relative; min-height: 400px; }
 .route-scene { position: absolute; inset: 0 -72px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; gap: 10px; padding: 38px 88px 38px 48px; overflow: hidden; background: var(--white); border: 1px solid var(--line); border-radius: 16px 0 0 16px; box-shadow: var(--shadow); }
 .route-track { position: absolute; left: 90px; right: 125px; top: 50%; height: 4px; background: var(--navy); }
