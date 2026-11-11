@@ -9,7 +9,7 @@
     "prepare:fonts": "node scripts/copy-fonts.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test src/*.test.mjs",
-    "build:web": "npm run prepare:fonts && expo export --platform web"
+    "build:web": "npm run prepare:fonts && expo export --platform web && node scripts/verify-web-export.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~58.0.17",
