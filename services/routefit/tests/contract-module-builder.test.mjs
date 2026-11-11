@@ -24,6 +24,7 @@ test('assembles a module into the legacy base without mutating its input',()=>{
 test('enforces the eight baseline rules for module operations',()=>{
   const module={module:'dispatch',paths:{'/api/ops/v1/route-plans':{get:operation}},components:{schemas:{}}};
   assert.doesNotThrow(()=>validateModuleStandards(module,base));
+  assert.doesNotThrow(()=>validateModuleStandards({...module,paths:{'/api/ops/v1/coupon-batches/{batchId}':{get:operation}}},base));
   assert.throws(()=>validateModuleStandards({...module,paths:{'/api/ops/v1/route-plans':{delete:operation}}},base),/DELETE/);
   assert.throws(()=>validateModuleStandards({...module,paths:{'/api/ops/v1/Route Plans':{get:operation}}},base),/lowercase/);
 });

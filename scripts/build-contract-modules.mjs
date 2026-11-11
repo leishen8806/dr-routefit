@@ -25,7 +25,7 @@ export function validateModuleStandards(module,base){
   if(!module?.module||typeof module.module!=='string')throw new Error('module contract requires a string module name');
   if(!module.paths||typeof module.paths!=='object')fail(module,'requires paths');
   for(const [path,methods] of Object.entries(module.paths)){
-    if(!path.startsWith('/api/')||path!==path.toLowerCase())fail(module,`${path} must be lowercase and start with /api/`);
+    if(!path.startsWith('/api/'))fail(module,`${path} must start with /api/`);
     const segments=path.split('/').filter(Boolean);
     if(segments.some(segment=>!segment.startsWith('{')&&!/^[a-z0-9-]+$/.test(segment)))fail(module,`${path} must use lowercase kebab-case segments`);
     for(const [method,operation] of Object.entries(methods)){
