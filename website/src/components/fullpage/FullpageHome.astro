@@ -1,0 +1,237 @@
+---
+import type { Language, SiteCopy } from '../../content/types';
+
+interface Props { lang: Language; copy: SiteCopy }
+const { lang, copy } = Astro.props;
+const screens = copy.fullpage.screens;
+const withLang = (href: string) => href.startsWith('/') ? `/${lang}${href}` : href;
+const languages = [{ code: 'km', label: 'ខ្មែរ' }, { code: 'en', label: 'English' }, { code: 'zh', label: '中文' }] as const;
+const panelIndex = (index: number) => index === 0 ? '01 / 06' : `0${index + 1} / 06 · ${screens[index].label}`;
+---
+<header class="fullpage-topbar">
+  <a class="topbar-mark" href={`/${lang}/`} aria-label={`DR RouteFit · ${copy.nav.home}`}><img src="/logo.svg" alt="DR RouteFit" /></a>
+  <div class="topbar-actions">
+    <nav class="topbar-languages" aria-label={copy.nav.language}>
+      {languages.map((item) => <a class="language-link" href={`/${item.code}/`} lang={item.code} aria-current={item.code === lang ? 'true' : undefined}>{item.label}</a>)}
+    </nav>
+    <a class="topbar-contact" href={`/${lang}/contact/`}>{copy.nav.contact}</a>
+  </div>
+</header>
+<div class="fullpage-home" aria-label={copy.fullpage.ariaLabel}>
+  <nav class="fullpage-dots" aria-label={copy.fullpage.sectionsLabel}>
+    {screens.map((screen, index) => (
+      <a href={`#screen-${index + 1}`} aria-label={screen.label} aria-current={index === 0 ? 'step' : undefined}>
+        <span aria-hidden="true"></span>
+      </a>
+    ))}
+  </nav>
+
+  <section id="screen-1" class="fullpage-panel panel-dawn" data-screen="1" aria-labelledby="screen-1-title">
+    <div class="panel-shell">
+      <div class="panel-copy" data-motion="copy">
+        <p class="panel-index">{panelIndex(0)}</p>
+        <h1 id="screen-1-title">{screens[0].titleLines.map((line) => <span class="title-line">{line}</span>)}</h1>
+        <p class="panel-lead">{copy.hero.body}</p>
+        <ul class="panel-facts">
+          <li>{copy.process.items[0].body}</li>
+          <li>{copy.quick[0].body}</li>
+        </ul>
+        <div class="panel-actions">
+          <a class="panel-button" href={`/${lang}/contact/`}>{copy.hero.primary}</a>
+          <a class="panel-button panel-button-secondary" href={`/${lang}/drivers/`}>{copy.hero.secondary}</a>
+        </div>
+      </div>
+      <div class="panel-scene" data-motion="scene" aria-hidden="true">
+        <svg viewBox="0 0 720 580" role="presentation">
+          <defs>
+            <linearGradient id="dawn-sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dceff2"/><stop offset="1" stop-color="#fff3d9"/></linearGradient>
+            <linearGradient id="dawn-road" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8e0e6"/><stop offset="1" stop-color="#b9c6d1"/></linearGradient>
+            <filter id="shadow-1" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#0b2545" flood-opacity=".17"/></filter>
+          </defs>
+          <rect width="720" height="580" rx="36" fill="url(#dawn-sky)"/>
+          <circle cx="548" cy="114" r="52" fill="#f5a623" opacity=".68"/>
+          <path d="M0 370 225 244 720 414 475 580H0Z" fill="#eef3f2"/>
+          <path d="m125 580 344-188 182 70-202 118Z" fill="url(#dawn-road)"/>
+          <path d="m162 565 317-157" stroke="#fff" stroke-width="5" stroke-dasharray="26 18" opacity=".9"/>
+          <g filter="url(#shadow-1)">
+            <path d="m58 292 178-99 154 58-179 103Z" fill="#0b2545"/><path d="m58 292 153 60v92L58 385Z" fill="#173a61"/><path d="m211 352 179-101v90L211 444Z" fill="#f7faf9"/>
+            <path d="m84 316 96 37v55l-96-37Z" fill="#13c29b" opacity=".88"/><path d="m233 362 56-32v66l-56 33Z" fill="#dbe7ec"/>
+          </g>
+          <g opacity=".66">
+            <path d="m506 238 66-37 61 23-67 39Z" fill="#0b2545"/><path d="m506 238 60 23v66l-60-23Z" fill="#173a61"/><path d="m566 261 67-37v65l-67 38Z" fill="#f8faf9"/>
+            <path d="m604 333 48-27 42 16-48 28Z" fill="#13c29b"/><path d="m604 333 42 17v47l-42-17Z" fill="#0f9f82"/>
+          </g>
+          <g data-motion="truck" filter="url(#shadow-1)">
+            <path d="m286 413 105-58 94 35-106 61Z" fill="#f7faf9"/><path d="m286 413 93 38v58l-93-37Z" fill="#dfe8ed"/><path d="m379 451 106-61v58l-106 61Z" fill="#0b2545"/>
+            <path d="m390 444 60-35v37l-60 35Z" fill="#13c29b"/><path d="m321 489 22 8v23l-22-8Z" fill="#0b2545"/><path d="m421 483 22-13v23l-22 13Z" fill="#0b2545"/>
+            <circle class="vehicle-wheel" cx="328" cy="507" r="18" fill="#071b32"/><circle class="vehicle-wheel" cx="431" cy="493" r="18" fill="#071b32"/>
+          </g>
+          <g opacity=".55"><circle cx="102" cy="475" r="24" fill="#13c29b"/><rect x="96" y="475" width="12" height="61" fill="#7b8c77"/><circle cx="671" cy="416" r="20" fill="#13c29b"/><rect x="666" y="416" width="10" height="48" fill="#7b8c77"/></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-2" class="fullpage-panel panel-sand" data-screen="2" aria-labelledby="screen-2-title">
+    <span id="services" class="panel-anchor" aria-hidden="true"></span>
+    <div class="panel-shell panel-shell-reverse">
+      <div class="panel-copy" data-motion="copy">
+        <p class="panel-index">{panelIndex(1)}</p>
+        <h2 id="screen-2-title">{screens[1].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
+        <p class="panel-lead">{copy.values.items[0].body}</p>
+        <ul class="panel-facts"><li>{copy.process.items[1].body}</li></ul>
+        <details class="panel-disclosure" data-fact="payment">
+          <summary>{copy.faq.items[1].question}</summary>
+          <p>{copy.faq.items[1].answer}</p>
+        </details>
+      </div>
+      <div class="panel-scene" data-motion="scene" aria-hidden="true">
+        <svg viewBox="0 0 720 580" role="presentation">
+          <defs><linearGradient id="bay-floor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef0e9"/><stop offset="1" stop-color="#d7dfda"/></linearGradient><filter id="shadow-2" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#0b2545" flood-opacity=".16"/></filter></defs>
+          <rect width="720" height="580" rx="36" fill="#fbf5e9"/><path d="M0 374 295 205l425 154v221H0Z" fill="url(#bay-floor)"/>
+          <path d="m84 272 206-116 188 70-207 120Z" fill="#0b2545"/><path d="m84 272 187 73v122L84 397Z" fill="#173a61"/><path d="m271 345 207-119v121L271 467Z" fill="#f8faf9"/>
+          <path d="m114 293 58 22v73l-58-22Zm72 28 58 22v73l-58-22Z" fill="#13c29b" opacity=".75"/>
+          <g data-motion="vehicle-a" filter="url(#shadow-2)"><path d="m98 442 67-38 52 20-69 40Z" fill="#f5a623"/><path d="m98 442 50 21v38l-50-20Z" fill="#db8a10"/><path d="m148 463 69-39v38l-69 39Z" fill="#0b2545"/><circle cx="119" cy="487" r="16" fill="#071b32"/><circle cx="180" cy="474" r="16" fill="#071b32"/></g>
+          <g data-motion="vehicle-b" filter="url(#shadow-2)"><path d="m266 425 91-51 79 30-92 53Z" fill="#fff"/><path d="m266 425 78 32v51l-78-31Z" fill="#dbe6eb"/><path d="m344 457 92-53v51l-92 53Z" fill="#13c29b"/><circle cx="296" cy="489" r="18" fill="#071b32"/><circle cx="393" cy="471" r="18" fill="#071b32"/></g>
+          <g data-motion="vehicle-c" filter="url(#shadow-2)"><path d="m447 396 119-67 105 39-121 70Z" fill="#0b2545"/><path d="m447 396 103 42v69l-103-41Z" fill="#173a61"/><path d="m550 438 121-70v68l-121 71Z" fill="#f8faf9"/><path d="m574 424 58-34v36l-58 34Z" fill="#13c29b"/><circle cx="486" cy="481" r="21" fill="#071b32"/><circle cx="615" cy="456" r="21" fill="#071b32"/></g>
+          <g opacity=".72"><path d="m206 488 38-21 34 13-39 22Z" fill="#f5a623"/><path d="m206 488 33 14v31l-33-13Z" fill="#db8a10"/><path d="m239 502 39-22v30l-39 23Z" fill="#fff1d4"/></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-3" class="fullpage-panel panel-river" data-screen="3" aria-labelledby="screen-3-title">
+    <div class="panel-shell">
+      <div class="panel-copy" data-motion="copy">
+        <p class="panel-index">{panelIndex(2)}</p>
+        <h2 id="screen-3-title">{screens[2].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
+        <p class="panel-lead">{copy.values.items[1].body}</p>
+        <ul class="panel-facts"><li><strong>{copy.coverage.title}</strong> — {copy.coverage.body}</li><li>{copy.faq.items[2].answer}</li></ul>
+      </div>
+      <div class="panel-scene panel-scene-map" data-motion="scene" aria-hidden="true">
+        <svg viewBox="0 0 720 580" role="presentation">
+          <defs><filter id="shadow-3" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="13" stdDeviation="11" flood-color="#071b32" flood-opacity=".2"/></filter></defs>
+          <rect width="720" height="580" rx="36" fill="#dceeea"/>
+          <path d="M-35 123c151 66 179 162 330 196 159 36 252 126 464 82v179H-35Z" fill="#b7dce2"/>
+          <path d="M415-22c-50 106-27 194 33 270 59 75 98 173 62 354h118c23-173-27-285-88-366-62-84-76-151-5-258Z" fill="#9fcfd8"/>
+          <g fill="#edf2ec" stroke="#c5d3cf" stroke-width="2"><path d="m72 111 109-61 92 34-111 64Z"/><path d="m242 149 113-64 95 36-114 66Z"/><path d="m68 241 117-66 98 37-119 69Z"/><path d="m246 278 107-61 92 35-110 64Z"/><path d="m79 386 121-69 102 38-123 72Z"/><path d="m258 424 112-64 94 36-114 66Z"/></g>
+          <g fill="#0b2545" opacity=".34"><path d="m98 124 29-16 25 9-30 18Z"/><path d="m278 163 33-18 28 10-34 20Z"/><path d="m102 259 36-20 30 11-37 22Z"/><path d="m289 292 29-17 25 10-30 17Z"/><path d="m116 402 34-19 29 11-35 20Z"/></g>
+          <g data-motion="service-area"><ellipse cx="349" cy="291" rx="118" ry="82" fill="#13c29b" opacity=".18"/><ellipse cx="349" cy="291" rx="80" ry="55" fill="#13c29b" opacity=".18"/></g>
+          <g data-motion="route" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M172 405c58-54 79-103 143-112 74-11 96-93 169-111 49-12 91 5 128 37" stroke="#fff" stroke-width="13" opacity=".75"/><path d="M172 405c58-54 79-103 143-112 74-11 96-93 169-111 49-12 91 5 128 37" stroke="#0b2545" stroke-width="7"/></g>
+          <g filter="url(#shadow-3)"><circle cx="172" cy="405" r="17" fill="#f5a623"/><circle cx="315" cy="293" r="17" fill="#13c29b"/><circle cx="484" cy="182" r="17" fill="#13c29b"/><circle cx="612" cy="219" r="17" fill="#f5a623"/></g>
+          <g data-motion="route-vehicle" filter="url(#shadow-3)"><path d="m319 260 52-29 46 17-53 31Z" fill="#fff"/><path d="m319 260 45 19v31l-45-18Z" fill="#dbe6eb"/><path d="m364 279 53-31v31l-53 31Z" fill="#0b2545"/></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-4" class="fullpage-panel panel-shop" data-screen="4" aria-labelledby="screen-4-title">
+    <div class="panel-shell panel-shell-reverse">
+      <div class="panel-copy" data-motion="copy">
+        <p class="panel-index">{panelIndex(3)}</p>
+        <h2 id="screen-4-title">{screens[3].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
+        <p class="panel-lead">{copy.values.items[2].body}</p>
+        <ul class="panel-facts"><li>{copy.process.items[2].body}</li></ul>
+      </div>
+      <div class="panel-scene" data-motion="scene" aria-hidden="true">
+        <svg viewBox="0 0 720 580" role="presentation">
+          <defs><linearGradient id="shop-wall" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#e5ecef"/></linearGradient><filter id="shadow-4" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="15" stdDeviation="11" flood-color="#0b2545" flood-opacity=".17"/></filter></defs>
+          <rect width="720" height="580" rx="36" fill="#eef1f2"/><path d="M0 405 321 225l399 145v210H0Z" fill="#d9e2df"/>
+          <g filter="url(#shadow-4)"><path d="m310 164 205-115 168 63-207 120Z" fill="#0b2545"/><path d="m310 164 166 67v220l-166-65Z" fill="#173a61"/><path d="m476 231 207-119v218L476 451Z" fill="url(#shop-wall)"/><path d="m515 256 112-65v73l-112 65Z" fill="#13c29b"/><path d="m530 341 71-41v102l-71 42Z" fill="#b9c8cf"/></g>
+          <g data-motion="handoff" filter="url(#shadow-4)"><path d="m257 320 119-67 102 38-121 70Z" fill="#fff5de"/><path d="m257 320 100 41v103l-100-39Z" fill="#f5a623"/><path d="m357 361 121-70v102l-121 71Z" fill="#db8a10"/><path d="m291 307 45 18 103-59" fill="none" stroke="#0b2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="487" cy="261" r="42" fill="#13c29b"/><path d="m467 261 14 15 28-36" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <g data-motion="timeline"><path d="M112 493h466" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M112 493h466" stroke="#0b2545" stroke-width="4" stroke-linecap="round"/><circle cx="112" cy="493" r="17" fill="#f5a623"/><circle cx="578" cy="493" r="22" fill="#13c29b"/><path d="m568 493 7 8 14-18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-5" class="fullpage-panel panel-proof" data-screen="5" aria-labelledby="screen-5-title">
+    <span id="track" class="panel-anchor" aria-hidden="true"></span>
+    <div class="panel-shell">
+      <div class="panel-copy" data-motion="copy">
+        <p class="panel-index">{panelIndex(4)}</p>
+        <h2 id="screen-5-title">{screens[4].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
+        <p class="panel-lead">{copy.values.items[3].body}</p>
+        <ul class="panel-facts"><li>{copy.process.items[3].body}</li><li>{copy.faq.items[3].answer}</li></ul>
+        <span class="panel-badge">{copy.quick[2].badge}</span>
+      </div>
+      <div class="panel-scene" data-motion="scene" aria-hidden="true">
+        <svg viewBox="0 0 720 580" role="presentation">
+          <defs><filter id="shadow-5" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#071b32" flood-opacity=".25"/></filter></defs>
+          <rect width="720" height="580" rx="36" fill="#102f52"/><circle cx="554" cy="117" r="148" fill="#13c29b" opacity=".09"/><circle cx="160" cy="484" r="188" fill="#f5a623" opacity=".08"/>
+          <g filter="url(#shadow-5)"><path d="m271 116 198-22 35 317-199 22Z" fill="#071b32"/><path d="m287 132 165-18 30 272-166 19Z" fill="#f7faf9"/><circle cx="387" cy="404" r="12" fill="#13c29b"/><path d="m329 191 79-44 66 25-80 46Z" fill="#f5a623"/><path d="m329 191 65 27v62l-65-25Z" fill="#db8a10"/><path d="m394 218 80-46v62l-80 46Z" fill="#fff1d4"/><rect x="326" y="304" width="122" height="10" rx="5" fill="#cad6dc"/><rect x="326" y="328" width="90" height="10" rx="5" fill="#dbe4e8"/></g>
+          <g data-motion="proof-a" filter="url(#shadow-5)"><path d="m69 173 132-74 111 41-133 77Z" fill="#f8faf9"/><path d="m69 173 110 44v120L69 294Z" fill="#dce6ea"/><path d="m179 217 133-77v119l-133 78Z" fill="#fff"/><circle cx="223" cy="240" r="28" fill="#13c29b"/><path d="m210 240 10 11 20-26" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <g data-motion="proof-b" filter="url(#shadow-5)"><path d="m429 361 130-73 110 41-132 76Z" fill="#f8faf9"/><path d="m429 361 108 44v111l-108-42Z" fill="#dce6ea"/><path d="m537 405 132-76v110l-132 77Z" fill="#fff"/><circle cx="581" cy="425" r="28" fill="#13c29b"/><path d="m568 425 10 11 20-26" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <g data-motion="proof-c" filter="url(#shadow-5)"><circle cx="134" cy="424" r="56" fill="#f5a623"/><path d="m107 423 20 22 39-50" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-6" class="fullpage-panel panel-evening" data-screen="6" aria-labelledby="screen-6-title">
+    <span id="about" class="panel-anchor" aria-hidden="true"></span><span id="help" class="panel-anchor" aria-hidden="true"></span>
+    <div class="panel-shell panel-shell-final">
+      <div class="panel-copy panel-copy-final" data-motion="copy">
+        <p class="panel-index">{panelIndex(5)}</p>
+        <h2 id="screen-6-title">{screens[5].titleLines.map((line) => <span class="title-line">{line}</span>)}</h2>
+        <p class="panel-lead">{copy.audiences[1].body}</p>
+        <ul class="panel-facts"><li>{copy.audiences[0].body}</li><li>{copy.faq.items[0].answer}</li></ul>
+        <div class="entry-grid" aria-label={screens[5].label}>
+          <a href={withLang(copy.quick[0].href)}><strong>{copy.quick[0].title}</strong><span>{copy.quick[0].action}</span></a>
+          <a href={withLang(copy.quick[1].href)}><strong>{copy.quick[1].title}</strong><span>{copy.quick[1].action}</span></a>
+          <a href={`/${lang}/contact/`}><strong>{copy.nav.contact}</strong><span>{copy.audiences[1].action}</span></a>
+        </div>
+      </div>
+      <div class="panel-scene panel-scene-final" data-motion="scene" aria-hidden="true">
+        <svg viewBox="0 0 720 580" role="presentation">
+          <defs><linearGradient id="evening-sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#173a61"/><stop offset=".58" stop-color="#9d7d6d"/><stop offset="1" stop-color="#f5a623"/></linearGradient><filter id="shadow-6" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#071b32" flood-opacity=".3"/></filter></defs>
+          <rect width="720" height="580" rx="36" fill="url(#evening-sky)"/><circle cx="568" cy="145" r="62" fill="#ffe4a8" opacity=".82"/><path d="M0 398 247 260l473 172v148H0Z" fill="#19314b"/>
+          <g opacity=".32"><path d="m35 311 45-25 37 14-45 26Z" fill="#071b32"/><path d="m92 284 51-29 42 16-52 30Z" fill="#071b32"/><path d="m615 310 54-30 45 17-55 32Z" fill="#071b32"/></g>
+          <g filter="url(#shadow-6)"><path d="m189 235 203-114 172 64-205 119Z" fill="#071b32"/><path d="m189 235 170 68v143l-170-65Z" fill="#0b2545"/><path d="m359 303 205-118v142L359 446Z" fill="#edf2f1"/><path d="m399 318 108-63v99l-108 63Z" fill="#13c29b" opacity=".72"/></g>
+          <g filter="url(#shadow-6)"><path d="m93 435 85-48 75 28-87 51Z" fill="#fff"/><path d="m93 435 73 31v48l-73-29Z" fill="#dbe5e9"/><path d="m166 466 87-51v48l-87 51Z" fill="#13c29b"/><circle cx="120" cy="497" r="17" fill="#071b32"/><circle cx="211" cy="480" r="17" fill="#071b32"/><path d="m272 421 94-53 82 31-96 55Z" fill="#0b2545"/><path d="m272 421 80 33v55l-80-32Z" fill="#173a61"/><path d="m352 454 96-55v54l-96 56Z" fill="#f8faf9"/><circle cx="303" cy="489" r="18" fill="#071b32"/><circle cx="402" cy="470" r="18" fill="#071b32"/><path d="m467 405 99-56 86 32-101 59Z" fill="#f5a623"/><path d="m467 405 84 35v56l-84-33Z" fill="#db8a10"/><path d="m551 440 101-59v56l-101 59Z" fill="#fff1d4"/><circle cx="500" cy="476" r="18" fill="#071b32"/><circle cx="605" cy="456" r="18" fill="#071b32"/></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const panels = [...document.querySelectorAll<HTMLElement>('.fullpage-home [data-screen]')];
+  const dots = [...document.querySelectorAll<HTMLAnchorElement>('.fullpage-dots a')];
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const desktop = window.matchMedia('(min-width: 1024px) and (min-height: 700px)');
+
+  if (reducedMotion) {
+    panels.forEach((panel) => panel.classList.add('is-visible'));
+  } else {
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.28 });
+    panels.forEach((panel) => revealObserver.observe(panel));
+  }
+
+  const activeObserver = new IntersectionObserver((entries) => {
+    const active = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!active) return;
+    const activeIndex = panels.indexOf(active.target as HTMLElement);
+    dots.forEach((dot, index) => index === activeIndex ? dot.setAttribute('aria-current', 'step') : dot.removeAttribute('aria-current'));
+  }, { threshold: [0.45, 0.7] });
+  panels.forEach((panel) => activeObserver.observe(panel));
+
+  document.addEventListener('keydown', (event) => {
+    if (!desktop.matches || event.altKey || event.ctrlKey || event.metaKey) return;
+    if ((event.target as HTMLElement | null)?.closest('a, button, input, textarea, select, summary')) return;
+    const forward = event.key === 'ArrowDown' || event.key === 'PageDown' || (event.key === ' ' && !event.shiftKey);
+    const backward = event.key === 'ArrowUp' || event.key === 'PageUp' || (event.key === ' ' && event.shiftKey);
+    if (!forward && !backward) return;
+    const current = panels.reduce((best, panel, index) => Math.abs(panel.getBoundingClientRect().top) < Math.abs(panels[best].getBoundingClientRect().top) ? index : best, 0);
+    const next = Math.min(panels.length - 1, Math.max(0, current + (forward ? 1 : -1)));
+    if (next === current) return;
+    event.preventDefault();
+    panels[next].scrollIntoView({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' });
+  });
+</script>

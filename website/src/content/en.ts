@@ -15,6 +15,18 @@ export const en: SiteCopy = {
     primary: 'Discuss a business partnership', secondary: 'I am a driver and want to join', note: "Cambodia's last mile, delivered to the right hands",
     route: ['Pickup', 'Vehicle', 'Delivery', 'Handover proof']
   },
+  fullpage: {
+    ariaLabel: 'DR RouteFit delivery journey home page',
+    sectionsLabel: 'Home page sections',
+    screens: [
+      { label: 'Home', titleLines: ["Cambodia's last mile,", 'delivered to the right hands'] },
+      { label: 'Vehicle fit', titleLines: ['Cargo comes in different sizes,', 'so the vehicle must fit'] },
+      { label: 'Route', titleLines: ['Make the route clear,', 'so dispatch can act with confidence'] },
+      { label: 'On time', titleLines: ['The time we agree,', 'is the time we work to keep'] },
+      { label: 'Proof', titleLines: ['Know who received it,', 'and keep the proof'] },
+      { label: 'Work together', titleLines: ["Let's deliver your", 'next order together'] }
+    ]
+  },
   quick: [
     { title: 'I need a delivery', body: 'Delivery for merchants and warehouse customers, with approved business monthly billing.', action: 'Discuss a partnership', href: '/contact/' },
     { title: 'I am a driver', body: 'Individual drivers and partner fleets can apply and earn from completed deliveries.', action: 'How to join', href: '/drivers/' },

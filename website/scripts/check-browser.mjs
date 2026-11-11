@@ -25,19 +25,29 @@ try {
     if (!xDefault || new URL(xDefault).pathname !== '/en/') throw new Error(`${lang}: x-default does not point to English`);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     if (overflow) throw new Error(`${lang}: horizontal overflow at 390px`);
-    const headingFailure = await page.locator('.section-heading h2').evaluateAll((nodes) => nodes.some((node) => {
+    const headingFailure = await page.locator('.panel-copy h1, .panel-copy h2').evaluateAll((nodes) => nodes.some((node) => {
       const rect = node.getBoundingClientRect();
       return node.scrollWidth > node.clientWidth + 1 || rect.left < -1 || rect.right > innerWidth + 1;
     }));
     if (headingFailure) throw new Error(`${lang}: section heading overflows or is clipped at 390px`);
-    if (await page.locator('.hero .eyebrow').textContent() !== slogans[lang]) throw new Error(`${lang}: slogan is not above the hero title`);
-    if (await page.getByText(slogans[lang], { exact: true }).count() !== 1) throw new Error(`${lang}: slogan must appear exactly once`);
-    if (await page.locator('.hero .slogan').count() !== 0) throw new Error(`${lang}: duplicate hero slogan remains`);
-    const mapRect = await page.locator('.coverage-map').evaluate((node) => {
+    const renderedSlogan = await page.locator('#screen-1-title .title-line').evaluateAll((nodes, language) => nodes.map((node) => node.textContent?.trim()).join(language === 'zh' ? '' : ' '), lang);
+    if (renderedSlogan !== slogans[lang]) throw new Error(`${lang}: slogan is not the first-screen title`);
+    const sloganCount = await page.locator('h1, h2, p').evaluateAll((nodes, { language, slogan }) => nodes.filter((node) => {
+      const lines = [...node.querySelectorAll(':scope > .title-line')];
+      const text = lines.length ? lines.map((line) => line.textContent?.trim()).join(language === 'zh' ? '' : ' ') : node.textContent?.trim();
+      return text === slogan;
+    }).length, { language: lang, slogan: slogans[lang] });
+    if (sloganCount !== 1) throw new Error(`${lang}: slogan must appear exactly once`);
+    if (await page.locator('.fullpage-panel').count() !== 6) throw new Error(`${lang}: homepage does not have six screens`);
+    await page.locator('#screen-3').scrollIntoViewIfNeeded();
+    await page.locator('#screen-3').waitFor({ state: 'visible' });
+    await page.waitForFunction(() => document.querySelector('#screen-3')?.classList.contains('is-visible'));
+    await page.waitForFunction(() => document.querySelector('.panel-scene-map')?.getBoundingClientRect().right <= innerWidth + 1);
+    const mapRect = await page.locator('.panel-scene-map').evaluate((node) => {
       const rect = node.getBoundingClientRect();
-      return { left: rect.left, right: rect.right, label: node.getAttribute('aria-label') };
+      return { left: rect.left, right: rect.right };
     });
-    if (mapRect.left < -1 || mapRect.right > 391 || !mapRect.label) throw new Error(`${lang}: coverage map overflows or lacks an accessible label`);
+    if (mapRect.left < -1 || mapRect.right > 391) throw new Error(`${lang}: route map overflows (${mapRect.left.toFixed(1)}..${mapRect.right.toFixed(1)})`);
     await page.screenshot({ path: path.join(evidence, `website-${lang}-home-390.png`), fullPage: true });
     await page.goto(`${baseURL}/${lang}/pricing/`);
     await page.screenshot({ path: path.join(evidence, `website-${lang}-pricing-390.png`), fullPage: true });
@@ -53,20 +63,8 @@ try {
   }
   await wide.goto(`${baseURL}/zh/`);
   if (await wide.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error('zh: horizontal overflow at 1440px');
-  const valueHeading = wide.locator('.section-heading h2').filter({ hasText: '把三件事做对：车、路线、时间' });
-  const valueHeadingMetrics = await valueHeading.evaluate((node) => {
-    const lineHeight = Number.parseFloat(getComputedStyle(node).lineHeight);
-    return { height: node.getBoundingClientRect().height, lineHeight };
-  });
-  if (valueHeadingMetrics.height > valueHeadingMetrics.lineHeight + 1) throw new Error('zh: value section heading wraps at 1440px');
-  const labelBottoms = await wide.locator('.route-step strong').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().bottom));
-  if (Math.max(...labelBottoms) - Math.min(...labelBottoms) > 2) throw new Error('zh: route labels do not share a baseline');
-  if (/\bDR\b/.test(await wide.locator('.coverage-map').innerText())) throw new Error('zh: coverage map still shows the DR circle label');
-  if (await wide.locator('.route-mark').count() !== 1 || await wide.locator('.coverage-route-mark').count() !== 1) throw new Error('zh: route mark is missing');
-  for (const [selector, label] of [['.route-track span:nth-child(2)', 'route midpoint'], ['.route-step-4 > span', 'handoff node']]) {
-    const background = await wide.locator(selector).evaluate((node) => getComputedStyle(node).backgroundColor);
-    if (background === 'transparent' || background === 'rgba(0, 0, 0, 0)') throw new Error(`zh: ${label} background is transparent`);
-  }
+  if (await wide.locator('.fullpage-panel').count() !== 6) throw new Error('zh: homepage does not have six screens');
+  if (await wide.locator('.fullpage-dots a[aria-label]').count() !== 6) throw new Error('zh: section navigation is incomplete');
   const navigation = await wide.locator('.desktop-nav > *').evaluateAll((nodes) => nodes.map((node) => node.textContent?.trim()));
   if (JSON.stringify(navigation) !== JSON.stringify(['服务', '价格说明', '司机与车队', '查单', '关于我们', '帮助中心'])) throw new Error('zh: navigation does not match approved design');
   if (await wide.locator('.desktop-nav .nav-disabled[aria-disabled="true"]').textContent() !== '查单') throw new Error('zh: track navigation is not visibly unavailable');
@@ -74,7 +72,7 @@ try {
   for (const fact of ['金边及周边', '确认报价后先付款', '企业客户按月结算', '系统会重新报价', '基础货损保障', '商业保险']) {
     if (!pageText?.includes(fact)) throw new Error(`zh: missing approved fact: ${fact}`);
   }
-  const paymentFaq = wide.locator('.faq-list details').filter({ hasText: '什么时候付款？' });
+  const paymentFaq = wide.locator('details[data-fact="payment"]');
   await paymentFaq.locator('summary').click();
   if (!(await paymentFaq.locator('p').isVisible())) throw new Error('zh: payment FAQ answer is not visible after click');
   if (!(await paymentFaq.locator('p').innerText()).includes('确认报价后先付款')) throw new Error('zh: payment FAQ answer does not contain approved copy');
@@ -116,7 +114,7 @@ try {
   await blockedStorage.goto(`${baseURL}/`);
   await blockedStorage.waitForURL('**/km/');
   if (storageErrors.length) throw new Error(`storage blocked: ${storageErrors.join(', ')}`);
-  await blockedStorage.locator('a.language-link[lang="zh"]').first().click();
+  await blockedStorage.locator('a.language-link[lang="zh"]:visible').first().click();
   await blockedStorage.waitForURL('**/zh/');
   await blockedContext.close();
 
@@ -139,9 +137,9 @@ try {
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await mobile.goto(`${baseURL}/zh/`);
-  await mobile.locator('.mobile-menu > summary').focus();
+  await mobile.locator('.fullpage-topbar .topbar-contact').focus();
   await mobile.keyboard.press('Enter');
-  if (!(await mobile.locator('.mobile-menu').getAttribute('open') !== null)) throw new Error('mobile menu is not keyboard operable');
+  await mobile.waitForURL('**/zh/contact/');
 
   const sitemap = await (await wide.request.get(`${baseURL}/sitemap.xml`)).text();
   const sitemapUrls = [...sitemap.matchAll(/<loc>/g)].length;
