@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { createCollectionDialogSession } from './fulfillment-dialog.mjs';
-import { createOverlayManager } from '@routefit/shared';
+import { createDialogController, createOverlayManager } from '@routefit/shared';
 
 test('routes Tab and Shift+Tab through the dialog instance opened by onShow', () => {
   const focusLog = [];
@@ -30,4 +30,28 @@ test('routes Tab and Shift+Tab through the dialog instance opened by onShow', ()
   assert.equal(session.onKeyDown({ key: 'Tab', shiftKey: true, target: cancel, preventDefault: () => (shiftTabPrevented = true) }), true);
   assert.equal(shiftTabPrevented, true);
   assert.deepEqual(focusLog, ['cancel', 'cancel', 'confirm']);
+});
+
+test('routes Escape through the dialog instance opened by onShow', () => {
+  let cancelled = 0;
+  const session = createCollectionDialogSession({
+    manager: createOverlayManager(),
+    titleId: 'collection-title',
+    onCancel: () => cancelled++,
+  });
+
+  session.onShow();
+  let prevented = false;
+  assert.equal(session.onKeyDown({ key: 'Escape', preventDefault: () => (prevented = true) }), true);
+  assert.equal(prevented, true);
+  assert.equal(cancelled, 1);
+});
+
+test('would lose keyboard handling if it created a new controller for each key event', () => {
+  const options = { titleId: 'collection-title' };
+  const manager = createOverlayManager();
+  manager.open(createDialogController(options));
+
+  const freshControllerForKeyEvent = createDialogController(options);
+  assert.equal(freshControllerForKeyEvent.onKeyDown({ key: 'Escape', preventDefault: () => {} }), false);
 });
