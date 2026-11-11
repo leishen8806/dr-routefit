@@ -98,6 +98,7 @@ BEGIN
  IF NEW.company_id<>OLD.company_id OR NEW.id<>OLD.id OR NEW.assessment_id<>OLD.assessment_id OR NEW.reward_penalty_id<>OLD.reward_penalty_id OR NEW.submitted_by_person_id<>OLD.submitted_by_person_id OR NEW.reward_penalty_author_person_id<>OLD.reward_penalty_author_person_id OR NEW.reason<>OLD.reason OR NEW.version<>OLD.version+1 OR OLD.state<>'submitted' OR NEW.state NOT IN ('accepted','rejected') THEN
   RAISE EXCEPTION 'Invalid KPI appeal transition' USING ERRCODE='23514';
  END IF;
+ IF NEW.decision_person_id=OLD.submitted_by_person_id THEN RAISE EXCEPTION 'Appeal submitter may not decide the appeal' USING ERRCODE='42501'; END IF;
  SELECT author_person_id INTO actual_author_person_id FROM kpi.reward_penalty WHERE company_id=NEW.company_id AND id=NEW.reward_penalty_id;
  IF actual_author_person_id IS NULL OR NEW.decision_person_id=actual_author_person_id THEN RAISE EXCEPTION 'Reward or penalty author may not decide the appeal' USING ERRCODE='42501'; END IF;
  RETURN NEW;

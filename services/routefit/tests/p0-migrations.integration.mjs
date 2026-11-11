@@ -42,7 +42,7 @@ test('P0 database controls reject payout and appeal separation bypasses', async 
    await fixture.owner.query("INSERT INTO kpi.reward_penalty(id,company_id,assessment_id,type,money_amount_minor,money_currency,author_principal_id,author_person_id,snapshot) VALUES($1,$2,$3,'penalty',1,'USD',$4,$5,'{}')", [penaltyId, companyId, assessmentId, approver.id, approver.person_id]);
    await fixture.owner.query("INSERT INTO kpi.appeal(id,company_id,assessment_id,reward_penalty_id,state,version,submitted_by_person_id,reward_penalty_author_person_id,reason) VALUES($1,$2,$3,$4,'submitted',1,$5,$6,'appeal')", [appealId, companyId, assessmentId, penaltyId, driverPerson, approver.person_id]);
    const decide = personId => fixture.owner.query("UPDATE kpi.appeal SET state='accepted',version=2,decision_person_id=$3,decision_reason='decision',decided_at=clock_timestamp() WHERE company_id=$1 AND id=$2", [companyId, appealId, personId]);
-   await assert.rejects(decide(driverPerson), error => ['23514', '42501'].includes(error.code));
+   await assert.rejects(decide(driverPerson), error => error.code === '42501');
    await assert.rejects(decide(approver.person_id), error => ['23514', '42501'].includes(error.code));
   });
 
