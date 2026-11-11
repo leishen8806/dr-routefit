@@ -30,7 +30,9 @@ try {
       return node.scrollWidth > node.clientWidth + 1 || rect.left < -1 || rect.right > innerWidth + 1;
     }));
     if (headingFailure) throw new Error(`${lang}: section heading overflows or is clipped at 390px`);
+    if (await page.locator('.hero .eyebrow').textContent() !== slogans[lang]) throw new Error(`${lang}: slogan is not above the hero title`);
     if (await page.getByText(slogans[lang], { exact: true }).count() !== 1) throw new Error(`${lang}: slogan must appear exactly once`);
+    if (await page.locator('.hero .slogan').count() !== 0) throw new Error(`${lang}: duplicate hero slogan remains`);
     const mapRect = await page.locator('.coverage-map').evaluate((node) => {
       const rect = node.getBoundingClientRect();
       return { left: rect.left, right: rect.right, label: node.getAttribute('aria-label') };

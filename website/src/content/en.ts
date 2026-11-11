@@ -9,7 +9,7 @@ export const en: SiteCopy = {
   nav: { home: 'Home', services: 'Services', drivers: 'Drivers & fleets', pricing: 'Pricing', track: 'Track order', about: 'About', help: 'Help centre', contact: 'Contact us', menu: 'Open navigation', language: 'Language', skip: 'Skip to content' },
   pages: { drivers: 'Drivers & fleets', pricing: 'Pricing', about: 'About', help: 'Help', contact: 'Contact', terms: 'Terms of service', privacy: 'Privacy policy' },
   hero: {
-    eyebrow: 'Phnom Penh and nearby · Warehousing and delivery',
+    eyebrow: "Cambodia's last mile, delivered to the right hands",
     title: 'Match the vehicle. Match the route. Deliver on time.',
     body: 'RouteFit helps merchants move goods from warehouse to customer: choose a vehicle for the cargo, dispatch by route, and keep records for handover, transit and receipt.',
     primary: 'Discuss a business partnership', secondary: 'I am a driver and want to join', note: "Cambodia's last mile, delivered to the right hands",
