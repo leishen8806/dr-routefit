@@ -1,8 +1,11 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { chromium } from '@playwright/test';
 import { baseURL, startPreview, stopPreview } from './preview-server.mjs';
 
 const server = await startPreview();
 const browser = await chromium.launch();
+const evidence = process.env.EVIDENCE_DIR || path.join(process.cwd(), 'test-results', 'playwright');
 const viewports = [
   { width: 1440, height: 900 },
   { width: 1280, height: 800 },
@@ -14,7 +17,11 @@ try {
   for (const lang of ['zh', 'en', 'km']) {
     for (const viewport of viewports) {
       const page = await browser.newPage({ viewport, reducedMotion: 'reduce' });
-      await page.goto(`${baseURL}/${lang}/`);
+      const tracing = page.context().tracing;
+      let failed = false;
+      await tracing.start({ screenshots: true, snapshots: true, sources: true });
+      try {
+        await page.goto(`${baseURL}/${lang}/`);
       if (await page.locator('.fullpage-panel').count() !== 6) throw new Error(`${lang}/${viewport.width}: expected six screens`);
       if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error(`${lang}/${viewport.width}: horizontal overflow`);
 
@@ -49,6 +56,7 @@ try {
         });
         if (!topbar.visible || topbar.height > 64 || Math.abs(topbar.top) > 1 || topbar.position !== 'fixed') throw new Error(`${lang}/${viewport.width}: fixed topbar is missing or too tall`);
         if (await page.locator('.fullpage-topbar .topbar-mark:visible').count() !== 1 || await page.locator('.fullpage-topbar .topbar-languages a:visible').count() !== 3 || await page.locator('.fullpage-topbar .topbar-contact:visible').count() !== 1) throw new Error(`${lang}/${viewport.width}: topbar controls are incomplete`);
+        if (await page.locator('.fullpage-topbar .topbar-mark').evaluate((node) => node.getBoundingClientRect().width) < 150) throw new Error(`${lang}/${viewport.width}: desktop wordmark is missing`);
         const panels = page.locator('.fullpage-panel');
         for (let index = 0; index < await panels.count(); index += 1) {
           const panel = panels.nth(index);
@@ -60,6 +68,15 @@ try {
           });
           if (metrics.top < topbar.height + 16) throw new Error(`${lang}/${viewport.width}/screen-${index + 1}: title overlaps topbar clearance`);
         }
+        if (viewport.width === 1024) {
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => resolve())));
+          const actionsVisible = await page.locator('#screen-1 .panel-button').evaluateAll((nodes) => nodes.length === 2 && nodes.every((node) => {
+            const rect = node.getBoundingClientRect();
+            return rect.top >= 64 && rect.bottom <= innerHeight;
+          }));
+          if (!actionsVisible) throw new Error(`${lang}/1024: first-screen actions are not both visible`);
+        }
         const dots = page.locator('.fullpage-dots a');
         if (await dots.count() !== 6) throw new Error(`${lang}/${viewport.width}: incomplete section dots`);
         const unlabeled = await dots.evaluateAll((nodes) => nodes.some((node) => !node.getAttribute('aria-label')));
@@ -67,7 +84,17 @@ try {
       }
       const panelIndexes = await page.locator('.panel-index').allTextContents();
       if (panelIndexes[0].trim() !== '01 / 06' || panelIndexes.slice(1).some((label) => !/^0[2-6] \/ 06 · \S/.test(label.trim()))) throw new Error(`${lang}/${viewport.width}: panel labels do not follow the approved format`);
-      await page.close();
+      } catch (error) {
+        failed = true;
+        await fs.mkdir(evidence, { recursive: true });
+        const label = `${lang}-${viewport.width}`;
+        await page.screenshot({ path: path.join(evidence, `${label}-failure.png`), fullPage: true });
+        await tracing.stop({ path: path.join(evidence, `${label}-trace.zip`) });
+        throw error;
+      } finally {
+        if (!failed) await tracing.stop();
+        await page.close();
+      }
     }
   }
 

@@ -26,7 +26,7 @@
   backdrop-filter: blur(14px);
 }
 .topbar-mark {
-  width: 44px;
+  width: 180px;
   height: 44px;
   display: block;
   overflow: hidden;
@@ -53,7 +53,8 @@
   position: relative;
   display: grid;
   min-height: 100svh;
-  align-items: center;
+  align-content: flex-start;
+  align-content: safe center;
   padding: calc(var(--fp-header-height) + 24px) 0 24px;
   overflow: hidden;
   scroll-margin-top: var(--fp-header-height);
@@ -260,6 +261,14 @@ html[lang="km"] .panel-disclosure p { line-height: 1.75; }
 @media (min-width: 1024px) {
   html[lang="en"] .panel-copy h1,
   html[lang="en"] .panel-copy h2 { font-size: clamp(2.75rem, 4.2vw, 3.6rem); }
+}
+
+@media (min-width: 1024px) and (max-width: 1180px) {
+  #screen-1 .panel-index { margin-bottom: 8px; }
+  #screen-1 .panel-lead { margin-top: 10px; line-height: 1.45; }
+  #screen-1 .panel-facts { gap: 4px; margin-top: 6px; line-height: 1.35; }
+  #screen-1 .panel-actions { gap: 6px; margin-top: 8px; }
+  #screen-1 .panel-button { min-height: 44px; }
 }
 
 @media (min-width: 1024px) and (min-height: 700px) {

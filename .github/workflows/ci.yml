@@ -201,6 +201,14 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Website build, link, browser and accessibility checks
         run: npm test
+        env:
+          EVIDENCE_DIR: test-results/playwright
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: failure()
+        with:
+          name: website-playwright-failure
+          path: website/test-results/playwright/**
+          if-no-files-found: warn
 
   customer-app:
     runs-on: ubuntu-latest
