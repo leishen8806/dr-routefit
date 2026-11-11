@@ -3,12 +3,15 @@ CREATE TABLE marketing.coupon_redemption (
  company_id uuid NOT NULL,
  coupon_id uuid NOT NULL,
  order_id uuid NOT NULL,
+ previous_redemption_id uuid NULL,
  state text NOT NULL CHECK(state IN ('LOCKED','REDEEMED','RELEASED')),
  discount_minor bigint NOT NULL CHECK(discount_minor>=0),
+ idempotency_key text NOT NULL CHECK(length(btrim(idempotency_key)) BETWEEN 1 AND 128),
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
- UNIQUE(company_id,id), UNIQUE(company_id,coupon_id), UNIQUE(company_id,order_id),
+ UNIQUE(company_id,id), UNIQUE(company_id,idempotency_key),
  FOREIGN KEY(company_id,coupon_id) REFERENCES marketing.coupon(company_id,id),
- FOREIGN KEY(company_id,order_id) REFERENCES orders.draft(company_id,id)
+ FOREIGN KEY(company_id,order_id) REFERENCES orders.draft(company_id,id),
+ FOREIGN KEY(company_id,previous_redemption_id) REFERENCES marketing.coupon_redemption(company_id,id)
 );
 CREATE TABLE marketing.risk_flag (
  id uuid PRIMARY KEY,

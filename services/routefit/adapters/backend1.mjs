@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {ApiError,ensure} from '../domain/errors.mjs';
 import {activateMerchantContract as activateContract,expireMerchantContract as expireContract} from '../domain/merchant-contracts.mjs';
-import {lockCoupon as lockCouponDomain} from '../domain/coupons.mjs';
+import {lockCoupon as lockCouponDomain,redeemCoupon as redeemCouponDomain,releaseCoupon as releaseCouponDomain} from '../domain/coupons.mjs';
 import {freezeUser as freezeUserDomain,unfreezeUser as unfreezeUserDomain} from '../domain/user-freeze.mjs';
 
 export async function createCouponBatch({client,companyId,idempotencyKey},{discountType,amountMinor,currency,budgetMinor,minimumSpendMinor=0}){
@@ -105,7 +105,7 @@ export async function unfreezeUser({client,companyId,userId,version}){
  return {userId:row.principal_id,state:next.state,version:Number(row.version)};
 }
 
-export async function lockOrderCoupon({client,companyId,orderId},{couponId}){
+export async function lockOrderCoupon({client,companyId,orderId,idempotencyKey},{couponId}){
  const couponRow=(await client.query(`SELECT c.id,c.state,b.state AS batch_state,b.amount_minor,b.minimum_spend_minor,
   b.budget_minor-COALESCE((SELECT sum(r.discount_minor) FROM marketing.coupon_redemption r
    WHERE r.company_id=b.company_id AND r.state<>'RELEASED'),0) AS budget_remaining_minor
@@ -134,11 +134,53 @@ export async function lockOrderCoupon({client,companyId,orderId},{couponId}){
   WHERE company_id=$1 AND id=$2 AND state='ISSUED'
   RETURNING id
  ), redemption AS (
-  INSERT INTO marketing.coupon_redemption(id,company_id,coupon_id,order_id,state,discount_minor)
-  SELECT $3,$1,id,$4,'LOCKED',$5 FROM locked_coupon
+  INSERT INTO marketing.coupon_redemption(id,company_id,coupon_id,order_id,previous_redemption_id,state,discount_minor,idempotency_key)
+  SELECT $3,$1,id,$4,NULL,'LOCKED',$5,$6 FROM locked_coupon
   RETURNING coupon_id,order_id,state,discount_minor
- ) SELECT coupon_id,order_id,state,discount_minor FROM redemption`,[companyId,couponId,randomUUID(),orderId,locked.discountMinor]);
+ ) SELECT coupon_id,order_id,state,discount_minor FROM redemption`,[companyId,couponId,randomUUID(),orderId,locked.discountMinor,idempotencyKey??`coupon-lock:${orderId}:${couponId}`]);
  const row=result.rows[0];
  if(!row)throw new ApiError(409,'COUPON_ALREADY_USED','Coupon is no longer available');
  return {...locked,couponId:row.coupon_id,orderId:row.order_id,state:row.state,discountMinor:Number(row.discount_minor)};
+}
+
+export async function redeemOrderCoupon({client,companyId,orderId,paymentConfirmed,idempotencyKey},{lockId}){
+ const current=(await client.query(`SELECT r.id,r.coupon_id,r.order_id,r.state,r.discount_minor,c.state AS coupon_state
+  FROM marketing.coupon_redemption r
+  JOIN marketing.coupon c ON (c.company_id,c.id)=(r.company_id,r.coupon_id)
+  WHERE r.company_id=$1 AND r.id=$2 AND r.order_id=$3`,[companyId,lockId,orderId])).rows[0];
+ if(!current)throw new ApiError(404,'NOT_FOUND','Coupon lock was not found');
+ const next=redeemCouponDomain({coupon:{id:current.coupon_id},order:{id:current.order_id},locked:{couponId:current.coupon_id,orderId:current.order_id,state:current.state,discountMinor:Number(current.discount_minor)},paid:paymentConfirmed===true});
+ const result=await client.query(`WITH redeemed_coupon AS (
+  UPDATE marketing.coupon SET state='REDEEMED'
+  WHERE company_id=$1 AND id=$2 AND state='LOCKED'
+  RETURNING id
+ ), event AS (
+  INSERT INTO marketing.coupon_redemption(id,company_id,coupon_id,order_id,previous_redemption_id,state,discount_minor,idempotency_key)
+  SELECT $3,$1,id,$4,$5,'REDEEMED',$6,$7 FROM redeemed_coupon
+  RETURNING id,coupon_id,state
+ ) SELECT id,coupon_id,state FROM event`,[companyId,current.coupon_id,randomUUID(),orderId,current.id,next.discountMinor,idempotencyKey??`coupon-redeem:${lockId}`]);
+ const row=result.rows[0];
+ if(!row)throw new ApiError(409,'COUPON_NOT_LOCKED','Coupon is no longer locked');
+ return {id:row.id,couponId:row.coupon_id,state:row.state};
+}
+
+export async function releaseOrderCoupon({client,companyId,orderId,idempotencyKey},{redemptionId}){
+ const current=(await client.query(`SELECT r.id,r.coupon_id,r.order_id,r.state,r.discount_minor,c.state AS coupon_state
+  FROM marketing.coupon_redemption r
+  JOIN marketing.coupon c ON (c.company_id,c.id)=(r.company_id,r.coupon_id)
+  WHERE r.company_id=$1 AND r.id=$2 AND r.order_id=$3`,[companyId,redemptionId,orderId])).rows[0];
+ if(!current)throw new ApiError(404,'NOT_FOUND','Coupon redemption was not found');
+ const next=releaseCouponDomain({couponId:current.coupon_id,orderId:current.order_id,state:current.state,discountMinor:Number(current.discount_minor)});
+ const result=await client.query(`WITH released_coupon AS (
+  UPDATE marketing.coupon SET state='RELEASED'
+  WHERE company_id=$1 AND id=$2 AND state IN ('LOCKED','REDEEMED')
+  RETURNING id
+ ), event AS (
+  INSERT INTO marketing.coupon_redemption(id,company_id,coupon_id,order_id,previous_redemption_id,state,discount_minor,idempotency_key)
+  SELECT $3,$1,id,$4,$5,'RELEASED',$6,$7 FROM released_coupon
+  RETURNING coupon_id,state
+ ) SELECT coupon_id,state FROM event`,[companyId,current.coupon_id,randomUUID(),orderId,current.id,next.discountMinor,idempotencyKey??`coupon-release:${redemptionId}`]);
+ const row=result.rows[0];
+ if(!row)throw new ApiError(409,'COUPON_NOT_RELEASABLE','Coupon is no longer releasable');
+ return {couponId:row.coupon_id,state:row.state};
 }

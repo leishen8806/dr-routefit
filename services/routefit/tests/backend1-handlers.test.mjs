@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {backend1Handlers,createBackend1Handlers} from '../application/backend1-handlers.mjs';
-import {activateMerchantContract as activateMerchantContractRepository,createCouponBatch,expireMerchantContract as expireMerchantContractRepository,freezeUser as freezeUserRepository,getMerchantContract,listCoupons,listMerchantSkuDimensions,lockOrderCoupon as lockOrderCouponRepository,unfreezeUser as unfreezeUserRepository} from '../adapters/backend1.mjs';
+import {activateMerchantContract as activateMerchantContractRepository,createCouponBatch,expireMerchantContract as expireMerchantContractRepository,freezeUser as freezeUserRepository,getMerchantContract,listCoupons,listMerchantSkuDimensions,lockOrderCoupon as lockOrderCouponRepository,redeemOrderCoupon as redeemOrderCouponRepository,releaseOrderCoupon as releaseOrderCouponRepository,unfreezeUser as unfreezeUserRepository} from '../adapters/backend1.mjs';
 
 test('Backend1 handlers pass authenticated context and validated input to their repository boundary', async () => {
  const calls=[];
@@ -208,4 +208,35 @@ test('default Backend1 coupon lock handler uses the coupon lock repository', asy
  }};
  const result=await backend1Handlers.lockOrderCoupon({client,companyId:'00000000-0000-0000-0000-000000000001',orderId:'00000000-0000-0000-0000-000000000020'},{couponId:'00000000-0000-0000-0000-000000000010'});
  assert.deepEqual(result,{status:200,body:{couponId:'00000000-0000-0000-0000-000000000010',orderId:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discountMinor:200,driverCommissionBaseMinor:1700,fraudReviewRequired:true}});
+});
+
+test('coupon redemption requires the payment-confirmed context and appends a redeemed event',async()=>{
+ const calls=[];
+ const client={query:async(sql,params)=>{
+  calls.push({sql,params});
+  if(calls.length===1)return {rows:[{id:'00000000-0000-0000-0000-000000000030',coupon_id:'00000000-0000-0000-0000-000000000010',order_id:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discount_minor:'200',coupon_state:'LOCKED'}]};
+  return {rows:[{id:'00000000-0000-0000-0000-000000000031',coupon_id:'00000000-0000-0000-0000-000000000010',state:'REDEEMED'}]};
+ }};
+ const unpaidClient={query:async()=>({rows:[{id:'00000000-0000-0000-0000-000000000030',coupon_id:'00000000-0000-0000-0000-000000000010',order_id:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discount_minor:'200',coupon_state:'LOCKED'}]})};
+ await assert.rejects(
+  ()=>redeemOrderCouponRepository({client:unpaidClient,companyId:'00000000-0000-0000-0000-000000000001',orderId:'00000000-0000-0000-0000-000000000020'},{lockId:'00000000-0000-0000-0000-000000000030'}),
+  {code:'PAYMENT_REQUIRED'}
+ );
+ const result=await redeemOrderCouponRepository({client,companyId:'00000000-0000-0000-0000-000000000001',orderId:'00000000-0000-0000-0000-000000000020',paymentConfirmed:true},{lockId:'00000000-0000-0000-0000-000000000030'});
+ assert.deepEqual(result,{id:'00000000-0000-0000-0000-000000000031',couponId:'00000000-0000-0000-0000-000000000010',state:'REDEEMED'});
+ assert.match(calls[1].sql,/INSERT INTO marketing\.coupon_redemption/);
+ assert.match(calls[1].sql,/previous_redemption_id/);
+});
+
+test('coupon release appends a release event without updating redemption history',async()=>{
+ const calls=[];
+ const client={query:async(sql,params)=>{
+  calls.push({sql,params});
+  if(calls.length===1)return {rows:[{id:'00000000-0000-0000-0000-000000000031',coupon_id:'00000000-0000-0000-0000-000000000010',order_id:'00000000-0000-0000-0000-000000000020',state:'REDEEMED',discount_minor:'200',coupon_state:'REDEEMED'}]};
+  return {rows:[{id:'00000000-0000-0000-0000-000000000032',coupon_id:'00000000-0000-0000-0000-000000000010',state:'RELEASED'}]};
+ }};
+ const result=await releaseOrderCouponRepository({client,companyId:'00000000-0000-0000-0000-000000000001',orderId:'00000000-0000-0000-0000-000000000020'},{redemptionId:'00000000-0000-0000-0000-000000000031'});
+ assert.deepEqual(result,{couponId:'00000000-0000-0000-0000-000000000010',state:'RELEASED'});
+ assert.match(calls[1].sql,/INSERT INTO marketing\.coupon_redemption/);
+ assert.doesNotMatch(calls[1].sql,/UPDATE marketing\.coupon_redemption/);
 });
