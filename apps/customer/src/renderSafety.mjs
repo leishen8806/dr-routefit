@@ -2,6 +2,7 @@ const SAFE_TEST_ID_SEGMENT = /^[a-z][a-z0-9-]*$/;
 
 export function safeNavigationTarget(candidate, allowedHttpsHosts = []) {
   if (typeof candidate !== 'string' || candidate.length === 0) return null;
+  if (/[\t\n\r]/.test(candidate)) return null;
 
   if (candidate.startsWith('/') && !candidate.startsWith('//') && !candidate.includes('\\')) {
     return candidate;

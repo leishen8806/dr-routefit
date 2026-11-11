@@ -13,7 +13,15 @@ test('allows only site-relative paths and HTTPS URLs on the configured host allo
 });
 
 test('rejects executable, non-HTTPS, and protocol-relative promotion targets', () => {
-  for (const target of ['javascript:alert(1)', 'data:text/html,unsafe', 'http://partner.routefit.example', '//partner.routefit.example']) {
+  for (const target of [
+    'javascript:alert(1)',
+    'data:text/html,unsafe',
+    'http://partner.routefit.example',
+    '//partner.routefit.example',
+    '/\n/evil.example/x',
+    '/\r/evil.example/x',
+    '/\t/evil.example/x',
+  ]) {
     assert.equal(safety.safeNavigationTarget(target, ['partner.routefit.example']), null, target);
   }
 });
