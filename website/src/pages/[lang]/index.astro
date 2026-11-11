@@ -11,6 +11,6 @@ export function getStaticPaths() {
 const { lang } = Astro.props as { lang: Language };
 const copy = content[lang];
 ---
-<BaseLayout {lang} pathname={`/${lang}/`}>
+<BaseLayout {lang} pathname={`/${lang}/`} fullpage>
   <HomePage {lang} {copy} />
 </BaseLayout>
