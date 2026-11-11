@@ -16,6 +16,12 @@ test('KPI migration versions example configurations and keeps rewards and appeal
   assert.match(sql, /money_amount_minor bigint NOT NULL/);
   assert.match(sql, /definition_version_id uuid NOT NULL/);
   assert.match(sql, /CHECK\(decision_person_id IS NULL OR decision_person_id<>reward_penalty_author_person_id\)/);
+  assert.match(sql, /CHECK\(approved_by_principal_id IS NULL OR prepared_by_principal_id<>approved_by_principal_id\)/);
+  assert.match(sql, /SELECT assessment_id,author_person_id INTO penalty_assessment_id,actual_author_person_id FROM kpi\.reward_penalty/);
+  assert.match(sql, /NEW\.reward_penalty_author_person_id<>actual_author_person_id/);
+  assert.match(sql, /penalty_assessment_id<>NEW\.assessment_id/);
+  assert.match(sql, /NEW\.state<>'submitted'/);
+  assert.match(sql, /NEW\.decision_person_id=actual_author_person_id/);
   assert.match(sql, /CREATE TRIGGER kpi_definition_version_append_only/);
   assert.match(sql, /CREATE TRIGGER kpi_reward_penalty_append_only/);
   assert.match(sql, /CREATE TRIGGER kpi_appeal_transition/);

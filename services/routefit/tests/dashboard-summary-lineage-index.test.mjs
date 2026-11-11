@@ -16,3 +16,8 @@ test('dashboard summary has one documented source and computation rule per demo 
   assert.match(content, /casework\.dispatch_exception/);
   assert.match(content, /Backend2 070/);
 });
+
+test('open authentication injection contract documents the implementation handoff to OpsLead', async () => {
+  const content = await readFile(index, 'utf8');
+  for (const term of ['openAuthenticate(request)', 'subjectId', 'scopes', 'apiKeyId', 'integration.api_key', 'integration.api_call_log', 'CMP-1326']) assert.match(content, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});

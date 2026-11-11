@@ -18,7 +18,8 @@ CREATE TABLE kpi.definition_version (
  UNIQUE(company_id,definition_id,version),
  FOREIGN KEY(company_id,prepared_by_principal_id) REFERENCES org.principal(company_id,id),
  FOREIGN KEY(company_id,approved_by_principal_id) REFERENCES org.principal(company_id,id),
- CHECK((state='draft' AND approved_by_principal_id IS NULL) OR (state IN ('approved','retired') AND approved_by_principal_id IS NOT NULL))
+ CHECK((state='draft' AND approved_by_principal_id IS NULL) OR (state IN ('approved','retired') AND approved_by_principal_id IS NOT NULL)),
+ CHECK(approved_by_principal_id IS NULL OR prepared_by_principal_id<>approved_by_principal_id)
 );
 
 CREATE TABLE kpi.assessment (
@@ -74,6 +75,7 @@ CREATE TABLE kpi.appeal (
  FOREIGN KEY(company_id,assessment_id) REFERENCES kpi.assessment(company_id,id),
  FOREIGN KEY(company_id,reward_penalty_id) REFERENCES kpi.reward_penalty(company_id,id),
  CHECK(decision_person_id IS NULL OR decision_person_id<>reward_penalty_author_person_id),
+ CHECK(decision_person_id IS NULL OR decision_person_id<>submitted_by_person_id),
  CHECK((state='submitted' AND decision_person_id IS NULL AND decision_reason IS NULL AND decided_at IS NULL) OR (state IN ('accepted','rejected') AND decision_person_id IS NOT NULL AND decision_reason IS NOT NULL AND decided_at IS NOT NULL))
 );
 
@@ -81,17 +83,24 @@ CREATE TRIGGER kpi_definition_version_append_only BEFORE UPDATE OR DELETE ON kpi
 CREATE TRIGGER kpi_reward_penalty_append_only BEFORE UPDATE OR DELETE ON kpi.reward_penalty FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
 
 CREATE FUNCTION kpi.enforce_appeal_transition() RETURNS trigger LANGUAGE plpgsql AS $$
-DECLARE subject_person uuid;
+DECLARE subject_person uuid; penalty_assessment_id uuid; actual_author_person_id uuid;
 BEGIN
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'KPI appeals are immutable' USING ERRCODE='42501'; END IF;
  IF TG_OP='INSERT' THEN
   SELECT subject_person_id INTO subject_person FROM kpi.assessment WHERE company_id=NEW.company_id AND id=NEW.assessment_id;
+  SELECT assessment_id,author_person_id INTO penalty_assessment_id,actual_author_person_id FROM kpi.reward_penalty WHERE company_id=NEW.company_id AND id=NEW.reward_penalty_id;
   IF subject_person IS NULL OR NEW.submitted_by_person_id<>subject_person THEN RAISE EXCEPTION 'Only the assessed driver may appeal' USING ERRCODE='42501'; END IF;
+  IF penalty_assessment_id IS NULL OR penalty_assessment_id<>NEW.assessment_id THEN RAISE EXCEPTION 'Appeal reward or penalty must belong to the assessment' USING ERRCODE='23514'; END IF;
+  IF NEW.reward_penalty_author_person_id<>actual_author_person_id THEN RAISE EXCEPTION 'Appeal author must match the reward or penalty author' USING ERRCODE='23514'; END IF;
+  IF NEW.state<>'submitted' THEN RAISE EXCEPTION 'KPI appeals must start submitted' USING ERRCODE='23514'; END IF;
   RETURN NEW;
  END IF;
  IF NEW.company_id<>OLD.company_id OR NEW.id<>OLD.id OR NEW.assessment_id<>OLD.assessment_id OR NEW.reward_penalty_id<>OLD.reward_penalty_id OR NEW.submitted_by_person_id<>OLD.submitted_by_person_id OR NEW.reward_penalty_author_person_id<>OLD.reward_penalty_author_person_id OR NEW.reason<>OLD.reason OR NEW.version<>OLD.version+1 OR OLD.state<>'submitted' OR NEW.state NOT IN ('accepted','rejected') THEN
   RAISE EXCEPTION 'Invalid KPI appeal transition' USING ERRCODE='23514';
  END IF;
+ IF NEW.decision_person_id=OLD.submitted_by_person_id THEN RAISE EXCEPTION 'Appeal submitter may not decide the appeal' USING ERRCODE='42501'; END IF;
+ SELECT author_person_id INTO actual_author_person_id FROM kpi.reward_penalty WHERE company_id=NEW.company_id AND id=NEW.reward_penalty_id;
+ IF actual_author_person_id IS NULL OR NEW.decision_person_id=actual_author_person_id THEN RAISE EXCEPTION 'Reward or penalty author may not decide the appeal' USING ERRCODE='42501'; END IF;
  RETURN NEW;
 END;
 $$;
@@ -110,6 +119,7 @@ ALTER TABLE kpi.appeal ENABLE ROW LEVEL SECURITY;
 ALTER TABLE kpi.appeal FORCE ROW LEVEL SECURITY;
 CREATE POLICY company_scope ON kpi.appeal USING(company_id=NULLIF(current_setting('app.company_id',true),'')::uuid) WITH CHECK(company_id=NULLIF(current_setting('app.company_id',true),'')::uuid);
 
+GRANT USAGE ON SCHEMA kpi TO routefit_api;
 GRANT SELECT,INSERT ON kpi.definition_version,kpi.assessment,kpi.reward_penalty,kpi.appeal TO routefit_api;
 GRANT UPDATE ON kpi.appeal TO routefit_api;
 

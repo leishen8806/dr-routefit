@@ -1,6 +1,6 @@
 # RF-UX-V1 R2 接口汇总索引
 
-状态：2026-11-10 汇总。唯一索引来源是四份模块清单；`已定义` 表示已有接口契约，不表示路由已接线。所有写接口仍须服务端授权、企业隔离、幂等与版本校验。
+状态：以 `contracts/openapi.json` 的 `paths` 为准；`仅 schema / 待补 path` 不得作为可接线路由。所有写接口仍须服务端授权、企业隔离、幂等与版本校验。
 
 | 路径 | 用途和页面 | 负责岗位 | 模块清单 | 状态 |
 | --- | --- | --- | --- | --- |
@@ -20,22 +20,22 @@
 | `POST /api/ops/v1/merchants/{merchantId}/sku-dimensions` | 后台登记货品尺寸 | Backend1 | 同上 | 已定义 |
 | `POST /api/ops/v1/users/{userId}/actions/freeze` | 后台冻结用户 | Backend1 | 同上 | 已定义 |
 | `POST /api/ops/v1/users/{userId}/actions/unfreeze` | 后台解冻用户 | Backend1 | 同上 | 已定义 |
-| `POST /api/driver/v1/registration-applications` | 司机注册 | Backend2 | `rf-ux-v1-r2-backend2-api.md` | 已定义 |
-| `GET /api/ops/v1/driver-applications` | 后台司机审批列表 | Backend2 | 同上 | 已定义 |
-| `POST /api/ops/v1/driver-applications/{applicationId}/actions/review` | 后台审核司机 | Backend2 | 同上 | 已定义 |
-| `GET /api/driver/v1/vehicles` | 司机车辆档案 | Backend2 | 同上 | 已定义 |
-| `PUT /api/driver/v1/vehicles/{vehicleId}` | 编辑车辆 | Backend2 | 同上 | 已定义 |
-| `POST /api/driver/v1/vehicles/{vehicleId}/documents` | 维护车辆证件 | Backend2 | 同上 | 已定义 |
-| `GET /api/driver/v1/vehicles/{vehicleId}/alerts` | 车辆提醒 | Backend2 | 同上 | 已定义 |
-| `POST /api/driver/v1/vehicles/{vehicleId}/fuel-mileage-logs` | 油费里程 | Backend2 | 同上 | 已定义 |
-| `POST /api/driver/v1/assignments/{assignmentId}/load-scans` | 扫码装车 | Backend2 | 同上 | 已定义 |
-| `POST /api/driver/v1/orders/{orderId}/delivery-attempts` | 扫码送达 | Backend2 | 同上 | 已定义 |
-| `POST /api/driver/v1/delivery-attempts/{attemptId}/location-checks` | 送达位置核对 | Backend2 | 同上 | 已定义 |
-| `POST /api/driver/v1/delivery-attempts/{attemptId}/undelivered-reasons` | 未送出原因 | Backend2 | 同上 | 已定义 |
-| `POST /api/driver/v1/orders/{orderId}/collections` | 司机模拟收款 | Backend2 | 同上 | 已定义 |
-| `GET /api/driver/v1/cash-limit-status` | 司机交现提醒 | Backend2 | 同上 | 已定义 |
-| `POST /api/driver/v1/withdrawal-requests` | 司机提现申请 | Backend2 | 同上 | 已定义 |
-| `GET /api/driver/v1/withdrawal-requests` | 司机提现进度 | Backend2 | 同上 | 已定义 |
+| `POST /api/driver/v1/registration-applications` | 司机注册 | Backend2 | `rf-ux-v1-r2-backend2-api.md` | 仅 schema / 待补 path |
+| `GET /api/ops/v1/driver-applications` | 后台司机审批列表 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `POST /api/ops/v1/driver-applications/{applicationId}/actions/review` | 后台审核司机 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `GET /api/driver/v1/vehicles` | 司机车辆档案 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `PUT /api/driver/v1/vehicles/{vehicleId}` | 编辑车辆 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `POST /api/driver/v1/vehicles/{vehicleId}/documents` | 维护车辆证件 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `GET /api/driver/v1/vehicles/{vehicleId}/alerts` | 车辆提醒 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `POST /api/driver/v1/vehicles/{vehicleId}/fuel-mileage-logs` | 油费里程 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `POST /api/driver/v1/assignments/{assignmentId}/load-scans` | 扫码装车 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `POST /api/driver/v1/orders/{orderId}/delivery-attempts` | 扫码送达 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `POST /api/driver/v1/delivery-attempts/{attemptId}/location-checks` | 送达位置核对 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `POST /api/driver/v1/delivery-attempts/{attemptId}/undelivered-reasons` | 未送出原因 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `POST /api/driver/v1/orders/{orderId}/collections` | 司机模拟收款 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `GET /api/driver/v1/cash-limit-status` | 司机交现提醒 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `POST /api/driver/v1/withdrawal-requests` | 司机提现申请 | Backend2 | 同上 | 仅 schema / 待补 path |
+| `GET /api/driver/v1/withdrawal-requests` | 司机提现进度 | Backend2 | 同上 | 仅 schema / 待补 path |
 | `POST /api/ops/v1/dispatch/optimization-runs` | 调度台发起自动排线 | BackendSenior | `rf-ux-v1-r2-backendsenior-api.md` | 已定义 |
 | `GET /api/ops/v1/dispatch/optimization-runs` | 自动排线列表 | BackendSenior | 同上 | 已定义 |
 | `GET /api/ops/v1/dispatch/optimization-runs/{runId}` | 自动排线详情 | BackendSenior | 同上 | 已定义 |
@@ -123,6 +123,16 @@
 | `onTimeDeliveryRatePercent` | `delivery.record` + `dispatch.service_promise` | 最近 `onTimeDeliveryRateWindowDays` 个运营日内，按订单去重；仅 `delivery_state='DELIVERED'` 纳入，交付时间取 `record.observed_at`。现有 `service_promise.snapshot` 尚未固化可比较的承诺截止字段，因此实时比例未就绪，先返回后台可配置“示例”值；截止字段发布后以不晚于承诺截止的订单数除以纳入订单数，分母为零时返回配置示例。 | 014 服务承诺、034 送达记录；R2 由 OpsLead 消费 | 表已在；实时口径未就绪 |
 | `onTimeDeliveryRateWindowDays` | 后台配置（示例） | 统计窗口天数仅接受 1–366；不从订单数据反推，变更后同时作用于准时率时间窗口。 | DashboardSummary 契约 `3f589fe`；OpsLead 看板配置 | 是（契约）；配置存储待 OpsLead 接线 |
 | `actionRequiredExceptionCount` | `casework.dispatch_exception` | 当前状态为 `open`、`assigned` 或 `resolving` 的异常 `id` 去重计数；排除 `resolved`、`closed`，不按事件表重复累计。 | 019 调度异常；R2 由 OpsLead 消费 | 是 |
+
+## 开放接口鉴权注入契约
+
+`http.mjs` 仅定义并调用 `openAuthenticate(request)`；未注入时必须 fail-closed，返回 401。CMP-1326 负责实现并在其后续合入时注入，CMP-1325 不读取或定义其数据表。
+
+| 返回字段 | 语义 | CMP-1326 实现责任 |
+| --- | --- | --- |
+| `subjectId` | 已认证开放接口主体的稳定标识，用于后续数据范围判定 | 从 `integration.api_key` 的有效、未吊销记录解析；不回显明文密钥 |
+| `scopes` | 当前密钥授权范围；路由按 `quote:create`、`order:create`、`order:read`、`order:cancel`、`tracking:read` 拒绝缺失范围 | 校验范围、环境与每分钟限流后返回 |
+| `apiKeyId` | 已认证密钥的稳定标识，仅用于审计关联 | 每次调用只追加 `integration.api_call_log`；密钥仅以哈希查找 |
 
 ## 缺口与认领
 
