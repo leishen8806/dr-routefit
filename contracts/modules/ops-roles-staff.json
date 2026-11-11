@@ -390,8 +390,11 @@
           "success": {
             "status": 200,
             "body": {
-              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
-              "roles": [],
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "roleIds": [
+                "demo-role-001"
+              ],
               "state": "disabled",
               "version": 2
             }
@@ -399,9 +402,14 @@
           "rejected": {
             "status": 409,
             "body": {
-              "code": "INVALID_TRANSITION",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "Invalid state transition (sample)",
+                "messageKey": "error.invalid_transition",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -545,8 +553,11 @@
           "success": {
             "status": 200,
             "body": {
-              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
-              "roles": [],
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "roleIds": [
+                "demo-role-001"
+              ],
               "state": "active",
               "version": 2
             }
@@ -554,9 +565,14 @@
           "rejected": {
             "status": 409,
             "body": {
-              "code": "INVALID_TRANSITION",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "Invalid state transition (sample)",
+                "messageKey": "error.invalid_transition",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -700,8 +716,11 @@
           "success": {
             "status": 200,
             "body": {
-              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
-              "roles": [],
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "roleIds": [
+                "demo-role-001"
+              ],
               "state": "active",
               "version": 2
             }
@@ -709,9 +728,14 @@
           "rejected": {
             "status": 412,
             "body": {
-              "code": "VERSION_CONFLICT",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "VERSION_CONFLICT",
+                "message": "Version conflict (sample)",
+                "messageKey": "error.version_conflict",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },

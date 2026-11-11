@@ -30644,16 +30644,32 @@
             "body": {
               "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
               "placement": "driver",
+              "app": "driver",
+              "title": "Demo campaign (sample)",
+              "imageRef": "https://example.invalid/ads/demo.png",
+              "linkTarget": "/promo/demo",
+              "startsAt": "2026-11-20T00:00:00Z",
+              "endsAt": "2026-11-30T00:00:00Z",
+              "maxPerUserPerDay": 3,
+              "audience": {},
               "state": "draft",
-              "version": 1
+              "version": 1,
+              "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "reviewedBy": null,
+              "createdAt": "2026-11-12T03:00:00Z"
             }
           },
           "rejected": {
             "status": 404,
             "body": {
-              "code": "NOT_FOUND",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Not found (sample)",
+                "messageKey": "error.not_found",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -36568,18 +36584,30 @@
             "status": 201,
             "body": {
               "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "clientId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
               "keyPrefix": "rf_test_ab12",
               "environment": "sandbox",
+              "scopes": [
+                "orders:read"
+              ],
+              "rateLimitPerMinute": 60,
               "state": "active",
+              "createdAt": "2026-11-12T03:00:00Z",
+              "revokedAt": null,
               "secret": "（仅此一次返回，示例已省略）"
             }
           },
           "rejected": {
             "status": 412,
             "body": {
-              "code": "VERSION_CONFLICT",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "VERSION_CONFLICT",
+                "message": "Version conflict (sample)",
+                "messageKey": "error.version_conflict",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -37457,8 +37485,11 @@
           "success": {
             "status": 200,
             "body": {
-              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
-              "roles": [],
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "roleIds": [
+                "demo-role-001"
+              ],
               "state": "disabled",
               "version": 2
             }
@@ -37466,9 +37497,14 @@
           "rejected": {
             "status": 409,
             "body": {
-              "code": "INVALID_TRANSITION",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "Invalid state transition (sample)",
+                "messageKey": "error.invalid_transition",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -37613,8 +37649,11 @@
           "success": {
             "status": 200,
             "body": {
-              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
-              "roles": [],
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "roleIds": [
+                "demo-role-001"
+              ],
               "state": "active",
               "version": 2
             }
@@ -37622,9 +37661,14 @@
           "rejected": {
             "status": 409,
             "body": {
-              "code": "INVALID_TRANSITION",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "Invalid state transition (sample)",
+                "messageKey": "error.invalid_transition",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -37769,8 +37813,11 @@
           "success": {
             "status": 200,
             "body": {
-              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
-              "roles": [],
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "roleIds": [
+                "demo-role-001"
+              ],
               "state": "active",
               "version": 2
             }
@@ -37778,9 +37825,14 @@
           "rejected": {
             "status": 412,
             "body": {
-              "code": "VERSION_CONFLICT",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "VERSION_CONFLICT",
+                "message": "Version conflict (sample)",
+                "messageKey": "error.version_conflict",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },
@@ -54700,6 +54752,7 @@
           "id",
           "personId",
           "roleIds",
+          "state",
           "version"
         ],
         "properties": {
@@ -54714,6 +54767,12 @@
             "items": {
               "$ref": "#/components/schemas/Id"
             }
+          },
+          "state": {
+            "enum": [
+              "active",
+              "disabled"
+            ]
           },
           "version": {
             "type": "integer",

@@ -131,18 +131,30 @@
             "status": 201,
             "body": {
               "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "clientId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
               "keyPrefix": "rf_test_ab12",
               "environment": "sandbox",
+              "scopes": [
+                "orders:read"
+              ],
+              "rateLimitPerMinute": 60,
               "state": "active",
+              "createdAt": "2026-11-12T03:00:00Z",
+              "revokedAt": null,
               "secret": "（仅此一次返回，示例已省略）"
             }
           },
           "rejected": {
             "status": 412,
             "body": {
-              "code": "VERSION_CONFLICT",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "VERSION_CONFLICT",
+                "message": "Version conflict (sample)",
+                "messageKey": "error.version_conflict",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         },

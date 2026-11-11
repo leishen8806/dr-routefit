@@ -91,16 +91,32 @@
             "body": {
               "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
               "placement": "driver",
+              "app": "driver",
+              "title": "Demo campaign (sample)",
+              "imageRef": "https://example.invalid/ads/demo.png",
+              "linkTarget": "/promo/demo",
+              "startsAt": "2026-11-20T00:00:00Z",
+              "endsAt": "2026-11-30T00:00:00Z",
+              "maxPerUserPerDay": 3,
+              "audience": {},
               "state": "draft",
-              "version": 1
+              "version": 1,
+              "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "reviewedBy": null,
+              "createdAt": "2026-11-12T03:00:00Z"
             }
           },
           "rejected": {
             "status": 404,
             "body": {
-              "code": "NOT_FOUND",
-              "retryable": false,
-              "requestId": "req-示例-0001"
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Not found (sample)",
+                "messageKey": "error.not_found",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
             }
           }
         }
