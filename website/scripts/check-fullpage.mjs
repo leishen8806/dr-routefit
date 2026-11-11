@@ -10,6 +10,10 @@ const waitForLayout = (page) => page.evaluate(async () => {
   await document.fonts.ready;
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 });
+const waitForScene = (page, screen) => page.waitForFunction((target) => {
+  const scene = document.querySelector(`#screen-${target} .panel-scene`);
+  return scene && parseFloat(getComputedStyle(scene).opacity) >= .95;
+}, screen);
 const viewports = [
   { width: 1440, height: 900 },
   { width: 1280, height: 800 },
@@ -31,9 +35,12 @@ const trifoldViewports = [
   { label: 'extreme-landscape', width: 1100, height: 700 },
 ];
 const adaptiveViewports = [
-  { label: 'laptop-1440x790', width: 1440, height: 790, expectedSnap: true },
-  { label: 'laptop-1536x730', width: 1536, height: 730, expectedSnap: true },
-  { label: 'short-1366x660', width: 1366, height: 660, expectedSnap: false },
+  { label: 'wide-1280x800', width: 1280, height: 800 },
+  { label: 'wide-1366x768', width: 1366, height: 768 },
+  { label: 'laptop-1440x790', width: 1440, height: 790 },
+  { label: 'laptop-1536x730', width: 1536, height: 730 },
+  { label: 'wide-1920x950', width: 1920, height: 950 },
+  { label: 'short-1366x660', width: 1366, height: 660 },
   { label: 'laptop-1280x720', width: 1280, height: 720 },
   { label: 'threshold-1024x700', width: 1024, height: 700 },
 ];
@@ -185,15 +192,38 @@ try {
       await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; });
       const snap = await page.evaluate(() => getComputedStyle(document.documentElement).scrollSnapType);
       const snapEnabled = snap !== 'none';
-      if (viewport.expectedSnap !== undefined && snapEnabled !== viewport.expectedSnap) throw new Error(`${lang}/${viewport.label}: unexpected snap mode ${snap}`);
+      const layoutStep = await page.evaluate(() => document.documentElement.dataset.fullpageLayoutStep);
+      if ((snapEnabled && !['1', '2'].includes(layoutStep)) || (!snapEnabled && !['3', 'scroll'].includes(layoutStep))) throw new Error(`${lang}/${viewport.label}: inconsistent layout step ${layoutStep} for snap mode ${snap}`);
+      const navigationState = await page.evaluate(() => {
+        const dots = document.querySelector('.fullpage-dots');
+        const indexesVisible = [...document.querySelectorAll('.panel-index')].every((index) => index.checkVisibility());
+        return { dotsVisible: dots.checkVisibility(), indexesVisible };
+      });
+      const dotsExpected = snapEnabled && viewport.width >= 1280;
+      if (navigationState.dotsVisible !== dotsExpected) throw new Error(`${lang}/${viewport.label}: dots visible=${navigationState.dotsVisible}, expected=${dotsExpected}`);
+      if (!navigationState.dotsVisible && !navigationState.indexesVisible) throw new Error(`${lang}/${viewport.label}: dots are hidden and panel indexes are not visible`);
       const panels = page.locator('.fullpage-panel');
+      for (let index = 0; index < await panels.count(); index += 1) {
+        await panels.nth(index).evaluate((node) => node.scrollIntoView({ block: 'start', behavior: 'auto' }));
+        await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      }
+      await page.waitForFunction(() => [...document.querySelectorAll('.panel-scene')].every((scene) => parseFloat(getComputedStyle(scene).opacity) >= .95));
       for (let index = 0; index < await panels.count(); index += 1) {
         const panel = panels.nth(index);
         await panel.evaluate((node) => node.scrollIntoView({ block: 'start', behavior: 'auto' }));
         await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        if (dotsExpected || viewport.label === 'triple-landscape' || viewport.label === 'extreme-landscape') {
+          await waitForScene(page, index + 1);
+          const opacity = await panel.locator('.panel-scene').evaluate((scene) => parseFloat(getComputedStyle(scene).opacity));
+          if (opacity < .95) throw new Error(`${lang}/${viewport.label}/screen-${index + 1}: scene opacity ${opacity}`);
+          if (dotsExpected) {
+            const gap = await panel.locator('.panel-scene').evaluate((scene) => document.querySelector('.fullpage-dots').getBoundingClientRect().left - scene.getBoundingClientRect().right);
+            if (gap < 16) throw new Error(`${lang}/${viewport.label}/screen-${index + 1}: scene-to-dots gap ${gap.toFixed(1)}px`);
+          }
+        }
         const clipped = await panel.evaluate((node, snapEnabled) => {
           const panelRect = node.getBoundingClientRect();
-          const content = [...node.querySelectorAll('.panel-copy h1, .panel-copy h2, .panel-copy p, .panel-copy li, .panel-copy a, .panel-copy summary')]
+          const content = [...node.querySelectorAll('.panel-copy h1, .panel-copy h2, .panel-copy p, .panel-copy li, .panel-copy summary, .panel-copy a, .panel-copy button, .panel-copy .panel-disclosure, .panel-copy .panel-badge, .panel-copy .entry-grid, .panel-scene')]
             .filter((item) => item.checkVisibility() && item.getBoundingClientRect().width > 0 && item.getBoundingClientRect().height > 0);
           const item = content.find((candidate) => {
             const rect = candidate.getBoundingClientRect();
@@ -226,7 +256,7 @@ try {
       await page.waitForFunction(() => Math.abs(document.documentElement.scrollHeight - innerHeight - scrollY) <= 1);
       await page.locator(`.site-footer a[href="/${lang}/terms/"]`).click({ trial: true });
       await page.locator(`.site-footer a[href="/${lang}/privacy/"]`).click({ trial: true });
-      console.log(`FULLPAGE_MODE lang=${lang} viewport=${viewport.width}x${viewport.height} mode=${snapEnabled ? 'SNAP' : 'NORMAL'} clipped=0`);
+      console.log(`FULLPAGE_MODE lang=${lang} viewport=${viewport.width}x${viewport.height} step=${layoutStep} mode=${snapEnabled ? 'SNAP' : 'NORMAL'} clipped=0`);
       await page.close();
     }
   }
@@ -272,7 +302,7 @@ try {
   if (reducedResult.snap !== 'none' || reducedResult.hidden) throw new Error('reduced motion does not disable snap and reveals');
   await reduced.close();
 
-  console.log('FULLPAGE_CHECK=PASS LANGUAGES=3 VIEWPORTS=4 SCREENS=6 KEYBOARD=PASS FOOTER=PASS REDUCED_MOTION=PASS TRIFOLD=PASS TRIFOLD_STATES=8 ADAPTIVE_STATES=5 RESIZE=PASS');
+  console.log('FULLPAGE_CHECK=PASS LANGUAGES=3 VIEWPORTS=4 SCREENS=6 KEYBOARD=PASS FOOTER=PASS REDUCED_MOTION=PASS TRIFOLD=PASS TRIFOLD_STATES=8 ADAPTIVE_STATES=8 DOTS=PASS RESIZE=PASS');
 } finally {
   await browser.close();
   await stopPreview(server);
