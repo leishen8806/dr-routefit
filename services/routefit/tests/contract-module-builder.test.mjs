@@ -80,3 +80,10 @@ test('records all five A-tier payout approval operations in the BackendSenior mo
   ]);
   assert.ok(recorded.every(operation=>operation['x-baseline-tier']==='A'&&operation['x-owner']==='BackendSenior'));
 });
+
+test('records all twenty-four B-tier BackendSenior operations in the module contract',()=>{
+  const module=JSON.parse(readFileSync(new URL('../../../contracts/modules/backendsenior-b-tier.json',import.meta.url)));
+  const recorded=module['x-recorded-operations'];
+  assert.equal(recorded.length,24);
+  assert.ok(recorded.every(operation=>operation['x-baseline-tier']==='B'&&operation['x-owner']==='BackendSenior'));
+});
