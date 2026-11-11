@@ -17,6 +17,18 @@ export const zh: SiteCopy = {
     note: '柬埔寨最后一公里，直达收件人',
     route: ['取货点', '配送车辆', '送货点', '交接凭证']
   },
+  fullpage: {
+    ariaLabel: 'DR RouteFit 配送流程首页',
+    sectionsLabel: '首页章节',
+    screens: [
+      { label: '首屏', titleLines: ['柬埔寨最后一公里，', '直达收件人'] },
+      { label: '车对货', titleLines: ['货有大小，', '车要选对'] },
+      { label: '路对线', titleLines: ['路线清楚，', '调度才有把握'] },
+      { label: '准时送到', titleLines: ['约好的时间，', '认真守住'] },
+      { label: '每一步有记录', titleLines: ['交到谁手里，', '都留得下凭证'] },
+      { label: '合作入口', titleLines: ['把下一单，', '稳稳送到'] }
+    ]
+  },
   quick: [
     { title: '我要发货', body: '商家、仓储客户的配送服务，支持企业月结（需审批）。', action: '咨询合作', href: '/contact/' },
     { title: '我是司机', body: '个人司机和合作车队都可以申请加入，按完成的配送结算收入。', action: '了解加入方式', href: '/drivers/' },
