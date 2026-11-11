@@ -225,6 +225,12 @@ html[lang="km"] .panel-disclosure p { line-height: 1.75; }
   .fullpage-panel { scroll-snap-align: start; scroll-snap-stop: always; }
 }
 
+@media (max-width: 1180px) {
+  .fullpage-html .desktop-nav,
+  .fullpage-html .desktop-actions { display: none; }
+  .fullpage-html .mobile-menu { display: block; }
+}
+
 @media (max-width: 1023px), (max-height: 699px) {
   .fullpage-html { scroll-snap-type: none; }
   .fullpage-panel { min-height: auto; padding: 76px 0; scroll-snap-align: none; }
