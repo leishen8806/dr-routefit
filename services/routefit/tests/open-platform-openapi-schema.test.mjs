@@ -27,3 +27,12 @@ test('open platform write schemas keep secret handling, versioning, and payout-r
     {code: 'VALIDATION_FAILED'}
   );
 });
+
+test('advertising frequency cap matches the persistence limit', async () => {
+  const document = JSON.parse(await readFile(specification, 'utf8'));
+  const schemas = document.components.schemas;
+
+  for (const name of ['AdCampaignCreate', 'AdCampaignUpdate']) {
+    assert.equal(schemas[name].properties.maxPerUserPerDay.maximum, 20, `${name} must cap daily impressions at 20`);
+  }
+});
