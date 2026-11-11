@@ -71,6 +71,25 @@ test('P0 database controls reject payout and appeal separation bypasses', async 
    await assert.rejects(decide(foreignPerson), error => error.code === '23514');
   });
 
+  await t.test('assessment rejects a subject person that is not bound to its subject principal', async () => {
+   const definitionId = randomUUID(), definitionVersionId = randomUUID(), assessmentId = randomUUID();
+   await fixture.owner.query("INSERT INTO kpi.definition_version(id,company_id,definition_id,version,state,effective_from,prepared_by_principal_id,approved_by_principal_id,snapshot) VALUES($1,$2,$3,1,'approved',clock_timestamp(),$4,$5,'{}')", [definitionVersionId, companyId, definitionId, preparerPrincipal, approver.id]);
+   await assert.rejects(
+    fixture.owner.query("INSERT INTO kpi.assessment(id,company_id,definition_version_id,subject_principal_id,subject_person_id,period_start,period_end,version,snapshot) VALUES($1,$2,$3,$4,$5,CURRENT_DATE,CURRENT_DATE,1,'{}')", [assessmentId, companyId, definitionVersionId, driver.principalId, preparer.person_id]),
+    error => error.code === '23514'
+   );
+  });
+
+  await t.test('reward penalty rejects an author person that is not bound to its author principal', async () => {
+   const definitionId = randomUUID(), definitionVersionId = randomUUID(), assessmentId = randomUUID(), penaltyId = randomUUID();
+   await fixture.owner.query("INSERT INTO kpi.definition_version(id,company_id,definition_id,version,state,effective_from,prepared_by_principal_id,approved_by_principal_id,snapshot) VALUES($1,$2,$3,1,'approved',clock_timestamp(),$4,$5,'{}')", [definitionVersionId, companyId, definitionId, preparerPrincipal, approver.id]);
+   await fixture.owner.query("INSERT INTO kpi.assessment(id,company_id,definition_version_id,subject_principal_id,subject_person_id,period_start,period_end,version,snapshot) VALUES($1,$2,$3,$4,$5,CURRENT_DATE,CURRENT_DATE,1,'{}')", [assessmentId, companyId, definitionVersionId, driver.principalId, driverPerson]);
+   await assert.rejects(
+    fixture.owner.query("INSERT INTO kpi.reward_penalty(id,company_id,assessment_id,type,money_amount_minor,money_currency,author_principal_id,author_person_id,snapshot) VALUES($1,$2,$3,'penalty',1,'USD',$4,$5,'{}')", [penaltyId, companyId, assessmentId, approver.id, preparer.person_id]),
+    error => error.code === '23514'
+   );
+  });
+
  } finally {
   await fixture.cleanup();
  }

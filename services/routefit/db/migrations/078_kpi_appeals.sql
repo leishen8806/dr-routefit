@@ -93,6 +93,33 @@ BEGIN
 END;
 $$;
 
+CREATE FUNCTION kpi.require_principal_person_binding(p_company_id uuid, p_principal_id uuid, p_person_id uuid, p_context text) RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+ IF NOT EXISTS (
+  SELECT 1 FROM org.principal
+  WHERE company_id=p_company_id AND id=p_principal_id AND person_id=p_person_id
+ ) THEN
+  RAISE EXCEPTION '% principal and person must match', p_context USING ERRCODE='23514';
+ END IF;
+END;
+$$;
+
+CREATE FUNCTION kpi.enforce_assessment_subject_binding() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ PERFORM kpi.require_principal_person_binding(NEW.company_id,NEW.subject_principal_id,NEW.subject_person_id,'KPI assessment subject');
+ RETURN NEW;
+END;
+$$;
+CREATE TRIGGER kpi_assessment_subject_binding BEFORE INSERT OR UPDATE ON kpi.assessment FOR EACH ROW EXECUTE FUNCTION kpi.enforce_assessment_subject_binding();
+
+CREATE FUNCTION kpi.enforce_reward_penalty_author_binding() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ PERFORM kpi.require_principal_person_binding(NEW.company_id,NEW.author_principal_id,NEW.author_person_id,'KPI reward or penalty author');
+ RETURN NEW;
+END;
+$$;
+CREATE TRIGGER kpi_reward_penalty_author_binding BEFORE INSERT OR UPDATE ON kpi.reward_penalty FOR EACH ROW EXECUTE FUNCTION kpi.enforce_reward_penalty_author_binding();
+
 CREATE FUNCTION kpi.enforce_appeal_transition() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE subject_person uuid; penalty_assessment_id uuid; actual_author_person_id uuid;
 BEGIN
