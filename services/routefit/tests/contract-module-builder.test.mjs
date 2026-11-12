@@ -69,6 +69,13 @@ test('requires an A or B tier and a required If-Match header for mutations',()=>
   assert.throws(()=>validateModuleStandards(valid,base),/x-baseline-tier/);
 });
 
+test('resolves common parameter references before checking write requirements',()=>{
+  const module={module:'dispatch',paths:{'/api/ops/v1/route-plan':{post:{...structuredClone(operation),parameters:[
+    {$ref:'../common.json#/components/parameters/IdempotencyKey'}
+  ]}}},components:{schemas:{}}};
+  assert.doesNotThrow(()=>validateModuleStandards(module,base));
+});
+
 test('validates recorded legacy operations before they can be claimed by a module',()=>{
   const legacyBase=structuredClone(base);
   legacyBase.paths['/api/ops/v1/finance/payout-approvals']={get:{operationId:'listPayoutApprovals'}};
