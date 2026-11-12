@@ -9,7 +9,12 @@ const clone=value=>JSON.parse(JSON.stringify(value));
 const refName=ref=>ref?.split('/').at(-1);
 
 function fail(module,message){throw new Error(`contracts/modules/${module.module}.json: ${message}`);}
-function parameters(operation){return operation.parameters??[];}
+function commonParameters(){return JSON.parse(readFileSync(resolve(root,'contracts/common.json'),'utf8')).components?.parameters??{};}
+function resolveParameter(parameter){
+  const match=parameter?.$ref?.match(/^\.\.\/common\.json#\/components\/parameters\/([^/]+)$/);
+  return match?commonParameters()[match[1]]??parameter:parameter;
+}
+function parameters(operation){return (operation.parameters??[]).map(resolveParameter);}
 function hasParameter(operation,name){return parameters(operation).some(parameter=>parameter.name===name);}
 function hasRequiredHeader(operation,name){return parameters(operation).some(parameter=>parameter.name===name&&parameter.in==='header'&&parameter.required===true);}
 function isCollection(path){const segment=path.split('/').filter(Boolean).at(-1)??'';return !segment.startsWith('{')&&!segment.includes('actions')&&segment.endsWith('s');}
