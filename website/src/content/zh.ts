@@ -9,13 +9,25 @@ export const zh: SiteCopy = {
   nav: { home: '首页', services: '服务', drivers: '司机与车队', pricing: '价格说明', track: '查单', about: '关于我们', help: '帮助中心', contact: '联系我们', menu: '打开导航', language: '语言', skip: '跳到主要内容' },
   pages: { drivers: '司机与车队', pricing: '价格说明', about: '关于我们', help: '帮助中心', contact: '联系我们', terms: '服务条款', privacy: '隐私政策' },
   hero: {
-    eyebrow: '金边及周边 · 仓配一体',
+    eyebrow: '柬埔寨最后一公里，直达收件人',
     title: '车对货，路对线，准时送到。',
     body: 'RouteFit 帮商家把货从仓库送到客户手里：按货物选车，按路线派单，交接、在途、签收每一步都有记录可查。',
     primary: '咨询企业合作',
     secondary: '我是司机，想加入',
     note: '柬埔寨最后一公里，直达收件人',
     route: ['取货点', '配送车辆', '送货点', '交接凭证']
+  },
+  fullpage: {
+    ariaLabel: 'DR RouteFit 配送流程首页',
+    sectionsLabel: '首页章节',
+    screens: [
+      { label: '首屏', titleLines: ['柬埔寨最后一公里，', '直达收件人'] },
+      { label: '车对货', titleLines: ['货有大小，', '车要选对'] },
+      { label: '路对线', titleLines: ['路线清楚，', '调度才有把握'] },
+      { label: '准时送到', titleLines: ['约好的时间，', '使命必达'] },
+      { label: '每步有记录', titleLines: ['交到谁手里，', '都留得下凭证'] },
+      { label: '合作', titleLines: ['把下一单，', '稳稳送到'] }
+    ]
   },
   quick: [
     { title: '我要发货', body: '商家、仓储客户的配送服务，支持企业月结（需审批）。', action: '咨询合作', href: '/contact/' },

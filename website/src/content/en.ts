@@ -9,11 +9,23 @@ export const en: SiteCopy = {
   nav: { home: 'Home', services: 'Services', drivers: 'Drivers & fleets', pricing: 'Pricing', track: 'Track order', about: 'About', help: 'Help centre', contact: 'Contact us', menu: 'Open navigation', language: 'Language', skip: 'Skip to content' },
   pages: { drivers: 'Drivers & fleets', pricing: 'Pricing', about: 'About', help: 'Help', contact: 'Contact', terms: 'Terms of service', privacy: 'Privacy policy' },
   hero: {
-    eyebrow: 'Phnom Penh and nearby · Warehousing and delivery',
+    eyebrow: "Cambodia's last mile, delivered to the right hands",
     title: 'Match the vehicle. Match the route. Deliver on time.',
     body: 'RouteFit helps merchants move goods from warehouse to customer: choose a vehicle for the cargo, dispatch by route, and keep records for handover, transit and receipt.',
     primary: 'Discuss a business partnership', secondary: 'I am a driver and want to join', note: "Cambodia's last mile, delivered to the right hands",
     route: ['Pickup', 'Vehicle', 'Delivery', 'Handover proof']
+  },
+  fullpage: {
+    ariaLabel: 'DR RouteFit delivery journey home page',
+    sectionsLabel: 'Home page sections',
+    screens: [
+      { label: 'Home', titleLines: ["Cambodia's last mile,", 'delivered to the right hands'] },
+      { label: 'Vehicle fit', titleLines: ['Cargo comes in different sizes,', 'so the vehicle must fit'] },
+      { label: 'Route', titleLines: ['Make the route clear,', 'so dispatch can act with confidence'] },
+      { label: 'On time', titleLines: ['The time we agree', 'is the time we deliver'] },
+      { label: 'Proof', titleLines: ['Know who received it,', 'and keep the proof'] },
+      { label: 'Work together', titleLines: ["Let's deliver your", 'next order together'] }
+    ]
   },
   quick: [
     { title: 'I need a delivery', body: 'Delivery for merchants and warehouse customers, with approved business monthly billing.', action: 'Discuss a partnership', href: '/contact/' },

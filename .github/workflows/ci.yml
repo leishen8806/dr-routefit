@@ -198,9 +198,25 @@ jobs:
           cache: npm
           cache-dependency-path: website/package-lock.json
       - run: npm ci
+      - name: Install Khmer font for browser checks
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-core
+          khmer_font="$(fc-list | grep -i khmer | head -n 1)"
+          test -n "$khmer_font"
+          printf '%s\n' "$khmer_font"
       - run: npx playwright install --with-deps chromium
       - name: Website build, link, browser and accessibility checks
         run: npm test
+        env:
+          EVIDENCE_DIR: test-results/playwright
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: failure()
+        with:
+          name: website-playwright-failure
+          path: website/test-results/playwright/**
+          if-no-files-found: warn
 
   customer-app:
     runs-on: ubuntu-latest
@@ -221,3 +237,23 @@ jobs:
         run: npm test --workspace @routefit/customer-app
       - name: Customer app web export
         run: npm run build:web --workspace @routefit/customer-app
+
+  admin-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: Admin app lint
+        run: npm run lint --workspace @routefit/admin-app
+      - name: Admin app type check
+        run: npm run typecheck --workspace @routefit/admin-app
+      - name: Admin app unit tests
+        run: npm test --workspace @routefit/admin-app
+      - name: Admin app web export
+        run: npm run build:web --workspace @routefit/admin-app
