@@ -26,8 +26,19 @@ test('enforces the eight baseline rules for module operations',()=>{
   const module={module:'dispatch',paths:{'/api/ops/v1/route-plans':{get:operation}},components:{schemas:{}}};
   assert.doesNotThrow(()=>validateModuleStandards(module,base));
   assert.doesNotThrow(()=>validateModuleStandards({...module,paths:{'/api/ops/v1/coupon-batches/{batchId}':{get:operation}}},base));
+  assert.doesNotThrow(()=>validateModuleStandards({...module,paths:{'/api/ops/v1/assignments/{assignmentId}':{get:operation}}},base));
   assert.throws(()=>validateModuleStandards({...module,paths:{'/api/ops/v1/route-plans':{delete:operation}}},base),/DELETE/);
   assert.throws(()=>validateModuleStandards({...module,paths:{'/api/ops/v1/Route Plans':{get:operation}}},base),/lowercase/);
+});
+
+test('common contract exposes reusable request and success response definitions',()=>{
+  const common=JSON.parse(readFileSync(new URL('../../../contracts/common.json',import.meta.url)));
+  assert.equal(common.components.parameters.AcceptLanguage.name,'Accept-Language');
+  assert.equal(common.components.parameters.IdempotencyKey.name,'Idempotency-Key');
+  assert.deepEqual({min:common.components.parameters.IdempotencyKey.schema.minLength,max:common.components.parameters.IdempotencyKey.schema.maxLength},{min:16,max:128});
+  assert.equal(common.components.headers.XRequestId.schema.type,'string');
+  assert.equal(common.components.headers.CacheControl.schema.const,'no-store');
+  assert.equal(common.components.headers.ETag.schema.type,'string');
 });
 
 test('rejects missing idempotency, versioning, pagination, money, errors, metadata, and examples',()=>{
