@@ -52,11 +52,11 @@ const styles = StyleSheet.create({
   headerText: { color: designTokens.color.navy, flexGrow: 1, fontSize: 14, fontWeight: '600', minWidth: 108 },
   cell: { color: designTokens.color.ink, flexGrow: 1, fontSize: 14, fontWeight: '400', lineHeight: 22, minWidth: 108 },
   note: { color: designTokens.color.muted, fontSize: 13, fontWeight: '400', lineHeight: 20, marginTop: 14 },
-  unavailable: { color: designTokens.color.amber, fontSize: 13, fontWeight: '500', lineHeight: 20, marginTop: 12 },
+  unavailable: { color: designTokens.color.navy, fontSize: 13, fontWeight: '500', lineHeight: 20, marginTop: 12 },
   detail: { gap: 12 },
   detailRow: { gap: 4 },
   detailLabel: { color: designTokens.color.muted, fontSize: 13, fontWeight: '500' },
   detailValue: { color: designTokens.color.navy, fontSize: 16, fontWeight: '400', lineHeight: 24 },
-  closeButton: { alignSelf: 'flex-start', backgroundColor: designTokens.color.teal, borderRadius: 8, minHeight: 44, paddingHorizontal: 16, paddingVertical: 11 },
+  closeButton: { alignSelf: 'flex-start', backgroundColor: designTokens.color.navy, borderRadius: 8, minHeight: 44, paddingHorizontal: 16, paddingVertical: 11 },
   closeButtonText: { color: designTokens.color.surface, fontSize: 14, fontWeight: '600' },
 });

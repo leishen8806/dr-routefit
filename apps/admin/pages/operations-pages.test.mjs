@@ -200,6 +200,14 @@ test('native drawer declares web dialog and modal semantics', async () => {
   assert.doesNotMatch(drawerView, /accessibilityRole=/);
 });
 
+test('native warning text and close action keep token-based AA-safe contrast', async () => {
+  const nativePageSource = await readFile(new URL('./OperationsPage.tsx', import.meta.url), 'utf8');
+
+  assert.match(nativePageSource, /unavailable: \{ color: designTokens\.color\.navy,/);
+  assert.match(nativePageSource, /closeButton: \{[^}]*backgroundColor: designTokens\.color\.navy,/);
+  assert.match(nativePageSource, /closeButtonText: \{ color: designTokens\.color\.surface,/);
+});
+
 test('each list row exposes a frontend-only detail trigger with its own record index', () => {
   const markup = renderOperationsPage('orders');
 
