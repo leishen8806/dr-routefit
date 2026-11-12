@@ -107,7 +107,7 @@
           }
         },
         "x-permissions": [
-          "待 Lead 裁定"
+          "driver:notifications:read"
         ],
         "x-stage": "R2",
         "x-tier": "B",
@@ -144,7 +144,8 @@
               }
             }
           }
-        }
+        },
+        "x-permissions-note": "Lead2 裁定：与 driver:ads:read／customer:ads:read 同族，属登录司机的默认权限，不发给员工角色；标记已读是改自己的状态，用 :write 而不是 :report（:report 留给上报型遥测，如广告曝光）。"
       }
     },
     "/api/driver/v1/notifications/actions/mark-read": {
@@ -236,7 +237,7 @@
           }
         },
         "x-permissions": [
-          "待 Lead 裁定"
+          "driver:notifications:write"
         ],
         "x-stage": "R2",
         "x-tier": "B",
@@ -274,7 +275,8 @@
               }
             }
           }
-        }
+        },
+        "x-permissions-note": "Lead2 裁定：与 driver:ads:read／customer:ads:read 同族，属登录司机的默认权限，不发给员工角色；标记已读是改自己的状态，用 :write 而不是 :report（:report 留给上报型遥测，如广告曝光）。"
       }
     },
     "/api/customer/v1/notifications": {
@@ -382,7 +384,7 @@
           }
         },
         "x-permissions": [
-          "待 Lead 裁定"
+          "customer:notifications:read"
         ],
         "x-stage": "R2",
         "x-tier": "B",
@@ -419,7 +421,8 @@
               }
             }
           }
-        }
+        },
+        "x-permissions-note": "Lead2 裁定：与 driver:ads:read／customer:ads:read 同族，属登录客户的默认权限，不发给员工角色；标记已读是改自己的状态，用 :write 而不是 :report（:report 留给上报型遥测，如广告曝光）。"
       }
     },
     "/api/customer/v1/notifications/actions/mark-read": {
@@ -511,7 +514,7 @@
           }
         },
         "x-permissions": [
-          "待 Lead 裁定"
+          "customer:notifications:write"
         ],
         "x-stage": "R2",
         "x-tier": "B",
@@ -549,7 +552,8 @@
               }
             }
           }
-        }
+        },
+        "x-permissions-note": "Lead2 裁定：与 driver:ads:read／customer:ads:read 同族，属登录客户的默认权限，不发给员工角色；标记已读是改自己的状态，用 :write 而不是 :report（:report 留给上报型遥测，如广告曝光）。"
       }
     }
   },

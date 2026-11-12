@@ -178,5 +178,49 @@
         }
       }
     }
-  }
+  },
+  "x-recorded-operations": [
+    {
+      "operationId": "getDashboardSummary",
+      "path": "/api/ops/v1/dashboard/summary",
+      "method": "GET",
+      "description": "看板汇总。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "dashboard:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "Dashboard",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "asOf": "2026-11-12T03:00:00Z",
+            "pendingDispatchOrderCount": 12,
+            "pendingDispatchOrderDeltaVsYesterday": -2,
+            "availableDriverCount": 30,
+            "driversPendingConfirmationCount": 4,
+            "onTimeDeliveryRatePercent": 96.5,
+            "onTimeDeliveryRateWindowDays": 7,
+            "actionRequiredExceptionCount": 3
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    }
+  ]
 }
