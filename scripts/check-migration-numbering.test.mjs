@@ -1,4 +1,9 @@
 import test from 'node:test';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { checkNames, checkGaps, checkFrozen, parseExemptions } from './check-migration-numbering.mjs';
 
@@ -36,4 +41,37 @@ test('AC-3 modify/delete/add in 001-064 fail; 065+ ok; other paths ok', () => {
   const d = 'services/routefit/db/migrations';
   assert.equal(checkFrozen([`M\t${d}/001_a.sql`, `D\t${d}/064_b.sql`, `A\t${d}/010_c.sql`], d).length, 3);
   assert.equal(checkFrozen([`A\t${d}/065_a.sql`, 'M\tREADME.md'], d).length, 0);
+});
+
+// CLI-level boundary tests (CMP-1417 R1): assert concrete exit code + message, must not hang.
+const SCRIPT = process.env.CHECK_SCRIPT_UNDER_TEST ?? fileURLToPath(new URL('./check-migration-numbering.mjs', import.meta.url));
+function cli(exemptions) {
+  const d = mkdtempSync(join(tmpdir(), 'mn-'));
+  const mig = join(d, 'migrations'); const ex = join(d, 'ex.json');
+  writeFileSync(ex, typeof exemptions === 'string' ? exemptions : JSON.stringify(exemptions));
+  return { d, mig, ex };
+}
+function runCli(exemptions) {
+  const { mig, ex } = cli(exemptions);
+  mkdirSync(mig); writeFileSync(join(mig, '001_a.sql'), '');
+  return spawnSync(process.execPath, [SCRIPT, '--dir', mig, '--exemptions', ex], { encoding: 'utf8', timeout: 15000 });
+}
+const item = (from, to) => [{ from, to, reason: 'probe', approvedBy: 'CMP-1' }];
+for (const [name, ex] of [
+  ['1e308', item(1e308, 1e308)],
+  ['Number.MAX_SAFE_INTEGER', item(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)],
+  ['from=1,to=1e308', item(1, 1e308)],
+  ['to<from', item(5, 3)],
+]) {
+  test(`CLI rejects exemption ${name}: exit 1 + exemption[0] message`, () => {
+    const r = runCli(ex);
+    assert.equal(r.error, undefined, 'must not time out');
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /FAIL: exemption\[0\]: from\/to must be safe integers within 1\.\.999, to>=from/);
+  });
+}
+test('CLI rejects blank reason', () => {
+  const r = runCli([{ from: 3, reason: '   ', approvedBy: 'CMP-1' }]);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /FAIL: exemption\[0\]: reason and approvedBy/);
 });

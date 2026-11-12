@@ -41,7 +41,7 @@ export function parseExemptions(text) {
     const from = x?.from, to = x?.to ?? x?.from;
     const inRange = (v) => Number.isSafeInteger(v) && v >= 1 && v <= MAX_NUMBER;
     if (!inRange(from) || !inRange(to) || to < from) errors.push(`exemption[${i}]: from/to must be safe integers within 1..${MAX_NUMBER}, to>=from`);
-    else if (!x.reason || !/^CMP-\d+$/.test(x.approvedBy ?? '')) errors.push(`exemption[${i}]: reason and approvedBy (CMP-xxxx) are required`);
+    else if (typeof x.reason !== 'string' || !x.reason.trim() || !/^CMP-\d+$/.test(x.approvedBy ?? '')) errors.push(`exemption[${i}]: reason and approvedBy (CMP-xxxx) are required`);
     else ranges.push([from, to]);
   });
   return { errors, ranges };
