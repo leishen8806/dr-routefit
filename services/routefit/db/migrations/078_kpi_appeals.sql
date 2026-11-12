@@ -82,6 +82,17 @@ CREATE TABLE kpi.appeal (
 CREATE TRIGGER kpi_definition_version_append_only BEFORE UPDATE OR DELETE ON kpi.definition_version FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
 CREATE TRIGGER kpi_reward_penalty_append_only BEFORE UPDATE OR DELETE ON kpi.reward_penalty FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
 
+CREATE FUNCTION kpi.require_company_person(p_company_id uuid, p_person_id uuid, p_context text) RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+ IF NOT EXISTS (
+  SELECT 1 FROM org.principal
+  WHERE company_id=p_company_id AND person_id=p_person_id
+ ) THEN
+  RAISE EXCEPTION '% must belong to a company principal', p_context USING ERRCODE='23514';
+ END IF;
+END;
+$$;
+
 CREATE FUNCTION kpi.enforce_appeal_transition() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE subject_person uuid; penalty_assessment_id uuid; actual_author_person_id uuid;
 BEGIN
@@ -101,6 +112,7 @@ BEGIN
  IF NEW.decision_person_id=OLD.submitted_by_person_id THEN RAISE EXCEPTION 'Appeal submitter may not decide the appeal' USING ERRCODE='42501'; END IF;
  SELECT author_person_id INTO actual_author_person_id FROM kpi.reward_penalty WHERE company_id=NEW.company_id AND id=NEW.reward_penalty_id;
  IF actual_author_person_id IS NULL OR NEW.decision_person_id=actual_author_person_id THEN RAISE EXCEPTION 'Reward or penalty author may not decide the appeal' USING ERRCODE='42501'; END IF;
+ PERFORM kpi.require_company_person(NEW.company_id,NEW.decision_person_id,'Appeal decision person');
  RETURN NEW;
 END;
 $$;

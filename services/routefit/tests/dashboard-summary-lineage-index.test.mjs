@@ -19,6 +19,9 @@ test('dashboard summary has one documented source and computation rule per demo 
     for (const [field,terms] of Object.entries(metrics)) {
       const line=lineage.split(/\r?\n/).find(candidate=>candidate.startsWith('| `'+field+'` |'));
       assert.ok(line, `missing lineage for ${field}`);
+      const cells=line.split('|').slice(1,-1).map(cell=>cell.trim());
+      assert.equal(cells.length,5, `${field} must have five lineage columns`);
+      cells.forEach((cell,index)=>assert.ok(cell, `${field} has an empty lineage column ${index+1}`));
       for (const term of terms) assert.match(line, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')), `${field} lacks ${term}`);
     }
   };
@@ -26,6 +29,17 @@ test('dashboard summary has one documented source and computation rule per demo 
   for (const field of Object.keys(metrics)) {
     const withoutMetric=content.split(/\r?\n/).filter(line=>!line.startsWith('| `'+field+'` |')).join('\n');
     assert.throws(()=>verify(withoutMetric), new RegExp(`missing lineage for ${field}`));
+  }
+  for (const field of Object.keys(metrics)) {
+    for (let column=1;column<=4;column++) {
+      const withoutCell=content.split(/\r?\n/).map(line=>{
+        if (!line.startsWith('| `'+field+'` |')) return line;
+        const cells=line.split('|');
+        cells[column+1]='';
+        return cells.join('|');
+      }).join('\n');
+      assert.throws(()=>verify(withoutCell));
+    }
   }
 });
 

@@ -13,16 +13,19 @@ CREATE TABLE payroll.plan_version (
  deductions_enabled boolean NOT NULL DEFAULT false,
  effective_from timestamptz NOT NULL,
  prepared_by_principal_id uuid NOT NULL,
+ prepared_by_person_id uuid NOT NULL,
  approved_by_principal_id uuid,
+ approved_by_person_id uuid,
  snapshot jsonb NOT NULL CHECK(jsonb_typeof(snapshot)='object'),
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  UNIQUE(company_id,id),
  UNIQUE(company_id,plan_id,version),
  FOREIGN KEY(company_id,prepared_by_principal_id) REFERENCES org.principal(company_id,id),
  FOREIGN KEY(company_id,approved_by_principal_id) REFERENCES org.principal(company_id,id),
- CHECK((state='draft' AND approved_by_principal_id IS NULL) OR (state IN ('approved','retired') AND approved_by_principal_id IS NOT NULL)),
- CHECK(NOT deductions_enabled OR (state='approved' AND approved_by_principal_id IS NOT NULL)),
- CHECK(approved_by_principal_id IS NULL OR prepared_by_principal_id<>approved_by_principal_id)
+ CHECK((state='draft' AND approved_by_principal_id IS NULL AND approved_by_person_id IS NULL) OR (state IN ('approved','retired') AND approved_by_principal_id IS NOT NULL AND approved_by_person_id IS NOT NULL)),
+ CHECK(NOT deductions_enabled OR (state='approved' AND approved_by_principal_id IS NOT NULL AND approved_by_person_id IS NOT NULL)),
+ CHECK(approved_by_principal_id IS NULL OR prepared_by_principal_id<>approved_by_principal_id),
+ CHECK(approved_by_person_id IS NULL OR prepared_by_person_id<>approved_by_person_id)
 );
 
 CREATE TABLE payroll.run (
@@ -69,6 +72,27 @@ CREATE TABLE payroll.run_line (
 
 CREATE TRIGGER payroll_plan_version_append_only BEFORE UPDATE OR DELETE ON payroll.plan_version FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
 CREATE TRIGGER payroll_run_line_append_only BEFORE UPDATE OR DELETE ON payroll.run_line FOR EACH ROW EXECUTE FUNCTION pricing.reject_history_change();
+CREATE FUNCTION payroll.require_principal_person_binding(p_company_id uuid, p_principal_id uuid, p_person_id uuid, p_context text)
+RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+ IF NOT EXISTS (
+  SELECT 1 FROM org.principal
+  WHERE company_id=p_company_id AND id=p_principal_id AND person_id=p_person_id
+ ) THEN
+  RAISE EXCEPTION '% principal and person must match', p_context USING ERRCODE='23514';
+ END IF;
+END;
+$$;
+CREATE FUNCTION payroll.enforce_plan_version_person_binding() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ PERFORM payroll.require_principal_person_binding(NEW.company_id,NEW.prepared_by_principal_id,NEW.prepared_by_person_id,'Payroll plan preparer');
+ IF NEW.approved_by_principal_id IS NOT NULL THEN
+  PERFORM payroll.require_principal_person_binding(NEW.company_id,NEW.approved_by_principal_id,NEW.approved_by_person_id,'Payroll plan approver');
+ END IF;
+ RETURN NEW;
+END;
+$$;
+CREATE TRIGGER payroll_plan_version_requires_person_binding BEFORE INSERT ON payroll.plan_version FOR EACH ROW EXECUTE FUNCTION payroll.enforce_plan_version_person_binding();
 CREATE FUNCTION payroll.require_approved_plan_version() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE plan_state text;
 BEGIN

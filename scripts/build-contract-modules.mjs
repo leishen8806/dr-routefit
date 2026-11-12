@@ -11,6 +11,7 @@ const refName=ref=>ref?.split('/').at(-1);
 function fail(module,message){throw new Error(`contracts/modules/${module.module}.json: ${message}`);}
 function parameters(operation){return operation.parameters??[];}
 function hasParameter(operation,name){return parameters(operation).some(parameter=>parameter.name===name);}
+function hasRequiredHeader(operation,name){return parameters(operation).some(parameter=>parameter.name===name&&parameter.in==='header'&&parameter.required===true);}
 function isCollection(path){const segment=path.split('/').filter(Boolean).at(-1)??'';return !segment.startsWith('{')&&!segment.includes('actions')&&segment.endsWith('s');}
 function visitSchema(schema,callback){
   if(!schema||typeof schema!=='object')return;
@@ -33,13 +34,14 @@ export function validateModuleStandards(module,base){
       if(normalized==='delete')fail(module,`${path} must not use DELETE`);
       if(path.includes('/actions/')&&normalized!=='post')fail(module,`${path} action transitions must use POST`);
       if(!operation?.operationId)fail(module,`${path} ${method} requires operationId`);
-      for(const key of ['x-permissions','x-stage','x-implementation-status','x-version-resource','x-owner']){
+      for(const key of ['x-permissions','x-stage','x-baseline-tier','x-implementation-status','x-version-resource','x-owner']){
         if(operation[key]===undefined||operation[key]===null||operation[key]==='')fail(module,`${operation.operationId} requires ${key}`);
       }
       if(!Array.isArray(operation['x-permissions']))fail(module,`${operation.operationId} x-permissions must be an array`);
+      if(!['A','B'].includes(operation['x-baseline-tier']))fail(module,`${operation.operationId} x-baseline-tier must be A or B`);
       if(!operation['x-examples']?.success||!operation['x-examples']?.rejected)fail(module,`${operation.operationId} requires success and rejected x-examples`);
       if(writes.has(normalized)&&!hasParameter(operation,'Idempotency-Key'))fail(module,`${operation.operationId} write requires Idempotency-Key`);
-      if(['put','patch'].includes(normalized)&&!hasParameter(operation,'If-Match'))fail(module,`${operation.operationId} modification requires If-Match`);
+      if(['put','patch'].includes(normalized)&&!hasRequiredHeader(operation,'If-Match'))fail(module,`${operation.operationId} modification requires a required If-Match header`);
       if(normalized==='get'&&isCollection(path)){
         if(!hasParameter(operation,'limit')||!hasParameter(operation,'cursor'))fail(module,`${operation.operationId} list requires limit and cursor`);
         const schema=operation.responses?.['200']?.content?.['application/json']?.schema;
@@ -51,6 +53,18 @@ export function validateModuleStandards(module,base){
         if(/^[45]/.test(code)&&!response?.$ref)fail(module,`${operation.operationId} ${code} must reference a common error response`);
       }
     }
+  }
+  const recorded=module['x-recorded-operations']??[];
+  if(!Array.isArray(recorded))fail(module,'x-recorded-operations must be an array');
+  for(const operation of recorded){
+    const method=operation?.method?.toLowerCase();
+    if(!method||!operation?.path||!base.paths?.[operation.path]?.[method])fail(module,`${operation?.operationId??'recorded operation'} must match an existing path and method`);
+    for(const key of ['operationId','x-permissions','x-stage','x-baseline-tier','x-implementation-status','x-version-resource','x-owner']){
+      if(operation[key]===undefined||operation[key]===null||operation[key]==='')fail(module,`${operation?.operationId??'recorded operation'} requires ${key}`);
+    }
+    if(!Array.isArray(operation['x-permissions']))fail(module,`${operation.operationId} x-permissions must be an array`);
+    if(!['A','B'].includes(operation['x-baseline-tier']))fail(module,`${operation.operationId} x-baseline-tier must be A or B`);
+    if(!operation['x-examples']?.success||!operation['x-examples']?.rejected)fail(module,`${operation.operationId} requires success and rejected x-examples`);
   }
   for(const [name,schema] of Object.entries(module.components?.schemas??{})){
     visitSchema(schema,node=>{

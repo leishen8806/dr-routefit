@@ -39,3 +39,14 @@
 - 规划的「自动排线」未确定是否使用地图服务。此契约指定本地确定性启发式（容量、时间段、超长件与车型约束），不调用地图、导航或距离 API；因此不需要密钥。
 - 规划列出 5 个出款审批接口；为将已存在的提现与商户结算纳入同一两步链，额外定义两个受控「创建审批」动作。它们只建立本地审批记录，不触发实际支付。
 - 工资扣款配置默认为 `enabled: false`；所有工资、KPI、车辆和计酬数字均为后台可改的示例配置，历史工资单与结果记录所用版本。
+
+## 基准路径差异映射（A 组，待 Q-V1 裁定）
+
+以下路径在接口基准文件落盘前已建立。仅记录映射，不自行改名、补路径或接线；当前均未接入 HTTP handler。
+
+| 现有路径与方法 | 基准路径与方法 | 差异原因 | 影响面（页面 / handler） |
+| --- | --- | --- | --- |
+| `GET, POST /api/ops/v1/payroll/schemes` | `GET, POST /api/ops/v1/payroll/pay-schemes` | 资源名采用早期 `schemes`，基准新增 `pay-schemes` 命名。 | 财务「工资规则」列表、新建 / 未接线 |
+| `POST /api/ops/v1/payroll/schemes/{schemeId}/actions/submit` | 基准未列该动作 | 当前版本化流程显式区分提交与批准；基准仅列批准。 | 财务「工资规则」提交审批 / 未接线 |
+| `POST /api/ops/v1/kpi/monthly-results/{resultId}/reward-penalties` | `GET, POST /api/ops/v1/kpi/reward-penalties` | 当前将奖惩创建嵌套在月度结果下，基准改为顶层资源并新增列表。 | KPI 月度结果详情「新增奖惩」 / 未接线 |
+| `POST /api/driver/v1/kpi/monthly-results/{resultId}/appeals` | `GET, POST /api/driver/v1/kpi/appeals` | 当前申诉创建嵌套在结果下，基准改为司机端顶层申诉资源并新增列表。 | 司机端 KPI 月度结果「发起申诉」 / 未接线 |

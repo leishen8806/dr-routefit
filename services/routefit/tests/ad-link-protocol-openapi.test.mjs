@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
 const specification = new URL('../../../contracts/openapi.json', import.meta.url);
-const approvedTargetPattern = '^(?:https://[^\\s/]+(?:/[^\\s]*)?|/(?!/)[^\\s]*)$';
+const approvedTargetPattern = '^(?:https://[^\\s/]+(?:/[^\\s]*)?|/(?![/\\\\])[^\\s\\\\]*)$';
 
 test('ad link schemas only allow HTTPS targets or single-slash in-app paths', async () => {
   const document = JSON.parse(await readFile(specification, 'utf8'));
@@ -24,5 +24,7 @@ test('ad link schemas only allow HTTPS targets or single-slash in-app paths', as
     assert.equal(matcher.test('data:text/html;base64,AAAA'), false);
     assert.equal(matcher.test('http://outside.example/path'), false);
     assert.equal(matcher.test('//outside.example/path'), false);
+    assert.equal(matcher.test('/\\outside.example/path'), false);
+    assert.equal(matcher.test('/\\/outside.example/path'), false);
   }
 });
