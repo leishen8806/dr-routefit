@@ -79,7 +79,7 @@
 | `GET /api/ops/v1/webhook-endpoints` | 回调地址列表 | OpsLead | 同上 | 已定义 |
 | `POST /api/ops/v1/webhook-endpoints` | 创建回调地址 | OpsLead | 同上 | 已定义 |
 | `POST /api/ops/v1/webhook-endpoints/{id}/actions/test` | 测试回调 | OpsLead | 同上 | 待定义 |
-| `GET /api/ops/v1/webhook-deliveries` | 回调投递记录 | OpsLead | 同上 | 待定义 |
+| `GET /api/ops/v1/webhook-deliveries` | 回调投递记录 | OpsLead | 同上 | 已定义 |
 | `POST /api/ops/v1/webhook-deliveries/{id}/actions/retry` | 重试回调 | OpsLead | 同上 | 待定义 |
 | `GET /api/ops/v1/api-call-logs` | 开放接口调用日志 | OpsLead | 同上 | 已定义 |
 | `GET /api/ops/v1/ad-campaigns` | 后台广告位列表 | OpsLead | 同上 | 已定义 |

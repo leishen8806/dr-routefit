@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import {assembleContract, validateModuleStandards} from '../../../scripts/build-contract-modules.mjs';
 
-const base={openapi:'3.1.0',info:{title:'test',version:'1'},paths:{},components:{schemas:{Money:{type:'object'},Error:{type:'object'}},responses:{BadRequest:{description:'bad'},Unauthorized:{description:'unauthorized'},Forbidden:{description:'forbidden'},NotFound:{description:'not found'},TooManyRequests:{description:'rate limited'},ServiceUnavailable:{description:'unavailable'}}}};
+const base={openapi:'3.1.0',info:{title:'test',version:'1'},paths:{},components:{parameters:{Language:{name:'Accept-Language',in:'header'},IdempotencyKey:{name:'Idempotency-Key',in:'header',required:true,schema:{type:'string',minLength:16,maxLength:128}},IfMatch:{name:'If-Match',in:'header',required:true},Limit:{name:'limit',in:'query'},Cursor:{name:'cursor',in:'query'},Csrf:{name:'X-CSRF-Token',in:'header',required:true}},schemas:{Money:{type:'object'},Error:{type:'object'}},responses:{BadRequest:{description:'bad'},Unauthorized:{description:'unauthorized'},Forbidden:{description:'forbidden'},NotFound:{description:'not found'},TooManyRequests:{description:'rate limited'},ServiceUnavailable:{description:'unavailable'}}}};
 const operation={
   operationId:'listRoutePlans',summary:'List route plans',
   'x-permissions':['dispatch:read'],'x-stage':'R2','x-baseline-tier':'A','x-implementation-status':'DESIGNED_NOT_DEPLOYED','x-version-resource':'read only','x-owner':'BackendSenior',
@@ -31,14 +31,13 @@ test('enforces the eight baseline rules for module operations',()=>{
   assert.throws(()=>validateModuleStandards({...module,paths:{'/api/ops/v1/Route Plans':{get:operation}}},base),/lowercase/);
 });
 
-test('common contract exposes reusable request and success response definitions',()=>{
-  const common=JSON.parse(readFileSync(new URL('../../../contracts/common.json',import.meta.url)));
-  assert.equal(common.components.parameters.AcceptLanguage.name,'Accept-Language');
-  assert.equal(common.components.parameters.IdempotencyKey.name,'Idempotency-Key');
-  assert.deepEqual({min:common.components.parameters.IdempotencyKey.schema.minLength,max:common.components.parameters.IdempotencyKey.schema.maxLength},{min:16,max:128});
-  assert.equal(common.components.headers.XRequestId.schema.type,'string');
-  assert.equal(common.components.headers.CacheControl.schema.const,'no-store');
-  assert.equal(common.components.headers.ETag.schema.type,'string');
+test('shared OpenAPI contract exposes reusable public parameters',()=>{
+  const spec=JSON.parse(readFileSync(new URL('../../../contracts/openapi.json',import.meta.url)));
+  const parameters=spec.components.parameters;
+  assert.deepEqual(Object.keys(parameters).sort(),['Csrf','Cursor','IdempotencyKey','IfMatch','Language','Limit']);
+  assert.equal(parameters.Language.name,'Accept-Language');
+  assert.equal(parameters.IdempotencyKey.name,'Idempotency-Key');
+  assert.deepEqual({min:parameters.IdempotencyKey.schema.minLength,max:parameters.IdempotencyKey.schema.maxLength},{min:16,max:128});
 });
 
 test('rejects missing idempotency, versioning, pagination, money, errors, metadata, and examples',()=>{
@@ -69,9 +68,9 @@ test('requires an A or B tier and a required If-Match header for mutations',()=>
   assert.throws(()=>validateModuleStandards(valid,base),/x-baseline-tier/);
 });
 
-test('resolves common parameter references before checking write requirements',()=>{
+test('resolves shared OpenAPI parameter references before checking write requirements',()=>{
   const module={module:'dispatch',paths:{'/api/ops/v1/route-plan':{post:{...structuredClone(operation),parameters:[
-    {$ref:'../common.json#/components/parameters/IdempotencyKey'}
+    {$ref:'#/components/parameters/IdempotencyKey'}
   ]}}},components:{schemas:{}}};
   assert.doesNotThrow(()=>validateModuleStandards(module,base));
 });
