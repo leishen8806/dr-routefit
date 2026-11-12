@@ -6,7 +6,7 @@ import {developmentAuth,developmentServiceAuth} from './adapters/development-aut
 import {assertRuntimeRole} from './adapters/postgres.mjs';
 import {localBrowser} from './adapters/local-browser.mjs';
 import {fileURLToPath} from 'node:url';
-import {mockLogin,mockLoginEnabled} from './adapters/mock-login.mjs';
+import {mockLogin,mockLoginEnabled,parseMockLoginRateLimit} from './adapters/mock-login.mjs';
 import {rateLimit} from './application/http.mjs';
 import {prepareEvidenceDirectory} from './evidence-directory.mjs';
 
@@ -32,7 +32,7 @@ if(!Number.isInteger(requestRateLimit)||requestRateLimit<1)throw new Error('Inva
 // Mock login (CMP-1464): fixed-code, development only. Off unless NODE_ENV=development|test AND ROUTEFIT_MOCK_LOGIN=1; production already aborted above.
 const mockLimits=new Map();
 // Example default (configurable): 10 attempts per minute; ROUTEFIT_MOCK_LOGIN_RATE_LIMIT overrides within 1..1000.
-const mockLoginRateLimit=(n=>Number.isInteger(n)&&n>=1&&n<=1000?n:10)(Number(process.env.ROUTEFIT_MOCK_LOGIN_RATE_LIMIT));
+const mockLoginRateLimit=parseMockLoginRateLimit(process.env.ROUTEFIT_MOCK_LOGIN_RATE_LIMIT);
 const identities=sessions.filter(s=>s.mockLogin&&['driver','customer'].includes(s.mockLogin.audience)).map(s=>({audience:s.mockLogin.audience,phone:s.mockLogin.phone,tokenHash:s.tokenHash}));
 const mockLoginHandler=mockLoginEnabled()?mockLogin({identities,authenticate,rateLimit:key=>rateLimit(mockLimits,String(key),mockLoginRateLimit)}):undefined;
 const server=apiServer({pool,authenticate,mockLogin:mockLoginHandler,serviceAuthenticate,localAccess,evidenceDirectory,origin,recipientCodeSender,requestRateLimit,log:entry=>console.log(JSON.stringify(entry))});

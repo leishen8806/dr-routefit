@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Readable} from 'node:stream';
-import {mockLogin,mockLoginEnabled,MOCK_LOGIN_CODE} from '../adapters/mock-login.mjs';
+import {mockLogin,mockLoginEnabled,parseMockLoginRateLimit,MOCK_LOGIN_CODE} from '../adapters/mock-login.mjs';
 import {developmentAuth,digest} from '../adapters/development-auth.mjs';
 
 const origin='http://127.0.0.1:4180';
@@ -113,4 +113,9 @@ test('SEC-3: mock session permissions are trimmed to the audience',async()=>{
  const mixed2=session('customer',['portal:orders:read','orders:read','finance:export']);
  const a2=developmentAuth([mixed2],origin);
  assert.deepEqual(a2.issueMock(mixed2.tokenHash,'customer').session.permissions,['portal:orders:read']);
+});
+
+test('ROUTEFIT_MOCK_LOGIN_RATE_LIMIT: invalid values fall back to the example default 10, valid 1..1000 pass through',()=>{
+  for(const bad of [undefined,'','abc','0','1001','1e9','-5','7.5'])assert.equal(parseMockLoginRateLimit(bad),10,String(bad));
+  for(const [raw,want] of [['1',1],['50',50],['1000',1000]])assert.equal(parseMockLoginRateLimit(raw),want);
 });

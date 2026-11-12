@@ -1,4 +1,4 @@
-﻿# 模拟登录接口（司机端、客户端）v0.1 · 示例
+# 模拟登录接口（司机端、客户端）v0.1 · 示例
 
 仅开发环境。固定验证码，不调用真实短信或 Telegram，不读写真实凭据。生产环境必须关闭（见下）。
 
@@ -26,4 +26,4 @@
 资源名按第 1 条用复数：`mock-sessions`（创建一个模拟会话）。
 
 ## OpenAPI
-已写入 `contracts/openapi.json` 的 `/api/driver/v1/auth/mock-sessions` 与 `/api/customer/v1/auth/mock-sessions`，含 x-permissions / x-stage / x-implementation-status / x-version-resource / x-owner 与成功、拒绝示例。
+已写入 `contracts/modules/auth.json`（不改 `contracts/openapi.json`）的 `/api/driver/v1/auth/mock-sessions` 与 `/api/customer/v1/auth/mock-sessions`，含 x-permissions / x-stage / x-implementation-status / x-version-resource / x-owner 与成功、拒绝示例。

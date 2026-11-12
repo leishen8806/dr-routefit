@@ -7,6 +7,7 @@ export const MOCK_LOGIN_PATHS={'/api/driver/v1/auth/mock-sessions':'driver','/ap
 const phonePattern=/^\+?[0-9]{6,15}$/;
 
 // Fail closed: every condition must be explicitly present. Missing NODE_ENV counts as "not development".
+export function parseMockLoginRateLimit(raw){const n=Number(raw);return Number.isInteger(n)&&n>=1&&n<=1000?n:10;}
 export function mockLoginEnabled(env=process.env){
  return ['development','test'].includes(env.NODE_ENV)&&env.ROUTEFIT_AUTH_MODE==='development'&&env.ROUTEFIT_MOCK_LOGIN==='1';
 }
