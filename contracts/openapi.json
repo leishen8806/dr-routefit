@@ -34837,7 +34837,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver",
         "x-owner": "Backend2",
         "parameters": [
@@ -34924,7 +34924,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "undelivered-reason",
         "x-owner": "Backend2",
         "parameters": [
@@ -35005,7 +35005,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "undelivered-reason",
         "x-owner": "Backend2",
         "parameters": [
@@ -35070,7 +35070,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "cash-limit-policy",
         "x-owner": "Backend2",
         "parameters": [
@@ -35151,7 +35151,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "cash-limit-policy",
         "x-owner": "Backend2",
         "parameters": [
@@ -35216,7 +35216,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver-application",
         "x-owner": "Backend2",
         "parameters": [
@@ -35281,7 +35281,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver-application",
         "x-owner": "Backend2",
         "responses": {
@@ -35334,7 +35334,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver-application",
         "x-owner": "Backend2",
         "parameters": [
@@ -35399,7 +35399,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver-profile",
         "x-owner": "Backend2",
         "responses": {
@@ -35452,7 +35452,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver-availability",
         "x-owner": "Backend2",
         "parameters": [
@@ -35516,7 +35516,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver-availability",
         "x-owner": "Backend2",
         "parameters": [
@@ -35580,7 +35580,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "assignment",
         "x-owner": "Backend2",
         "responses": {
