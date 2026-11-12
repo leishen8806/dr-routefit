@@ -699,5 +699,208 @@
         }
       }
     }
-  }
+  },
+  "x-recorded-operations": [
+    {
+      "operationId": "openCreateQuote",
+      "path": "/api/open/v1/quotes",
+      "method": "POST",
+      "description": "开放接口：创建报价。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:quotes:create"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenQuote",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "chargeableWeightGrams": 1500,
+            "totalMinor": 2500,
+            "currency": "USD",
+            "expiresAt": "2026-11-12T04:00:00Z",
+            "configurationVersion": 1
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "openCreateOrder",
+      "path": "/api/open/v1/orders",
+      "method": "POST",
+      "description": "开放接口：创建订单。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:orders:create"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenOrder",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c41",
+            "version": 1,
+            "externalOrderId": "EXT-DEMO-001",
+            "orderId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c42",
+            "state": "pending_review",
+            "duplicate": false
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "openGetOrder",
+      "path": "/api/open/v1/orders/{orderId}",
+      "method": "GET",
+      "description": "开放接口：查询订单。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:orders:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenOrder",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c41",
+            "version": 1,
+            "externalOrderId": "EXT-DEMO-001",
+            "orderId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c42",
+            "state": "pending_review",
+            "duplicate": false
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "openCancelOrder",
+      "path": "/api/open/v1/orders/{orderId}/actions/cancel",
+      "method": "POST",
+      "description": "开放接口：取消订单。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:orders:cancel"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenOrder",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c41",
+            "version": 1,
+            "externalOrderId": "EXT-DEMO-001",
+            "orderId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c42",
+            "state": "pending_review",
+            "duplicate": false
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "openGetTracking",
+      "path": "/api/open/v1/orders/{orderId}/tracking",
+      "method": "GET",
+      "description": "开放接口：订单跟踪。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:tracking:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenOrder",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "orderLabel": "DEMO-001",
+            "state": "in_transit",
+            "promiseWindow": null,
+            "etaAt": null,
+            "etaType": "UNAVAILABLE",
+            "updatedAt": "2026-11-12T03:00:00Z",
+            "quality": "fresh",
+            "contactEntry": "https://example.invalid/contact"
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    }
+  ]
 }
