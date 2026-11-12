@@ -75,6 +75,20 @@ test('resolves shared OpenAPI parameter references before checking write require
   assert.doesNotThrow(()=>validateModuleStandards(module,base));
 });
 
+test('requires a matching header when same-name query and header parameters coexist',()=>{
+  const patch={...structuredClone(operation),parameters:[
+    {name:'Idempotency-Key',in:'header',required:true},
+    {name:'If-Match',in:'query',required:true},
+    {$ref:'#/components/parameters/IfMatch'}
+  ]};
+  const module={module:'dispatch',paths:{'/api/ops/v1/route-plan/{id}':{patch}},components:{schemas:{}}};
+  assert.doesNotThrow(()=>validateModuleStandards(module,base));
+
+  const queryOnly=structuredClone(module);
+  queryOnly.paths['/api/ops/v1/route-plan/{id}'].patch.parameters.pop();
+  assert.throws(()=>validateModuleStandards(queryOnly,base),/required If-Match header/);
+});
+
 test('validates recorded legacy operations before they can be claimed by a module',()=>{
   const legacyBase=structuredClone(base);
   legacyBase.paths['/api/ops/v1/finance/payout-approvals']={get:{operationId:'listPayoutApprovals'}};

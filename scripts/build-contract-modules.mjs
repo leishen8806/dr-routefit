@@ -15,7 +15,7 @@ function resolveParameter(parameter,base){
   return base?.components?.parameters?.[refName(parameter.$ref)];
 }
 function hasParameter(operation,name,base){return parameters(operation).some(parameter=>resolveParameter(parameter,base)?.name===name);}
-function hasRequiredHeader(operation,name,base){const parameter=parameters(operation).map(parameter=>resolveParameter(parameter,base)).find(parameter=>parameter?.name===name);return parameter?.in==='header'&&parameter.required===true;}
+function hasRequiredHeader(operation,name,base){return parameters(operation).map(parameter=>resolveParameter(parameter,base)).some(parameter=>parameter?.name===name&&parameter?.in==='header'&&parameter.required===true);}
 function isCollection(path){const segment=path.split('/').filter(Boolean).at(-1)??'';return !segment.startsWith('{')&&!segment.includes('actions')&&segment.endsWith('s');}
 function visitSchema(schema,callback){
   if(!schema||typeof schema!=='object')return;
