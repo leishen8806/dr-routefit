@@ -4,7 +4,12 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
-    "test": "node --test src/*.test.mjs"
+    "start": "expo start --web",
+    "lint": "expo lint",
+    "prepare:fonts": "node scripts/copy-fonts.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test src/*.test.mjs",
+    "build:web": "npm run prepare:fonts && expo export --platform web && node scripts/verify-web-export.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~58.0.17",
