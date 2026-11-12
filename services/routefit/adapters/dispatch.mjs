@@ -7,6 +7,24 @@ import {admission} from './prepayment.mjs';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const vehicleView=row=>({id:row.id,version:Number(row.version),label:row.label,kind:row.kind,specVersionId:row.spec_version_id,state:row.state,maxPayloadKg:Number(row.max_payload_kg),internalLengthCm:Number(row.internal_length_cm),internalWidthCm:Number(row.internal_width_cm),internalHeightCm:Number(row.internal_height_cm),doorWidthCm:Number(row.door_width_cm),doorHeightCm:Number(row.door_height_cm)});
 
+export async function writeOptimizationRun(client,principal,input,plan,idempotencyKey){
+ ensure(Array.isArray(input?.orderIds)&&input.orderIds.length>0&&input.orderIds.every(id=>uuid.test(id)),422,'OPTIMIZATION_INPUT_INVALID','自动排线订单输入无效');
+ ensure(Array.isArray(input?.vehicleIds)&&input.vehicleIds.length>0&&input.vehicleIds.every(id=>uuid.test(id)),422,'OPTIMIZATION_INPUT_INVALID','自动排线车辆输入无效');
+ ensure(typeof idempotencyKey==='string'&&/^[\x21-\x7e]{16,128}$/.test(idempotencyKey),428,'IDEMPOTENCY_REQUIRED','自动排线需要有效幂等键');
+ ensure(Array.isArray(plan?.routes)&&Array.isArray(plan?.unassignedOrderIds),422,'OPTIMIZATION_RESULT_INVALID','自动排线结果无效');
+ ensure(Array.isArray(input?.orders)&&input.orders.length===input.orderIds.length&&input.orders.every(order=>input.orderIds.includes(order.id)&&Number.isFinite(order.volume)&&order.volume>=0&&typeof order.slot==='string'&&order.slot.length>0&&(order.requiredVehicleType===null||typeof order.requiredVehicleType==='string')),422,'OPTIMIZATION_INPUT_INVALID','Optimization order snapshot is incomplete');
+ ensure(Array.isArray(input?.vehicles)&&input.vehicles.length===input.vehicleIds.length&&input.vehicles.every(vehicle=>input.vehicleIds.includes(vehicle.id)&&typeof vehicle.type==='string'&&vehicle.type.length>0&&Number.isFinite(vehicle.capacityVolume)&&vehicle.capacityVolume>=0&&Number.isFinite(vehicle.maxPayloadKg)&&vehicle.maxPayloadKg>=0&&Array.isArray(vehicle.availableSlots)&&vehicle.availableSlots.every(slot=>typeof slot==='string'&&slot.length>0)),422,'OPTIMIZATION_INPUT_INVALID','Optimization vehicle snapshot is incomplete');
+ const snapshot={orderIds:[...input.orderIds],vehicleIds:[...input.vehicleIds],orders:input.orders.map(order=>({id:order.id,volume:order.volume,slot:order.slot,requiredVehicleType:order.requiredVehicleType??null})),vehicles:input.vehicles.map(vehicle=>({id:vehicle.id,type:vehicle.type,capacityVolume:vehicle.capacityVolume,maxPayloadKg:vehicle.maxPayloadKg,availableSlots:[...vehicle.availableSlots]}))};
+ const id=randomUUID(),createdAt=new Date().toISOString(),result={id,version:1,state:'generated',input:snapshot,routes:plan.routes.map(route=>({...route,orderIds:[...route.orderIds]})),unassignedOrderIds:[...plan.unassignedOrderIds],createdAt};
+ await client.query('INSERT INTO dispatch.optimization_run(id,company_id,state,version,idempotency_key,requested_by_principal_id,input_snapshot,result_snapshot) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[id,principal.companyId,result.state,result.version,idempotencyKey,principal.principalId,result.input,result]);
+ let sequenceNo=1;
+ for(const route of result.routes){
+  ensure(uuid.test(route.vehicleId)&&typeof route.slot==='string'&&route.slot.length>0&&Array.isArray(route.orderIds)&&route.orderIds.every(orderId=>uuid.test(orderId))&&Number.isInteger(route.usedVolume)&&route.usedVolume>=0,422,'OPTIMIZATION_RESULT_INVALID','自动排线路线无效');
+  await client.query('INSERT INTO dispatch.optimization_route(id,company_id,optimization_run_id,vehicle_id,slot,sequence_no,order_ids,used_volume,snapshot) VALUES($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9)',[randomUUID(),principal.companyId,id,route.vehicleId,route.slot,sequenceNo++,JSON.stringify(route.orderIds),route.usedVolume,route]);
+ }
+ return result;
+}
+
 export function dispatchQuery(url,principal){
  if(url.pathname.endsWith('/dispatch/board')){
   for(const key of url.searchParams.keys())ensure(['queue','warehouseId'].includes(key)&&url.searchParams.getAll(key).length===1,422,'INVALID_QUERY','查询参数不支持或重复');

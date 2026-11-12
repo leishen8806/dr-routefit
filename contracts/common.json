@@ -1,0 +1,34 @@
+{
+  "components": {
+    "parameters": {
+      "AcceptLanguage": {
+        "name": "Accept-Language",
+        "in": "header",
+        "required": false,
+        "description": "Preferred response language; unsupported values fall back to the user preference and zh-Hans.",
+        "schema": { "type": "string", "enum": ["km", "en", "zh-Hans"] }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "Stable key for one business write and its retries.",
+        "schema": { "type": "string", "minLength": 16, "maxLength": 128 }
+      }
+    },
+    "headers": {
+      "XRequestId": {
+        "description": "Server-generated request trace identifier.",
+        "schema": { "type": "string" }
+      },
+      "CacheControl": {
+        "description": "Private and write responses must not be stored by shared caches.",
+        "schema": { "type": "string", "const": "no-store" }
+      },
+      "ETag": {
+        "description": "Current resource version for conditional modifications.",
+        "schema": { "type": "string" }
+      }
+    }
+  }
+}
