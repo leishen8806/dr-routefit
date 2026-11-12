@@ -10,7 +10,7 @@ export function Frontend2Page({ pageId }: { pageId: string }) {
   const [confirmation, setConfirmation] = useState<string | null>(null);
   const confirmationType = requiresConfirmation(page.action);
   return <AdminPage title={page.title} description={page.description}>
-    {page.id === 'finance' && <View style={styles.tabs}>{financeTabs.map((tab) => <Pressable key={tab} onPress={() => setActiveTab(tab)} style={[styles.tab, activeTab === tab && styles.activeTab]}><Text style={styles.tabText}>{tab}</Text></Pressable>)}</View>}
+    {page.id === 'finance' && <View style={styles.tabs}>{financeTabs.map((tab) => <Pressable key={tab} onPress={() => setActiveTab(tab)} style={[styles.tab, activeTab === tab && styles.activeTab]}><Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text></Pressable>)}</View>}
     <Panel title={page.id === 'finance' ? activeTab : '示例配置'}><Text style={styles.detail}>{page.detail}</Text>{confirmationType && <Pressable accessibilityRole="button" onPress={() => setConfirmation(confirmationType)} style={styles.action}><Text style={styles.actionText}>{page.action}</Text></Pressable>}</Panel>
     {confirmation && <Panel title="确认示例操作"><Text style={styles.detail}>确认类型：{confirmation}。此操作仅为示例，不调用真实支付或银行接口。</Text><Pressable accessibilityRole="button" onPress={() => setConfirmation(null)} style={styles.cancel}><Text style={styles.cancelText}>取消</Text></Pressable></Panel>}
   </AdminPage>;
@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
   tab: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, minHeight: 40, paddingHorizontal: designTokens.space.x3, justifyContent: 'center' },
   activeTab: { backgroundColor: designTokens.color.navy },
   tabText: { color: designTokens.color.ink, fontSize: designTokens.type.size.small, fontWeight: '500' },
+  activeTabText: { color: designTokens.color.surface },
   detail: { color: designTokens.color.muted, fontSize: designTokens.type.size.body, lineHeight: 24 },
   action: { alignSelf: 'flex-start', backgroundColor: designTokens.color.teal, borderRadius: designTokens.radius.small, marginTop: designTokens.space.x4, minHeight: 44, paddingHorizontal: designTokens.space.x4, justifyContent: 'center' },
   actionText: { color: designTokens.color.navy, fontWeight: '600' },
