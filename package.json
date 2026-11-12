@@ -1,0 +1,13 @@
+{
+  "name": "dr-routefit-clients",
+  "private": true,
+  "workspaces": [
+    "apps/driver",
+    "apps/customer",
+    "apps/admin",
+    "packages/shared"
+  ],
+  "scripts": {
+    "test:shared": "npm test --workspace @routefit/shared"
+  }
+}

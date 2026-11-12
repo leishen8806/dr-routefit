@@ -1,0 +1,162 @@
+{
+  "module": "ops-ad-campaigns",
+  "description": "CMP-1326（OpsLead）模块契约；第一版实现状态 PLANNED，待 Reviewer3 复核。",
+  "paths": {
+    "/api/ops/v1/ad-campaigns/{campaignId}": {
+      "get": {
+        "operationId": "getAdCampaign",
+        "summary": "广告详情",
+        "description": "广告详情。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdCampaign"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "ads:read"
+        ],
+        "x-stage": "R2",
+        "x-tier": "B",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "AdCampaign",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "placement": "driver",
+              "app": "driver",
+              "title": "Demo campaign (sample)",
+              "imageRef": "https://example.invalid/ads/demo.png",
+              "linkTarget": "/promo/demo",
+              "startsAt": "2026-11-20T00:00:00Z",
+              "endsAt": "2026-11-30T00:00:00Z",
+              "maxPerUserPerDay": 3,
+              "audience": {},
+              "state": "draft",
+              "version": 1,
+              "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "reviewedBy": null,
+              "createdAt": "2026-11-12T03:00:00Z"
+            }
+          },
+          "rejected": {
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Not found (sample)",
+                "messageKey": "error.not_found",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-recorded-operations": [
+    {
+      "operationId": "patchAdCampaign",
+      "path": "/api/ops/v1/ad-campaigns/{campaignId}",
+      "method": "PATCH",
+      "x-permissions": [
+        "ads:write"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+            "placement": "home_banner",
+            "app": "driver",
+            "title": "示例广告",
+            "state": "draft",
+            "version": 2
+          }
+        },
+        "rejected": {
+          "status": 412,
+          "body": {
+            "code": "VERSION_CONFLICT",
+            "retryable": false,
+            "requestId": "req-示例-0001"
+          }
+        }
+      }
+    }
+  ]
+}

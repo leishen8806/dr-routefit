@@ -1,0 +1,9 @@
+---
+import type { SiteCopy, Language } from '../content/types';
+import FullpageHome from './fullpage/FullpageHome.astro';
+import './fullpage/fullpage.css';
+
+interface Props { lang: Language; copy: SiteCopy }
+const { lang, copy } = Astro.props;
+---
+<FullpageHome {lang} {copy} />
