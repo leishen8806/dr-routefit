@@ -11,6 +11,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const FROZEN_MAX = 64;
+export const MAX_NUMBER = 999; // migration numbers are exactly 3 digits (NAME_RE)
 const NAME_RE = /^(\d{3})_[A-Za-z0-9_.-]+\.sql$/;
 
 export function checkNames(files) {
@@ -38,7 +39,8 @@ export function parseExemptions(text) {
   const ranges = [];
   data.forEach((x, i) => {
     const from = x?.from, to = x?.to ?? x?.from;
-    if (!Number.isInteger(from) || !Number.isInteger(to) || to < from) errors.push(`exemption[${i}]: from/to must be integers, to>=from`);
+    const inRange = (v) => Number.isSafeInteger(v) && v >= 1 && v <= MAX_NUMBER;
+    if (!inRange(from) || !inRange(to) || to < from) errors.push(`exemption[${i}]: from/to must be safe integers within 1..${MAX_NUMBER}, to>=from`);
     else if (!x.reason || !/^CMP-\d+$/.test(x.approvedBy ?? '')) errors.push(`exemption[${i}]: reason and approvedBy (CMP-xxxx) are required`);
     else ranges.push([from, to]);
   });
@@ -54,7 +56,8 @@ export function checkGaps(numbers, ranges) {
   const missing = [];
   for (let n = 1; n <= max; n++) if (!have.has(n) && !covered(n)) missing.push(String(n).padStart(3, '0'));
   if (missing.length) errors.push(`missing numbers (add the file or list them in the exemption file with reason + approvedBy): ${missing.join(', ')}`);
-  for (const [a, b] of ranges) for (let n = a; n <= b; n++) if (have.has(n)) errors.push(`stale exemption: ${String(n).padStart(3, '0')} now exists`);
+  // iterate existing numbers (bounded), never the exemption range itself
+  for (const n of numbers) if (covered(n)) errors.push(`stale exemption: ${String(n).padStart(3, '0')} now exists`);
   return errors;
 }
 
