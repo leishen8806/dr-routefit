@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { designTokens } from '@routefit/shared';
 import { AdminPage, Panel } from '../src/AdminPage';
 import {
   getOperationsDrawerAccessibility,
@@ -46,16 +47,16 @@ export function OperationsPage({ pageId, configuredPages }: OperationsPageProps)
 
 const styles = StyleSheet.create({
   table: { gap: 1 },
-  row: { backgroundColor: '#F8FAFC', flexDirection: 'row', flexWrap: 'wrap', gap: 12, padding: 12 },
-  header: { backgroundColor: '#EAF0F5' },
-  headerText: { color: '#0B2545', flexGrow: 1, fontSize: 14, fontWeight: '600', minWidth: 108 },
-  cell: { color: '#314559', flexGrow: 1, fontSize: 14, fontWeight: '400', lineHeight: 22, minWidth: 108 },
-  note: { color: '#59697A', fontSize: 13, fontWeight: '400', lineHeight: 20, marginTop: 14 },
-  unavailable: { color: '#8A2C0D', fontSize: 13, fontWeight: '500', lineHeight: 20, marginTop: 12 },
+  row: { backgroundColor: designTokens.color.surface, flexDirection: 'row', flexWrap: 'wrap', gap: 12, padding: 12 },
+  header: { backgroundColor: designTokens.color.background },
+  headerText: { color: designTokens.color.navy, flexGrow: 1, fontSize: 14, fontWeight: '600', minWidth: 108 },
+  cell: { color: designTokens.color.ink, flexGrow: 1, fontSize: 14, fontWeight: '400', lineHeight: 22, minWidth: 108 },
+  note: { color: designTokens.color.muted, fontSize: 13, fontWeight: '400', lineHeight: 20, marginTop: 14 },
+  unavailable: { color: designTokens.color.navy, fontSize: 13, fontWeight: '500', lineHeight: 20, marginTop: 12 },
   detail: { gap: 12 },
   detailRow: { gap: 4 },
-  detailLabel: { color: '#59697A', fontSize: 13, fontWeight: '500' },
-  detailValue: { color: '#0B2545', fontSize: 16, fontWeight: '400', lineHeight: 24 },
-  closeButton: { alignSelf: 'flex-start', backgroundColor: '#0B6B6B', borderRadius: 8, minHeight: 44, paddingHorizontal: 16, paddingVertical: 11 },
-  closeButtonText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+  detailLabel: { color: designTokens.color.muted, fontSize: 13, fontWeight: '500' },
+  detailValue: { color: designTokens.color.navy, fontSize: 16, fontWeight: '400', lineHeight: 24 },
+  closeButton: { alignSelf: 'flex-start', backgroundColor: designTokens.color.navy, borderRadius: 8, minHeight: 44, paddingHorizontal: 16, paddingVertical: 11 },
+  closeButtonText: { color: designTokens.color.surface, fontSize: 14, fontWeight: '600' },
 });
