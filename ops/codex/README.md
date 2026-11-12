@@ -14,7 +14,7 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 
 ## 硬规则（摘自 PRD 附录 D 与开发标准）
 
-- 一张卡一个分支、一个 PR；分支名 `<类型>/<任务编号>-<简述>`，提交信息以任务编号开头。
+- 一个批次一个分支、一个 PR。同一模块、同一风险等级、同一套验收步骤的卡可以合并成一个批次（一个 issue）；涉及身份认证、资金与 KESS、数据库迁移、删除数据的高风险卡单独成批，不与其他卡合并。一个 PR 只覆盖一个验收场景，代码改动控制在约 500 行以内；PR 描述按卡逐项写 PASS／FAIL／NOT_RUN。分支名 `<类型>/<任务编号>-<简述>`，提交信息以任务编号开头。
 - 测试结果写 PASS／FAIL／NOT_RUN，NOT_RUN 必须说明原因；Mock 通过不能代替真机、银行或地图验证。
 - 只用合成数据；不提交凭据、真实个人资料、`.local/`、`node_modules`。
 - **高风险项须人类集成负责人本人批准后才能执行**：部署、数据库迁移上线、身份认证、资金与 KESS、服务器、DNS、对外发布。卡片标了 `需人类批准` 的，Codex 只做到 PR，不合并、不部署。
@@ -50,6 +50,18 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-PM-047-R1](tasks/RF-PM-047-R1-legacy-staff-compat.md) | 新员工命令兼容 v0.3.0 创建的员工数据（11-04 升级演练 FAIL：重跑 `trial:staff` 重复建员工；大旺＋Codex，需人类批准） | fix | 高 | 047 | TODO（v0.3.1，**部署门禁**） |
 | [RF-PM-048](tasks/RF-PM-048-policy-picker-clarity.md) | 报价页策略选择显示依据，防止选错策略（列表接口新增只读字段；大旺＋Codex，需人类批准） | fix | 中 | 037、043 | 已合并（PR #93 → `0aee3a9`，2026-11-04）· 审查 APPROVED（`0477be4`）；11-04 本机真实链路浏览器验收：七个场景六个 PASS，到期标灰为瞬时状态未观察到（自动重读已移除过期项，卡片取"或"），判定 PASS |
 | [RF-PM-051](tasks/RF-PM-051-init-scram-verifier.md) | `trial:init` 建角色改用 SCRAM 校验值，不向 PostgreSQL 发送明文口令（从 RF-PM-044 拆出；大旺＋Codex，需人类批准） | fix | 中 | 038-R4 | TODO（v0.3.x，不阻塞 v0.3.1；#95 合并后再同步） |
+| [RF-PM-055](tasks/RF-PM-055-formal-auth-design.md) | 正式登录与会话设计：员工网页、司机 App、Telegram Mini App（苏晨＋Codex，需人类批准） | design | 高 | OPS-01、现有主体与授权模型 | IN_REVIEW（设计草稿；未写实现） |
+| [RF-PM-056](tasks/RF-PM-056-driver-app-skeleton.md) | 司机 App 技术选型与 React Native（Expo）工程骨架（苏晨＋Codex，需人类批准） | feat | 中 | RF-PM-055 设计 | IN_REVIEW（草稿 PR） |
+| [RF-PM-057](tasks/RF-PM-057-driver-app-task-actions.md) | 司机 App 任务查看与接单／拒单（苏晨＋Codex，需人类批准） | feat | 中 | RF-PM-056 | IN_PROGRESS |
+| [RF-PM-058](tasks/RF-PM-058-driver-app-execution.md) | 司机 App 履约执行：交接签认、出发、离线持久化与补传（苏晨＋Codex，需人类批准） | feat | 高 | RF-PM-057 | IN_PROGRESS |
+| [RF-PM-059](tasks/RF-PM-059-driver-app-evidence-delivery.md) | 司机 App 拍照取证与签收交付（苏晨＋Codex，需人类批准） | feat | 高 | RF-PM-058、RF-PM-063、RF-PM-062 批次 2 | IN_PROGRESS |
+| [RF-WEB-01](tasks/RF-WEB-01-website-foundation.md) | 官网批次 1：站点框架、三语切换、首页（苏晨＋Codex，需人类批准） | feat | 低 | 无 | DONE（#129 已合并；未部署） |
+| RF-WEB-02 | 根地址按浏览器语言跳转 | fix | 低 | RF-WEB-01 | IN_PROGRESS |
+| [RF-UI-01](tasks/RF-UI-01-unslop-all-surfaces.md) | 官网、Mini App／H5 与司机端去“AI 味”整改（苏晨＋Codex，需人类批准） | design+refactor | 中 | 阶段 3 依赖 RF-PM-059 | IN_PROGRESS（阶段 2：官网＋Mini App／H5） |
+| [RF-PM-062](tasks/RF-PM-062-one-codebase.md) | 一套代码覆盖司机 App、Telegram Mini App 和 H5（批次 2：共享包；苏晨＋Codex，需人类批准） | feat+refactor | 中 | #127、#128 已合并 | 批次 2 进行中 |
+| [RF-PM-060](tasks/RF-PM-060-driver-read-projections.md) | 司机端只读投影补齐：待签交接、出发就绪、开发夹具设备与当班（苏晨＋Codex，需人类批准） | feat | 中 | 无 | IN_REVIEW（#128） |
+| [RF-PM-063](tasks/RF-PM-063-driver-dev-scenario.md) | 本机司机演示场景脚本，补跑 RF-PM-058 Android 模拟器链路（苏晨＋Codex，需人类批准） | chore+test | 低 | RF-PM-058、RF-PM-060 | IN_PROGRESS |
+| [RF-PM-064](tasks/RF-PM-064-sync-sequence-fix.md) | 修复司机补传接口首条拒收后的设备序号与事务污染（苏晨＋Codex，需人类批准） | fix | 高 | 无 | IN_PROGRESS |
 | [RF-PM-049](tasks/RF-PM-049-policy-retire.md) | 策略撤销／替代机制（先设计，设计批准后才实现） | feat | 高 | 048 | TODO（v0.4.0） |
 | [RF-PM-050](tasks/RF-PM-050-test-data-class.md) | 测试数据分类与隔离（先设计） | feat | 中 | 049 的设计 | TODO（v0.4.0） |
 | RF-PM-030、034、036 | 未建卡即提交的 PR：费用草稿选择区与测试库隔离（#49）、已发布策略列表接口（#55）、报价策略防护与费用页 S1 标注（#52） | — | — | — | 审查中 |
@@ -63,6 +75,10 @@ Claude 负责调研、规划、任务拆分、审查与评审；Codex（【Dr.Ro
 | [RF-OPS-02](tasks/RF-OPS-02-daily-backup.md) | 每日自动备份定时器、备份状态检查、站外拷贝与恢复演练规程（11-04 核查：服务器无固定每日备份；大旺＋Codex 出模板，负责人 Codex 安装，需人类批准） | ops | 中 | 038-R6、OPS-01 | 已合并（PR #109 → `b45d7be`，2026-11-04）· 审查 APPROVED（`e0ad551`）；服务器安装与手动触发待做 |
 | [RF-PM-032](tasks/RF-PM-032-distance-pricing-and-change-requote.md) | 服务端需求：距离计价与仓库／货物／服务类型变更重核价（项目负责人＋Codex） | feat | 高 | 025；开工前决策 | 待决策（不进 v0.3.0） |
 | [RF-QA-02](tasks/RF-QA-02-p01-acceptance.md) | P01 独立浏览器验收，含 P01 浏览器脚本实跑与固定费等价场景（项目负责人） | test | 低 | 025、028、028-R1、030、033、034、036、037 | 已完成：第 1–5、7、8 步 PASS，第 6 步 NOT_RUN（RF-DEC-02 未签批） |
+| [RF-PM-052](tasks/RF-PM-052-open-check-script.md) | 部署开工检查脚本入库并参数化：自动取最新备份、显式声明 SSH 连接依赖、期望值参数化（11-07 部署后续；大旺＋Codex，需人类批准） | chore+test | 中 | 无 | TODO（v0.3.2） |
+| [RF-PM-053](tasks/RF-PM-053-legacy-customer-access.md) | 非客户范围员工的遗留客户授权收口（先设计，批准后实现；大旺＋Codex，需人类批准） | fix | 高 | 047、047-R1 | TODO（v0.3.2，先设计） |
+| [RF-PM-054](tasks/RF-PM-054-remote-exec-standard.md) | 运维文档补充远端执行标准写法（PowerShell → ssh → sudo；大旺＋Codex） | docs | 低 | 无 | TODO（v0.3.2） |
+| [RF-OPS-03](tasks/RF-OPS-03-import-list-missing.md) | 试运营服务器 11-03 正式客户导入名单缺失调查（只读；负责人＋Claude） | ops | 中 | 无 | TODO |
 
 2026-10-28 项目负责人把 7 天目标定为受控试运营，方案见 [P01 受控试运营方案](../trial/p01-controlled-trial-plan.md)。
 
@@ -76,7 +92,7 @@ Claude 自留：PRD V1.4 与实现方向差异的决策备忘（收款模式、�
 自 2026-10-26 16:07 起，小改动不再逐个合进 `main`：
 
 - 日常任务卡从最新 `origin/develop` 开分支，PR 目标为 `develop`。
-- 合进 `develop` 前须同时满足看板 `APPROVED` 与当前 head 的 CI 三项全部 completed/success（2026-10-27 PR #35–#37 未经审查即合并，已事后补审，缺口统一进 RF-PM-028；同日 #40、#41、#43、#44 在审查 CHANGES_REQUESTED 后未改即合并，缺口进 RF-PM-033；此后仍按本条执行，CHANGES_REQUESTED 须改完并重新审查通过才能合并）；普通任务可由 Codex 普通 merge，不 squash、不 rebase、不强推。标注“需人类批准”的高风险任务仍须负责人批准。
+- 合进 `develop` 前须同时满足看板 `APPROVED` 与当前 head 的 CI 八项（`prototype`、`service-integration`、`service-unit`、`trial-tooling-macos`、`trial-tooling-windows`、`driver-app`、`website`、`customer-app`）全部 completed/success（2026-10-27 PR #35–#37 未经审查即合并，已事后补审，缺口统一进 RF-PM-028；同日 #40、#41、#43、#44 在审查 CHANGES_REQUESTED 后未改即合并，缺口进 RF-PM-033；此后仍按本条执行，CHANGES_REQUESTED 须改完并重新审查通过才能合并）；普通任务可由 Codex 普通 merge，不 squash、不 rebase、不强推。标注“需人类批准”的高风险任务仍须负责人批准。
 - 大版本完成后由 Claude 发布 `develop → main` 版本发布 PR；需要 CI 全绿、Claude 版本评审 APPROVED、负责人在 GitHub 点 Approve 后由负责人合并，并打 `vX.Y.0` 标签。
 - `main` 规则集要求三项必需检查、分支与 main 同步（strict）及 1 个审批；`develop` 规则集要求三项必需检查和 1 个非作者审批，并自 2026-10-30 起开启“推送新提交后作废已有批准”。高风险任务合并前，须负责人侧 Claude 审查通过，且由作者以外的人批准最终 head；有未解决的 CHANGES_REQUESTED 时不得发合并指令。
 

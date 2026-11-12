@@ -15197,6 +15197,72 @@
         "x-version-resource": "read only"
       }
     },
+    "/api/driver/v1/assignments/{assignmentId}/custody-transfers": {
+      "get": {
+        "operationId": "driverPendingCustodyTransfers",
+        "summary": "本人待签交接",
+        "description": "仅返回当前司机、当前指派订单下等待司机签认的交接；非本人或不存在统一返回404。",
+        "tags": ["driver"],
+        "security": [{"AccessToken": []}],
+        "parameters": [
+          {"$ref": "#/components/parameters/Language"},
+          {"name": "assignmentId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "返回待当前司机签认的交接投影",
+            "headers": {
+              "X-Request-Id": {"schema": {"$ref": "#/components/schemas/Id"}},
+              "Cache-Control": {"schema": {"const": "no-store"}}
+            },
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DriverCustodyTransferPage"}}}
+          },
+          "400": {"$ref": "#/components/responses/Error400"},
+          "401": {"$ref": "#/components/responses/Error401"},
+          "403": {"$ref": "#/components/responses/Error403"},
+          "404": {"$ref": "#/components/responses/Error404"},
+          "429": {"$ref": "#/components/responses/Error429"},
+          "503": {"$ref": "#/components/responses/Error503"}
+        },
+        "x-permissions": ["driver:tasks:read"],
+        "x-stage": "R1",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
+        "x-version-resource": "read only"
+      }
+    },
+    "/api/driver/v1/assignments/{assignmentId}/departure-readiness": {
+      "get": {
+        "operationId": "driverDepartureReadiness",
+        "summary": "本人任务出发就绪",
+        "description": "复用在线出发写接口的状态、订单、装载复核和保管责任校验，只返回未满足条件的稳定代码。",
+        "tags": ["driver"],
+        "security": [{"AccessToken": []}],
+        "parameters": [
+          {"$ref": "#/components/parameters/Language"},
+          {"name": "assignmentId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "返回当前出发就绪状态",
+            "headers": {
+              "X-Request-Id": {"schema": {"$ref": "#/components/schemas/Id"}},
+              "Cache-Control": {"schema": {"const": "no-store"}}
+            },
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DepartureReadiness"}}}
+          },
+          "400": {"$ref": "#/components/responses/Error400"},
+          "401": {"$ref": "#/components/responses/Error401"},
+          "403": {"$ref": "#/components/responses/Error403"},
+          "404": {"$ref": "#/components/responses/Error404"},
+          "429": {"$ref": "#/components/responses/Error429"},
+          "503": {"$ref": "#/components/responses/Error503"}
+        },
+        "x-permissions": ["driver:tasks:read"],
+        "x-stage": "R1",
+        "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
+        "x-version-resource": "read only"
+      }
+    },
     "/api/driver/v1/orders/{orderId}": {
       "get": {
         "operationId": "driverOrder",
@@ -15879,7 +15945,7 @@
       "post": {
         "operationId": "driverSync",
         "summary": "离线事件逐项补传",
-        "description": "事件ID永久业务去重，同ID异内容409项级拒绝；逐事件版本而非整批ETag；设备授权/顺序/观测时效检查，不允许接受提案或核验银行。",
+        "description": "事件ID永久业务去重，同ID异内容409项级拒绝；不同事件占用同一设备序号时，该项返回REJECTED与SYNC_SEQUENCE_CONFLICT；逐事件版本而非整批ETag；设备授权/顺序/观测时效检查，不允许接受提案或核验银行。",
         "tags": [
           "driver"
         ],
@@ -35184,7 +35250,7 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 128,
-                "description": "稳定错误码"
+                "description": "稳定错误码；不同eventId占用同一设备sequence时为SYNC_SEQUENCE_CONFLICT"
               },
               {
                 "type": "null"
@@ -38081,6 +38147,50 @@
             "nextCursor": "example"
           }
         ]
+      },
+      "DriverCustodyTransferItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {"$ref": "#/components/schemas/Id"},
+          "packageIds": {"type": "array", "items": {"$ref": "#/components/schemas/Id"}, "minItems": 1, "maxItems": 100}
+        },
+        "required": ["itemId", "packageIds"]
+      },
+      "DriverCustodyTransfer": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {"$ref": "#/components/schemas/Id"},
+          "version": {"type": "integer", "minimum": 1, "maximum": 9000000000000, "description": "交接聚合乐观锁版本"},
+          "status": {"type": "string", "enum": ["partially_signed"]},
+          "items": {"type": "array", "items": {"$ref": "#/components/schemas/DriverCustodyTransferItem"}, "minItems": 1, "maxItems": 100},
+          "initiatedAt": {"$ref": "#/components/schemas/Timestamp"}
+        },
+        "required": ["id", "version", "status", "items", "initiatedAt"]
+      },
+      "DriverCustodyTransferPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {"type": "array", "items": {"$ref": "#/components/schemas/DriverCustodyTransfer"}, "minItems": 0, "maxItems": 100}
+        },
+        "required": ["items"]
+      },
+      "DepartureReadiness": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ready": {"type": "boolean"},
+          "reasons": {
+            "type": "array",
+            "items": {"type": "string", "enum": ["ASSIGNMENT_NOT_DEPARTABLE", "ORDER_NOT_READY_TO_DEPART", "LOAD_REVIEW_NOT_RELEASED", "CUSTODY_NOT_READY"]},
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true
+          }
+        },
+        "required": ["ready", "reasons"]
       },
       "SyncResultPage": {
         "type": "object",

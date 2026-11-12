@@ -1,0 +1,93 @@
+import { languageLabels, message } from '@routefit/shared';
+
+export type Language = 'km' | 'en' | 'zh';
+
+export const languageOptions: readonly { code: Language; label: string }[] = [
+  { code: 'km', label: languageLabels.km },
+  { code: 'en', label: languageLabels.en },
+  { code: 'zh', label: languageLabels.zh },
+];
+
+export const copy = {
+  km: {
+    appName: 'DR RouteFit',
+    tagline: 'យានយន្តត្រឹមត្រូវ · ផ្លូវត្រឹមត្រូវ · ទាន់ពេល',
+    greeting: 'ចាប់ផ្តើមការដឹកជញ្ជូនរបស់អ្នក',
+    intro: 'កន្លែងមួយសម្រាប់ផ្ញើ តាមដាន និងគ្រប់គ្រងការជូនដំណឹង។',
+    reviewPending: 'ភាសាខ្មែររង់ចាំការពិនិត្យពីអ្នកប្រើភាសាមាតុភូមិ មិនទាន់អនុញ្ញាតឱ្យដាក់ប្រើជាផ្លូវការ។',
+    modeH5: 'របៀប H5',
+    modeTelegram: 'របៀប Mini App',
+    send: 'ផ្ញើ',
+    orders: 'ការបញ្ជាទិញ',
+    messages: 'សារ',
+    profile: 'ខ្ញុំ',
+    sendTitle: 'ការផ្ញើនឹងមកដល់ឆាប់ៗ',
+    sendBody: 'ឆ្អឹងកម្មវិធីនេះមិនទាន់បញ្ចូលទិន្នន័យអតិថិជន ឬបង្កើតការបញ្ជាទិញទេ។',
+    ordersTitle: 'ការបញ្ជាទិញនឹងបង្ហាញនៅទីនេះ',
+    ordersBody: 'ការភ្ជាប់សេវាអាជីវកម្មនឹងធ្វើនៅក្នុងបាច់បន្ទាប់។',
+    messagesTitle: 'មជ្ឈមណ្ឌលសារនឹងមកដល់ឆាប់ៗ',
+    messagesBody: 'បច្ចុប្បន្នមិនមានការជូនដំណឹង ឬ Bot ទេ។',
+    profileTitle: 'ការកំណត់គណនីនឹងមកដល់ឆាប់ៗ',
+    profileBody: 'ការចូលប្រើផ្លូវការនិងការកំណត់ភាសានឹងត្រូវភ្ជាប់ពេលក្រោយ។',
+    trackLink: 'តាមដានកញ្ចប់',
+    trackTitle: 'ការតាមដាននឹងមកដល់ឆាប់ៗ',
+    trackBody: 'ទំព័រនេះមិនអានលេខបញ្ជាទិញ ឬទិន្នន័យការដឹកជញ្ជូនណាមួយទេ។',
+    back: 'ត្រឡប់ក្រោយ',
+  },
+  en: {
+    appName: 'DR RouteFit',
+    tagline: 'The right vehicle · The right route · On time',
+    greeting: 'Start your delivery journey',
+    intro: 'One calm place to send, track and manage delivery updates.',
+    reviewPending: 'Khmer copy awaits native review and must not be released before approval.',
+    modeH5: 'H5 mode',
+    modeTelegram: 'Mini App mode',
+    send: 'Send',
+    orders: 'Orders',
+    messages: 'Messages',
+    profile: 'Profile',
+    sendTitle: 'Sending is coming soon',
+    sendBody: 'This skeleton does not load customer data or create an order.',
+    ordersTitle: 'Your orders will appear here',
+    ordersBody: 'Business service integration belongs to a later batch.',
+    messagesTitle: 'Messages are coming soon',
+    messagesBody: 'No notification service or Bot is connected yet.',
+    profileTitle: 'Account settings are coming soon',
+    profileBody: 'Formal sign-in and account language will be connected later.',
+    trackLink: 'Track a delivery',
+    trackTitle: 'Tracking is coming soon',
+    trackBody: 'This placeholder does not read an order number or any delivery data.',
+    back: 'Back',
+  },
+  zh: {
+    appName: 'DR RouteFit',
+    tagline: '配对车辆 · 规划路线 · 准时送达',
+    greeting: '开始你的配送旅程',
+    intro: '在一个清晰的入口完成寄件、查单和消息管理。',
+    reviewPending: '高棉语文案待母语审校，审校前不得上线。',
+    modeH5: 'H5 模式',
+    modeTelegram: 'Mini App 模式',
+    send: '寄件',
+    orders: '订单',
+    messages: '消息',
+    profile: '我的',
+    sendTitle: '寄件功能即将开放',
+    sendBody: '当前骨架不读取客户资料，也不会创建订单。',
+    ordersTitle: '订单将在这里显示',
+    ordersBody: '业务服务接入属于后续批次。',
+    messagesTitle: '消息中心即将开放',
+    messagesBody: '当前没有接入通知服务或 Bot。',
+    profileTitle: '账户设置即将开放',
+    profileBody: '正式登录和账户语言将在后续接入。',
+    trackLink: '查件',
+    trackTitle: '查件功能即将开放',
+    trackBody: '本占位页不会读取订单号或任何配送数据。',
+    back: '返回',
+  },
+} as const;
+
+export type CopyKey = keyof typeof copy.en;
+
+export function text(language: Language, key: CopyKey) {
+  return message(copy, language, key);
+}

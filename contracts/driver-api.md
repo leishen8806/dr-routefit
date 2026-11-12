@@ -6,6 +6,8 @@
 | --- | --- | --- |
 | 本人任务 | `GET /api/driver/v1/assignments` | 只返回当前 `DRIVER`／`PARTNER_DRIVER` 主体自己的任务；支持 `overdue`、`in_transit`、`completed`、`cancelled` 分组。 |
 | 指派详情 | `GET /api/driver/v1/assignments/{assignmentId}` | 非本人或不存在统一返回 404。 |
+| 待签交接 | `GET /api/driver/v1/assignments/{assignmentId}/custody-transfers` | 只返回该指派订单、交给当前司机且处于待司机签认状态的交接；包含后续签认所需的交接版本和逐件包裹 ID，不暴露运营内部字段。 |
+| 出发就绪 | `GET /api/driver/v1/assignments/{assignmentId}/departure-readiness` | 复用在线出发的指派、订单、装载放行和保管责任校验，返回 `ready` 与稳定原因代码；只读检查不会推进状态。 |
 | 必要订单资料 | `GET /api/driver/v1/orders/{orderId}` | 必须存在本人的 `offered` 或 `accepted` 指派；不返回运营草稿、内部成本或其他订单。 |
 | 接受 | `POST /api/driver/v1/assignments/{assignmentId}/actions/accept` | 只接受未过期的本人提案；重验路线版本及当前承诺，原子转为 `accepted`，订单转为 `executing`。 |
 | 拒绝 | `POST /api/driver/v1/assignments/{assignmentId}/actions/reject` | 只拒绝未过期的本人提案；结束该有效履约，不改写订单承诺或财务事实。 |
@@ -20,4 +22,6 @@
 
 写入仍需要开发会话、精确同源 Origin、CSRF、`Idempotency-Key` 与 `If-Match`。重试同一键返回同一接受结果；不同路线版本、已过期、非本人或已变更状态均不得继续接受。
 
-位置和离线事件表强制设备、当班和事件使用同一司机；离线同步保存事件 ID、指纹、顺序、观测时间和逐项结果，既不接受提案，也不替代银行核验。它不生成地图投影、路线 ETA、推送、导航或后台定位结论。交付记录、件明细和订单状态均为只追加事实；数据库只有在交付记录完整覆盖订单全部件时才允许订单变为 `delivered` 或 `return_open`。本地单元测试覆盖离线到达的永久去重、同 ID 改内容拒绝以及现金事件不入账；件级交接／出发／定位／交付／同步的完整路径仍需一次性 PostgreSQL 集成测试。它不证明设备在线、推送、后台定位、地图导航或 iOS／Android App 已完成。
+位置和离线事件表强制设备、当班和事件使用同一司机；离线同步保存事件 ID、指纹、顺序、观测时间和逐项结果，既不接受提案，也不替代银行核验。它不生成地图投影、路线 ETA、推送、导航或后台定位结论。交付记录、件明细和订单状态均为只追加事实；数据库只有在交付记录完整覆盖订单全部件时才允许订单变为 `delivered` 或 `return_open`。本地单元测试覆盖离线到达的永久去重、同 ID 改内容拒绝以及现金事件不入账；一次性 PostgreSQL 集成测试覆盖本人／他人／跨企业的只读投影、出发读写一致性和开发夹具设备当班补传。它不证明设备在线、推送、后台定位、地图导航或 iOS／Android App 已完成。
+
+离线补传中，若不同 `eventId` 占用了同一设备的同一 `sequence`，该项返回 `REJECTED` 和稳定错误码 `SYNC_SEQUENCE_CONFLICT`；同一事件原样重放仍返回 `DUPLICATE`。冲突只拒绝该项，不得污染整批事务。
