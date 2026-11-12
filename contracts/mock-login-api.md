@@ -26,4 +26,4 @@
 资源名按第 1 条用复数：`mock-sessions`（创建一个模拟会话）。
 
 ## OpenAPI
-已写入 `contracts/modules/auth.json`（不改 `contracts/openapi.json`）的 `/api/driver/v1/auth/mock-sessions` 与 `/api/customer/v1/auth/mock-sessions`，含 x-permissions / x-stage / x-implementation-status / x-version-resource / x-owner 与成功、拒绝示例。
+由 `contracts/modules/auth.json` 声明，经 `scripts/build-contract-modules.mjs --write` 装配进 `contracts/openapi.json`（产物不手改）的 `/api/driver/v1/auth/mock-sessions` 与 `/api/customer/v1/auth/mock-sessions`，含 x-permissions / x-stage / x-implementation-status / x-version-resource / x-owner 与成功、拒绝示例。
