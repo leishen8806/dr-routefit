@@ -17,5 +17,5 @@ services/routefit/.local/
 handoff/
 
 # Local task receipts and review evidence; never commit these artifacts.
-review-artifacts/
-dispatch/
+/review-artifacts/
+/dispatch/
