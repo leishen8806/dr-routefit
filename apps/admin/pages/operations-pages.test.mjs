@@ -1,0 +1,339 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import test from 'node:test';
+
+import {
+  getOperationsRoutePageId,
+  getOperationsPage,
+  getOperationsRecord,
+  getOperationsDrawerAccessibility,
+  getOperationsDrawerAction,
+  getOperationsRows,
+  reduceOperationsDrawer,
+  renderOperationsDetail,
+  renderOperationsPage,
+  renderOperationsScreen,
+} from './operations-pages.mjs';
+
+test('admin route paths resolve only to Frontend1-owned operations pages', () => {
+  assert.equal(getOperationsRoutePageId('/orders'), 'orders');
+  assert.equal(getOperationsRoutePageId('/capacity'), 'capacity');
+  assert.equal(getOperationsRoutePageId('/customers'), 'support');
+  assert.equal(getOperationsRoutePageId('/merchants'), 'merchants');
+  assert.equal(getOperationsRoutePageId('/users'), 'users');
+  assert.equal(getOperationsRoutePageId('/finance'), null);
+});
+
+test('prototype keys never resolve as operations routes or pages', () => {
+  for (const key of ['__proto__', 'constructor', 'toString']) {
+    assert.equal(getOperationsRoutePageId(key), null);
+    assert.equal(getOperationsPage(key), null);
+  }
+});
+
+test('operations pages expose all Frontend1-owned admin areas', () => {
+  assert.deepEqual(
+    ['orders', 'capacity', 'support', 'merchants', 'users'],
+    ['orders', 'capacity', 'support', 'merchants', 'users'].map((id) => getOperationsPage(id).id),
+  );
+});
+
+test('operations pages accept configured page data in place of demo values', () => {
+  const configuredCapacity = {
+    ...getOperationsPage('capacity'),
+    rows: [['Configured driver', 'driver', 'online', 'none', 'example KPI']],
+  };
+
+  assert.equal(
+    getOperationsPage('capacity', { capacity: configuredCapacity }),
+    configuredCapacity,
+  );
+});
+
+test('configured page data renders through the list and its matching detail drawer', () => {
+  const configuredOrders = {
+    ...getOperationsPage('orders'),
+    title: '订单配置',
+    rows: [['CFG-001', '配置商户', '待处理', '配置环节', '示例：1 小时']],
+  };
+  const configuredPages = { orders: configuredOrders };
+
+  assert.match(renderOperationsPage('orders', configuredPages), /CFG-001/);
+  assert.match(renderOperationsDetail('orders', 0, configuredPages), /订单配置详情/);
+  assert.match(renderOperationsScreen('orders', { pageId: 'orders', index: 0 }, configuredPages), /CFG-001/);
+});
+
+test('configured page text is escaped in list and detail markup', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      title: '<img src=x onerror=alert(1)>',
+      description: '<script>alert(2)</script>',
+      action: '<button onclick=alert(3)>open</button>',
+    },
+  };
+
+  const list = renderOperationsPage('orders', configuredPages);
+  const detail = renderOperationsDetail('orders', 0, configuredPages);
+
+  assert.doesNotMatch(list, /<img|<script|<button onclick=/);
+  assert.match(list, /&lt;img src=x onerror=alert\(1\)&gt;/);
+  assert.match(list, /&lt;button onclick=alert\(3\)&gt;open&lt;\/button&gt;/);
+  assert.doesNotMatch(detail, /<img|<button onclick=/);
+  assert.match(detail, /&lt;button onclick=alert\(3\)&gt;open&lt;\/button&gt;/);
+});
+
+test('configured page missing required schema fields fails closed to safe fallbacks', () => {
+  const configuredPages = {
+    orders: {
+      id: 'orders',
+      title: 'Incomplete configuration',
+      description: 'Columns are intentionally missing',
+      action: 'Open',
+      rows: [],
+    },
+  };
+
+  assert.equal(getOperationsPage('orders', configuredPages), null);
+  assert.equal(getOperationsRecord('orders', 0, configuredPages), null);
+  assert.match(renderOperationsPage('orders', configuredPages), /页面暂不可用/);
+  assert.match(renderOperationsDetail('orders', 0, configuredPages), /记录暂不可用/);
+  assert.match(renderOperationsScreen('orders', { pageId: 'orders', index: 0 }, configuredPages), /页面暂不可用/);
+});
+
+test('configured page ignores a malformed row instead of rendering an empty detail record', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [{}],
+    },
+  };
+
+  assert.equal(getOperationsRecord('orders', 0, configuredPages), null);
+});
+
+test('configured page ignores a short row instead of exposing undefined detail fields', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [['CFG-001']],
+    },
+  };
+
+  assert.equal(getOperationsRecord('orders', 0, configuredPages), null);
+});
+
+test('configured page list skips malformed rows without crashing the screen', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [
+        ['CFG-001', 'Configured merchant', 'pending', 'review', 'example'],
+        {},
+      ],
+    },
+  };
+
+  const markup = renderOperationsPage('orders', configuredPages);
+  assert.match(markup, /CFG-001/);
+  assert.doesNotMatch(markup, /data-record-index="1"/);
+});
+
+test('configured page exposes only valid rows for native screen rendering', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [
+        ['CFG-001', 'Configured merchant', 'pending', 'review', 'example'],
+        {},
+      ],
+    },
+  };
+
+  assert.deepEqual(getOperationsRows('orders', configuredPages), [
+    { index: 0, row: ['CFG-001', 'Configured merchant', 'pending', 'review', 'example'] },
+  ]);
+});
+
+test('valid native rows preserve their original index after a rejected leading row', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [
+        {},
+        ['CFG-002', 'Configured merchant', 'pending', 'review', 'example'],
+      ],
+    },
+  };
+
+  assert.deepEqual(getOperationsRows('orders', configuredPages), [
+    { index: 1, row: ['CFG-002', 'Configured merchant', 'pending', 'review', 'example'] },
+  ]);
+  assert.deepEqual(
+    getOperationsDrawerAction('orders', { action: 'open-detail', recordIndex: '1' }, configuredPages),
+    { type: 'open', pageId: 'orders', index: 1 },
+  );
+});
+
+test('order view renders an accessible sample-data table and marks actions as frontend-only', () => {
+  const markup = renderOperationsPage('orders');
+
+  assert.match(markup, /<h1[^>]*>订单<\/h1>/);
+  assert.match(markup, /<table/);
+  assert.match(markup, /示例/);
+  assert.match(markup, /data-mode="frontend-only"/);
+});
+
+test('order view keeps its explicit sample-data and frontend-only notice', () => {
+  const markup = renderOperationsPage('orders');
+
+  assert.match(markup, /<p role="note">以下为演示数据（示例）；当前操作为纯前端，接入接口后替换。<\/p>/);
+});
+
+test('native drawer declares web dialog and modal semantics', async () => {
+  const nativePageSource = await readFile(new URL('./OperationsPage.tsx', import.meta.url), 'utf8');
+  const drawerView = nativePageSource.match(/<View role="dialog"[^>]+>/)?.[0] ?? '';
+
+  assert.match(drawerView, /role="dialog"/);
+  assert.match(drawerView, /aria-modal=\{true\}/);
+  assert.match(drawerView, /accessibilityViewIsModal/);
+  assert.doesNotMatch(drawerView, /accessibilityRole=/);
+});
+
+test('each list row exposes a frontend-only detail trigger with its own record index', () => {
+  const markup = renderOperationsPage('orders');
+
+  assert.match(markup, /data-action="open-detail" data-record-index="0"/);
+  assert.match(markup, /data-action="open-detail" data-record-index="1"/);
+});
+
+test('unknown pages return a safe not-found panel rather than rendering another business area', () => {
+  assert.match(renderOperationsPage('billing'), /页面暂不可用/);
+  assert.doesNotMatch(renderOperationsPage('billing'), /财务/);
+});
+
+test('detail drawer keeps row context and labels its action as frontend-only', () => {
+  const markup = renderOperationsDetail('support', 0);
+
+  assert.match(markup, /role="dialog"/);
+  assert.match(markup, /CS-082/);
+  assert.match(markup, /data-mode="frontend-only"/);
+  assert.match(markup, /data-action="close-detail"/);
+});
+
+test('detail drawer marks its close control as frontend-only', () => {
+  const markup = renderOperationsDetail('support', 0);
+
+  assert.match(markup, /data-mode="frontend-only" data-action="close-detail"/);
+});
+
+test('detail drawer describes its sample-data limitation to assistive technology', () => {
+  const markup = renderOperationsDetail('support', 0);
+
+  assert.match(markup, /aria-describedby="operations-detail-note"/);
+  assert.match(markup, /<p id="operations-detail-note" role="note">演示数据（示例）；当前操作为纯前端。<\/p>/);
+});
+
+test('detail drawer rejects a row outside the selected page instead of leaking a different record', () => {
+  assert.match(renderOperationsDetail('orders', 9), /记录暂不可用/);
+  assert.doesNotMatch(renderOperationsDetail('orders', 9), /CS-082/);
+});
+
+test('selected record keeps its page and field labels for a route-owned detail drawer', () => {
+  assert.deepEqual(getOperationsRecord('support', 0), {
+    pageId: 'support',
+    title: '客服与异常',
+    fields: [
+      ['工单', 'CS-082'],
+      ['关联订单', 'RF-240811-018'],
+      ['类型', '配送延迟'],
+      ['负责人', '待分配'],
+      ['SLA', '示例：30 分钟'],
+    ],
+  });
+});
+
+test('selected record returns null when the requested page row does not exist', () => {
+  assert.equal(getOperationsRecord('support', 3), null);
+});
+
+test('detail drawer exposes a modal label for its selected operations page', () => {
+  assert.deepEqual(getOperationsDrawerAccessibility('support'), {
+    accessibilityLabel: '客服与异常详情',
+    isModal: true,
+  });
+  assert.equal(getOperationsDrawerAccessibility('billing'), null);
+});
+
+test('drawer state opens only for a valid record in its requested page', () => {
+  assert.deepEqual(
+    reduceOperationsDrawer(null, { type: 'open', pageId: 'support', index: 0 }),
+    { pageId: 'support', index: 0 },
+  );
+  assert.deepEqual(
+    reduceOperationsDrawer(null, { type: 'open', pageId: 'support', index: '0' }),
+    { pageId: 'support', index: 0 },
+  );
+  assert.equal(reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: 9 }), null);
+  assert.equal(reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: '1.5' }), null);
+});
+
+test('drawer state validates a configured page record instead of falling back to demo rows', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [['CFG-001', 'Configured merchant', 'pending', 'review', 'example'] ],
+    },
+  };
+
+  assert.deepEqual(
+    reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: 0 }, configuredPages),
+    { pageId: 'orders', index: 0 },
+  );
+  assert.equal(
+    reduceOperationsDrawer(null, { type: 'open', pageId: 'orders', index: 1 }, configuredPages),
+    null,
+  );
+});
+
+test('drawer state closes without retaining a previously selected record', () => {
+  assert.equal(
+    reduceOperationsDrawer({ pageId: 'support', index: 0 }, { type: 'close' }),
+    null,
+  );
+});
+
+test('drawer event mapping accepts only the rendered detail actions', () => {
+  assert.deepEqual(
+    getOperationsDrawerAction('support', { action: 'open-detail', recordIndex: '0' }),
+    { type: 'open', pageId: 'support', index: 0 },
+  );
+  assert.deepEqual(getOperationsDrawerAction('support', { action: 'close-detail' }), { type: 'close' });
+  assert.equal(getOperationsDrawerAction('support', { action: 'delete-record', recordIndex: '0' }), null);
+});
+
+test('drawer event mapping rejects an open action with an invalid record index', () => {
+  assert.equal(
+    getOperationsDrawerAction('support', { action: 'open-detail', recordIndex: '1.5' }),
+    null,
+  );
+});
+
+test('drawer event mapping validates configured page records before opening', () => {
+  const configuredPages = {
+    orders: {
+      ...getOperationsPage('orders'),
+      rows: [['CFG-001', 'Configured merchant', 'pending', 'review', 'example']],
+    },
+  };
+
+  assert.equal(
+    getOperationsDrawerAction('orders', { action: 'open-detail', recordIndex: '1' }, configuredPages),
+    null,
+  );
+});
+
+test('screen renders a matching drawer but never leaks a drawer from another page', () => {
+  assert.match(renderOperationsScreen('support', { pageId: 'support', index: 0 }), /CS-082/);
+  assert.doesNotMatch(renderOperationsScreen('orders', { pageId: 'support', index: 0 }), /CS-082/);
+});
