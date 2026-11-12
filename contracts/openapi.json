@@ -37320,6 +37320,16 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            },
+            "description": "可选条件读取：带上次收到的强ETag；未变化返回304且无响应体。不接受*与弱ETag。"
           }
         ],
         "responses": {
@@ -37335,12 +37345,40 @@
                 "schema": {
                   "const": "no-store"
                 }
+              },
+              "ETag": {
+                "description": "权限目录强ETag（不带W/前缀的带引号正整数版本号），目录变化时递增。",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
+                }
               }
             },
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PermissionCatalog"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "If-None-Match 命中，目录未变化，无响应体。",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
                 }
               }
             }
@@ -37370,12 +37408,17 @@
         "x-stage": "R2",
         "x-tier": "A",
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "none",
         "x-owner": "OpsLead",
         "x-examples": {
           "success": {
             "status": 200,
+            "headers": {
+              "ETag": "\"7\"",
+              "X-Request-Id": "demo-001",
+              "Cache-Control": "no-store"
+            },
             "body": {
               "modules": [
                 {
