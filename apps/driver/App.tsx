@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import { developmentSessionAuth } from './src/development-auth';
+import { FulfillmentSurface } from './src/FulfillmentSurface';
 import {
   actOnAssignment,
   confirmCustodyTransfer,
@@ -485,6 +486,13 @@ export default function App() {
                 <Text>{t('packageIds')} {item.packageIds.length ? item.packageIds.join(', ') : t('noPackages')}</Text>
               </View>
             ))}
+            {detail.assignment.state === 'accepted' ? (
+              <FulfillmentSurface
+                language={language}
+                stage={order.order.fulfillmentStage}
+                offline={!online}
+              />
+            ) : null}
             {detail.assignment.state === 'accepted' ? (
               <View style={styles.execution}>
                 <Text style={styles.sectionTitle}>{t('evidencePhoto')}</Text>

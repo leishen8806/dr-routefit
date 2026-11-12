@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "RouteFit Admin",
+    "slug": "routefit-admin",
+    "plugins": ["expo-router"],
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    }
+  }
+}

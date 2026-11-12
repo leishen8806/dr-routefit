@@ -22,7 +22,7 @@ export const en: SiteCopy = {
       { label: 'Home', titleLines: ["Cambodia's last mile,", 'delivered to the right hands'] },
       { label: 'Vehicle fit', titleLines: ['Cargo comes in different sizes,', 'so the vehicle must fit'] },
       { label: 'Route', titleLines: ['Make the route clear,', 'so dispatch can act with confidence'] },
-      { label: 'On time', titleLines: ['The time we agree,', 'is the time we work to keep'] },
+      { label: 'On time', titleLines: ['The time we agree', 'is the time we deliver'] },
       { label: 'Proof', titleLines: ['Know who received it,', 'and keep the proof'] },
       { label: 'Work together', titleLines: ["Let's deliver your", 'next order together'] }
     ]
