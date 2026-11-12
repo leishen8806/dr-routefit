@@ -204,7 +204,7 @@ test('coupon lock repository runs the domain rules then atomically locks and app
  const deviceFingerprintHash='c'.repeat(64),phoneHash='d'.repeat(64);
  const client={query:async(sql,params)=>{
   calls.push({sql,params});
-  if(sql.includes('FROM marketing.coupon c'))return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000',starts_at:'2026-11-10T00:00:00.000Z',ends_at:'2026-11-12T00:00:00.000Z'}]};
+  if(sql.includes('FROM marketing.coupon c'))return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000',starts_at:'2025-01-01T00:00:00.000Z',ends_at:'2030-01-01T00:00:00.000Z'}]};
   if(sql.includes('FROM orders.draft'))return {rows:[{snapshot:{order:{id:'00000000-0000-0000-0000-000000000020',merchandiseMinor:1200,shippingMinor:200,insuranceMinor:100}},cod_amount_minor:'400',payment_method:'PREPAID'}]};
   if(sql.includes('SELECT DISTINCT principal_id'))return {rows:[{principal_id:'00000000-0000-0000-0000-000000000099'}]};
   if(sql.includes('SELECT coupon_id FROM marketing.coupon_redemption'))return {rows:[]};
@@ -249,7 +249,7 @@ test('default Backend1 coupon lock handler uses the coupon lock repository', asy
  const deviceFingerprintHash='e'.repeat(64),phoneHash='f'.repeat(64);
  const client={query:async()=>{
   call+=1;
-  if(call===1)return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000',starts_at:'2026-11-10T00:00:00.000Z',ends_at:'2026-11-12T00:00:00.000Z'}]};
+  if(call===1)return {rows:[{id:'00000000-0000-0000-0000-000000000010',state:'ISSUED',batch_state:'APPROVED',amount_minor:'300',minimum_spend_minor:'1000',budget_remaining_minor:'1000',starts_at:'2025-01-01T00:00:00.000Z',ends_at:'2030-01-01T00:00:00.000Z'}]};
   if(call===2)return {rows:[{snapshot:{order:{id:'00000000-0000-0000-0000-000000000020',merchandiseMinor:1200,shippingMinor:200,insuranceMinor:100}},cod_amount_minor:'400',payment_method:'PREPAID'}]};
   if(call<7)return {rows:[]};
   return {rows:[{coupon_id:'00000000-0000-0000-0000-000000000010',order_id:'00000000-0000-0000-0000-000000000020',state:'LOCKED',discount_minor:'200'}]};

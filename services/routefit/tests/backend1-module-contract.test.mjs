@@ -91,6 +91,7 @@ test('Backend1 module contract makes every owned operation reviewable under stan
     assert.ok(operation.path.startsWith('/api/'), `${operation.operationId} needs an API path`);
     assert.ok(Array.isArray(operation['x-permissions']), `${operation.operationId} needs x-permissions`);
     assert.ok(operation['x-stage'], `${operation.operationId} needs a phase`);
+    assert.ok(['A', 'B'].includes(operation['x-baseline-tier']), `${operation.operationId} needs x-baseline-tier A or B`);
     assert.equal(operation['x-implementation-status'], 'PLANNED');
     assert.ok(operation['x-version-resource'], `${operation.operationId} needs a version resource`);
     assert.equal(operation['x-owner'], 'Backend1');
