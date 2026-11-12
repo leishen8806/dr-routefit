@@ -1,0 +1,69 @@
+{
+  "module": "backendsenior-payout-approvals",
+  "owner": "BackendSenior",
+  "source": "BOARD-API-BASELINE-20261111-ROLE-CMP-1325",
+  "pathDecision": "Existing paths predate the baseline; they are recorded here without renaming while Q-V1 remains pending.",
+  "paths": {},
+  "x-recorded-operations": [
+    {
+      "operationId": "listPayoutApprovals",
+      "path": "/api/ops/v1/finance/payout-approvals",
+      "method": "GET",
+      "x-permissions": ["payouts:read"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "finance.payoutApproval.version",
+      "x-owner": "BackendSenior",
+      "x-examples": {"success": {"status": 200, "body": {"items": [], "nextCursor": null}}, "rejected": {"status": 403, "code": "FORBIDDEN"}}
+    },
+    {
+      "operationId": "getPayoutApproval",
+      "path": "/api/ops/v1/finance/payout-approvals/{approvalId}",
+      "method": "GET",
+      "x-permissions": ["payouts:read"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "finance.payoutApproval.version",
+      "x-owner": "BackendSenior",
+      "x-examples": {"success": {"status": 200, "body": {"state": "submitted", "version": 1}}, "rejected": {"status": 404, "code": "NOT_FOUND"}}
+    },
+    {
+      "operationId": "approvePayoutApproval",
+      "path": "/api/ops/v1/finance/payout-approvals/{approvalId}/actions/approve",
+      "method": "POST",
+      "x-permissions": ["payouts:approve"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "finance.payoutApproval.version",
+      "x-owner": "BackendSenior",
+      "x-examples": {"success": {"status": 200, "body": {"state": "approved", "version": 2}}, "rejected": {"status": 422, "code": "SELF_APPROVAL_FORBIDDEN"}}
+    },
+    {
+      "operationId": "rejectPayoutApproval",
+      "path": "/api/ops/v1/finance/payout-approvals/{approvalId}/actions/reject",
+      "method": "POST",
+      "x-permissions": ["payouts:approve"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "finance.payoutApproval.version",
+      "x-owner": "BackendSenior",
+      "x-examples": {"success": {"status": 200, "body": {"state": "rejected", "version": 2}}, "rejected": {"status": 409, "code": "INVALID_STATE"}}
+    },
+    {
+      "operationId": "confirmPayoutPaid",
+      "path": "/api/ops/v1/finance/payout-approvals/{approvalId}/actions/confirm-paid",
+      "method": "POST",
+      "x-permissions": ["payouts:confirm-paid"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "finance.payoutApproval.version",
+      "x-owner": "BackendSenior",
+      "x-examples": {"success": {"status": 200, "body": {"state": "paid", "version": 3, "paymentMode": "SIMULATED"}}, "rejected": {"status": 422, "code": "SELF_CONFIRM_FORBIDDEN"}}
+    }
+  ]
+}
