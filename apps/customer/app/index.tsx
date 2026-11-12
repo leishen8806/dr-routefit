@@ -1,12 +1,13 @@
 import { Link, Stack } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { designTokens } from '@routefit/shared';
 import { CopyKey, Language, languageOptions } from '../src/copy';
 import { useLanguage } from '../src/LanguageContext';
 import { useRuntime } from '../src/RuntimeContext';
 import { createCustomerExperience, createPromotionSequence } from '../src/customerExperience.mjs';
+import { createDemoCustomerFlow } from '../src/customerFlow.mjs';
 
 type Tab = 'send' | 'orders' | 'messages' | 'profile';
 
@@ -49,6 +50,9 @@ export default function HomePage() {
   const [sendMode, setSendMode] = useState<'single' | 'bulk'>('single');
   const [paymentConfirmationOpen, setPaymentConfirmationOpen] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  const [codDeclared, setCodDeclared] = useState(false);
+  const [draft, setDraft] = useState<ReturnType<ReturnType<typeof createDemoCustomerFlow>['createDraft']> | null>(null);
+  const [form, setForm] = useState({ pickup: '', recipient: '', destination: '', item: '', vehicle: '' });
   const { language, setLanguage, t } = useLanguage();
   const runtime = useRuntime();
   const { width } = useWindowDimensions();
@@ -60,11 +64,18 @@ export default function HomePage() {
   const orderTimeline = experience.getOrderTrackingTimeline(overview.order.id);
   const orders = experience.listOrders();
   const paymentIntent = experience.getExamplePaymentConfirmation();
+  const demoConfiguration = experience.getDemoConfiguration();
+  const customerFlow = useMemo(() => createDemoCustomerFlow(), []);
   const messages = experience.listMessages();
   const profile = experience.getProfileSummary();
   const compact = width < 720;
   const activeCopy = emptyCopy[activeTab];
   const face = { fontFamily: fontFamily[language] };
+  const openExamplePaymentConfirmation = () => {
+    promotionSequence.beginPaymentConfirmation();
+    setPromotionVisibility(promotionSequence.getVisiblePromotion());
+    setPaymentConfirmationOpen(true);
+  };
 
   return (
     <View style={styles.page}>
@@ -116,17 +127,20 @@ export default function HomePage() {
         <Text style={[styles.reviewNote, face]}>{t('reviewPending')}</Text>
 
         {promotionVisibility.startupAd && overview.startupAd.kind === 'example' ? (
-          <View accessibilityLiveRegion="polite" style={styles.startupAd} testID="customer-home-startup-ad">
+          <Modal animationType="fade" onRequestClose={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} transparent visible>
+          <View accessibilityLiveRegion="polite" style={[styles.modalBackdrop, styles.startupAd]} testID="customer-home-startup-ad">
             <Text style={[styles.startupTitle, face]}>{t('promotion')}</Text>
             <Text style={[styles.startupBody, face]}>{t('example')}</Text>
             <Pressable accessibilityRole="button" onPress={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.confirmButton} testID="customer-home-startup-ad-dismiss">
               <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
             </Pressable>
           </View>
+          </Modal>
         ) : null}
 
         {promotionVisibility.homePopup && overview.homePopup.kind === 'example' ? (
-          <View accessibilityLiveRegion="polite" style={styles.promotion} testID="customer-home-promotion">
+          <Modal animationType="fade" onRequestClose={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} transparent visible>
+          <View accessibilityLiveRegion="polite" style={[styles.modalBackdrop, styles.promotion]} testID="customer-home-promotion">
             <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
             <View style={styles.promotionCopy}>
               <Text style={[styles.promotionTitle, face]}>{t('promotion')}</Text>
@@ -136,6 +150,7 @@ export default function HomePage() {
               <Text style={[styles.dismissText, face]}>×</Text>
             </Pressable>
           </View>
+          </Modal>
         ) : null}
 
         <View accessibilityLiveRegion="polite" style={[styles.emptyPanel, { backgroundColor: runtime.surfaceColor }]} testID="customer-home-content-panel">
@@ -146,17 +161,21 @@ export default function HomePage() {
             <>
               <View style={styles.choiceRow}>
                 {(['single', 'bulk'] as const).map((mode) => (
-                  <Pressable key={mode} onPress={() => setSendMode(mode)} style={[styles.choiceButton, sendMode === mode && styles.choiceButtonActive]} testID={mode === 'single' ? 'customer-ship-submit' : 'customer-send-bulk-select'}>
+                  <Pressable key={mode} onPress={() => setSendMode(mode)} style={[styles.choiceButton, sendMode === mode && styles.choiceButtonActive]} testID={mode === 'single' ? 'customer-send-single-select' : 'customer-send-bulk-select'}>
                     <Text style={[styles.choiceText, face, sendMode === mode && styles.choiceTextActive]}>{t(mode === 'single' ? 'singleDelivery' : 'bulkDelivery')}</Text>
                   </Pressable>
                 ))}
               </View>
-              <Pressable accessibilityRole="button" onPress={() => setPaymentConfirmed(false)} style={styles.flowSummary} testID="customer-quote-confirm">
+              {(['pickup', 'recipient', 'destination', 'item', 'vehicle'] as const).map((field) => <TextInput key={field} accessibilityLabel={t(field === 'recipient' ? 'recipient' : 'send')} onChangeText={(value) => setForm((current) => ({ ...current, [field]: value }))} placeholder={t('example')} style={[styles.input, face]} testID={`customer-send-${field}`} value={form[field]} />)}
+              <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: codDeclared }} onPress={() => setCodDeclared((current) => !current)} style={styles.choiceButton} testID="customer-send-cod-declare"><Text style={[styles.choiceText, face]}>{t('cod')}</Text></Pressable>
+              <Pressable accessibilityRole="button" onPress={() => setDraft(customerFlow.createDraft({ pickup: form.pickup, recipient: form.recipient, destination: form.destination, codAmountMinor: codDeclared ? overview.order.cod.amountMinor : 0n }))} style={styles.confirmButton} testID="customer-ship-submit"><Text style={[styles.confirmText, face]}>{t('confirm')}</Text></Pressable>
+              {draft ? <View style={styles.flowSummary} testID="customer-send-quote"><Text style={[styles.flowText, face]}>{demoConfiguration.quote.displayAmount}</Text><Text style={[styles.flowText, face]}>{t('example')}</Text></View> : null}
+              <Pressable accessibilityRole="button" onPress={openExamplePaymentConfirmation} style={styles.flowSummary} testID="customer-quote-confirm">
                 <Text style={[styles.flowText, face]}>{t('quote')}</Text>
                 <Text style={[styles.flowText, face]}>{t('payment')}</Text>
                 <Text style={[styles.flowText, face]}>{t('cod')}</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" onPress={() => { promotionSequence.beginPaymentConfirmation(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); setPaymentConfirmationOpen(true); }} style={styles.confirmButton} testID="customer-pay-confirm">
+              <Pressable accessibilityRole="button" onPress={openExamplePaymentConfirmation} style={styles.confirmButton} testID="customer-pay-confirm">
                 <Text style={[styles.confirmText, face]}>{paymentConfirmed ? t('payment') : t('confirm')}</Text>
               </Pressable>
             </>
@@ -168,6 +187,7 @@ export default function HomePage() {
               <Text style={[styles.detailStatus, face]}>{t('orderStatus')}</Text>
               {orders.map((entry) => (
                 <View key={entry.id} style={styles.orderRow} testID={`customer-orders-example-${entry.id}`}>
+                  <Text style={[styles.detailHint, face]}>{entry.id}</Text>
                   <Text style={[styles.detailHint, face]}>{t('orderExampleTitle')}</Text>
                   <Text style={[styles.detailHint, face]}>{t('orderStatus')}</Text>
                 </View>
@@ -298,6 +318,7 @@ const styles = StyleSheet.create({
   choiceButtonActive: { backgroundColor: '#E9F7F3', borderColor: designTokens.color.teal },
   choiceText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500' },
   choiceTextActive: { fontWeight: '600' },
+  input: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, color: designTokens.color.ink, marginTop: designTokens.space.x3, minHeight: 44, paddingHorizontal: designTokens.space.x3 },
   flowSummary: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, marginTop: designTokens.space.x6 },
   flowText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
   detailCard: { backgroundColor: '#F8FAFC', borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, gap: designTokens.space.x2, marginTop: designTokens.space.x6, padding: designTokens.space.x4 },
