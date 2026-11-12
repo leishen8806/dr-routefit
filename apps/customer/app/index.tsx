@@ -128,27 +128,31 @@ export default function HomePage() {
 
         {promotionVisibility.startupAd && overview.startupAd.kind === 'example' ? (
           <Modal animationType="fade" onRequestClose={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} transparent visible>
-          <View accessibilityLiveRegion="polite" style={[styles.modalBackdrop, styles.startupAd]} testID="customer-home-startup-ad">
-            <Text style={[styles.startupTitle, face]}>{t('promotion')}</Text>
-            <Text style={[styles.startupBody, face]}>{t('example')}</Text>
-            <Pressable accessibilityRole="button" onPress={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.confirmButton} testID="customer-home-startup-ad-dismiss">
-              <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
-            </Pressable>
+          <View accessibilityLiveRegion="polite" style={styles.modalBackdrop} testID="customer-home-startup-ad">
+            <View style={styles.startupAd} testID="customer-home-startup-ad-card">
+              <Text style={[styles.startupTitle, face]}>{t('promotion')}</Text>
+              <Text style={[styles.startupBody, face]}>{t('example')}</Text>
+              <Pressable accessibilityRole="button" onPress={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.confirmButton} testID="customer-home-startup-ad-dismiss">
+                <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
+              </Pressable>
+            </View>
           </View>
           </Modal>
         ) : null}
 
         {promotionVisibility.homePopup && overview.homePopup.kind === 'example' ? (
           <Modal animationType="fade" onRequestClose={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} transparent visible>
-          <View accessibilityLiveRegion="polite" style={[styles.modalBackdrop, styles.promotion]} testID="customer-home-promotion">
-            <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
-            <View style={styles.promotionCopy}>
-              <Text style={[styles.promotionTitle, face]}>{t('promotion')}</Text>
-              <Text style={[styles.promotionBody, face]}>{t('intro')}</Text>
+          <View accessibilityLiveRegion="polite" style={styles.modalBackdrop} testID="customer-home-promotion">
+            <View style={styles.promotion} testID="customer-home-promotion-card">
+              <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+              <View style={styles.promotionCopy}>
+                <Text style={[styles.promotionTitle, face]}>{t('promotion')}</Text>
+                <Text style={[styles.promotionBody, face]}>{t('intro')}</Text>
+              </View>
+              <Pressable accessibilityLabel={t('back')} onPress={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.dismissButton} testID="customer-home-promotion-dismiss">
+                <Text style={[styles.dismissText, face]}>×</Text>
+              </Pressable>
             </View>
-            <Pressable accessibilityLabel={t('back')} onPress={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.dismissButton} testID="customer-home-promotion-dismiss">
-              <Text style={[styles.dismissText, face]}>×</Text>
-            </Pressable>
           </View>
           </Modal>
         ) : null}
@@ -166,10 +170,10 @@ export default function HomePage() {
                   </Pressable>
                 ))}
               </View>
-              {(['pickup', 'recipient', 'destination', 'item', 'vehicle'] as const).map((field) => <TextInput key={field} accessibilityLabel={t(field === 'recipient' ? 'recipient' : 'send')} onChangeText={(value) => setForm((current) => ({ ...current, [field]: value }))} placeholder={t('example')} style={[styles.input, face]} testID={`customer-send-${field}`} value={form[field]} />)}
+              {(['pickup', 'recipient', 'destination', 'item', 'vehicle'] as const).map((field) => <View key={field} style={styles.inputGroup}><Text style={[styles.inputLabel, face]}>{t(field)}</Text><TextInput accessibilityLabel={t(field)} onChangeText={(value) => setForm((current) => ({ ...current, [field]: value }))} placeholder={t('example')} style={[styles.input, face]} testID={`customer-send-${field}`} value={form[field]} /></View>)}
               <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: codDeclared }} onPress={() => setCodDeclared((current) => !current)} style={styles.choiceButton} testID="customer-send-cod-declare"><Text style={[styles.choiceText, face]}>{t('cod')}</Text></Pressable>
-              <Pressable accessibilityRole="button" onPress={() => setDraft(customerFlow.createDraft({ pickup: form.pickup, recipient: form.recipient, destination: form.destination, codAmountMinor: codDeclared ? overview.order.cod.amountMinor : 0n }))} style={styles.confirmButton} testID="customer-ship-submit"><Text style={[styles.confirmText, face]}>{t('confirm')}</Text></Pressable>
-              {draft ? <View style={styles.flowSummary} testID="customer-send-quote"><Text style={[styles.flowText, face]}>{demoConfiguration.quote.displayAmount}</Text><Text style={[styles.flowText, face]}>{t('example')}</Text></View> : null}
+              <Pressable accessibilityRole="button" onPress={() => setDraft(customerFlow.createDraft({ pickup: form.pickup, recipient: form.recipient, destination: form.destination, item: form.item, vehicle: form.vehicle, codAmountMinor: codDeclared ? overview.order.cod.amountMinor : 0n }))} style={styles.confirmButton} testID="customer-ship-submit"><Text style={[styles.confirmText, face]}>{t('confirm')}</Text></Pressable>
+              {draft ? <View style={styles.flowSummary} testID="customer-send-quote"><Text style={[styles.flowText, face]}>{demoConfiguration.quote.displayAmount}</Text><Text style={[styles.flowText, face]}>{demoConfiguration.quote.vehicleLabel}</Text><Text style={[styles.flowText, face]}>{t('example')}</Text></View> : null}
               <Pressable accessibilityRole="button" onPress={openExamplePaymentConfirmation} style={styles.flowSummary} testID="customer-quote-confirm">
                 <Text style={[styles.flowText, face]}>{t('quote')}</Text>
                 <Text style={[styles.flowText, face]}>{t('payment')}</Text>
@@ -298,10 +302,10 @@ const styles = StyleSheet.create({
   routeVehicle: { backgroundColor: designTokens.color.amber, height: 22, left: '43%', position: 'absolute', top: 28, width: 38 },
   routeVehicleCab: { backgroundColor: '#FFD17A', height: 14, position: 'absolute', right: -10, top: 8, width: 12 },
   reviewNote: { color: designTokens.color.muted, fontSize: 13, lineHeight: 22, marginTop: designTokens.space.x3 },
-  startupAd: { alignItems: 'center', backgroundColor: designTokens.color.navy, borderRadius: designTokens.radius.large, marginTop: designTokens.space.x6, minHeight: 180, padding: designTokens.space.x8 },
+  startupAd: { alignItems: 'center', backgroundColor: designTokens.color.navy, borderRadius: designTokens.radius.large, maxWidth: 480, minHeight: 180, padding: designTokens.space.x8, width: '100%' },
   startupTitle: { color: designTokens.color.surface, fontSize: 24, fontWeight: '600', lineHeight: 34, textAlign: 'center' },
   startupBody: { color: '#D9E6EF', fontSize: 15, lineHeight: 24, marginTop: designTokens.space.x3, textAlign: 'center' },
-  promotion: { alignItems: 'center', backgroundColor: '#FFF4DA', borderColor: designTokens.color.amber, borderRadius: designTokens.radius.medium, borderWidth: 1, flexDirection: 'row', gap: designTokens.space.x3, marginTop: designTokens.space.x6, padding: designTokens.space.x4 },
+  promotion: { alignItems: 'center', backgroundColor: '#FFF4DA', borderColor: designTokens.color.amber, borderRadius: designTokens.radius.medium, borderWidth: 1, flexDirection: 'row', gap: designTokens.space.x3, maxWidth: 480, padding: designTokens.space.x4, width: '100%' },
   exampleBadge: { backgroundColor: designTokens.color.amber, borderRadius: 999, paddingHorizontal: designTokens.space.x2, paddingVertical: 3 },
   exampleBadgeText: { color: designTokens.color.navy, fontSize: 12, fontWeight: '600' },
   promotionCopy: { flex: 1 },
@@ -318,7 +322,9 @@ const styles = StyleSheet.create({
   choiceButtonActive: { backgroundColor: '#E9F7F3', borderColor: designTokens.color.teal },
   choiceText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500' },
   choiceTextActive: { fontWeight: '600' },
-  input: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, color: designTokens.color.ink, marginTop: designTokens.space.x3, minHeight: 44, paddingHorizontal: designTokens.space.x3 },
+  inputGroup: { gap: designTokens.space.x1, marginTop: designTokens.space.x3 },
+  inputLabel: { color: designTokens.color.ink, fontSize: 14, fontWeight: '600', lineHeight: 20 },
+  input: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, color: designTokens.color.ink, minHeight: 44, paddingHorizontal: designTokens.space.x3 },
   flowSummary: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, marginTop: designTokens.space.x6 },
   flowText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
   detailCard: { backgroundColor: '#F8FAFC', borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, gap: designTokens.space.x2, marginTop: designTokens.space.x6, padding: designTokens.space.x4 },

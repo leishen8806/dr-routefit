@@ -24,8 +24,12 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await expect(page.getByText('ការផ្ញើនឹងមកដល់ឆាប់ៗ')).toBeVisible();
   await expect(page.getByTestId('customer-home-route-diagram')).toHaveCount(1);
   await expect(page.getByTestId('customer-home-startup-ad')).toBeVisible();
+  await expect(page.getByTestId('customer-home-startup-ad-card')).toBeVisible();
+  await expect(page.getByTestId('customer-home-startup-ad')).toHaveCSS('background-color', 'rgba(11, 37, 69, 0.42)');
   await page.getByTestId('customer-home-startup-ad-dismiss').click();
   await expect(page.getByTestId('customer-home-promotion')).toBeVisible();
+  await expect(page.getByTestId('customer-home-promotion-card')).toBeVisible();
+  await expect(page.getByTestId('customer-home-promotion')).toHaveCSS('background-color', 'rgba(11, 37, 69, 0.42)');
   await page.getByTestId('customer-home-promotion-dismiss').click();
 
   for (const tab of ['send', 'orders', 'messages', 'profile']) {
@@ -36,6 +40,11 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
 
   await page.getByTestId('customer-home-tab-send').click();
   await page.getByTestId('customer-home-language-en').click();
+  await expect(page.getByLabel('Pickup location')).toBeVisible();
+  await expect(page.getByLabel('Recipient')).toBeVisible();
+  await expect(page.getByLabel('Destination')).toBeVisible();
+  await expect(page.getByLabel('Item')).toBeVisible();
+  await expect(page.getByLabel('Vehicle')).toBeVisible();
   await expect(page.getByTestId('customer-send-pickup')).toBeVisible();
   await expect(page.getByTestId('customer-send-recipient')).toBeVisible();
   await expect(page.getByTestId('customer-send-destination')).toBeVisible();
@@ -50,6 +59,7 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await page.getByTestId('customer-send-cod-declare').click();
   await page.getByTestId('customer-ship-submit').click();
   await expect(page.getByTestId('customer-send-quote')).toContainText('8.5000 USD');
+  await expect(page.getByTestId('customer-send-quote')).toContainText('Example vehicle');
   await page.getByTestId('customer-quote-confirm').click();
   await expect(page.getByTestId('customer-payment-confirmation')).toBeVisible();
   await page.getByTestId('customer-payment-cancel').click();
