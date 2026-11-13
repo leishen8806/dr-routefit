@@ -125,13 +125,17 @@ jobs:
       - name: Install PostgreSQL client for trial backup/restore integration
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client
-          pg_dump_path="$(find /usr/lib/postgresql -type f -name pg_dump -perm -111 -print -quit)"
-          if [ -z "$pg_dump_path" ]; then
-            echo "pg_dump was not installed" >&2
-            exit 1
-          fi
-          pg_bin="$(dirname "$pg_dump_path")"
+          # Client major version must equal the service container (postgres:16):
+          # a newer pg_dump emits settings (e.g. transaction_timeout, PG17+) that a 16 server rejects.
+          sudo apt-get install -y -qq postgresql-client-16
+          pg_bin="/usr/lib/postgresql/16/bin"
+          for tool in pg_dump pg_restore psql; do
+            if [ ! -x "$pg_bin/$tool" ]; then
+              echo "$pg_bin/$tool is missing; PostgreSQL 16 client was not installed" >&2
+              exit 1
+            fi
+          done
+          "$pg_bin/pg_dump" --version | grep -q ' 16\.' || { echo "pg_dump is not major version 16" >&2; exit 1; }
           echo "$pg_bin" >> "$GITHUB_PATH"
           echo "ROUTEFIT_PG_BIN=$pg_bin" >> "$GITHUB_ENV"
       # Every integration test calls localFixture(), which creates its own random
