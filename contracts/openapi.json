@@ -33041,8 +33041,10 @@
     "/api/customer/v1/quote-trials": {
       "post": {
         "operationId": "createCustomerQuoteTrial",
-        "x-permissions": [],
-        "x-permissions-note": "Awaiting Lead decision for customer quote permission.",
+        "x-permissions": [
+          "customer:quotes:trial"
+        ],
+        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:quotes:trial.",
         "x-stage": "R2",
         "x-baseline-tier": "A",
         "x-implementation-status": "PLANNED",
@@ -33095,8 +33097,10 @@
     "/api/customer/v1/service-options": {
       "get": {
         "operationId": "listCustomerServiceOptions",
-        "x-permissions": [],
-        "x-permissions-note": "Awaiting Lead decision for customer service-option permission.",
+        "x-permissions": [
+          "customer:catalog:read"
+        ],
+        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:catalog:read.",
         "x-stage": "R2",
         "x-baseline-tier": "A",
         "x-implementation-status": "PLANNED",
@@ -34453,8 +34457,10 @@
     "/api/customer/v1/orders/actions/batch-create": {
       "post": {
         "operationId": "batchCreateCustomerOrders",
-        "x-permissions": [],
-        "x-permissions-note": "Awaiting Lead decision for customer order permission.",
+        "x-permissions": [
+          "customer:orders:create"
+        ],
+        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:orders:create.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -34504,8 +34510,10 @@
     "/api/customer/v1/sku-dimensions": {
       "get": {
         "operationId": "listCustomerSkuDimensions",
-        "x-permissions": [],
-        "x-permissions-note": "Awaiting Lead decision for customer SKU permission.",
+        "x-permissions": [
+          "customer:catalog:read"
+        ],
+        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:catalog:read.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -34578,8 +34586,10 @@
       },
       "post": {
         "operationId": "createCustomerSkuDimension",
-        "x-permissions": [],
-        "x-permissions-note": "Awaiting Lead decision for customer SKU permission.",
+        "x-permissions": [
+          "customer:sku:write"
+        ],
+        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:sku:write.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -34629,8 +34639,10 @@
     "/api/customer/v1/coupons": {
       "get": {
         "operationId": "listCustomerCoupons",
-        "x-permissions": [],
-        "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
+        "x-permissions": [
+          "customer:coupons:read"
+        ],
+        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:coupons:read.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -34705,8 +34717,10 @@
     "/api/customer/v1/coupons/actions/claim": {
       "post": {
         "operationId": "claimCustomerCoupon",
-        "x-permissions": [],
-        "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
+        "x-permissions": [
+          "customer:coupons:claim"
+        ],
+        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:coupons:claim.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -34756,8 +34770,10 @@
     "/api/customer/v1/cod-items": {
       "get": {
         "operationId": "listCustomerCodItems",
-        "x-permissions": [],
-        "x-permissions-note": "Awaiting Lead decision for customer COD permission.",
+        "x-permissions": [
+          "customer:cod:read"
+        ],
+        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:cod:read.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
