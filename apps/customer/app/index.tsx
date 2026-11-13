@@ -1,4 +1,4 @@
-import { Link, Stack } from 'expo-router';
+import { Link, Stack, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
@@ -8,6 +8,7 @@ import { useLanguage } from '../src/LanguageContext';
 import { useRuntime } from '../src/RuntimeContext';
 import { createCustomerExperience, createPromotionSequence } from '../src/customerExperience.mjs';
 import { createDemoCustomerFlow } from '../src/customerFlow.mjs';
+import { promotionNavigationTarget, safeNavigationTarget } from '../src/renderSafety.mjs';
 
 type Tab = 'send' | 'orders' | 'messages' | 'profile';
 
@@ -55,6 +56,7 @@ export default function HomePage() {
   const [form, setForm] = useState({ pickup: '', recipient: '', destination: '', item: '', vehicle: '' });
   const { language, setLanguage, t } = useLanguage();
   const runtime = useRuntime();
+  const { advertTarget } = useLocalSearchParams<{ advertTarget?: string | string[] }>();
   const { width } = useWindowDimensions();
   const experience = useMemo(() => createCustomerExperience(), []);
   const promotionSequence = useMemo(() => createPromotionSequence(), []);
@@ -71,6 +73,9 @@ export default function HomePage() {
   const compact = width < 720;
   const activeCopy = emptyCopy[activeTab];
   const face = { fontFamily: fontFamily[language] };
+  const advertisementTargets = Array.isArray(advertTarget) ? advertTarget : advertTarget ? [advertTarget] : [];
+  const unsafeAdvertisement = advertisementTargets.some((target) => promotionNavigationTarget({ target }) === null);
+  const trackTarget = safeNavigationTarget('/track');
   const openExamplePaymentConfirmation = () => {
     promotionSequence.beginPaymentConfirmation();
     setPromotionVisibility(promotionSequence.getVisiblePromotion());
@@ -125,6 +130,8 @@ export default function HomePage() {
         </View>
 
         <Text style={[styles.reviewNote, face]}>{t('reviewPending')}</Text>
+
+        {unsafeAdvertisement ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" testID="blocked-advertisement" /> : null}
 
         {promotionVisibility.startupAd && overview.startupAd.kind === 'example' ? (
           <Modal animationType="fade" onRequestClose={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} transparent visible>
@@ -227,9 +234,11 @@ export default function HomePage() {
               </View>
             </View>
           ) : null}
-          <Link accessibilityRole="link" href="/track" style={[styles.trackLink, face]} testID="customer-home-track-link">
-            {t('trackLink')} →
-          </Link>
+          {trackTarget ? (
+            <Link accessibilityRole="link" href={trackTarget} style={[styles.trackLink, face]} testID="customer-home-track-link">
+              {t('trackLink')} →
+            </Link>
+          ) : null}
         </View>
       </ScrollView>
 
