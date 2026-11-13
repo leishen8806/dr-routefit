@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import { developmentSessionAuth } from './src/development-auth';
+import { FulfillmentSurface } from './src/FulfillmentSurface';
 import {
   actOnAssignment,
   confirmCustodyTransfer,
@@ -49,6 +50,8 @@ import { errorText, languageOptions, text, type MessageKey } from './src/message
 import { openOfflineEventQueue } from './src/offline-queue.mjs';
 import { createOfflineQueueStore } from './src/offline-store';
 import { rejectConfirmationStep } from './src/task-actions.mjs';
+import { DriverDemoScreens, type DemoRegistration } from './src/DriverDemoScreens';
+import { createDemoDriverFlow, transitionDemoDriverFlow } from './src/demo-driver-flow.mjs';
 
 export default function App() {
   const [language, setLanguage] = useState<DriverLanguage>('zh-Hans');
@@ -82,6 +85,14 @@ export default function App() {
   const [quarantinedEvents, setQuarantinedEvents] = useState(0);
   const [queueFailed, setQueueFailed] = useState(false);
   const [syncBusy, setSyncBusy] = useState(false);
+  const [demoFlow, setDemoFlow] = useState(createDemoDriverFlow);
+  const [demoRegistration, setDemoRegistration] = useState<DemoRegistration>({
+    fullName: '',
+    vehicleType: '',
+    plateNumber: '',
+    acceptedTerms: false,
+    documents: { idFront: false, idBack: false, license: false, vehicle: false },
+  });
   const actionInFlight = useRef(false);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const queueRef = useRef<Awaited<ReturnType<typeof openOfflineEventQueue>> | null>(null);
@@ -89,6 +100,7 @@ export default function App() {
 
   const t = (key: Parameters<typeof text>[1]) => text(language, key);
   const auth = () => developmentSessionAuth(token, csrfToken);
+  const showDevelopmentControls = __DEV__;
 
   function refreshQueue(queue = queueRef.current) {
     if (!queue) return;
@@ -412,42 +424,62 @@ export default function App() {
           {language === 'km' ? <Text style={styles.caption}>{t('kmPending')}</Text> : null}
         </View>
 
-        <View style={styles.login}>
-          <Text style={styles.label}>{t('tokenLabel')}</Text>
-          <TextInput
-            accessibilityLabel={t('tokenLabel')}
-            autoCapitalize="none"
-            autoCorrect={false}
-            onChangeText={setToken}
-            placeholder={t('secretPlaceholder')}
-            secureTextEntry
-            style={styles.input}
-            value={token}
-          />
-          <Text style={styles.label}>{t('csrfLabel')}</Text>
-          <TextInput
-            accessibilityLabel={t('csrfLabel')}
-            autoCapitalize="none"
-            autoCorrect={false}
-            onChangeText={setCsrfToken}
-            placeholder={t('secretPlaceholder')}
-            secureTextEntry
-            style={styles.input}
-            value={csrfToken}
-          />
-          <Pressable
-            accessibilityRole="button"
-            disabled={Boolean(loading) || !credentialsReady}
-            onPress={() => refreshAssignments()}
-            style={({ pressed }) => [
-              styles.button,
-              (Boolean(loading) || !credentialsReady) && styles.buttonDisabled,
-              pressed && styles.buttonPressed,
-            ]}
-          >
-            <Text style={styles.buttonText}>{assignments ? t('refreshTasks') : t('connectTasks')}</Text>
-          </Pressable>
-        </View>
+        {showDevelopmentControls ? (
+          <View style={styles.login}>
+            <DriverDemoScreens
+              language={language}
+              onRegistrationChange={setDemoRegistration}
+              onTransition={(type, payload = {}) => {
+                setDemoFlow((current) => transitionDemoDriverFlow(current, { type, ...payload }));
+              }}
+              registration={demoRegistration}
+              registrationReady={demoFlow.registrationReady}
+              reviewState={demoFlow.reviewState}
+              screen={demoFlow.screen}
+              online={demoFlow.online}
+              withdrawalState={demoFlow.withdrawalState}
+            />
+          </View>
+        ) : null}
+
+        {showDevelopmentControls ? (
+          <View style={styles.login}>
+            <Text style={styles.label}>{t('tokenLabel')}</Text>
+            <TextInput
+              accessibilityLabel={t('tokenLabel')}
+              autoCapitalize="none"
+              autoCorrect={false}
+              onChangeText={setToken}
+              placeholder={t('secretPlaceholder')}
+              secureTextEntry
+              style={styles.input}
+              value={token}
+            />
+            <Text style={styles.label}>{t('csrfLabel')}</Text>
+            <TextInput
+              accessibilityLabel={t('csrfLabel')}
+              autoCapitalize="none"
+              autoCorrect={false}
+              onChangeText={setCsrfToken}
+              placeholder={t('secretPlaceholder')}
+              secureTextEntry
+              style={styles.input}
+              value={csrfToken}
+            />
+            <Pressable
+              accessibilityRole="button"
+              disabled={Boolean(loading) || !credentialsReady}
+              onPress={() => refreshAssignments()}
+              style={({ pressed }) => [
+                styles.button,
+                (Boolean(loading) || !credentialsReady) && styles.buttonDisabled,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <Text style={styles.buttonText}>{assignments ? t('refreshTasks') : t('connectTasks')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
 
         {loading ? <ActivityIndicator accessibilityLabel={loading === 'list' ? t('loadingTasks') : t('loadingDetails')} size="large" /> : null}
         {queueFailed ? <Text accessibilityRole="alert" style={styles.error}>{t('queueLoadFailed')}</Text> : null}
@@ -485,6 +517,13 @@ export default function App() {
                 <Text>{t('packageIds')} {item.packageIds.length ? item.packageIds.join(', ') : t('noPackages')}</Text>
               </View>
             ))}
+            {detail.assignment.state === 'accepted' ? (
+              <FulfillmentSurface
+                language={language}
+                stage={order.order.fulfillmentStage}
+                offline={!online}
+              />
+            ) : null}
             {detail.assignment.state === 'accepted' ? (
               <View style={styles.execution}>
                 <Text style={styles.sectionTitle}>{t('evidencePhoto')}</Text>

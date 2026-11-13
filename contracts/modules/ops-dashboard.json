@@ -1,0 +1,226 @@
+{
+  "module": "ops-dashboard",
+  "description": "CMP-1326（OpsLead）模块契约；第一版实现状态 PLANNED，待 Reviewer3 复核。",
+  "paths": {
+    "/api/ops/v1/dashboard/trends": {
+      "get": {
+        "operationId": "getDashboardTrends",
+        "summary": "近 30 天趋势（来源表未就绪的指标为「示例」值，响应头 X-Data-Source: sample）",
+        "description": "近 30 天趋势（来源表未就绪的指标为「示例」值，响应头 X-Data-Source: sample）。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "页大小，默认50",
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "签名游标"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/DashboardTrendPoint"
+                      }
+                    },
+                    "nextCursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "dashboard:read"
+        ],
+        "x-stage": "R2",
+        "x-tier": "B",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "none",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "date": "2026-11-10",
+                  "orderCount": 120,
+                  "deliveredCount": 104,
+                  "exceptionCount": 3
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DashboardTrendPoint": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "date",
+          "orderCount",
+          "deliveredCount",
+          "exceptionCount"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "orderCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "deliveredCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "exceptionCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  },
+  "x-recorded-operations": [
+    {
+      "operationId": "getDashboardSummary",
+      "path": "/api/ops/v1/dashboard/summary",
+      "method": "GET",
+      "description": "看板汇总。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "dashboard:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "Dashboard",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "asOf": "2026-11-12T03:00:00Z",
+            "pendingDispatchOrderCount": 12,
+            "pendingDispatchOrderDeltaVsYesterday": -2,
+            "availableDriverCount": 30,
+            "driversPendingConfirmationCount": 4,
+            "onTimeDeliveryRatePercent": 96.5,
+            "onTimeDeliveryRateWindowDays": 7,
+            "actionRequiredExceptionCount": 3
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    }
+  ]
+}

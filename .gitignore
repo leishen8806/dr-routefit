@@ -15,3 +15,7 @@ services/routefit/.local/
 
 # Generated working-tree handoff snapshots; source remains in its normal paths.
 handoff/
+
+# Local task receipts and review evidence; never commit these artifacts.
+/review-artifacts/
+/dispatch/

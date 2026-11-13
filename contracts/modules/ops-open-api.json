@@ -1,0 +1,906 @@
+{
+  "module": "ops-open-api",
+  "description": "CMP-1326（OpsLead）模块契约；第一版实现状态 PLANNED，待 Reviewer3 复核。",
+  "paths": {
+    "/api/ops/v1/api-keys/{keyId}/actions/rotate": {
+      "post": {
+        "operationId": "rotateApiKey",
+        "summary": "换新密钥：签发新密钥，旧密钥再保留 24 小时（示例，可配置）；新明文只返回一次",
+        "description": "换新密钥：签发新密钥，旧密钥再保留 24 小时（示例，可配置）；新明文只返回一次。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "keyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "所有业务写请求必需。同主体+方法+规范路径+键去重；同键异内容409。持久业务交易ID不因响应缓存过期失去去重。"
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            },
+            "description": "当前主聚合强ETag；相关聚合版本仍单独复验，不接受*。"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
+                }
+              },
+              "Idempotent-Replayed": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiKeyCreated"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error412"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "openapi:keys:manage"
+        ],
+        "x-stage": "R2",
+        "x-tier": "B",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "ApiKey",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "clientId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "keyPrefix": "rf_test_ab12",
+              "environment": "sandbox",
+              "scopes": [
+                "orders:read"
+              ],
+              "rateLimitPerMinute": 60,
+              "state": "active",
+              "createdAt": "2026-11-12T03:00:00Z",
+              "revokedAt": null,
+              "secret": "（仅此一次返回，示例已省略）"
+            }
+          },
+          "rejected": {
+            "status": 412,
+            "body": {
+              "error": {
+                "code": "VERSION_CONFLICT",
+                "message": "Version conflict (sample)",
+                "messageKey": "error.version_conflict",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenApiKeyAction"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ops/v1/webhook-endpoints/{endpointId}": {
+      "patch": {
+        "operationId": "updateWebhookEndpoint",
+        "summary": "修改回调地址和订阅的事件（地址必须是公网 https）",
+        "description": "修改回调地址和订阅的事件（地址必须是公网 https）。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "所有业务写请求必需。同主体+方法+规范路径+键去重；同键异内容409。持久业务交易ID不因响应缓存过期失去去重。"
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            },
+            "description": "当前主聚合强ETag；相关聚合版本仍单独复验，不接受*。"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
+                }
+              },
+              "Idempotent-Replayed": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookEndpoint"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error412"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "openapi:webhooks:manage"
+        ],
+        "x-stage": "R2",
+        "x-tier": "B",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "WebhookEndpoint",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "clientId": "7a4e9b21-3c58-4d0f-8b6a-2e1d5c9f7a33",
+              "url": "https://merchant.example.invalid/hook",
+              "events": [
+                "order.created",
+                "order.delivered"
+              ],
+              "state": "active",
+              "version": 2,
+              "createdAt": "2026-11-11T06:30:00Z"
+            }
+          },
+          "rejected": {
+            "status": 400,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "Validation failed (sample)",
+                "messageKey": "error.validation_failed",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookEndpointUpdate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ops/v1/webhook-endpoints/{endpointId}/actions/test": {
+      "post": {
+        "operationId": "testWebhookEndpoint",
+        "summary": "向回调地址发一条测试回调（模拟载荷、带签名，不含真实业务数据）",
+        "description": "向回调地址发一条测试回调（模拟载荷、带签名，不含真实业务数据）。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "所有业务写请求必需。同主体+方法+规范路径+键去重；同键异内容409。持久业务交易ID不因响应缓存过期失去去重。"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Idempotent-Replayed": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookDelivery"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error412"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "openapi:webhooks:manage"
+        ],
+        "x-stage": "R2",
+        "x-tier": "B",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "none",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "endpointId": "7a4e9b21-3c58-4d0f-8b6a-2e1d5c9f7a33",
+              "eventType": "order.created",
+              "attempt": 1,
+              "state": "delivered",
+              "nextAttemptAt": null,
+              "lastStatus": 200,
+              "createdAt": "2026-11-11T06:30:00Z"
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmptyCommand"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ops/v1/webhook-deliveries": {
+      "get": {
+        "operationId": "listAllWebhookDeliveries",
+        "summary": "回调推送记录（跨接入方）；筛选 clientId、state",
+        "description": "回调推送记录（跨接入方）；筛选 clientId、state。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "clientId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "pending",
+                "failed",
+                "delivered",
+                "dead"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "页大小，默认50",
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "签名游标"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WebhookDelivery"
+                      }
+                    },
+                    "nextCursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "openapi:webhooks:manage"
+        ],
+        "x-stage": "R2",
+        "x-tier": "B",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "none",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+                  "endpointId": "7a4e9b21-3c58-4d0f-8b6a-2e1d5c9f7a33",
+                  "eventType": "order.delivered",
+                  "attempt": 2,
+                  "state": "failed",
+                  "nextAttemptAt": "2026-11-11T06:30:00Z",
+                  "lastStatus": 500,
+                  "createdAt": "2026-11-11T06:30:00Z"
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Forbidden (sample)",
+                "messageKey": "error.forbidden",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WebhookEndpointUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version"
+        ],
+        "minProperties": 2,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9000000000000
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2048,
+            "pattern": "^https://"
+          },
+          "events": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 30,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "order.created",
+                "order.quoted",
+                "order.dispatched",
+                "order.picked_up",
+                "order.out_for_delivery",
+                "order.delivered",
+                "order.delivery_failed",
+                "order.cancelled",
+                "order.returned",
+                "cod.collected",
+                "cod.settled"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-recorded-operations": [
+    {
+      "operationId": "openCreateQuote",
+      "path": "/api/open/v1/quotes",
+      "method": "POST",
+      "description": "开放接口：创建报价。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:quotes:create"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenQuote",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "chargeableWeightGrams": 1500,
+            "totalMinor": 2500,
+            "currency": "USD",
+            "expiresAt": "2026-11-12T04:00:00Z",
+            "configurationVersion": 1
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "openCreateOrder",
+      "path": "/api/open/v1/orders",
+      "method": "POST",
+      "description": "开放接口：创建订单。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:orders:create"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenOrder",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c41",
+            "version": 1,
+            "externalOrderId": "EXT-DEMO-001",
+            "orderId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c42",
+            "state": "pending_review",
+            "duplicate": false
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "openGetOrder",
+      "path": "/api/open/v1/orders/{orderId}",
+      "method": "GET",
+      "description": "开放接口：查询订单。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:orders:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenOrder",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c41",
+            "version": 1,
+            "externalOrderId": "EXT-DEMO-001",
+            "orderId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c42",
+            "state": "pending_review",
+            "duplicate": false
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "openCancelOrder",
+      "path": "/api/open/v1/orders/{orderId}/actions/cancel",
+      "method": "POST",
+      "description": "开放接口：取消订单。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:orders:cancel"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenOrder",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c41",
+            "version": 1,
+            "externalOrderId": "EXT-DEMO-001",
+            "orderId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c42",
+            "state": "pending_review",
+            "duplicate": false
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "openGetTracking",
+      "path": "/api/open/v1/orders/{orderId}/tracking",
+      "method": "GET",
+      "description": "开放接口：订单跟踪。【口径】本权限点是「接入方密钥的授权范围」：发密钥时勾选，不发给员工角色（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "open:tracking:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "OpenOrder",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "orderLabel": "DEMO-001",
+            "state": "in_transit",
+            "promiseWindow": null,
+            "etaAt": null,
+            "etaType": "UNAVAILABLE",
+            "updatedAt": "2026-11-12T03:00:00Z",
+            "quality": "fresh",
+            "contactEntry": "https://example.invalid/contact"
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    }
+  ]
+}
