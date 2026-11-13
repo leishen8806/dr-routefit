@@ -5,6 +5,8 @@ import {fileURLToPath} from 'node:url';
 const root=resolve(fileURLToPath(new URL('..',import.meta.url)));
 const errorCodes=['400','401','403','404','429','503'];
 const writes=new Set(['post','put','patch']);
+const recordedInputKeys=new Set(['operationId','path','method','x-permissions','x-stage','x-baseline-tier','x-implementation-status','x-version-resource','x-owner','x-examples','description','x-permissions-note','x-contact-projection','x-money-source','x-action-permissions','x-self-approval-rule']);
+const recordedOutputKeys=['x-baseline-tier','x-implementation-status','x-owner'];
 const clone=value=>JSON.parse(JSON.stringify(value));
 const refName=ref=>ref?.split('/').at(-1);
 
@@ -58,7 +60,10 @@ export function validateModuleStandards(module,base){
   if(!Array.isArray(recorded))fail(module,'x-recorded-operations must be an array');
   for(const operation of recorded){
     const method=operation?.method?.toLowerCase();
-    if(!method||!operation?.path||!base.paths?.[operation.path]?.[method])fail(module,`${operation?.operationId??'recorded operation'} must match an existing path and method`);
+    const target=base.paths?.[operation?.path]?.[method];
+    if(!method||!operation?.path||!target)fail(module,`${operation?.operationId??'recorded operation'} must match an existing path and method`);
+    if(operation.operationId!==target.operationId)fail(module,`${operation.operationId} operationId does not match ${method.toUpperCase()} ${operation.path}`);
+    for(const key of Object.keys(operation))if(!recordedInputKeys.has(key))fail(module,`${operation.operationId} ${key} is not allowed in x-recorded-operations`);
     for(const key of ['operationId','x-permissions','x-stage','x-baseline-tier','x-implementation-status','x-version-resource','x-owner']){
       if(operation[key]===undefined||operation[key]===null||operation[key]==='')fail(module,`${operation?.operationId??'recorded operation'} requires ${key}`);
     }
@@ -101,6 +106,15 @@ export function assembleContract(base,moduleContracts){
       if(result.components.schemas[name])fail(module,`schema ${name} duplicates an existing schema`);
       result.components.schemas[name]={...clone(schema),'x-contract-module':module.module};
     }
+  }
+  const recordedTargets=new Set();
+  for(const module of moduleContracts)for(const recorded of module['x-recorded-operations']??[]){
+    const method=recorded.method.toLowerCase();
+    const targetKey=`${method} ${recorded.path}`;
+    if(recordedTargets.has(targetKey))fail(module,`${recorded.operationId} duplicate recorded operation`);
+    recordedTargets.add(targetKey);
+    const target=result.paths[recorded.path][method];
+    for(const key of recordedOutputKeys)target[key]=clone(recorded[key]);
   }
   return result;
 }
