@@ -32791,7 +32791,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.dimensionRule.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32821,7 +32821,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1DimensionRulesItem"
                       }
                     },
                     "nextCursor": {
@@ -32857,11 +32857,34 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "dimensionrules-example-0001",
+                  "label": "DimensionRules example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -32873,7 +32896,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.dimensionRule.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32888,7 +32911,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Dimension rule created"
+            "description": "Dimension rule created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateDimensionRuleResponse"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/Error400"
@@ -32911,10 +32941,39 @@
         },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "id": "createDimensionRule-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
           },
           "rejected": {
-            "code": "VALIDATION_FAILED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The request cannot be accepted.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateDimensionRuleRequest"
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -32928,7 +32987,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.vehicleTariff.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -32958,7 +33017,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1VehicleTariffsItem"
                       }
                     },
                     "nextCursor": {
@@ -32994,11 +33053,34 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "vehicletariffs-example-0001",
+                  "label": "VehicleTariffs example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33010,7 +33092,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.vehicleTariff.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33025,7 +33107,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Vehicle tariff created"
+            "description": "Vehicle tariff created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateVehicleTariffResponse"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/Error400"
@@ -33048,10 +33137,39 @@
         },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "id": "createVehicleTariff-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
           },
           "rejected": {
-            "code": "VALIDATION_FAILED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The request cannot be accepted.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateVehicleTariffRequest"
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33065,7 +33183,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.valueAddedService.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33095,7 +33213,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1ValueAddedServicesItem"
                       }
                     },
                     "nextCursor": {
@@ -33131,11 +33249,34 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "valueaddedservices-example-0001",
+                  "label": "ValueAddedServices example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33147,7 +33288,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.valueAddedService.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33162,7 +33303,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Value-added service created"
+            "description": "Value-added service created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateValueAddedServiceResponse"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/Error400"
@@ -33185,10 +33333,39 @@
         },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "id": "createValueAddedService-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
           },
           "rejected": {
-            "code": "VALIDATION_FAILED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The request cannot be accepted.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateValueAddedServiceRequest"
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33202,7 +33379,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.fxRate.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33232,7 +33409,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1FxRatesItem"
                       }
                     },
                     "nextCursor": {
@@ -33268,11 +33445,34 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "fxrates-example-0001",
+                  "label": "FxRates example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33284,7 +33484,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.fxRate.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33299,7 +33499,14 @@
         ],
         "responses": {
           "201": {
-            "description": "FX rate created"
+            "description": "FX rate created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateFxRateResponse"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/Error400"
@@ -33322,10 +33529,39 @@
         },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "id": "createFxRate-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
           },
           "rejected": {
-            "code": "VALIDATION_FAILED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The request cannot be accepted.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateFxRateRequest"
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33339,7 +33575,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.quoteTrial.configurationVersion",
         "x-owner": "Backend1",
         "parameters": [
@@ -33354,7 +33590,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Quote trial"
+            "description": "Quote trial",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreatePricingQuoteTrialResponse"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/Error400"
@@ -33377,10 +33620,39 @@
         },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "createPricingQuoteTrial-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
           },
           "rejected": {
-            "code": "EXCLUSIVE_VEHICLE_REQUIRED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "EXCLUSIVE_VEHICLE_REQUIRED",
+                "message": "The selected vehicle must be exclusive.",
+                "messageKey": "errors.exclusiveVehicleRequired",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreatePricingQuoteTrialRequest"
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33389,13 +33661,11 @@
     "/api/customer/v1/quote-trials": {
       "post": {
         "operationId": "createCustomerQuoteTrial",
-        "x-permissions": [
-          "customer:quotes:trial"
-        ],
-        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:quotes:trial.",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer quote permission.",
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.quoteTrial.configurationVersion",
         "x-owner": "Backend1",
         "parameters": [
@@ -33410,7 +33680,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Customer quote trial"
+            "description": "Customer quote trial",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateCustomerQuoteTrialResponse"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/Error400"
@@ -33433,10 +33710,39 @@
         },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "createCustomerQuoteTrial-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
           },
           "rejected": {
-            "code": "EXCLUSIVE_VEHICLE_REQUIRED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "EXCLUSIVE_VEHICLE_REQUIRED",
+                "message": "The selected vehicle must be exclusive.",
+                "messageKey": "errors.exclusiveVehicleRequired",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateCustomerQuoteTrialRequest"
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33445,13 +33751,11 @@
     "/api/customer/v1/service-options": {
       "get": {
         "operationId": "listCustomerServiceOptions",
-        "x-permissions": [
-          "customer:catalog:read"
-        ],
-        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:catalog:read.",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer service-option permission.",
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "pricing.fxRate.version",
         "x-owner": "Backend1",
         "parameters": [
@@ -33481,7 +33785,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1CustomerServiceOptionsItem"
                       }
                     },
                     "nextCursor": {
@@ -33517,11 +33821,34 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "customerserviceoptions-example-0001",
+                  "label": "CustomerServiceOptions example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33565,7 +33892,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1MerchantItem"
                       }
                     },
                     "nextCursor": {
@@ -33601,11 +33928,31 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "merchant-example-0001",
+                  "name": "Example Merchant",
+                  "status": "ACTIVE",
+                  "version": 1
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33632,7 +33979,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Merchant created"
+            "description": "Merchant created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantItem"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/Error400"
@@ -33653,12 +34007,38 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateMerchantRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "id": "merchant-example-0002",
+              "name": "Example Merchant Two",
+              "status": "PENDING_APPROVAL",
+              "version": 1
+            }
           },
           "rejected": {
-            "code": "VALIDATION_FAILED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "Merchant details are invalid.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0002",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33677,7 +34057,14 @@
         "x-owner": "Backend1",
         "responses": {
           "200": {
-            "description": "Merchant"
+            "description": "Merchant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantItem"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/Error400"
@@ -33700,10 +34087,26 @@
         },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "merchant-example-0001",
+              "name": "Example Merchant",
+              "status": "ACTIVE",
+              "version": 1
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Merchant was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0003",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33732,7 +34135,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Merchant approved"
+            "description": "Merchant approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -33750,12 +34160,38 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1MerchantActionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "merchant-example-0001",
+              "name": "Example Merchant",
+              "status": "ACTIVE",
+              "version": 2
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Merchant was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0004",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33784,7 +34220,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Merchant rejected"
+            "description": "Merchant rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -33802,12 +34245,38 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1MerchantActionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "merchant-example-0001",
+              "name": "Example Merchant",
+              "status": "REJECTED",
+              "version": 2
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Merchant was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0005",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33836,7 +34305,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Merchant suspended"
+            "description": "Merchant suspended",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -33854,12 +34330,38 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1MerchantActionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "merchant-example-0001",
+              "name": "Example Merchant",
+              "status": "SUSPENDED",
+              "version": 3
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Merchant was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0006",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33888,7 +34390,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Merchant resumed"
+            "description": "Merchant resumed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -33906,12 +34415,38 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1MerchantActionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "merchant-example-0001",
+              "name": "Example Merchant",
+              "status": "ACTIVE",
+              "version": 4
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Merchant was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0007",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -33955,7 +34490,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1MerchantContractItem"
                       }
                     },
                     "nextCursor": {
@@ -33988,11 +34523,31 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "merchant-contract-example-0001",
+                  "merchantId": "merchant-example-0001",
+                  "status": "DRAFT",
+                  "version": 1
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0008",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34019,7 +34574,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Contract created"
+            "description": "Contract created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantContractItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34037,12 +34599,38 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateMerchantContractVersionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "id": "merchant-contract-example-0002",
+              "merchantId": "merchant-example-0001",
+              "status": "DRAFT",
+              "version": 1
+            }
           },
           "rejected": {
-            "code": "VALIDATION_FAILED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "Contract details are invalid.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0009",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34071,7 +34659,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Contract approved"
+            "description": "Contract approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantContractItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34089,12 +34684,38 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1MerchantContractActionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "merchant-contract-example-0001",
+              "merchantId": "merchant-example-0001",
+              "status": "ACTIVE",
+              "version": 2
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Contract was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0010",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34138,7 +34759,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1UserItem"
                       }
                     },
                     "nextCursor": {
@@ -34167,11 +34788,31 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "user-example-0001",
+                  "email": "operator@example.test",
+                  "status": "ACTIVE",
+                  "version": 1
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0011",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34190,7 +34831,14 @@
         "x-owner": "Backend1",
         "responses": {
           "200": {
-            "description": "User"
+            "description": "User",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1UserItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34210,10 +34858,26 @@
         },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "user-example-0001",
+              "email": "operator@example.test",
+              "status": "ACTIVE",
+              "version": 1
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "User was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0012",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34257,7 +34921,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1CouponBatchItem"
                       }
                     },
                     "nextCursor": {
@@ -34286,11 +34950,35 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "coupon-batch-example-0001",
+                  "name": "Welcome Campaign",
+                  "status": "DRAFT",
+                  "version": 1,
+                  "budget": {
+                    "currency": "USD",
+                    "amountMinor": 100000
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0013",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34317,7 +35005,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Coupon batch created"
+            "description": "Coupon batch created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CouponBatchItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34335,12 +35030,42 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateCouponBatchRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "id": "coupon-batch-example-0002",
+              "name": "Welcome Campaign",
+              "status": "DRAFT",
+              "version": 1,
+              "budget": {
+                "currency": "USD",
+                "amountMinor": 100000
+              }
+            }
           },
           "rejected": {
-            "code": "COUPON_BUDGET_EXHAUSTED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "COUPON_BUDGET_EXHAUSTED",
+                "message": "Coupon budget is exhausted.",
+                "messageKey": "errors.couponBudgetExhausted",
+                "retryable": false,
+                "requestId": "demo-req-0014",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34359,7 +35084,14 @@
         "x-owner": "Backend1",
         "responses": {
           "200": {
-            "description": "Coupon batch"
+            "description": "Coupon batch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CouponBatchItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34379,10 +35111,30 @@
         },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "coupon-batch-example-0001",
+              "name": "Welcome Campaign",
+              "status": "DRAFT",
+              "version": 1,
+              "budget": {
+                "currency": "USD",
+                "amountMinor": 100000
+              }
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Coupon batch was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0015",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34411,7 +35163,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Coupon batch submitted"
+            "description": "Coupon batch submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CouponBatchItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34429,12 +35188,42 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CouponBatchActionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "coupon-batch-example-0001",
+              "name": "Welcome Campaign",
+              "status": "PENDING_APPROVAL",
+              "version": 2,
+              "budget": {
+                "currency": "USD",
+                "amountMinor": 100000
+              }
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Coupon batch was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0016",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34463,7 +35252,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Coupon batch approved"
+            "description": "Coupon batch approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CouponBatchItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34481,12 +35277,42 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CouponBatchActionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "coupon-batch-example-0001",
+              "name": "Welcome Campaign",
+              "status": "ACTIVE",
+              "version": 3,
+              "budget": {
+                "currency": "USD",
+                "amountMinor": 100000
+              }
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Coupon batch was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0017",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34515,7 +35341,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Coupon batch rejected"
+            "description": "Coupon batch rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CouponBatchItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34533,12 +35366,42 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CouponBatchActionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "coupon-batch-example-0001",
+              "name": "Welcome Campaign",
+              "status": "REJECTED",
+              "version": 3,
+              "budget": {
+                "currency": "USD",
+                "amountMinor": 100000
+              }
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Coupon batch was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0018",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34567,7 +35430,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Coupon batch stopped"
+            "description": "Coupon batch stopped",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CouponBatchItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34585,12 +35455,42 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CouponBatchActionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "coupon-batch-example-0001",
+              "name": "Welcome Campaign",
+              "status": "STOPPED",
+              "version": 4,
+              "budget": {
+                "currency": "USD",
+                "amountMinor": 100000
+              }
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Coupon batch was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0019",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34634,7 +35534,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1CouponRedemptionItem"
                       }
                     },
                     "nextCursor": {
@@ -34663,11 +35563,30 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "coupon-redemption-example-0001",
+                  "couponId": "coupon-example-0001",
+                  "status": "REDEEMED"
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0020",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34711,7 +35630,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1CouponRiskFlagItem"
                       }
                     },
                     "nextCursor": {
@@ -34740,11 +35659,31 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "coupon-risk-example-0001",
+                  "couponId": "coupon-example-0001",
+                  "status": "OPEN",
+                  "version": 1
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0021",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34773,7 +35712,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Coupon risk resolved"
+            "description": "Coupon risk resolved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CouponRiskFlagItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34791,12 +35737,38 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1ResolveCouponRiskFlagRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 200
+            "status": 200,
+            "body": {
+              "id": "coupon-risk-example-0001",
+              "couponId": "coupon-example-0001",
+              "status": "RESOLVED",
+              "version": 2
+            }
           },
           "rejected": {
-            "code": "NOT_FOUND"
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Coupon risk flag was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0022",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34805,10 +35777,8 @@
     "/api/customer/v1/orders/actions/batch-create": {
       "post": {
         "operationId": "batchCreateCustomerOrders",
-        "x-permissions": [
-          "customer:orders:create"
-        ],
-        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:orders:create.",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer order permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -34826,7 +35796,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Customer orders created"
+            "description": "Customer orders created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CustomerOrderBatchResponse"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34844,12 +35821,41 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1BatchCreateCustomerOrdersRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "orders": [
+                {
+                  "id": "customer-order-example-0001",
+                  "status": "CREATED",
+                  "version": 1
+                }
+              ]
+            }
           },
           "rejected": {
-            "code": "VALIDATION_FAILED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "Customer order input is invalid.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0025",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34858,10 +35864,8 @@
     "/api/customer/v1/sku-dimensions": {
       "get": {
         "operationId": "listCustomerSkuDimensions",
-        "x-permissions": [
-          "customer:catalog:read"
-        ],
-        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:catalog:read.",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer SKU permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -34894,7 +35898,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1CustomerSkuDimensionItem"
                       }
                     },
                     "nextCursor": {
@@ -34923,21 +35927,41 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "customer-sku-dimension-example-0001",
+                  "skuCode": "SKU-DEMO-001",
+                  "lengthCm": 30,
+                  "widthCm": 20,
+                  "heightCm": 10,
+                  "version": 1
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0023",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
       },
       "post": {
         "operationId": "createCustomerSkuDimension",
-        "x-permissions": [
-          "customer:sku:write"
-        ],
-        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:sku:write.",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer SKU permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -34955,7 +35979,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Customer SKU dimension created"
+            "description": "Customer SKU dimension created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CustomerSkuDimensionItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -34973,12 +36004,40 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateCustomerSkuDimensionRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "id": "customer-sku-dimension-example-0001",
+              "skuCode": "SKU-DEMO-001",
+              "lengthCm": 30,
+              "widthCm": 20,
+              "heightCm": 10,
+              "version": 1
+            }
           },
           "rejected": {
-            "code": "VALIDATION_FAILED"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "SKU dimensions are invalid.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0026",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -34987,10 +36046,8 @@
     "/api/customer/v1/coupons": {
       "get": {
         "operationId": "listCustomerCoupons",
-        "x-permissions": [
-          "customer:coupons:read"
-        ],
-        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:coupons:read.",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -35023,7 +36080,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1CustomerCouponItem"
                       }
                     },
                     "nextCursor": {
@@ -35052,11 +36109,30 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "customer-coupon-example-0001",
+                  "status": "CLAIMED",
+                  "version": 1
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0027",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -35065,10 +36141,8 @@
     "/api/customer/v1/coupons/actions/claim": {
       "post": {
         "operationId": "claimCustomerCoupon",
-        "x-permissions": [
-          "customer:coupons:claim"
-        ],
-        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:coupons:claim.",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -35086,7 +36160,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Customer coupon claimed"
+            "description": "Customer coupon claimed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CustomerCouponItem"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -35104,12 +36185,37 @@
             "$ref": "#/components/responses/Error503"
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1ClaimCustomerCouponRequest"
+              }
+            }
+          }
+        },
         "x-examples": {
           "success": {
-            "status": 201
+            "status": 201,
+            "body": {
+              "id": "customer-coupon-example-0001",
+              "status": "CLAIMED",
+              "version": 1
+            }
           },
           "rejected": {
-            "code": "COUPON_NOT_APPLICABLE"
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "COUPON_NOT_APPLICABLE",
+                "message": "Coupon is not applicable.",
+                "messageKey": "errors.couponNotApplicable",
+                "retryable": false,
+                "requestId": "demo-req-0024",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -35118,10 +36224,8 @@
     "/api/customer/v1/cod-items": {
       "get": {
         "operationId": "listCustomerCodItems",
-        "x-permissions": [
-          "customer:cod:read"
-        ],
-        "x-permissions-note": "Customer default permission; not assigned to employee roles. Naming: customer:cod:read.",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer COD permission.",
         "x-stage": "R2",
         "x-baseline-tier": "B",
         "x-implementation-status": "PLANNED",
@@ -35154,7 +36258,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Backend1CustomerCodItem"
                       }
                     },
                     "nextCursor": {
@@ -35183,11 +36287,35 @@
         },
         "x-examples": {
           "success": {
-            "items": [],
-            "nextCursor": null
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "customer-cod-item-example-0001",
+                  "orderId": "customer-order-example-0001",
+                  "status": "PENDING",
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  },
+                  "version": 1
+                }
+              ],
+              "nextCursor": null
+            }
           },
           "rejected": {
-            "code": "FORBIDDEN"
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0028",
+                "fields": []
+              }
+            }
           }
         },
         "x-contract-module": "backend1-routefit-r2"
@@ -56513,6 +57641,823 @@
             "minimum": 1
           }
         }
+      },
+      "Backend1DimensionRulesItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateDimensionRuleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateDimensionRuleRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1VehicleTariffsItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateVehicleTariffResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateVehicleTariffRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1ValueAddedServicesItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateValueAddedServiceResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateValueAddedServiceRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1FxRatesItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateFxRateResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateFxRateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreatePricingQuoteTrialResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreatePricingQuoteTrialRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateCustomerQuoteTrialResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateCustomerQuoteTrialRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CustomerServiceOptionsItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1MerchantItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "version"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateMerchantRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "legalName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "legalName"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1MerchantActionRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedVersion"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1MerchantContractItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "merchantId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "merchantId",
+          "status",
+          "version"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateMerchantContractVersionRequest": {
+        "type": "object",
+        "properties": {
+          "effectiveAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "terms": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "effectiveAt",
+          "terms"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1MerchantContractActionRequest": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedVersion"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1UserItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "status",
+          "version"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CouponBatchItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "budget": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "version",
+          "budget"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateCouponBatchRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "budget": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "name",
+          "budget"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CouponBatchActionRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedVersion"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CouponRedemptionItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "couponId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "couponId",
+          "status"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CouponRiskFlagItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "couponId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "couponId",
+          "status",
+          "version"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1ResolveCouponRiskFlagRequest": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer"
+          },
+          "resolution": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "resolution"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CustomerCouponItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1ClaimCustomerCouponRequest": {
+        "type": "object",
+        "properties": {
+          "couponCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "couponCode"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CustomerOrderInput": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string"
+          },
+          "serviceOptionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reference",
+          "serviceOptionId"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1BatchCreateCustomerOrdersRequest": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Backend1CustomerOrderInput"
+            }
+          }
+        },
+        "required": [
+          "orders"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CustomerOrderItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CustomerOrderBatchResponse": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Backend1CustomerOrderItem"
+            }
+          }
+        },
+        "required": [
+          "orders"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CustomerSkuDimensionItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "skuCode": {
+            "type": "string"
+          },
+          "lengthCm": {
+            "type": "integer"
+          },
+          "widthCm": {
+            "type": "integer"
+          },
+          "heightCm": {
+            "type": "integer"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "skuCode",
+          "lengthCm",
+          "widthCm",
+          "heightCm",
+          "version"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CreateCustomerSkuDimensionRequest": {
+        "type": "object",
+        "properties": {
+          "skuCode": {
+            "type": "string"
+          },
+          "lengthCm": {
+            "type": "integer"
+          },
+          "widthCm": {
+            "type": "integer"
+          },
+          "heightCm": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "skuCode",
+          "lengthCm",
+          "widthCm",
+          "heightCm"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
+      },
+      "Backend1CustomerCodItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "status",
+          "amount",
+          "version"
+        ],
+        "x-contract-module": "backend1-routefit-r2"
       },
       "OpsDriversListResponse": {
         "type": "object",
