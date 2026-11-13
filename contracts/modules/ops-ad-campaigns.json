@@ -1,0 +1,570 @@
+{
+  "module": "ops-ad-campaigns",
+  "description": "CMP-1326（OpsLead）模块契约；第一版实现状态 PLANNED，待 Reviewer3 复核。",
+  "paths": {
+    "/api/ops/v1/ad-campaigns/{campaignId}": {
+      "get": {
+        "operationId": "getAdCampaign",
+        "summary": "广告详情",
+        "description": "广告详情。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "ops"
+        ],
+        "security": [
+          {
+            "WebSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^\"[1-9][0-9]*\"$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdCampaign"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "ads:read"
+        ],
+        "x-stage": "R2",
+        "x-tier": "B",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "AdCampaign",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "placement": "driver",
+              "app": "driver",
+              "title": "Demo campaign (sample)",
+              "imageRef": "https://example.invalid/ads/demo.png",
+              "linkTarget": "/promo/demo",
+              "startsAt": "2026-11-20T00:00:00Z",
+              "endsAt": "2026-11-30T00:00:00Z",
+              "maxPerUserPerDay": 3,
+              "audience": {},
+              "state": "draft",
+              "version": 1,
+              "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "reviewedBy": null,
+              "createdAt": "2026-11-12T03:00:00Z"
+            }
+          },
+          "rejected": {
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Not found (sample)",
+                "messageKey": "error.not_found",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-recorded-operations": [
+    {
+      "operationId": "patchAdCampaign",
+      "path": "/api/ops/v1/ad-campaigns/{campaignId}",
+      "method": "PATCH",
+      "x-permissions": [
+        "ads:write"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+            "placement": "driver",
+            "app": "driver",
+            "title": "示例广告",
+            "imageRef": "https://example.invalid/ads/demo.png",
+            "linkTarget": "/promo/demo",
+            "startsAt": "2026-11-20T00:00:00Z",
+            "endsAt": "2026-11-30T00:00:00Z",
+            "maxPerUserPerDay": 3,
+            "audience": {},
+            "state": "draft",
+            "version": 2,
+            "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+            "reviewedBy": null,
+            "createdAt": "2026-11-12T03:00:00Z"
+          }
+        },
+        "rejected": {
+          "status": 412,
+          "body": {
+            "error": {
+              "code": "VERSION_CONFLICT",
+              "message": "Version conflict (sample)",
+              "messageKey": "error.version_conflict",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": [],
+              "currentVersion": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "listAdCampaigns",
+      "path": "/api/ops/v1/ad-campaigns",
+      "method": "GET",
+      "description": "广告列表。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "ads:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "items": [
+              {
+                "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+                "placement": "driver",
+                "app": "driver",
+                "title": "Demo campaign (sample)",
+                "imageRef": "https://example.invalid/ads/demo.png",
+                "linkTarget": "/promo/demo",
+                "startsAt": "2026-11-20T00:00:00Z",
+                "endsAt": "2026-11-30T00:00:00Z",
+                "maxPerUserPerDay": 3,
+                "audience": {},
+                "state": "draft",
+                "version": 1,
+                "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+                "reviewedBy": null,
+                "createdAt": "2026-11-12T03:00:00Z"
+              }
+            ]
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "createAdCampaign",
+      "path": "/api/ops/v1/ad-campaigns",
+      "method": "POST",
+      "description": "创建广告。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "ads:write"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+            "placement": "driver",
+            "app": "driver",
+            "title": "Demo campaign (sample)",
+            "imageRef": "https://example.invalid/ads/demo.png",
+            "linkTarget": "/promo/demo",
+            "startsAt": "2026-11-20T00:00:00Z",
+            "endsAt": "2026-11-30T00:00:00Z",
+            "maxPerUserPerDay": 3,
+            "audience": {},
+            "state": "draft",
+            "version": 1,
+            "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+            "reviewedBy": null,
+            "createdAt": "2026-11-12T03:00:00Z"
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "actOnAdCampaign",
+      "path": "/api/ops/v1/ad-campaigns/{campaignId}/actions",
+      "method": "POST",
+      "description": "广告审核动作。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。x-permissions 为三项并列，服务端按请求里的 action 只校验 x-action-permissions 中对应的那一个。【自审禁止·接口层】approve／reject 要求审核人与创建人按自然人比较（不是按 principal）：reviewer.personId <> campaign.createdBy.personId，相同则拒绝；数据库层另有一道拦截（另卡）。错误码区分两种拒绝：权限不足 → 403 FORBIDDEN；自审被拒 → 422 HARD_CONSTRAINT_VIOLATION，fields[0].code=SELF_APPROVAL_FORBIDDEN。示例值均为演示数据（示例）。注：总表请求体的 action 枚举目前与本映射不一致（含 revoke-offline／revoke，缺 withdraw），由载体卡对齐。",
+      "x-permissions": [
+        "ads:write",
+        "ads:approve",
+        "ads:offline"
+      ],
+      "x-action-permissions": {
+        "submit": "ads:write",
+        "withdraw": "ads:write",
+        "approve": "ads:approve",
+        "reject": "ads:approve",
+        "offline": "ads:offline"
+      },
+      "x-self-approval-rule": "reviewer.personId <> campaign.createdBy.personId (by natural person)",
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+            "placement": "driver",
+            "app": "driver",
+            "title": "Demo campaign (sample)",
+            "imageRef": "https://example.invalid/ads/demo.png",
+            "linkTarget": "/promo/demo",
+            "startsAt": "2026-11-20T00:00:00Z",
+            "endsAt": "2026-11-30T00:00:00Z",
+            "maxPerUserPerDay": 3,
+            "audience": {},
+            "state": "approved",
+            "version": 2,
+            "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+            "reviewedBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c13",
+            "createdAt": "2026-11-12T03:00:00Z"
+          }
+        },
+        "rejected": {
+          "status": 422,
+          "body": {
+            "error": {
+              "code": "HARD_CONSTRAINT_VIOLATION",
+              "message": "Reviewer must not be the creator (sample)",
+              "messageKey": "error.self_approval_forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": [
+                {
+                  "path": "/action",
+                  "code": "SELF_APPROVAL_FORBIDDEN",
+                  "message": "Reviewer personId equals creator personId (sample)"
+                }
+              ]
+            }
+          }
+        },
+        "rejectedForbidden": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "getAdCampaignStats",
+      "path": "/api/ops/v1/ad-campaigns/{campaignId}/stats",
+      "method": "GET",
+      "description": "广告统计。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "ads:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "items": [
+              {
+                "day": "2026-11-20",
+                "impressions": 120,
+                "clicks": 9
+              }
+            ]
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "getDriverAd",
+      "path": "/api/driver/v1/ads",
+      "method": "GET",
+      "description": "司机端取广告位广告。【口径】本权限点属登录的司机/客户默认拥有，不发给员工角色，与 customer:quotes:trial 同一写法（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "driver:ads:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "ad": {
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "placement": "driver",
+              "app": "driver",
+              "title": "Demo campaign (sample)",
+              "imageRef": "https://example.invalid/ads/demo.png",
+              "linkTarget": "/promo/demo",
+              "startsAt": "2026-11-20T00:00:00Z",
+              "endsAt": "2026-11-30T00:00:00Z",
+              "maxPerUserPerDay": 3,
+              "audience": {},
+              "state": "draft",
+              "version": 1,
+              "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "reviewedBy": null,
+              "createdAt": "2026-11-12T03:00:00Z"
+            }
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "recordDriverAdInteraction",
+      "path": "/api/driver/v1/ad-interactions",
+      "method": "POST",
+      "description": "司机端上报广告曝光／点击。【口径】本权限点属登录的司机/客户默认拥有，不发给员工角色，与 customer:quotes:trial 同一写法（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "driver:ads:report"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "recorded": true
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "getCustomerAd",
+      "path": "/api/customer/v1/ads",
+      "method": "GET",
+      "description": "客户端取广告位广告。【口径】本权限点属登录的司机/客户默认拥有，不发给员工角色，与 customer:quotes:trial 同一写法（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "customer:ads:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "ad": {
+              "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+              "placement": "customer",
+              "app": "customer",
+              "title": "Demo campaign (sample)",
+              "imageRef": "https://example.invalid/ads/demo.png",
+              "linkTarget": "/promo/demo",
+              "startsAt": "2026-11-20T00:00:00Z",
+              "endsAt": "2026-11-30T00:00:00Z",
+              "maxPerUserPerDay": 3,
+              "audience": {},
+              "state": "draft",
+              "version": 1,
+              "createdBy": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c12",
+              "reviewedBy": null,
+              "createdAt": "2026-11-12T03:00:00Z"
+            }
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "recordCustomerAdInteraction",
+      "path": "/api/customer/v1/ad-interactions",
+      "method": "POST",
+      "description": "客户端上报广告曝光／点击。【口径】本权限点属登录的司机/客户默认拥有，不发给员工角色，与 customer:quotes:trial 同一写法（定名文件 补充-权限点定名-20261112）。",
+      "x-permissions": [
+        "customer:ads:report"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AdCampaign",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "recorded": true
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    }
+  ]
+}
