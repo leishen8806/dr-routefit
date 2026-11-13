@@ -34,6 +34,22 @@ test('open API response hook receives the authenticated key and final response s
  }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 });
 
+test('mock login injection handles its route before the ordinary HTTP pipeline',async()=>{
+ let calls=0;
+ const server=apiServer({pool:{connect:async()=>{throw new Error('mock login must handle before database access');}},authenticate:()=>{throw new Error('staff authentication must not run for mock login');},mockLogin:async(req,res,send)=>{
+  calls++;
+  if(req.url!=='/test/mock-login-injection')return false;
+  send(200,{source:'mock-login'});return true;
+ }});
+ server.listen(0,'127.0.0.1');await once(server,'listening');
+ try{
+  const response=await fetch(`http://127.0.0.1:${server.address().port}/test/mock-login-injection`);
+  assert.equal(response.status,200);
+  assert.deepEqual(await response.json(),{source:'mock-login'});
+  assert.equal(calls,1);
+ }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+});
+
 // ---- vehicle door clearance -------------------------------------------------
 const van={state:'available',maxPayloadKg:1000,internalLengthCm:300,internalWidthCm:150,internalHeightCm:150,doorWidthCm:120,doorHeightCm:80};
 const cargo=(over={})=>({order:{id:orderId},items:[{lengthCm:100,widthCm:70,heightCm:110,weightKg:10,quantity:1,restrictions:[],rotationAllowed:false,...over}]});
