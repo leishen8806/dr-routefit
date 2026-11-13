@@ -10,8 +10,12 @@ const refName=ref=>ref?.split('/').at(-1);
 
 function fail(module,message){throw new Error(`contracts/modules/${module.module}.json: ${message}`);}
 function parameters(operation){return operation.parameters??[];}
-function hasParameter(operation,name){return parameters(operation).some(parameter=>parameter.name===name);}
-function hasRequiredHeader(operation,name){return parameters(operation).some(parameter=>parameter.name===name&&parameter.in==='header'&&parameter.required===true);}
+function resolveParameter(parameter,base){
+  if(!parameter?.$ref?.startsWith('#/components/parameters/'))return parameter;
+  return base?.components?.parameters?.[refName(parameter.$ref)];
+}
+function hasParameter(operation,name,base){return parameters(operation).some(parameter=>resolveParameter(parameter,base)?.name===name);}
+function hasRequiredHeader(operation,name,base){return parameters(operation).map(parameter=>resolveParameter(parameter,base)).some(parameter=>parameter?.name===name&&parameter?.in==='header'&&parameter.required===true);}
 function isCollection(path){const segment=path.split('/').filter(Boolean).at(-1)??'';return !segment.startsWith('{')&&!segment.includes('actions')&&segment.endsWith('s');}
 function visitSchema(schema,callback){
   if(!schema||typeof schema!=='object')return;
@@ -40,10 +44,10 @@ export function validateModuleStandards(module,base){
       if(!Array.isArray(operation['x-permissions']))fail(module,`${operation.operationId} x-permissions must be an array`);
       if(!['A','B'].includes(operation['x-baseline-tier']))fail(module,`${operation.operationId} x-baseline-tier must be A or B`);
       if(!operation['x-examples']?.success||!operation['x-examples']?.rejected)fail(module,`${operation.operationId} requires success and rejected x-examples`);
-      if(writes.has(normalized)&&!hasParameter(operation,'Idempotency-Key'))fail(module,`${operation.operationId} write requires Idempotency-Key`);
-      if(['put','patch'].includes(normalized)&&!hasRequiredHeader(operation,'If-Match'))fail(module,`${operation.operationId} modification requires a required If-Match header`);
+      if(writes.has(normalized)&&!hasParameter(operation,'Idempotency-Key',base))fail(module,`${operation.operationId} write requires Idempotency-Key`);
+      if(['put','patch'].includes(normalized)&&!hasRequiredHeader(operation,'If-Match',base))fail(module,`${operation.operationId} modification requires a required If-Match header`);
       if(normalized==='get'&&isCollection(path)){
-        if(!hasParameter(operation,'limit')||!hasParameter(operation,'cursor'))fail(module,`${operation.operationId} list requires limit and cursor`);
+        if(!hasParameter(operation,'limit',base)||!hasParameter(operation,'cursor',base))fail(module,`${operation.operationId} list requires limit and cursor`);
         const schema=operation.responses?.['200']?.content?.['application/json']?.schema;
         if(!schema?.properties?.items||!schema?.properties?.nextCursor)fail(module,`${operation.operationId} list response requires items and nextCursor`);
       }

@@ -10,6 +10,30 @@ const companyId='11111111-1111-4111-8111-111111111111',driverId='22222222-2222-4
 const principal={companyId,principalId:driverId};
 const ok=(rows=[])=>({rows,rowCount:rows.length});
 
+test('open API prefix fails closed when an open authentication provider is not injected',async()=>{
+ const server=apiServer({pool:{connect:async()=>{throw new Error('open authentication must reject before database access');}},authenticate:()=>{throw new Error('staff authentication must not run for open API');}});
+ server.listen(0,'127.0.0.1');await once(server,'listening');
+ try{
+  const response=await fetch(`http://127.0.0.1:${server.address().port}/api/open/v1/orders`);
+  const body=await response.json();
+  assert.equal(response.status,401);
+  assert.equal(body.error.code,'UNAUTHORIZED');
+ }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+});
+
+test('open API response hook receives the authenticated key and final response status after the response is written',async()=>{
+ let resolveEvent;const observed=new Promise(resolve=>{resolveEvent=resolve;});
+ const server=apiServer({pool:{connect:async()=>{throw new Error('no route must not open a database transaction');}},authenticate:()=>{throw new Error('staff authentication must not run for open API');},openAuthenticate:async()=>({subjectId:'subject-1',scopes:['order:read'],apiKeyId:'key-1'}),afterOpenResponse:event=>resolveEvent(event)});
+ server.listen(0,'127.0.0.1');await once(server,'listening');
+ try{
+  const response=await fetch(`http://127.0.0.1:${server.address().port}/api/open/v1/orders`);
+  assert.equal(response.status,404);
+  const event=await observed;
+  assert.deepEqual({apiKeyId:event.apiKeyId,method:event.method,path:event.path,status:event.status},{apiKeyId:'key-1',method:'GET',path:'/api/open/v1/orders',status:404});
+  assert.ok(event.durationMs>=0);
+ }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+});
+
 // ---- vehicle door clearance -------------------------------------------------
 const van={state:'available',maxPayloadKg:1000,internalLengthCm:300,internalWidthCm:150,internalHeightCm:150,doorWidthCm:120,doorHeightCm:80};
 const cargo=(over={})=>({order:{id:orderId},items:[{lengthCm:100,widthCm:70,heightCm:110,weightKg:10,quantity:1,restrictions:[],rotationAllowed:false,...over}]});

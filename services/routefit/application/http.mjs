@@ -138,14 +138,15 @@ export function databaseConflict(error){
  if(error?.code==='23505')return {code:'REQUEST_CONFLICT',message:'资源已被并发创建或已存在，请刷新后重试'};
  return null;
 }
-export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,mockLogin,evidenceDirectory,origin,recipientCodeSender,requestRateLimit=120,log=()=>{}}){
+const rejectOpenAuthentication=()=>{throw new ApiError(401,'UNAUTHORIZED','开放接口密钥无效或缺失');};
+export function apiServer({pool,authenticate,serviceAuthenticate,openAuthenticate=rejectOpenAuthentication,afterOpenResponse=()=>{},localAccess,mockLogin,evidenceDirectory,origin,recipientCodeSender,requestRateLimit=120,log=()=>{}}){
  const limits=new Map();
  const publicLimits=new Map();
   const recipientLimits=new Map();
  const downloadSecret=randomBytes(32);
  const server=createServer({maxHeaderSize:16384},async(req,res)=>{
-  const requestId=randomUUID();let operation='unknown';
-  const send=(status,body,headers={},cause=null)=>{const noContent=status===204;res.writeHead(status,{...(noContent?{}:{'Content-Type':'application/json; charset=utf-8'}),'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Request-Id':requestId,...(status===429?{'Retry-After':'60'}:{}),...headers});res.end(noContent?'':JSON.stringify(body));log({requestId,operation,status,...(cause?{cause}:{})});};
+  const requestId=randomUUID(),startedAt=Date.now();let operation='unknown',openIdentity=null,openPath=null;
+  const send=(status,body,headers={},cause=null)=>{const noContent=status===204;res.writeHead(status,{...(noContent?{}:{'Content-Type':'application/json; charset=utf-8'}),'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Request-Id':requestId,...(status===429?{'Retry-After':'60'}:{}),...headers});res.end(noContent?'':JSON.stringify(body));if(openIdentity)Promise.resolve(afterOpenResponse({subjectId:openIdentity.subjectId,scopes:openIdentity.scopes,apiKeyId:openIdentity.apiKeyId,method:req.method,path:openPath,status,durationMs:Math.max(0,Date.now()-startedAt)})).catch(error=>log({requestId,operation,status,cause:'OPEN_RESPONSE_LOG_FAILED',errorCode:error?.code}));log({requestId,operation,status,...(cause?{cause}:{})});};
   try{
    const url=new URL(req.url,'http://127.0.0.1');
    if(evidenceDirectory&&await serveEvidenceObject(req,res,pool,evidenceDirectory,url,downloadSecret))return;
@@ -154,6 +155,11 @@ export function apiServer({pool,authenticate,serviceAuthenticate,localAccess,moc
    if(mockLogin){operation='mockLogin';if(await mockLogin(req,res,send))return;}
    if(req.method==='GET'&&['/health/live','/health/ready'].includes(url.pathname)){
     operation='health';if(url.pathname.endsWith('ready'))await assertRuntimeRole(pool);send(200,{status:'ok',mode:'local-development'});return;
+   }
+   if(url.pathname.startsWith('/api/open/v1/')){
+    const identity=await openAuthenticate(req);
+    ensure(identity&&typeof identity.subjectId==='string'&&Array.isArray(identity.scopes)&&typeof identity.apiKeyId==='string',401,'UNAUTHORIZED','开放接口密钥无效或缺失');
+    openIdentity=identity;openPath=url.pathname;
    }
    const publicRoute=publicRoutes.find(r=>r.pattern.test(url.pathname));
    if(publicRoute){
