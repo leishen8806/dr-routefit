@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readDriver,writeDriverSync} from '../adapters/driver.mjs';
+import {driverRoutes} from '../application/driver.mjs';
 
 const companyId='11111111-1111-4111-8111-111111111111',driverId='22222222-2222-4222-8222-222222222222',deviceId='33333333-3333-4333-8333-333333333333',assignmentId='44444444-4444-4444-8444-444444444444',orderId='55555555-5555-4555-8555-555555555555';
 const principal={companyId,principalId:driverId};
@@ -58,6 +59,14 @@ test('driver order after cancellation returns server-masked contact phones',asyn
  assert.equal(result.pickup.phone,'*******5678');
  assert.equal(result.delivery.phone,'*******4321');
 });
+test('driver order masks contact phones when delivery state cannot be established',async()=>{
+ const result=await readDriver(driverOrderClient({fulfillmentStage:null}),principal,'order',orderId,null);
+ assert.equal(result.pickup.phone,'*******5678');
+ assert.equal(result.delivery.phone,'*******4321');
+});
 test('other driver cannot read a previously assigned order contact phone',async()=>{
  await assert.rejects(readDriver(driverOrderClient({assigned:false}),principal,'order',orderId,null),error=>error.status===404&&error.code==='NOT_FOUND');
+});
+test('driver order route validates the dedicated conditional contact projection schema',()=>{
+ assert.equal(driverRoutes.find(route=>route.operation==='driverOrder').schema,'DriverOrderDetail');
 });
