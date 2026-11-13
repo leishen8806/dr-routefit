@@ -5,97 +5,4110 @@
   "pathDecision": "Existing paths predate the baseline. Do not rename them before Q-V1 decides the recorded differences.",
   "paths": {
     "/api/ops/v1/pricing/dimension-rules": {
-      "get": {"operationId":"listDimensionRules","x-permissions":["pricing:config:read"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.dimensionRule.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Dimension-rule page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}},
-      "post": {"operationId":"createDimensionRule","x-permissions":["pricing:config:submit"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.dimensionRule.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"Dimension rule created"},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"VALIDATION_FAILED"}}}
+      "get": {
+        "operationId": "listDimensionRules",
+        "x-permissions": [
+          "pricing:config:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.dimensionRule.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dimension-rule page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1DimensionRulesItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "dimensionrules-example-0001",
+                  "label": "DimensionRules example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createDimensionRule",
+        "x-permissions": [
+          "pricing:config:submit"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.dimensionRule.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Dimension rule created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateDimensionRuleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {
+              "id": "createDimensionRule-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The request cannot be accepted.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateDimensionRuleRequest"
+              }
+            }
+          }
+        }
+      }
     },
     "/api/ops/v1/pricing/vehicle-tariffs": {
-      "get": {"operationId":"listVehicleTariffs","x-permissions":["pricing:config:read"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.vehicleTariff.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Vehicle-tariff page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}},
-      "post": {"operationId":"createVehicleTariff","x-permissions":["pricing:config:submit"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.vehicleTariff.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"Vehicle tariff created"},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"VALIDATION_FAILED"}}}
+      "get": {
+        "operationId": "listVehicleTariffs",
+        "x-permissions": [
+          "pricing:config:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.vehicleTariff.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle-tariff page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1VehicleTariffsItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "vehicletariffs-example-0001",
+                  "label": "VehicleTariffs example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createVehicleTariff",
+        "x-permissions": [
+          "pricing:config:submit"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.vehicleTariff.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Vehicle tariff created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateVehicleTariffResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {
+              "id": "createVehicleTariff-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The request cannot be accepted.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateVehicleTariffRequest"
+              }
+            }
+          }
+        }
+      }
     },
     "/api/ops/v1/pricing/value-added-services": {
-      "get": {"operationId":"listValueAddedServices","x-permissions":["pricing:config:read"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.valueAddedService.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Value-added-service page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}},
-      "post": {"operationId":"createValueAddedService","x-permissions":["pricing:config:submit"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.valueAddedService.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"Value-added service created"},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"VALIDATION_FAILED"}}}
+      "get": {
+        "operationId": "listValueAddedServices",
+        "x-permissions": [
+          "pricing:config:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.valueAddedService.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Value-added-service page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1ValueAddedServicesItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "valueaddedservices-example-0001",
+                  "label": "ValueAddedServices example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createValueAddedService",
+        "x-permissions": [
+          "pricing:config:submit"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.valueAddedService.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Value-added service created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateValueAddedServiceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {
+              "id": "createValueAddedService-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The request cannot be accepted.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateValueAddedServiceRequest"
+              }
+            }
+          }
+        }
+      }
     },
     "/api/ops/v1/pricing/fx-rates": {
-      "get": {"operationId":"listFxRates","x-permissions":["pricing:config:read"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.fxRate.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"FX-rate page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}},
-      "post": {"operationId":"createFxRate","x-permissions":["pricing:config:submit"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.fxRate.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"FX rate created"},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"VALIDATION_FAILED"}}}
+      "get": {
+        "operationId": "listFxRates",
+        "x-permissions": [
+          "pricing:config:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.fxRate.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FX-rate page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1FxRatesItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "fxrates-example-0001",
+                  "label": "FxRates example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createFxRate",
+        "x-permissions": [
+          "pricing:config:submit"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.fxRate.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "FX rate created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateFxRateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {
+              "id": "createFxRate-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The request cannot be accepted.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateFxRateRequest"
+              }
+            }
+          }
+        }
+      }
     },
     "/api/ops/v1/pricing/quote-trials": {
-      "post": {"operationId":"createPricingQuoteTrial","x-permissions":["pricing:config:read"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.quoteTrial.configurationVersion","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Quote trial"},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"EXCLUSIVE_VEHICLE_REQUIRED"}}}
+      "post": {
+        "operationId": "createPricingQuoteTrial",
+        "x-permissions": [
+          "pricing:config:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.quoteTrial.configurationVersion",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quote trial",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreatePricingQuoteTrialResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "createPricingQuoteTrial-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "EXCLUSIVE_VEHICLE_REQUIRED",
+                "message": "The selected vehicle must be exclusive.",
+                "messageKey": "errors.exclusiveVehicleRequired",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreatePricingQuoteTrialRequest"
+              }
+            }
+          }
+        }
+      }
     },
     "/api/customer/v1/quote-trials": {
-      "post": {"operationId":"createCustomerQuoteTrial","x-permissions":["customer:quotes:trial"],"x-permissions-note":"Customer default permission; not assigned to employee roles. Naming: customer:quotes:trial.","x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.quoteTrial.configurationVersion","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Customer quote trial"},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"EXCLUSIVE_VEHICLE_REQUIRED"}}}
+      "post": {
+        "operationId": "createCustomerQuoteTrial",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer quote permission.",
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.quoteTrial.configurationVersion",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer quote trial",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1CreateCustomerQuoteTrialResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "createCustomerQuoteTrial-example-0001",
+              "status": "ACCEPTED",
+              "version": 1,
+              "amount": {
+                "amountMinor": 1200,
+                "currency": "USD"
+              }
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "EXCLUSIVE_VEHICLE_REQUIRED",
+                "message": "The selected vehicle must be exclusive.",
+                "messageKey": "errors.exclusiveVehicleRequired",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateCustomerQuoteTrialRequest"
+              }
+            }
+          }
+        }
+      }
     },
     "/api/customer/v1/service-options": {
-      "get": {"operationId":"listCustomerServiceOptions","x-permissions":["customer:catalog:read"],"x-permissions-note":"Customer default permission; not assigned to employee roles. Naming: customer:catalog:read.","x-stage":"R2","x-baseline-tier":"A","x-implementation-status": "PLANNED","x-version-resource":"pricing.fxRate.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Service-option page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}}
+      "get": {
+        "operationId": "listCustomerServiceOptions",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer service-option permission.",
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "pricing.fxRate.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service-option page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1CustomerServiceOptionsItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "customerserviceoptions-example-0001",
+                  "label": "CustomerServiceOptions example",
+                  "version": 1,
+                  "amount": {
+                    "amountMinor": 1200,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
     },
     "/api/ops/v1/merchants": {
-      "get": {"operationId":"listMerchants","x-permissions":["merchants:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchant.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Merchant page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}},
-      "post": {"operationId":"createMerchant","x-permissions":["merchants:create"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchant.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"Merchant created"},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"VALIDATION_FAILED"}}}
+      "get": {
+        "operationId": "listMerchants",
+        "x-permissions": [
+          "merchants:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchant.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Merchant page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1MerchantItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "merchant-example-0001",
+                  "name": "Example Merchant",
+                  "status": "ACTIVE",
+                  "version": 1
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Caller lacks the required permission.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "demo-req-0001",
+                "fields": []
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createMerchant",
+        "x-permissions": [
+          "merchants:create"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchant.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Merchant created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantItem"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Backend1CreateMerchantRequest"
+              }
+            }
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {
+              "id": "merchant-example-0002",
+              "name": "Example Merchant Two",
+              "status": "PENDING_APPROVAL",
+              "version": 1
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "Merchant details are invalid.",
+                "messageKey": "errors.validationFailed",
+                "retryable": false,
+                "requestId": "demo-req-0002",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
     },
     "/api/ops/v1/merchants/{merchantId}": {
-      "get": {"operationId":"getMerchant","x-permissions":["merchants:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchant.version","x-owner":"Backend1","responses":{"200":{"description":"Merchant"},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}
+      "get": {
+        "operationId": "getMerchant",
+        "x-permissions": [
+          "merchants:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchant.version",
+        "x-owner": "Backend1",
+        "responses": {
+          "200": {
+            "description": "Merchant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Backend1MerchantItem"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "merchant-example-0001",
+              "name": "Example Merchant",
+              "status": "ACTIVE",
+              "version": 1
+            }
+          },
+          "rejected": {
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Merchant was not found.",
+                "messageKey": "errors.notFound",
+                "retryable": false,
+                "requestId": "demo-req-0003",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
     },
-    "/api/ops/v1/merchants/{merchantId}/actions/approve": {"post":{"operationId":"approveMerchant","x-permissions":["merchants:approve"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchant.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Merchant approved"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/merchants/{merchantId}/actions/reject": {"post":{"operationId":"rejectMerchant","x-permissions":["merchants:approve"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchant.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Merchant rejected"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/merchants/{merchantId}/actions/suspend": {"post":{"operationId":"suspendMerchant","x-permissions":["merchants:approve"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchant.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Merchant suspended"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/merchants/{merchantId}/actions/resume": {"post":{"operationId":"resumeMerchant","x-permissions":["merchants:approve"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchant.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Merchant resumed"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
+    "/api/ops/v1/merchants/{merchantId}/actions/approve": {
+      "post": {
+        "operationId": "approveMerchant",
+        "x-permissions": [
+          "merchants:approve"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchant.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Merchant approved",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantActionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "merchant-example-0001", "name": "Example Merchant", "status": "ACTIVE", "version": 2}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0004", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/merchants/{merchantId}/actions/reject": {
+      "post": {
+        "operationId": "rejectMerchant",
+        "x-permissions": [
+          "merchants:approve"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchant.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Merchant rejected",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantActionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "merchant-example-0001", "name": "Example Merchant", "status": "REJECTED", "version": 2}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0005", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/merchants/{merchantId}/actions/suspend": {
+      "post": {
+        "operationId": "suspendMerchant",
+        "x-permissions": [
+          "merchants:approve"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchant.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Merchant suspended",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantActionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "merchant-example-0001", "name": "Example Merchant", "status": "SUSPENDED", "version": 3}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0006", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/merchants/{merchantId}/actions/resume": {
+      "post": {
+        "operationId": "resumeMerchant",
+        "x-permissions": [
+          "merchants:approve"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchant.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Merchant resumed",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantActionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "merchant-example-0001", "name": "Example Merchant", "status": "ACTIVE", "version": 4}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0007", "fields": []}}
+          }
+        }
+      }
+    },
     "/api/ops/v1/merchants/{merchantId}/contracts": {
-      "get": {"operationId":"listMerchantContracts","x-permissions":["merchants:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchantContract.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Contract page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}},
-      "post": {"operationId":"createMerchantContractVersion","x-permissions":["merchants:contract:submit"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchantContract.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"Contract created"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"VALIDATION_FAILED"}}}
+      "get": {
+        "operationId": "listMerchantContracts",
+        "x-permissions": [
+          "merchants:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchantContract.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contract page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1MerchantContractItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [{"id": "merchant-contract-example-0001", "merchantId": "merchant-example-0001", "status": "DRAFT", "version": 1}],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0008", "fields": []}}
+          }
+        }
+      },
+      "post": {
+        "operationId": "createMerchantContractVersion",
+        "x-permissions": [
+          "merchants:contract:submit"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchantContract.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Contract created",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantContractItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CreateMerchantContractVersionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {"id": "merchant-contract-example-0002", "merchantId": "merchant-example-0001", "status": "DRAFT", "version": 1}
+          },
+          "rejected": {
+            "status": 422,
+            "body": {"error": {"code": "VALIDATION_FAILED", "message": "Contract details are invalid.", "messageKey": "errors.validationFailed", "retryable": false, "requestId": "demo-req-0009", "fields": []}}
+          }
+        }
+      }
     },
-    "/api/ops/v1/merchant-contracts/{contractId}/actions/approve": {"post":{"operationId":"approveMerchantContract","x-permissions":["merchants:contract:approve"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"merchantContract.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Contract approved"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/users": {"get":{"operationId":"listUsers","x-permissions":["users:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"user.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"User page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}}}}}},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}}},
-    "/api/ops/v1/users/{userId}": {"get":{"operationId":"getUser","x-permissions":["users:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"user.version","x-owner":"Backend1","responses":{"200":{"description":"User"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/coupon-batches": {"get":{"operationId":"listCouponBatches","x-permissions":["coupons:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponBatch.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Coupon-batch page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}}}}}},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}},"post":{"operationId":"createCouponBatchBaseline","x-permissions":["coupons:create"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponBatch.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"Coupon batch created"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"COUPON_BUDGET_EXHAUSTED"}}}},
-    "/api/ops/v1/coupon-batches/{batchId}": {"get":{"operationId":"getCouponBatch","x-permissions":["coupons:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponBatch.version","x-owner":"Backend1","responses":{"200":{"description":"Coupon batch"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/coupon-batches/{batchId}/actions/submit": {"post":{"operationId":"submitCouponBatch","x-permissions":["coupons:create"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponBatch.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Coupon batch submitted"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/coupon-batches/{batchId}/actions/approve": {"post":{"operationId":"approveCouponBatch","x-permissions":["coupons:approve"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponBatch.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Coupon batch approved"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/coupon-batches/{batchId}/actions/reject": {"post":{"operationId":"rejectCouponBatch","x-permissions":["coupons:approve"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponBatch.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Coupon batch rejected"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/coupon-batches/{batchId}/actions/stop": {"post":{"operationId":"stopCouponBatch","x-permissions":["coupons:stop"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponBatch.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Coupon batch stopped"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/ops/v1/coupon-redemptions": {"get":{"operationId":"listCouponRedemptions","x-permissions":["coupons:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponRedemption.idempotencyKey","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Coupon-redemption page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}}}}}},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}}},
-    "/api/ops/v1/coupon-risk-flags": {"get":{"operationId":"listCouponRiskFlags","x-permissions":["coupons:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponRiskFlag.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Coupon-risk page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}}}}}},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}}},
-    "/api/ops/v1/coupon-risk-flags/{flagId}/actions/resolve": {"post":{"operationId":"resolveCouponRiskFlag","x-permissions":["coupons:risk:resolve"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"couponRiskFlag.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Coupon risk resolved"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":200},"rejected":{"code":"NOT_FOUND"}}}},
-    "/api/customer/v1/orders/actions/batch-create": {"post":{"operationId":"batchCreateCustomerOrders","x-permissions":["customer:orders:create"],"x-permissions-note":"Customer default permission; not assigned to employee roles. Naming: customer:orders:create.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"order.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"Customer orders created"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"VALIDATION_FAILED"}}}},
-    "/api/customer/v1/sku-dimensions": {"get":{"operationId":"listCustomerSkuDimensions","x-permissions":["customer:catalog:read"],"x-permissions-note":"Customer default permission; not assigned to employee roles. Naming: customer:catalog:read.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"skuDimension.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Customer SKU page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}}}}}},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}},"post":{"operationId":"createCustomerSkuDimension","x-permissions":["customer:sku:write"],"x-permissions-note":"Customer default permission; not assigned to employee roles. Naming: customer:sku:write.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"skuDimension.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"Customer SKU dimension created"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"VALIDATION_FAILED"}}}},
-    "/api/customer/v1/coupons": {"get":{"operationId":"listCustomerCoupons","x-permissions":["customer:coupons:read"],"x-permissions-note":"Customer default permission; not assigned to employee roles. Naming: customer:coupons:read.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"coupon.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Customer coupon page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}}}}}},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}}},
-    "/api/customer/v1/coupons/actions/claim": {"post":{"operationId":"claimCustomerCoupon","x-permissions":["customer:coupons:claim"],"x-permissions-note":"Customer default permission; not assigned to employee roles. Naming: customer:coupons:claim.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"coupon.version","x-owner":"Backend1","parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],"responses":{"201":{"description":"Customer coupon claimed"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"422":{"$ref":"#/components/responses/Error422"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"status":201},"rejected":{"code":"COUPON_NOT_APPLICABLE"}}}},
-    "/api/customer/v1/cod-items": {"get":{"operationId":"listCustomerCodItems","x-permissions":["customer:cod:read"],"x-permissions-note":"Customer default permission; not assigned to employee roles. Naming: customer:cod:read.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status": "PLANNED","x-version-resource":"order.version","x-owner":"Backend1","parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"Customer COD page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}}}}}},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}},"x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}}}}
+    "/api/ops/v1/merchant-contracts/{contractId}/actions/approve": {
+      "post": {
+        "operationId": "approveMerchantContract",
+        "x-permissions": [
+          "merchants:contract:approve"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "merchantContract.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contract approved",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantContractItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1MerchantContractActionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "merchant-contract-example-0001", "merchantId": "merchant-example-0001", "status": "ACTIVE", "version": 2}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Contract was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0010", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/users": {
+      "get": {
+        "operationId": "listUsers",
+        "x-permissions": [
+          "users:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "user.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1UserItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"items": [{"id": "user-example-0001", "email": "operator@example.test", "status": "ACTIVE", "version": 1}], "nextCursor": null}
+          },
+          "rejected": {
+            "status": 403,
+            "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0011", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/users/{userId}": {
+      "get": {
+        "operationId": "getUser",
+        "x-permissions": [
+          "users:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "user.version",
+        "x-owner": "Backend1",
+        "responses": {
+          "200": {
+            "description": "User",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1UserItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "user-example-0001", "email": "operator@example.test", "status": "ACTIVE", "version": 1}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "User was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0012", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/coupon-batches": {
+      "get": {
+        "operationId": "listCouponBatches",
+        "x-permissions": [
+          "coupons:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponBatch.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coupon-batch page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1CouponBatchItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"items": [{"id": "coupon-batch-example-0001", "name": "Welcome Campaign", "status": "DRAFT", "version": 1, "budget": {"currency": "USD", "amountMinor": 100000}}], "nextCursor": null}
+          },
+          "rejected": {
+            "status": 403,
+            "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0013", "fields": []}}
+          }
+        }
+      },
+      "post": {
+        "operationId": "createCouponBatchBaseline",
+        "x-permissions": [
+          "coupons:create"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponBatch.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Coupon batch created",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CreateCouponBatchRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {"id": "coupon-batch-example-0002", "name": "Welcome Campaign", "status": "DRAFT", "version": 1, "budget": {"currency": "USD", "amountMinor": 100000}}
+          },
+          "rejected": {
+            "status": 422,
+            "body": {"error": {"code": "COUPON_BUDGET_EXHAUSTED", "message": "Coupon budget is exhausted.", "messageKey": "errors.couponBudgetExhausted", "retryable": false, "requestId": "demo-req-0014", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/coupon-batches/{batchId}": {
+      "get": {
+        "operationId": "getCouponBatch",
+        "x-permissions": [
+          "coupons:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponBatch.version",
+        "x-owner": "Backend1",
+        "responses": {
+          "200": {
+            "description": "Coupon batch",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "coupon-batch-example-0001", "name": "Welcome Campaign", "status": "DRAFT", "version": 1, "budget": {"currency": "USD", "amountMinor": 100000}}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Coupon batch was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0015", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/coupon-batches/{batchId}/actions/submit": {
+      "post": {
+        "operationId": "submitCouponBatch",
+        "x-permissions": [
+          "coupons:create"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponBatch.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coupon batch submitted",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchActionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "coupon-batch-example-0001", "name": "Welcome Campaign", "status": "PENDING_APPROVAL", "version": 2, "budget": {"currency": "USD", "amountMinor": 100000}}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Coupon batch was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0016", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/coupon-batches/{batchId}/actions/approve": {
+      "post": {
+        "operationId": "approveCouponBatch",
+        "x-permissions": [
+          "coupons:approve"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponBatch.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coupon batch approved",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchActionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "coupon-batch-example-0001", "name": "Welcome Campaign", "status": "ACTIVE", "version": 3, "budget": {"currency": "USD", "amountMinor": 100000}}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Coupon batch was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0017", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/coupon-batches/{batchId}/actions/reject": {
+      "post": {
+        "operationId": "rejectCouponBatch",
+        "x-permissions": [
+          "coupons:approve"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponBatch.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coupon batch rejected",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchActionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "coupon-batch-example-0001", "name": "Welcome Campaign", "status": "REJECTED", "version": 3, "budget": {"currency": "USD", "amountMinor": 100000}}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Coupon batch was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0018", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/coupon-batches/{batchId}/actions/stop": {
+      "post": {
+        "operationId": "stopCouponBatch",
+        "x-permissions": [
+          "coupons:stop"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponBatch.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coupon batch stopped",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponBatchActionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "coupon-batch-example-0001", "name": "Welcome Campaign", "status": "STOPPED", "version": 4, "budget": {"currency": "USD", "amountMinor": 100000}}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Coupon batch was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0019", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/coupon-redemptions": {
+      "get": {
+        "operationId": "listCouponRedemptions",
+        "x-permissions": [
+          "coupons:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponRedemption.idempotencyKey",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coupon-redemption page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1CouponRedemptionItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"items": [{"id": "coupon-redemption-example-0001", "couponId": "coupon-example-0001", "status": "REDEEMED"}], "nextCursor": null}
+          },
+          "rejected": {
+            "status": 403,
+            "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0020", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/coupon-risk-flags": {
+      "get": {
+        "operationId": "listCouponRiskFlags",
+        "x-permissions": [
+          "coupons:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponRiskFlag.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coupon-risk page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1CouponRiskFlagItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"items": [{"id": "coupon-risk-example-0001", "couponId": "coupon-example-0001", "status": "OPEN", "version": 1}], "nextCursor": null}
+          },
+          "rejected": {
+            "status": 403,
+            "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0021", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/ops/v1/coupon-risk-flags/{flagId}/actions/resolve": {
+      "post": {
+        "operationId": "resolveCouponRiskFlag",
+        "x-permissions": [
+          "coupons:risk:resolve"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "couponRiskFlag.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coupon risk resolved",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CouponRiskFlagItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1ResolveCouponRiskFlagRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"id": "coupon-risk-example-0001", "couponId": "coupon-example-0001", "status": "RESOLVED", "version": 2}
+          },
+          "rejected": {
+            "status": 404,
+            "body": {"error": {"code": "NOT_FOUND", "message": "Coupon risk flag was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0022", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/customer/v1/orders/actions/batch-create": {
+      "post": {
+        "operationId": "batchCreateCustomerOrders",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer order permission.",
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "order.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Customer orders created",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CustomerOrderBatchResponse"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1BatchCreateCustomerOrdersRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {"orders": [{"id": "customer-order-example-0001", "status": "CREATED", "version": 1}]}
+          },
+          "rejected": {
+            "status": 422,
+            "body": {"error": {"code": "VALIDATION_FAILED", "message": "Customer order input is invalid.", "messageKey": "errors.validationFailed", "retryable": false, "requestId": "demo-req-0025", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/customer/v1/sku-dimensions": {
+      "get": {
+        "operationId": "listCustomerSkuDimensions",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer SKU permission.",
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "skuDimension.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer SKU page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1CustomerSkuDimensionItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"items": [{"id": "customer-sku-dimension-example-0001", "skuCode": "SKU-DEMO-001", "lengthCm": 30, "widthCm": 20, "heightCm": 10, "version": 1}], "nextCursor": null}
+          },
+          "rejected": {
+            "status": 403,
+            "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0023", "fields": []}}
+          }
+        }
+      },
+      "post": {
+        "operationId": "createCustomerSkuDimension",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer SKU permission.",
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "skuDimension.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Customer SKU dimension created",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CustomerSkuDimensionItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CreateCustomerSkuDimensionRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {"id": "customer-sku-dimension-example-0001", "skuCode": "SKU-DEMO-001", "lengthCm": 30, "widthCm": 20, "heightCm": 10, "version": 1}
+          },
+          "rejected": {
+            "status": 422,
+            "body": {"error": {"code": "VALIDATION_FAILED", "message": "SKU dimensions are invalid.", "messageKey": "errors.validationFailed", "retryable": false, "requestId": "demo-req-0026", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/customer/v1/coupons": {
+      "get": {
+        "operationId": "listCustomerCoupons",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "coupon.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer coupon page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1CustomerCouponItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"items": [{"id": "customer-coupon-example-0001", "status": "CLAIMED", "version": 1}], "nextCursor": null}
+          },
+          "rejected": {
+            "status": 403,
+            "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0027", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/customer/v1/coupons/actions/claim": {
+      "post": {
+        "operationId": "claimCustomerCoupon",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "coupon.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Customer coupon claimed",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1CustomerCouponItem"}}}
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Backend1ClaimCustomerCouponRequest"}}}},
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {"id": "customer-coupon-example-0001", "status": "CLAIMED", "version": 1}
+          },
+          "rejected": {
+            "status": 422,
+            "body": {"error": {"code": "COUPON_NOT_APPLICABLE", "message": "Coupon is not applicable.", "messageKey": "errors.couponNotApplicable", "retryable": false, "requestId": "demo-req-0024", "fields": []}}
+          }
+        }
+      }
+    },
+    "/api/customer/v1/cod-items": {
+      "get": {
+        "operationId": "listCustomerCodItems",
+        "x-permissions": [],
+        "x-permissions-note": "Awaiting Lead decision for customer COD permission.",
+        "x-stage": "R2",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-version-resource": "order.version",
+        "x-owner": "Backend1",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer COD page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Backend1CustomerCodItem"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {"items": [{"id": "customer-cod-item-example-0001", "orderId": "customer-order-example-0001", "status": "PENDING", "amount": {"amountMinor": 1200, "currency": "USD"}, "version": 1}], "nextCursor": null}
+          },
+          "rejected": {
+            "status": 403,
+            "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0028", "fields": []}}
+          }
+        }
+      }
+    }
   },
   "x-recorded-operations": [
-    {"operationId":"createRouteQuote","path":"/api/customer/v1/route-quotes","method":"POST","x-permissions":[],"x-permissions-note":"Awaiting Lead decision for customer quote permission.","x-stage":"R2","x-baseline-tier":"A","x-implementation-status":"PLANNED","x-version-resource":"routePricingConfiguration.version","x-owner":"Backend1","x-examples":{"success":{"status":201},"rejected":{"status":422,"code":"EXCLUSIVE_VEHICLE_REQUIRED"}}},
-    {"operationId":"listRoutePricingConfigurations","path":"/api/ops/v1/route-pricing/configurations","method":"GET","x-permissions":["pricing:config:read"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status":"PLANNED","x-version-resource":"routePricingConfiguration.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":403,"code":"FORBIDDEN"}}},
-    {"operationId":"createRoutePricingConfiguration","path":"/api/ops/v1/route-pricing/configurations","method":"POST","x-permissions":["pricing:config:submit"],"x-stage":"R2","x-baseline-tier":"A","x-implementation-status":"PLANNED","x-version-resource":"routePricingConfiguration.version","x-owner":"Backend1","x-examples":{"success":{"status":201},"rejected":{"status":428,"code":"VERSION_REQUIRED"}}},
-    {"operationId":"listCoupons","path":"/api/ops/v1/coupons","method":"GET","x-permissions":["coupons:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"couponBatch.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":403,"code":"FORBIDDEN"}}},
-    {"operationId":"createCouponBatch","path":"/api/ops/v1/coupons/batches","method":"POST","x-permissions":["coupons:create"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"couponBatch.version","x-owner":"Backend1","x-examples":{"success":{"status":201},"rejected":{"status":422,"code":"COUPON_BUDGET_EXHAUSTED"}}},
-    {"operationId":"lockOrderCoupon","path":"/api/customer/v1/orders/{orderId}/actions/lock-coupon","method":"POST","x-permissions":[],"x-permissions-note":"Awaiting Lead decision for customer coupon permission.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"order.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":422,"code":"COUPON_NOT_APPLICABLE"}}},
-    {"operationId":"redeemOrderCoupon","path":"/api/customer/v1/orders/{orderId}/actions/redeem-coupon","method":"POST","x-permissions":[],"x-permissions-note":"Awaiting Lead decision for payment-confirmation permission.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"couponRedemption.idempotencyKey","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":422,"code":"PAYMENT_REQUIRED"}}},
-    {"operationId":"releaseOrderCoupon","path":"/api/customer/v1/orders/{orderId}/actions/release-coupon","method":"POST","x-permissions":[],"x-permissions-note":"Awaiting Lead decision for customer coupon permission.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"order.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":409,"code":"COUPON_NOT_RELEASABLE"}}},
-    {"operationId":"getMerchantContract","path":"/api/ops/v1/merchants/{merchantId}/contract","method":"GET","x-permissions":["merchants:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"merchantContract.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":404,"code":"NOT_FOUND"}}},
-    {"operationId":"createMerchantContract","path":"/api/ops/v1/merchants/{merchantId}/contract","method":"POST","x-permissions":["merchants:contract:submit"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"merchantContract.version","x-owner":"Backend1","x-examples":{"success":{"status":201},"rejected":{"status":422,"code":"INVALID_CONTRACT_INPUT"}}},
-    {"operationId":"activateMerchantContract","path":"/api/ops/v1/merchants/{merchantId}/contract/actions/activate","method":"POST","x-permissions":[],"x-permissions-note":"Awaiting Q-V1 decision: activate differs from baseline approve.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"merchantContract.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":412,"code":"VERSION_CONFLICT"}}},
-    {"operationId":"expireMerchantContract","path":"/api/ops/v1/merchants/{merchantId}/contract/actions/expire","method":"POST","x-permissions":[],"x-permissions-note":"Awaiting Q-V1 decision: expire is absent from baseline actions.","x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"merchantContract.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":409,"code":"INVALID_TRANSITION"}}},
-    {"operationId":"listMerchantSkuDimensions","path":"/api/ops/v1/merchants/{merchantId}/sku-dimensions","method":"GET","x-permissions":["merchants:read"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"skuDimension.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":404,"code":"NOT_FOUND"}}},
-    {"operationId":"createMerchantSkuDimension","path":"/api/ops/v1/merchants/{merchantId}/sku-dimensions","method":"POST","x-permissions":["merchants:create"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"skuDimension.version","x-owner":"Backend1","x-examples":{"success":{"status":201},"rejected":{"status":422,"code":"INVALID_CARGO_INPUT"}}},
-    {"operationId":"freezeUser","path":"/api/ops/v1/users/{userId}/actions/freeze","method":"POST","x-permissions":["users:freeze"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"accountFreeze.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":412,"code":"VERSION_CONFLICT"}}},
-    {"operationId":"unfreezeUser","path":"/api/ops/v1/users/{userId}/actions/unfreeze","method":"POST","x-permissions":["users:freeze"],"x-stage":"R2","x-baseline-tier":"B","x-implementation-status":"PLANNED","x-version-resource":"accountFreeze.version","x-owner":"Backend1","x-examples":{"success":{"status":200},"rejected":{"status":409,"code":"INVALID_TRANSITION"}}}
+    {
+      "operationId": "createRouteQuote",
+      "path": "/api/customer/v1/route-quotes",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "Awaiting Lead decision for customer quote permission.",
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "routePricingConfiguration.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 201
+        },
+        "rejected": {
+          "status": 422,
+          "code": "EXCLUSIVE_VEHICLE_REQUIRED"
+        }
+      }
+    },
+    {
+      "operationId": "listRoutePricingConfigurations",
+      "path": "/api/ops/v1/route-pricing/configurations",
+      "method": "GET",
+      "x-permissions": [
+        "pricing:config:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "routePricingConfiguration.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "operationId": "createRoutePricingConfiguration",
+      "path": "/api/ops/v1/route-pricing/configurations",
+      "method": "POST",
+      "x-permissions": [
+        "pricing:config:submit"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "routePricingConfiguration.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 201
+        },
+        "rejected": {
+          "status": 428,
+          "code": "VERSION_REQUIRED"
+        }
+      }
+    },
+    {
+      "operationId": "listCoupons",
+      "path": "/api/ops/v1/coupons",
+      "method": "GET",
+      "x-permissions": [
+        "coupons:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "couponBatch.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "operationId": "createCouponBatch",
+      "path": "/api/ops/v1/coupons/batches",
+      "method": "POST",
+      "x-permissions": [
+        "coupons:create"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "couponBatch.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 201
+        },
+        "rejected": {
+          "status": 422,
+          "code": "COUPON_BUDGET_EXHAUSTED"
+        }
+      }
+    },
+    {
+      "operationId": "lockOrderCoupon",
+      "path": "/api/customer/v1/orders/{orderId}/actions/lock-coupon",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "order.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 422,
+          "code": "COUPON_NOT_APPLICABLE"
+        }
+      }
+    },
+    {
+      "operationId": "redeemOrderCoupon",
+      "path": "/api/customer/v1/orders/{orderId}/actions/redeem-coupon",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "Awaiting Lead decision for payment-confirmation permission.",
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "couponRedemption.idempotencyKey",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 422,
+          "code": "PAYMENT_REQUIRED"
+        }
+      }
+    },
+    {
+      "operationId": "releaseOrderCoupon",
+      "path": "/api/customer/v1/orders/{orderId}/actions/release-coupon",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "order.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 409,
+          "code": "COUPON_NOT_RELEASABLE"
+        }
+      }
+    },
+    {
+      "operationId": "getMerchantContract",
+      "path": "/api/ops/v1/merchants/{merchantId}/contract",
+      "method": "GET",
+      "x-permissions": [
+        "merchants:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "merchantContract.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 404,
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "operationId": "createMerchantContract",
+      "path": "/api/ops/v1/merchants/{merchantId}/contract",
+      "method": "POST",
+      "x-permissions": [
+        "merchants:contract:submit"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "merchantContract.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 201
+        },
+        "rejected": {
+          "status": 422,
+          "code": "INVALID_CONTRACT_INPUT"
+        }
+      }
+    },
+    {
+      "operationId": "activateMerchantContract",
+      "path": "/api/ops/v1/merchants/{merchantId}/contract/actions/activate",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "Awaiting Q-V1 decision: activate differs from baseline approve.",
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "merchantContract.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 412,
+          "code": "VERSION_CONFLICT"
+        }
+      }
+    },
+    {
+      "operationId": "expireMerchantContract",
+      "path": "/api/ops/v1/merchants/{merchantId}/contract/actions/expire",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "Awaiting Q-V1 decision: expire is absent from baseline actions.",
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "merchantContract.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 409,
+          "code": "INVALID_TRANSITION"
+        }
+      }
+    },
+    {
+      "operationId": "listMerchantSkuDimensions",
+      "path": "/api/ops/v1/merchants/{merchantId}/sku-dimensions",
+      "method": "GET",
+      "x-permissions": [
+        "merchants:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "skuDimension.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 404,
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "operationId": "createMerchantSkuDimension",
+      "path": "/api/ops/v1/merchants/{merchantId}/sku-dimensions",
+      "method": "POST",
+      "x-permissions": [
+        "merchants:create"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "skuDimension.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 201
+        },
+        "rejected": {
+          "status": 422,
+          "code": "INVALID_CARGO_INPUT"
+        }
+      }
+    },
+    {
+      "operationId": "freezeUser",
+      "path": "/api/ops/v1/users/{userId}/actions/freeze",
+      "method": "POST",
+      "x-permissions": [
+        "users:freeze"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "accountFreeze.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 412,
+          "code": "VERSION_CONFLICT"
+        }
+      }
+    },
+    {
+      "operationId": "unfreezeUser",
+      "path": "/api/ops/v1/users/{userId}/actions/unfreeze",
+      "method": "POST",
+      "x-permissions": [
+        "users:freeze"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "accountFreeze.version",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {
+          "status": 200
+        },
+        "rejected": {
+          "status": 409,
+          "code": "INVALID_TRANSITION"
+        }
+      }
+    }
   ],
   "operations": [
-    {"operationId":"createRouteQuote","path":"/api/customer/v1/route-quotes","method":"POST","x-permissions":[],"x-permissions-note":"待 Lead 裁定：客户端报价权限未在基准权限表覆盖。","phase":"A","implementationStatus":"CONTRACT_READY","versionObject":"routePricingConfiguration.version","x-owner":"Backend1","examples":{"success":{"status":201,"body":{"configurationVersion":1,"expiresAt":"2026-11-11T00:10:00Z"}},"rejected":{"status":422,"code":"EXCLUSIVE_VEHICLE_REQUIRED"}}},
-    {"operationId":"listRoutePricingConfigurations","path":"/api/ops/v1/route-pricing/configurations","method":"GET","x-permissions":["pricing:config:read"],"phase":"A","implementationStatus":"CONTRACT_READY","versionObject":"routePricingConfiguration.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"items":[]}},"rejected":{"status":403,"code":"FORBIDDEN"}}},
-    {"operationId":"createRoutePricingConfiguration","path":"/api/ops/v1/route-pricing/configurations","method":"POST","x-permissions":["pricing:config:submit"],"phase":"A","implementationStatus":"CONTRACT_READY","versionObject":"routePricingConfiguration.version","x-owner":"Backend1","examples":{"success":{"status":201,"body":{"version":1}},"rejected":{"status":428,"code":"VERSION_REQUIRED"}}},
-    {"operationId":"listCoupons","path":"/api/ops/v1/coupons","method":"GET","x-permissions":["coupons:read"],"phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"couponBatch.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"items":[]}},"rejected":{"status":403,"code":"FORBIDDEN"}}},
-    {"operationId":"createCouponBatch","path":"/api/ops/v1/coupons/batches","method":"POST","x-permissions":["coupons:create"],"phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"couponBatch.version","x-owner":"Backend1","examples":{"success":{"status":201,"body":{"version":1}},"rejected":{"status":422,"code":"COUPON_BUDGET_EXHAUSTED"}}},
-    {"operationId":"lockOrderCoupon","path":"/api/customer/v1/orders/{orderId}/actions/lock-coupon","method":"POST","x-permissions":[],"x-permissions-note":"待 Lead 裁定：客户用券动作未在基准权限表覆盖。","phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"order.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"status":"LOCKED"}},"rejected":{"status":422,"code":"COUPON_NOT_APPLICABLE"}}},
-    {"operationId":"redeemOrderCoupon","path":"/api/customer/v1/orders/{orderId}/actions/redeem-coupon","method":"POST","x-permissions":[],"x-permissions-note":"待 Lead 裁定：付款确认后的核销动作未在基准权限表覆盖。","phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"couponRedemption.idempotencyKey","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"status":"REDEEMED"}},"rejected":{"status":422,"code":"PAYMENT_REQUIRED"}}},
-    {"operationId":"releaseOrderCoupon","path":"/api/customer/v1/orders/{orderId}/actions/release-coupon","method":"POST","x-permissions":[],"x-permissions-note":"待 Lead 裁定：客户取消用券动作未在基准权限表覆盖。","phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"order.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"status":"RELEASED"}},"rejected":{"status":409,"code":"COUPON_NOT_RELEASABLE"}}},
-    {"operationId":"getMerchantContract","path":"/api/ops/v1/merchants/{merchantId}/contract","method":"GET","x-permissions":["merchants:read"],"phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"merchantContract.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"status":"DRAFT","version":1}},"rejected":{"status":404,"code":"NOT_FOUND"}}},
-    {"operationId":"createMerchantContract","path":"/api/ops/v1/merchants/{merchantId}/contract","method":"POST","x-permissions":["merchants:contract:submit"],"phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"merchantContract.version","x-owner":"Backend1","examples":{"success":{"status":201,"body":{"status":"DRAFT","version":1}},"rejected":{"status":422,"code":"INVALID_CONTRACT_INPUT"}}},
-    {"operationId":"activateMerchantContract","path":"/api/ops/v1/merchants/{merchantId}/contract/actions/activate","method":"POST","x-permissions":[],"x-permissions-note":"待 Q-V1：现有 activate 与基准 approve 语义不一致。","phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"merchantContract.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"status":"ACTIVE","version":2}},"rejected":{"status":412,"code":"VERSION_CONFLICT"}}},
-    {"operationId":"expireMerchantContract","path":"/api/ops/v1/merchants/{merchantId}/contract/actions/expire","method":"POST","x-permissions":[],"x-permissions-note":"待 Q-V1：现有 expire 不在基准合同动作内。","phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"merchantContract.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"status":"EXPIRED","version":3}},"rejected":{"status":409,"code":"INVALID_TRANSITION"}}},
-    {"operationId":"listMerchantSkuDimensions","path":"/api/ops/v1/merchants/{merchantId}/sku-dimensions","method":"GET","x-permissions":["merchants:read"],"phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"skuDimension.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"items":[]}},"rejected":{"status":404,"code":"NOT_FOUND"}}},
-    {"operationId":"createMerchantSkuDimension","path":"/api/ops/v1/merchants/{merchantId}/sku-dimensions","method":"POST","x-permissions":["merchants:create"],"phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"skuDimension.version","x-owner":"Backend1","examples":{"success":{"status":201,"body":{"version":1}},"rejected":{"status":422,"code":"INVALID_CARGO_INPUT"}}},
-    {"operationId":"freezeUser","path":"/api/ops/v1/users/{userId}/actions/freeze","method":"POST","x-permissions":["users:freeze"],"phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"accountFreeze.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"status":"FROZEN","version":1}},"rejected":{"status":412,"code":"VERSION_CONFLICT"}}},
-    {"operationId":"unfreezeUser","path":"/api/ops/v1/users/{userId}/actions/unfreeze","method":"POST","x-permissions":["users:freeze"],"phase":"B","implementationStatus":"CONTRACT_READY","versionObject":"accountFreeze.version","x-owner":"Backend1","examples":{"success":{"status":200,"body":{"status":"ACTIVE","version":2}},"rejected":{"status":409,"code":"INVALID_TRANSITION"}}}
-  ]
+    {
+      "operationId": "createRouteQuote",
+      "path": "/api/customer/v1/route-quotes",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "待 Lead 裁定：客户端报价权限未在基准权限表覆盖。",
+      "phase": "A",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "routePricingConfiguration.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "configurationVersion": 1,
+            "expiresAt": "2026-11-11T00:10:00Z"
+          }
+        },
+        "rejected": {
+          "status": 422,
+          "code": "EXCLUSIVE_VEHICLE_REQUIRED"
+        }
+      }
+    },
+    {
+      "operationId": "listRoutePricingConfigurations",
+      "path": "/api/ops/v1/route-pricing/configurations",
+      "method": "GET",
+      "x-permissions": [
+        "pricing:config:read"
+      ],
+      "phase": "A",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "routePricingConfiguration.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "items": []
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "operationId": "createRoutePricingConfiguration",
+      "path": "/api/ops/v1/route-pricing/configurations",
+      "method": "POST",
+      "x-permissions": [
+        "pricing:config:submit"
+      ],
+      "phase": "A",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "routePricingConfiguration.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "version": 1
+          }
+        },
+        "rejected": {
+          "status": 428,
+          "code": "VERSION_REQUIRED"
+        }
+      }
+    },
+    {
+      "operationId": "listCoupons",
+      "path": "/api/ops/v1/coupons",
+      "method": "GET",
+      "x-permissions": [
+        "coupons:read"
+      ],
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "couponBatch.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "items": []
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "operationId": "createCouponBatch",
+      "path": "/api/ops/v1/coupons/batches",
+      "method": "POST",
+      "x-permissions": [
+        "coupons:create"
+      ],
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "couponBatch.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "version": 1
+          }
+        },
+        "rejected": {
+          "status": 422,
+          "code": "COUPON_BUDGET_EXHAUSTED"
+        }
+      }
+    },
+    {
+      "operationId": "lockOrderCoupon",
+      "path": "/api/customer/v1/orders/{orderId}/actions/lock-coupon",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "待 Lead 裁定：客户用券动作未在基准权限表覆盖。",
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "order.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "LOCKED"
+          }
+        },
+        "rejected": {
+          "status": 422,
+          "code": "COUPON_NOT_APPLICABLE"
+        }
+      }
+    },
+    {
+      "operationId": "redeemOrderCoupon",
+      "path": "/api/customer/v1/orders/{orderId}/actions/redeem-coupon",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "待 Lead 裁定：付款确认后的核销动作未在基准权限表覆盖。",
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "couponRedemption.idempotencyKey",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "REDEEMED"
+          }
+        },
+        "rejected": {
+          "status": 422,
+          "code": "PAYMENT_REQUIRED"
+        }
+      }
+    },
+    {
+      "operationId": "releaseOrderCoupon",
+      "path": "/api/customer/v1/orders/{orderId}/actions/release-coupon",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "待 Lead 裁定：客户取消用券动作未在基准权限表覆盖。",
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "order.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "RELEASED"
+          }
+        },
+        "rejected": {
+          "status": 409,
+          "code": "COUPON_NOT_RELEASABLE"
+        }
+      }
+    },
+    {
+      "operationId": "getMerchantContract",
+      "path": "/api/ops/v1/merchants/{merchantId}/contract",
+      "method": "GET",
+      "x-permissions": [
+        "merchants:read"
+      ],
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "merchantContract.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "DRAFT",
+            "version": 1
+          }
+        },
+        "rejected": {
+          "status": 404,
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "operationId": "createMerchantContract",
+      "path": "/api/ops/v1/merchants/{merchantId}/contract",
+      "method": "POST",
+      "x-permissions": [
+        "merchants:contract:submit"
+      ],
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "merchantContract.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "status": "DRAFT",
+            "version": 1
+          }
+        },
+        "rejected": {
+          "status": 422,
+          "code": "INVALID_CONTRACT_INPUT"
+        }
+      }
+    },
+    {
+      "operationId": "activateMerchantContract",
+      "path": "/api/ops/v1/merchants/{merchantId}/contract/actions/activate",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "待 Q-V1：现有 activate 与基准 approve 语义不一致。",
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "merchantContract.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "ACTIVE",
+            "version": 2
+          }
+        },
+        "rejected": {
+          "status": 412,
+          "code": "VERSION_CONFLICT"
+        }
+      }
+    },
+    {
+      "operationId": "expireMerchantContract",
+      "path": "/api/ops/v1/merchants/{merchantId}/contract/actions/expire",
+      "method": "POST",
+      "x-permissions": [],
+      "x-permissions-note": "待 Q-V1：现有 expire 不在基准合同动作内。",
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "merchantContract.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "EXPIRED",
+            "version": 3
+          }
+        },
+        "rejected": {
+          "status": 409,
+          "code": "INVALID_TRANSITION"
+        }
+      }
+    },
+    {
+      "operationId": "listMerchantSkuDimensions",
+      "path": "/api/ops/v1/merchants/{merchantId}/sku-dimensions",
+      "method": "GET",
+      "x-permissions": [
+        "merchants:read"
+      ],
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "skuDimension.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "items": []
+          }
+        },
+        "rejected": {
+          "status": 404,
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "operationId": "createMerchantSkuDimension",
+      "path": "/api/ops/v1/merchants/{merchantId}/sku-dimensions",
+      "method": "POST",
+      "x-permissions": [
+        "merchants:create"
+      ],
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "skuDimension.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "version": 1
+          }
+        },
+        "rejected": {
+          "status": 422,
+          "code": "INVALID_CARGO_INPUT"
+        }
+      }
+    },
+    {
+      "operationId": "freezeUser",
+      "path": "/api/ops/v1/users/{userId}/actions/freeze",
+      "method": "POST",
+      "x-permissions": [
+        "users:freeze"
+      ],
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "accountFreeze.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "FROZEN",
+            "version": 1
+          }
+        },
+        "rejected": {
+          "status": 412,
+          "code": "VERSION_CONFLICT"
+        }
+      }
+    },
+    {
+      "operationId": "unfreezeUser",
+      "path": "/api/ops/v1/users/{userId}/actions/unfreeze",
+      "method": "POST",
+      "x-permissions": [
+        "users:freeze"
+      ],
+      "phase": "B",
+      "implementationStatus": "CONTRACT_READY",
+      "versionObject": "accountFreeze.version",
+      "x-owner": "Backend1",
+      "examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "ACTIVE",
+            "version": 2
+          }
+        },
+        "rejected": {
+          "status": 409,
+          "code": "INVALID_TRANSITION"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Backend1DimensionRulesItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreateDimensionRuleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreateDimensionRuleRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ]
+      },
+      "Backend1VehicleTariffsItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreateVehicleTariffResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreateVehicleTariffRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ]
+      },
+      "Backend1ValueAddedServicesItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreateValueAddedServiceResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreateValueAddedServiceRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ]
+      },
+      "Backend1FxRatesItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreateFxRateResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreateFxRateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ]
+      },
+      "Backend1CreatePricingQuoteTrialResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreatePricingQuoteTrialRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ]
+      },
+      "Backend1CreateCustomerQuoteTrialResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1CreateCustomerQuoteTrialRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expectedVersion": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "amount",
+          "expectedVersion"
+        ]
+      },
+      "Backend1CustomerServiceOptionsItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "version",
+          "amount"
+        ]
+      },
+      "Backend1MerchantItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "version"
+        ]
+      },
+      "Backend1CreateMerchantRequest": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "legalName": {"type": "string"}
+        },
+        "required": ["name", "legalName"]
+      },
+      "Backend1MerchantActionRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {"type": "string"},
+          "expectedVersion": {"type": "integer"}
+        },
+        "required": ["expectedVersion"]
+      },
+      "Backend1MerchantContractItem": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "merchantId": {"type": "string"},
+          "status": {"type": "string"},
+          "version": {"type": "integer"}
+        },
+        "required": ["id", "merchantId", "status", "version"]
+      },
+      "Backend1CreateMerchantContractVersionRequest": {
+        "type": "object",
+        "properties": {
+          "effectiveAt": {"type": "string", "format": "date-time"},
+          "terms": {"type": "string"}
+        },
+        "required": ["effectiveAt", "terms"]
+      },
+      "Backend1MerchantContractActionRequest": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {"type": "integer"}
+        },
+        "required": ["expectedVersion"]
+      },
+      "Backend1UserItem": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "email": {"type": "string"},
+          "status": {"type": "string"},
+          "version": {"type": "integer"}
+        },
+        "required": ["id", "email", "status", "version"]
+      },
+      "Backend1CouponBatchItem": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "status": {"type": "string"},
+          "version": {"type": "integer"},
+          "budget": {"$ref": "#/components/schemas/Money"}
+        },
+        "required": ["id", "name", "status", "version", "budget"]
+      },
+      "Backend1CreateCouponBatchRequest": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "budget": {"$ref": "#/components/schemas/Money"}
+        },
+        "required": ["name", "budget"]
+      },
+      "Backend1CouponBatchActionRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {"type": "string"},
+          "expectedVersion": {"type": "integer"}
+        },
+        "required": ["expectedVersion"]
+      },
+      "Backend1CouponRedemptionItem": {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "couponId": {"type": "string"}, "status": {"type": "string"}},
+        "required": ["id", "couponId", "status"]
+      },
+      "Backend1CouponRiskFlagItem": {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "couponId": {"type": "string"}, "status": {"type": "string"}, "version": {"type": "integer"}},
+        "required": ["id", "couponId", "status", "version"]
+      },
+      "Backend1ResolveCouponRiskFlagRequest": {
+        "type": "object",
+        "properties": {"expectedVersion": {"type": "integer"}, "resolution": {"type": "string"}},
+        "required": ["expectedVersion", "resolution"]
+      },
+      "Backend1CustomerCouponItem": {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "status": {"type": "string"}, "version": {"type": "integer"}},
+        "required": ["id", "status", "version"]
+      },
+      "Backend1ClaimCustomerCouponRequest": {
+        "type": "object",
+        "properties": {"couponCode": {"type": "string"}},
+        "required": ["couponCode"]
+      },
+      "Backend1CustomerOrderInput": {
+        "type": "object",
+        "properties": {"reference": {"type": "string"}, "serviceOptionId": {"type": "string"}},
+        "required": ["reference", "serviceOptionId"]
+      },
+      "Backend1BatchCreateCustomerOrdersRequest": {
+        "type": "object",
+        "properties": {"orders": {"type": "array", "items": {"$ref": "#/components/schemas/Backend1CustomerOrderInput"}}},
+        "required": ["orders"]
+      },
+      "Backend1CustomerOrderItem": {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "status": {"type": "string"}, "version": {"type": "integer"}},
+        "required": ["id", "status", "version"]
+      },
+      "Backend1CustomerOrderBatchResponse": {
+        "type": "object",
+        "properties": {"orders": {"type": "array", "items": {"$ref": "#/components/schemas/Backend1CustomerOrderItem"}}},
+        "required": ["orders"]
+      },
+      "Backend1CustomerSkuDimensionItem": {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "skuCode": {"type": "string"}, "lengthCm": {"type": "integer"}, "widthCm": {"type": "integer"}, "heightCm": {"type": "integer"}, "version": {"type": "integer"}},
+        "required": ["id", "skuCode", "lengthCm", "widthCm", "heightCm", "version"]
+      },
+      "Backend1CreateCustomerSkuDimensionRequest": {
+        "type": "object",
+        "properties": {"skuCode": {"type": "string"}, "lengthCm": {"type": "integer"}, "widthCm": {"type": "integer"}, "heightCm": {"type": "integer"}},
+        "required": ["skuCode", "lengthCm", "widthCm", "heightCm"]
+      },
+      "Backend1CustomerCodItem": {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "orderId": {"type": "string"}, "status": {"type": "string"}, "amount": {"$ref": "#/components/schemas/Money"}, "version": {"type": "integer"}},
+        "required": ["id", "orderId", "status", "amount", "version"]
+      }
+    }
+  }
 }
