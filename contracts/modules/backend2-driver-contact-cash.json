@@ -1,0 +1,41 @@
+{
+  "module": "backend2-driver-contact-cash",
+  "owner": "Backend2",
+  "source": "CMP-1442",
+  "pathDecision": "Existing driver read and cash-report paths are recorded without renaming; client projections receive a fixed last-four phone mask and cash inputs are checked against server ledger facts.",
+  "paths": {},
+  "x-recorded-operations": [
+    {
+      "operationId": "driverOrder",
+      "path": "/api/driver/v1/orders/{orderId}",
+      "method": "GET",
+      "x-permissions": ["driver:tasks:read"],
+      "x-stage": "R1",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
+      "x-version-resource": "read only",
+      "x-owner": "Backend2",
+      "x-contact-projection": "pickup.phone and delivery.phone are server-projected as ******* plus the final four digits; full numbers are never returned to the driver client.",
+      "x-examples": {
+        "success": {"status": 200, "body": {"pickup": {"phone": "*******5678"}, "delivery": {"phone": "*******4321"}}},
+        "rejected": {"status": 404, "code": "NOT_FOUND"}
+      }
+    },
+    {
+      "operationId": "driverCashReport",
+      "path": "/api/driver/v1/cash-receipts",
+      "method": "POST",
+      "x-permissions": ["driver:cash:report"],
+      "x-stage": "R1-FIN",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
+      "x-version-resource": "body resource versions; create unique aggregate",
+      "x-owner": "Backend2",
+      "x-money-source": "delivery/insurance amounts and currency are accepted only when they do not exceed server-ledger due amounts for the submitted currency; COD remains disabled unless an authoritative receivable source exists.",
+      "x-examples": {
+        "success": {"status": 201},
+        "rejected": {"status": 422, "code": "CASH_AMOUNT_EXCEEDS_DUE"}
+      }
+    }
+  ]
+}

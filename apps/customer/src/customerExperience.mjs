@@ -1,0 +1,120 @@
+const ORDER_ID = 'EXAMPLE-CUSTOMER-001';
+
+const order = Object.freeze({
+  id: ORDER_ID,
+  isExample: true,
+  status: 'driver_assigned',
+  pickup: 'Example pickup area',
+  destination: 'Example destination area',
+  recipient: { name: 'Example recipient', phoneMasked: '*** *** 321' },
+  quote: {
+    status: 'confirmed',
+    deliveryFeeMinor: 85000n,
+    insuranceFeeMinor: 0n,
+  },
+  payment: {
+    status: 'confirmation_required',
+    action: 'frontend_only',
+  },
+  cod: {
+    amountMinor: 125000n,
+    status: 'declared',
+  },
+  stops: Object.freeze([
+    { state: 'created', active: false },
+    { state: 'driver_assigned', active: true },
+    { state: 'delivered', active: false },
+  ]),
+});
+
+const messages = Object.freeze([
+  Object.freeze({ id: 'example-message-1', isExample: true, kind: 'order_update', state: 'driver_assigned' }),
+]);
+
+const profile = Object.freeze({
+  isExample: true,
+  customer: Object.freeze({ name: 'Example customer', phoneMasked: '*** *** 321' }),
+  settings: Object.freeze({ languageSelection: 'frontend_only' }),
+});
+
+const orders = Object.freeze([order]);
+
+const demoConfiguration = Object.freeze({
+  quote: Object.freeze({
+    isExample: true,
+    displayAmount: '8.5000 USD',
+    vehicleLabel: 'Example vehicle',
+  }),
+});
+
+export function createCustomerExperience() {
+  return Object.freeze({
+    getOverview() {
+      return {
+        isExample: true,
+        sendModes: { single: true, bulk: true },
+        startupAd: { kind: 'example' },
+        homePopup: { kind: 'example' },
+        order,
+        messages,
+      };
+    },
+    findRecipientTracking(orderId) {
+      if (orderId !== ORDER_ID) return null;
+      return {
+        isExample: true,
+        orderId: order.id,
+        recipient: order.recipient,
+        stops: order.stops,
+      };
+    },
+    findOrderDetail(orderId) {
+      return orderId === ORDER_ID ? order : null;
+    },
+    getOrderTrackingTimeline(orderId) {
+      if (orderId !== ORDER_ID) return null;
+      return Object.freeze({
+        isExample: true,
+        stops: order.stops,
+      });
+    },
+    listOrders() {
+      return orders;
+    },
+    listMessages() {
+      return messages;
+    },
+    getProfileSummary() {
+      return profile;
+    },
+    getExamplePaymentConfirmation() {
+      return Object.freeze({
+        isExample: true,
+        requiresConfirmation: true,
+        action: order.payment.action,
+      });
+    },
+    getDemoConfiguration() {
+      return demoConfiguration;
+    },
+  });
+}
+
+export function createPromotionSequence() {
+  let visible = { startupAd: true, homePopup: false };
+
+  return Object.freeze({
+    getVisiblePromotion() {
+      return { ...visible };
+    },
+    dismissStartupAd() {
+      visible = { startupAd: false, homePopup: true };
+    },
+    dismissHomePopup() {
+      visible = { startupAd: false, homePopup: false };
+    },
+    beginPaymentConfirmation() {
+      visible = { startupAd: false, homePopup: false };
+    },
+  });
+}

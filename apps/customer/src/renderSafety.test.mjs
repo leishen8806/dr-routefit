@@ -26,6 +26,13 @@ test('rejects executable, non-HTTPS, and protocol-relative promotion targets', (
   }
 });
 
+test('does not provide a renderable navigation target for an unsafe promotion', () => {
+  assert.equal(
+    safety.promotionNavigationTarget({ target: 'javascript:alert(1)' }, ['partner.routefit.example']),
+    null,
+  );
+});
+
 test('uses a fixed indexed test id rather than an order identifier', () => {
   assert.equal(safety.indexedTestId('order-row', 2), 'order-row-2');
   assert.equal(safety.indexedTestId('order-row', -1), null);

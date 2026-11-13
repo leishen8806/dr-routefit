@@ -1,12 +1,14 @@
 import { Link, Stack, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { designTokens } from '@routefit/shared';
 import { CopyKey, Language, languageOptions } from '../src/copy';
 import { useLanguage } from '../src/LanguageContext';
 import { useRuntime } from '../src/RuntimeContext';
-import { safeNavigationTarget } from '../src/renderSafety.mjs';
+import { createCustomerExperience, createPromotionSequence } from '../src/customerExperience.mjs';
+import { createDemoCustomerFlow } from '../src/customerFlow.mjs';
+import { promotionNavigationTarget, safeNavigationTarget } from '../src/renderSafety.mjs';
 
 type Tab = 'send' | 'orders' | 'messages' | 'profile';
 
@@ -46,16 +48,39 @@ function TabIcon({ tab, selected }: { tab: Tab; selected: boolean }) {
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<Tab>('send');
+  const [sendMode, setSendMode] = useState<'single' | 'bulk'>('single');
+  const [paymentConfirmationOpen, setPaymentConfirmationOpen] = useState(false);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  const [codDeclared, setCodDeclared] = useState(false);
+  const [draft, setDraft] = useState<ReturnType<ReturnType<typeof createDemoCustomerFlow>['createDraft']> | null>(null);
+  const [form, setForm] = useState({ pickup: '', recipient: '', destination: '', item: '', vehicle: '' });
   const { language, setLanguage, t } = useLanguage();
   const runtime = useRuntime();
   const { advertTarget } = useLocalSearchParams<{ advertTarget?: string | string[] }>();
   const { width } = useWindowDimensions();
+  const experience = useMemo(() => createCustomerExperience(), []);
+  const promotionSequence = useMemo(() => createPromotionSequence(), []);
+  const [promotionVisibility, setPromotionVisibility] = useState(() => promotionSequence.getVisiblePromotion());
+  const overview = experience.getOverview();
+  const orderDetail = experience.findOrderDetail(overview.order.id);
+  const orderTimeline = experience.getOrderTrackingTimeline(overview.order.id);
+  const orders = experience.listOrders();
+  const paymentIntent = experience.getExamplePaymentConfirmation();
+  const demoConfiguration = experience.getDemoConfiguration();
+  const customerFlow = useMemo(() => createDemoCustomerFlow(), []);
+  const messages = experience.listMessages();
+  const profile = experience.getProfileSummary();
   const compact = width < 720;
   const activeCopy = emptyCopy[activeTab];
   const face = { fontFamily: fontFamily[language] };
-  const trackTarget = safeNavigationTarget('/track');
   const advertisementTargets = Array.isArray(advertTarget) ? advertTarget : advertTarget ? [advertTarget] : [];
-  const unsafeAdvertisement = advertisementTargets.some((target) => safeNavigationTarget(target) === null);
+  const unsafeAdvertisement = advertisementTargets.some((target) => promotionNavigationTarget({ target }) === null);
+  const trackTarget = safeNavigationTarget('/track');
+  const openExamplePaymentConfirmation = () => {
+    promotionSequence.beginPaymentConfirmation();
+    setPromotionVisibility(promotionSequence.getVisiblePromotion());
+    setPaymentConfirmationOpen(true);
+  };
 
   return (
     <View style={styles.page}>
@@ -63,7 +88,7 @@ export default function HomePage() {
       <ScrollView contentContainerStyle={[styles.scrollContent, compact && styles.scrollContentCompact]}>
         <View style={styles.masthead}>
           <View style={styles.routeHeader}>
-            <Svg accessibilityLabel={t('appName')} height={44} testID="routefit-brand-mark" viewBox="0 0 64 64" width={44}>
+            <Svg accessibilityLabel={t('appName')} height={44} testID="customer-home-brand-mark" viewBox="0 0 64 64" width={44}>
               <Path d="M16 53 V13 A4 4 0 0 1 20 9 H38 A13 13 0 0 1 51 22 A13 13 0 0 1 38 35 H26 L44 53" fill="none" stroke="#0B2545" strokeLinecap="round" strokeLinejoin="round" strokeWidth={7} />
               <Circle cx={16} cy={53} fill="#13C29B" r={6} />
               <Rect fill="#F5A623" height={11} rx={2.5} width={15} x={24} y={16.5} />
@@ -82,7 +107,7 @@ export default function HomePage() {
                 key={option.code}
                 onPress={() => setLanguage(option.code)}
                 style={({ pressed }) => [styles.languageButton, language === option.code && styles.languageButtonActive, pressed && styles.pressed]}
-                testID={`language-${option.code}`}
+                testID={`customer-home-language-${option.code}`}
               >
                 <Text style={[styles.languageText, face, language === option.code && styles.languageTextActive]}>{option.label}</Text>
               </Pressable>
@@ -95,7 +120,7 @@ export default function HomePage() {
             <Text style={[styles.title, face]}>{t('greeting')}</Text>
             <Text style={[styles.intro, face]}>{t('intro')}</Text>
           </View>
-          <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.routeDiagram} testID="route-diagram">
+          <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.routeDiagram} testID="customer-home-route-diagram">
             <View style={styles.routeTrack} />
             <View style={[styles.routeNode, styles.routeNodeStart]} />
             <View style={[styles.routeNode, styles.routeNodeCurrent]} />
@@ -108,17 +133,132 @@ export default function HomePage() {
 
         {unsafeAdvertisement ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" testID="blocked-advertisement" /> : null}
 
-        <View accessibilityLiveRegion="polite" style={[styles.emptyPanel, { backgroundColor: runtime.surfaceColor }]} testID="empty-panel">
+        {promotionVisibility.startupAd && overview.startupAd.kind === 'example' ? (
+          <Modal animationType="fade" onRequestClose={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} transparent visible>
+          <View accessibilityLiveRegion="polite" style={styles.modalBackdrop} testID="customer-home-startup-ad">
+            <View style={styles.startupAd} testID="customer-home-startup-ad-card">
+              <Text style={[styles.startupTitle, face]}>{t('promotion')}</Text>
+              <Text style={[styles.startupBody, face]}>{t('example')}</Text>
+              <Pressable accessibilityRole="button" onPress={() => { promotionSequence.dismissStartupAd(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.confirmButton} testID="customer-home-startup-ad-dismiss">
+                <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
+              </Pressable>
+            </View>
+          </View>
+          </Modal>
+        ) : null}
+
+        {promotionVisibility.homePopup && overview.homePopup.kind === 'example' ? (
+          <Modal animationType="fade" onRequestClose={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} transparent visible>
+          <View accessibilityLiveRegion="polite" style={styles.modalBackdrop} testID="customer-home-promotion">
+            <View style={styles.promotion} testID="customer-home-promotion-card">
+              <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+              <View style={styles.promotionCopy}>
+                <Text style={[styles.promotionTitle, face]}>{t('promotion')}</Text>
+                <Text style={[styles.promotionBody, face]}>{t('intro')}</Text>
+              </View>
+              <Pressable accessibilityLabel={t('back')} onPress={() => { promotionSequence.dismissHomePopup(); setPromotionVisibility(promotionSequence.getVisiblePromotion()); }} style={styles.dismissButton} testID="customer-home-promotion-dismiss">
+                <Text style={[styles.dismissText, face]}>×</Text>
+              </Pressable>
+            </View>
+          </View>
+          </Modal>
+        ) : null}
+
+        <View accessibilityLiveRegion="polite" style={[styles.emptyPanel, { backgroundColor: runtime.surfaceColor }]} testID="customer-home-content-panel">
           <View style={styles.emptyRule} />
-          <Text style={[styles.emptyTitle, face]}>{t(activeCopy.title)}</Text>
-          <Text style={[styles.emptyBody, face]}>{t(activeCopy.body)}</Text>
+          <Text style={[styles.emptyTitle, face]}>{t(activeTab === 'orders' ? 'orderExampleTitle' : activeTab === 'messages' ? 'messageExampleTitle' : activeTab === 'profile' ? 'profileExampleTitle' : activeCopy.title)}</Text>
+          <Text style={[styles.emptyBody, face]}>{activeTab === 'send' ? t(activeCopy.body) : t('noRealData')}</Text>
+          {activeTab === 'send' ? (
+            <>
+              <View style={styles.choiceRow}>
+                {(['single', 'bulk'] as const).map((mode) => (
+                  <Pressable key={mode} onPress={() => setSendMode(mode)} style={[styles.choiceButton, sendMode === mode && styles.choiceButtonActive]} testID={mode === 'single' ? 'customer-send-single-select' : 'customer-send-bulk-select'}>
+                    <Text style={[styles.choiceText, face, sendMode === mode && styles.choiceTextActive]}>{t(mode === 'single' ? 'singleDelivery' : 'bulkDelivery')}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              {(['pickup', 'recipient', 'destination', 'item', 'vehicle'] as const).map((field) => <View key={field} style={styles.inputGroup}><Text style={[styles.inputLabel, face]}>{t(field)}</Text><TextInput accessibilityLabel={t(field)} onChangeText={(value) => setForm((current) => ({ ...current, [field]: value }))} placeholder={t('example')} style={[styles.input, face]} testID={`customer-send-${field}`} value={form[field]} /></View>)}
+              <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: codDeclared }} onPress={() => setCodDeclared((current) => !current)} style={styles.choiceButton} testID="customer-send-cod-declare"><Text style={[styles.choiceText, face]}>{t('cod')}</Text></Pressable>
+              <Pressable accessibilityRole="button" onPress={() => setDraft(customerFlow.createDraft({ pickup: form.pickup, recipient: form.recipient, destination: form.destination, item: form.item, vehicle: form.vehicle, codAmountMinor: codDeclared ? overview.order.cod.amountMinor : 0n }))} style={styles.confirmButton} testID="customer-ship-submit"><Text style={[styles.confirmText, face]}>{t('confirm')}</Text></Pressable>
+              {draft ? <View style={styles.flowSummary} testID="customer-send-quote"><Text style={[styles.flowText, face]}>{demoConfiguration.quote.displayAmount}</Text><Text style={[styles.flowText, face]}>{demoConfiguration.quote.vehicleLabel}</Text><Text style={[styles.flowText, face]}>{t('example')}</Text></View> : null}
+              <Pressable accessibilityRole="button" onPress={openExamplePaymentConfirmation} style={styles.flowSummary} testID="customer-quote-confirm">
+                <Text style={[styles.flowText, face]}>{t('quote')}</Text>
+                <Text style={[styles.flowText, face]}>{t('payment')}</Text>
+                <Text style={[styles.flowText, face]}>{t('cod')}</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" onPress={openExamplePaymentConfirmation} style={styles.confirmButton} testID="customer-pay-confirm">
+                <Text style={[styles.confirmText, face]}>{paymentConfirmed ? t('payment') : t('confirm')}</Text>
+              </Pressable>
+            </>
+          ) : null}
+          {activeTab === 'orders' ? (
+            <View style={styles.detailCard} testID="customer-orders-example-detail">
+              <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+              <Text style={[styles.detailTitle, face]}>{t('orderDetail')}</Text>
+              <Text style={[styles.detailStatus, face]}>{t('orderStatus')}</Text>
+              {orders.map((entry) => (
+                <View key={entry.id} style={styles.orderRow} testID={`customer-orders-example-${entry.id}`}>
+                  <Text style={[styles.detailHint, face]}>{entry.id}</Text>
+                  <Text style={[styles.detailHint, face]}>{t('orderExampleTitle')}</Text>
+                  <Text style={[styles.detailHint, face]}>{t('orderStatus')}</Text>
+                </View>
+              ))}
+              <View style={styles.flowSummary}>
+                <Text style={[styles.flowText, face]}>{t('quote')}</Text>
+                <Text style={[styles.flowText, face]}>{t('payment')}</Text>
+                <Text style={[styles.flowText, face]}>{t('cod')}</Text>
+              </View>
+              {orderDetail ? <Text style={[styles.detailHint, face]}>{t('protectedPhone')}</Text> : null}
+              {orderTimeline ? (
+                <View accessibilityLabel={t('tracking')} style={styles.orderTimeline} testID="customer-orders-example-timeline">
+                  {orderTimeline.stops.map((stop) => <View key={stop.state} style={[styles.orderTimelineStop, stop.active && styles.orderTimelineStopActive]} />)}
+                </View>
+              ) : null}
+            </View>
+          ) : null}
+          {activeTab === 'messages' ? (
+            <View style={styles.detailCard} testID="customer-messages-example">
+              <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+              <Text style={[styles.detailTitle, face]}>{t('messageExampleTitle')}</Text>
+              {messages.map((entry) => <Text key={entry.id} style={[styles.detailHint, face]}>{t(entry.state === 'driver_assigned' ? 'messageExampleBody' : 'noRealData')}</Text>)}
+            </View>
+          ) : null}
+          {activeTab === 'profile' ? (
+            <View style={styles.detailCard} testID="customer-profile-example">
+              <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+              <Text style={[styles.detailTitle, face]}>{t('recipient')}</Text>
+              <Text style={[styles.detailHint, face]}>{t('protectedPhone')}</Text>
+              <View style={styles.flowSummary}>
+                <Text style={[styles.flowText, face]}>{t('languageSetting')}</Text>
+                <Text style={[styles.flowText, face]}>{profile.settings.languageSelection === 'frontend_only' ? t('frontendOnly') : t('noRealData')}</Text>
+              </View>
+            </View>
+          ) : null}
           {trackTarget ? (
-            <Link accessibilityRole="link" href={trackTarget} style={[styles.trackLink, face]} testID="track-link">
+            <Link accessibilityRole="link" href={trackTarget} style={[styles.trackLink, face]} testID="customer-home-track-link">
               {t('trackLink')} →
             </Link>
           ) : null}
         </View>
       </ScrollView>
+
+      {paymentConfirmationOpen ? (
+        <View accessibilityViewIsModal style={styles.modalBackdrop} testID="customer-payment-confirmation">
+          <View accessibilityRole="alert" style={[styles.modalCard, { backgroundColor: runtime.surfaceColor }]}>
+            <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
+            <Text style={[styles.modalTitle, face]}>{t('paymentConfirmTitle')}</Text>
+            <Text style={[styles.detailHint, face]}>{t('paymentConfirmBody')}</Text>
+            <View style={styles.modalActions}>
+              <Pressable accessibilityRole="button" onPress={() => setPaymentConfirmationOpen(false)} style={styles.cancelButton} testID="customer-payment-cancel">
+                <Text style={[styles.cancelText, face]}>{t('cancel')}</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" onPress={() => { if (paymentIntent.requiresConfirmation && paymentIntent.action === 'frontend_only') setPaymentConfirmed(true); setPaymentConfirmationOpen(false); }} style={styles.confirmButton} testID="customer-payment-complete">
+                <Text style={[styles.confirmText, face]}>{t('confirm')}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      ) : null}
 
       <View accessibilityRole="tablist" style={[styles.tabBar, { backgroundColor: runtime.surfaceColor }]}>
         {tabs.map((tab) => {
@@ -131,7 +271,7 @@ export default function HomePage() {
               key={tab.key}
               onPress={() => setActiveTab(tab.key)}
               style={({ pressed }) => [styles.tab, selected && styles.tabSelected, pressed && styles.pressed]}
-              testID={`tab-${tab.key}`}
+              testID={`customer-home-tab-${tab.key}`}
             >
               <TabIcon selected={selected} tab={tab.key} />
               <Text style={[styles.tabText, face, selected && styles.tabTextSelected]}>{t(tab.label)}</Text>
@@ -171,10 +311,47 @@ const styles = StyleSheet.create({
   routeVehicle: { backgroundColor: designTokens.color.amber, height: 22, left: '43%', position: 'absolute', top: 28, width: 38 },
   routeVehicleCab: { backgroundColor: '#FFD17A', height: 14, position: 'absolute', right: -10, top: 8, width: 12 },
   reviewNote: { color: designTokens.color.muted, fontSize: 13, lineHeight: 22, marginTop: designTokens.space.x3 },
+  startupAd: { alignItems: 'center', backgroundColor: designTokens.color.navy, borderRadius: designTokens.radius.large, maxWidth: 480, minHeight: 180, padding: designTokens.space.x8, width: '100%' },
+  startupTitle: { color: designTokens.color.surface, fontSize: 24, fontWeight: '600', lineHeight: 34, textAlign: 'center' },
+  startupBody: { color: '#D9E6EF', fontSize: 15, lineHeight: 24, marginTop: designTokens.space.x3, textAlign: 'center' },
+  promotion: { alignItems: 'center', backgroundColor: '#FFF4DA', borderColor: designTokens.color.amber, borderRadius: designTokens.radius.medium, borderWidth: 1, flexDirection: 'row', gap: designTokens.space.x3, maxWidth: 480, padding: designTokens.space.x4, width: '100%' },
+  exampleBadge: { backgroundColor: designTokens.color.amber, borderRadius: 999, paddingHorizontal: designTokens.space.x2, paddingVertical: 3 },
+  exampleBadgeText: { color: designTokens.color.navy, fontSize: 12, fontWeight: '600' },
+  promotionCopy: { flex: 1 },
+  promotionTitle: { color: designTokens.color.ink, fontSize: 16, fontWeight: '600' },
+  promotionBody: { color: designTokens.color.muted, fontSize: 13, lineHeight: 20, marginTop: 2 },
+  dismissButton: { alignItems: 'center', justifyContent: 'center', minHeight: 44, minWidth: 44 },
+  dismissText: { color: designTokens.color.navy, fontSize: 16, fontWeight: '600' },
   emptyPanel: { borderColor: designTokens.color.line, borderLeftColor: designTokens.color.teal, borderLeftWidth: 4, borderRadius: designTokens.radius.medium, borderWidth: 1, marginTop: designTokens.space.x8, minHeight: 220, padding: designTokens.space.x8 },
   emptyRule: { backgroundColor: designTokens.color.amber, height: 3, marginBottom: designTokens.space.x6, width: 48 },
   emptyTitle: { color: designTokens.color.ink, fontSize: 22, fontWeight: '600', lineHeight: 32 },
   emptyBody: { color: designTokens.color.muted, fontSize: 16, lineHeight: 27, marginTop: designTokens.space.x2, maxWidth: 600 },
+  choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, marginTop: designTokens.space.x6 },
+  choiceButton: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, justifyContent: 'center', minHeight: 44, paddingHorizontal: designTokens.space.x4 },
+  choiceButtonActive: { backgroundColor: '#E9F7F3', borderColor: designTokens.color.teal },
+  choiceText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500' },
+  choiceTextActive: { fontWeight: '600' },
+  inputGroup: { gap: designTokens.space.x1, marginTop: designTokens.space.x3 },
+  inputLabel: { color: designTokens.color.ink, fontSize: 14, fontWeight: '600', lineHeight: 20 },
+  input: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, color: designTokens.color.ink, minHeight: 44, paddingHorizontal: designTokens.space.x3 },
+  flowSummary: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, marginTop: designTokens.space.x6 },
+  flowText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
+  detailCard: { backgroundColor: '#F8FAFC', borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, gap: designTokens.space.x2, marginTop: designTokens.space.x6, padding: designTokens.space.x4 },
+  orderRow: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, gap: 2, marginTop: designTokens.space.x2, padding: designTokens.space.x3 },
+  orderTimeline: { flexDirection: 'row', gap: designTokens.space.x2, marginTop: designTokens.space.x2 },
+  orderTimelineStop: { backgroundColor: designTokens.color.line, borderRadius: 4, flex: 1, height: 8 },
+  orderTimelineStopActive: { backgroundColor: designTokens.color.amber },
+  detailTitle: { color: designTokens.color.ink, fontSize: 16, fontWeight: '600', lineHeight: 24, marginTop: designTokens.space.x2 },
+  detailStatus: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', lineHeight: 22 },
+  detailHint: { color: designTokens.color.muted, fontSize: 14, lineHeight: 22 },
+  modalBackdrop: { alignItems: 'center', backgroundColor: 'rgba(11, 37, 69, 0.42)', bottom: 0, justifyContent: 'center', left: 0, padding: designTokens.space.x6, position: 'absolute', right: 0, top: 0, zIndex: 20 },
+  modalCard: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.large, borderWidth: 1, gap: designTokens.space.x3, maxWidth: 480, padding: designTokens.space.x6, width: '100%' },
+  modalTitle: { color: designTokens.color.ink, fontSize: 20, fontWeight: '600', lineHeight: 28 },
+  modalActions: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, justifyContent: 'flex-end' },
+  cancelButton: { alignItems: 'center', borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, justifyContent: 'center', minHeight: 44, paddingHorizontal: designTokens.space.x4 },
+  cancelText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500' },
+  confirmButton: { alignItems: 'center', alignSelf: 'flex-start', backgroundColor: designTokens.color.navy, borderRadius: designTokens.radius.small, justifyContent: 'center', marginTop: designTokens.space.x6, minHeight: 44, paddingHorizontal: designTokens.space.x4 },
+  confirmText: { color: designTokens.color.surface, fontSize: 14, fontWeight: '600' },
   trackLink: { color: designTokens.color.navyRaised, fontSize: 15, fontWeight: '600', marginTop: designTokens.space.x6, paddingVertical: designTokens.space.x2 },
   tabBar: { alignSelf: 'center', borderColor: designTokens.color.line, borderTopWidth: 1, bottom: 0, flexDirection: 'row', left: 0, maxWidth: 1120, position: 'absolute', right: 0 },
   tab: { alignItems: 'center', borderTopColor: 'transparent', borderTopWidth: 3, flex: 1, justifyContent: 'center', minHeight: 76, paddingHorizontal: designTokens.space.x2, paddingVertical: designTokens.space.x2 },

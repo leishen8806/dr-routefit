@@ -1,0 +1,207 @@
+{
+  "module": "open-api-events",
+  "description": "CMP-1326（OpsLead）模块契约；第一版实现状态 PLANNED，待 Reviewer3 复核。",
+  "paths": {
+    "/api/open/v1/events": {
+      "get": {
+        "operationId": "openListEvents",
+        "summary": "补拉最近 7 天的订单与代收事件（回调丢失时用）；筛选 from、type",
+        "description": "补拉最近 7 天的订单与代收事件（回调丢失时用）；筛选 from、type。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "tags": [
+          "external"
+        ],
+        "security": [
+          {
+            "OpenApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Timestamp"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "页大小，默认50",
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "签名游标"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/Id"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OpenApiEvent"
+                      }
+                    },
+                    "nextCursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-permissions": [
+          "order:read"
+        ],
+        "x-stage": "R2",
+        "x-tier": "B",
+        "x-baseline-tier": "B",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "none",
+        "x-owner": "OpsLead",
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c11",
+                  "type": "order.delivered",
+                  "orderRef": "示例-REF-001",
+                  "occurredAt": "2026-11-11T06:30:00Z"
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 401,
+            "body": {
+              "error": {
+                "code": "SIGNATURE_INVALID",
+                "message": "Signature invalid (sample)",
+                "messageKey": "error.signature_invalid",
+                "retryable": false,
+                "requestId": "demo-001",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OpenApiEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "orderRef",
+          "occurredAt"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "type": {
+            "enum": [
+              "order.created",
+              "order.quoted",
+              "order.dispatched",
+              "order.picked_up",
+              "order.out_for_delivery",
+              "order.delivered",
+              "order.delivery_failed",
+              "order.cancelled",
+              "order.returned",
+              "cod.collected",
+              "cod.settled"
+            ]
+          },
+          "orderRef": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "occurredAt": {
+            "$ref": "#/components/schemas/Timestamp"
+          }
+        }
+      }
+    }
+  }
+}

@@ -21,6 +21,11 @@ export function safeNavigationTarget(candidate, allowedHttpsHosts = []) {
   return parsed.toString();
 }
 
+export function promotionNavigationTarget(promotion, allowedHttpsHosts = []) {
+  if (!promotion || typeof promotion !== 'object' || Array.isArray(promotion)) return null;
+  return safeNavigationTarget(promotion.target, allowedHttpsHosts);
+}
+
 export function indexedTestId(prefix, index) {
   if (!SAFE_TEST_ID_SEGMENT.test(prefix) || !Number.isSafeInteger(index) || index < 0) return null;
   return `${prefix}-${index}`;
