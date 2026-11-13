@@ -15514,7 +15514,9 @@
         ],
         "x-stage": "R1",
         "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
-        "x-version-resource": "read only"
+        "x-version-resource": "read only",
+        "x-baseline-tier": "B",
+        "x-owner": "Backend2"
       }
     },
     "/api/driver/v1/assignments/{assignmentId}/actions/accept": {
@@ -16426,7 +16428,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "Backend2"
       }
     },
     "/api/driver/v1/cash-handovers": {
@@ -27518,7 +27522,10 @@
           "422": {
             "$ref": "#/components/responses/Error422"
           }
-        }
+        },
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/route-pricing/configurations": {
@@ -27556,7 +27563,10 @@
           "503": {
             "$ref": "#/components/responses/Error503"
           }
-        }
+        },
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       },
       "post": {
         "operationId": "createRoutePricingConfiguration",
@@ -27587,7 +27597,10 @@
           "422": {
             "$ref": "#/components/responses/Error422"
           }
-        }
+        },
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/coupons": {
@@ -27625,7 +27638,10 @@
           "503": {
             "$ref": "#/components/responses/Error503"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/coupons/batches": {
@@ -27658,7 +27674,10 @@
           "422": {
             "$ref": "#/components/responses/Error422"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/customer/v1/orders/{orderId}/actions/lock-coupon": {
@@ -27691,7 +27710,10 @@
           "409": {
             "$ref": "#/components/responses/Error409"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/customer/v1/orders/{orderId}/actions/redeem-coupon": {
@@ -27724,7 +27746,10 @@
           "409": {
             "$ref": "#/components/responses/Error409"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/customer/v1/orders/{orderId}/actions/release-coupon": {
@@ -27757,7 +27782,10 @@
           "409": {
             "$ref": "#/components/responses/Error409"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/merchants/{merchantId}/contract": {
@@ -27780,7 +27808,10 @@
           "404": {
             "$ref": "#/components/responses/Error404"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       },
       "post": {
         "operationId": "createMerchantContract",
@@ -27811,7 +27842,10 @@
           "422": {
             "$ref": "#/components/responses/Error422"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/merchants/{merchantId}/contract/actions/activate": {
@@ -27844,7 +27878,10 @@
           "409": {
             "$ref": "#/components/responses/Error409"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/merchants/{merchantId}/contract/actions/expire": {
@@ -27877,7 +27914,10 @@
           "409": {
             "$ref": "#/components/responses/Error409"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/merchants/{merchantId}/sku-dimensions": {
@@ -27915,7 +27955,10 @@
           "503": {
             "$ref": "#/components/responses/Error503"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       },
       "post": {
         "operationId": "createMerchantSkuDimension",
@@ -27946,7 +27989,10 @@
           "422": {
             "$ref": "#/components/responses/Error422"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/users/{userId}/actions/freeze": {
@@ -27979,7 +28025,10 @@
           "409": {
             "$ref": "#/components/responses/Error409"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/users/{userId}/actions/unfreeze": {
@@ -28012,7 +28061,10 @@
           "409": {
             "$ref": "#/components/responses/Error409"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "Backend1"
       }
     },
     "/api/ops/v1/dispatch/optimization-runs": {
@@ -28063,7 +28115,10 @@
           "503": {
             "$ref": "#/components/responses/Error503"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       },
       "get": {
         "operationId": "listOptimizationRuns",
@@ -28096,7 +28151,10 @@
           "503": {
             "$ref": "#/components/responses/Error503"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/dispatch/optimization-runs/{runId}": {
@@ -28134,7 +28192,10 @@
           "503": {
             "$ref": "#/components/responses/Error503"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/dispatch/optimization-runs/{runId}/actions/adopt": {
@@ -28194,7 +28255,10 @@
           "503": {
             "$ref": "#/components/responses/Error503"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/finance/payout-approvals": {
@@ -28223,7 +28287,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/finance/payout-approvals/{approvalId}": {
@@ -28255,7 +28322,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/finance/payout-approvals/{approvalId}/actions/approve": {
@@ -28300,7 +28370,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/finance/payout-approvals/{approvalId}/actions/reject": {
@@ -28345,7 +28418,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/finance/payout-approvals/{approvalId}/actions/confirm-paid": {
@@ -28390,7 +28466,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "A",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/finance/withdrawal-requests/{requestId}/payout-approvals": {
@@ -28432,7 +28511,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/finance/merchant-settlement-requests/{requestId}/payout-approvals": {
@@ -28474,7 +28556,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/payroll/schemes": {
@@ -28503,7 +28588,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       },
       "post": {
         "operationId": "createPayScheme",
@@ -28543,7 +28631,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/payroll/schemes/{schemeId}/actions/submit": {
@@ -28588,7 +28679,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/payroll/schemes/{schemeId}/actions/approve": {
@@ -28633,7 +28727,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/payroll/runs": {
@@ -28662,7 +28759,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       },
       "post": {
         "operationId": "createPayrollRun",
@@ -28705,7 +28805,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/payroll/runs/{runId}": {
@@ -28737,7 +28840,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/payroll/runs/{runId}/lines": {
@@ -28769,7 +28875,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/payroll/runs/{runId}/actions/submit": {
@@ -28814,7 +28923,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/kpi/rule-versions": {
@@ -28843,7 +28955,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       },
       "post": {
         "operationId": "createKpiRuleVersion",
@@ -28883,7 +28998,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/kpi/rule-versions/{ruleVersionId}/actions/approve": {
@@ -28928,7 +29046,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/kpi/monthly-results": {
@@ -28957,7 +29078,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/kpi/monthly-results/{resultId}": {
@@ -28989,7 +29113,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/kpi/monthly-results/{resultId}/reward-penalties": {
@@ -29031,7 +29158,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/kpi/appeals": {
@@ -29060,7 +29190,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/driver/v1/kpi/monthly-results/{resultId}/appeals": {
@@ -29105,7 +29238,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/kpi/appeals/{appealId}/actions/decide": {
@@ -29150,7 +29286,10 @@
           "429": {
             "$ref": "#/components/responses/Error429"
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-implementation-status": "PLANNED",
+        "x-owner": "BackendSenior"
       }
     },
     "/api/ops/v1/api-clients": {
@@ -30335,7 +30474,9 @@
         ],
         "x-permissions-current-code": "ads:view",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       },
       "post": {
         "operationId": "createAdCampaign",
@@ -30424,7 +30565,7 @@
         ],
         "x-permissions-current-code": "ads:operate",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "requestBody": {
           "required": true,
           "content": {
@@ -30434,7 +30575,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/ops/v1/ad-campaigns/{campaignId}": {
@@ -30543,7 +30686,7 @@
         ],
         "x-permissions-current-code": "ads:operate",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "AdCampaign",
         "requestBody": {
           "required": true,
@@ -30554,7 +30697,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       },
       "get": {
         "operationId": "getAdCampaign",
@@ -30782,7 +30927,7 @@
         ],
         "x-permissions-current-code": "ads:operate；approve、reject 另需 ads:review",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "AdCampaign",
         "requestBody": {
           "required": true,
@@ -30793,7 +30938,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/ops/v1/ad-campaigns/{campaignId}/stats": {
@@ -30888,7 +31035,9 @@
         ],
         "x-permissions-current-code": "ads:view",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/ops/v1/roles": {
@@ -30962,7 +31111,9 @@
         ],
         "x-permissions-current-code": "roles:view",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       },
       "post": {
         "operationId": "createRole",
@@ -31051,7 +31202,7 @@
         ],
         "x-permissions-current-code": "roles:manage",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "requestBody": {
           "required": true,
           "content": {
@@ -31061,7 +31212,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/ops/v1/roles/{roleId}": {
@@ -31170,7 +31323,7 @@
         ],
         "x-permissions-current-code": "roles:manage",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "Role",
         "requestBody": {
           "required": true,
@@ -31181,7 +31334,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "A",
+        "x-owner": "OpsLead"
       }
     },
     "/api/ops/v1/staff": {
@@ -31255,7 +31410,9 @@
         ],
         "x-permissions-current-code": "roles:view",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       },
       "post": {
         "operationId": "assignStaffRoles",
@@ -31344,7 +31501,7 @@
         ],
         "x-permissions-current-code": "roles:manage",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "requestBody": {
           "required": true,
           "content": {
@@ -31354,7 +31511,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/ops/v1/staff/{personId}": {
@@ -31463,7 +31622,7 @@
         ],
         "x-permissions-current-code": "roles:manage",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "x-version-resource": "Staff",
         "requestBody": {
           "required": true,
@@ -31474,7 +31633,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/ops/v1/audit-logs": {
@@ -31548,7 +31709,9 @@
         ],
         "x-permissions-current-code": "audit:view",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/ops/v1/dashboard/summary": {
@@ -31616,7 +31779,9 @@
         ],
         "x-permissions-current-code": "dashboard:view",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/open/v1/quotes": {
@@ -31704,7 +31869,7 @@
         ],
         "x-permissions-current-code": "密钥范围 quote:create",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "requestBody": {
           "required": true,
           "content": {
@@ -31714,7 +31879,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/open/v1/orders": {
@@ -31802,7 +31969,7 @@
         ],
         "x-permissions-current-code": "密钥范围 order:create",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "requestBody": {
           "required": true,
           "content": {
@@ -31812,7 +31979,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/open/v1/orders/{orderId}": {
@@ -31888,7 +32057,9 @@
         ],
         "x-permissions-current-code": "密钥范围 order:read",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/open/v1/orders/{orderId}/actions/cancel": {
@@ -31984,7 +32155,7 @@
         ],
         "x-permissions-current-code": "密钥范围 order:cancel",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "requestBody": {
           "required": true,
           "content": {
@@ -31994,7 +32165,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/open/v1/orders/{orderId}/tracking": {
@@ -32070,7 +32243,9 @@
         ],
         "x-permissions-current-code": "密钥范围 tracking:read",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/driver/v1/ads": {
@@ -32150,7 +32325,9 @@
         ],
         "x-permissions-current-code": "沿用司机端既有会话主体",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/driver/v1/ad-interactions": {
@@ -32241,7 +32418,7 @@
         ],
         "x-permissions-current-code": "沿用司机端既有会话主体",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "requestBody": {
           "required": true,
           "content": {
@@ -32251,7 +32428,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/customer/v1/ads": {
@@ -32331,7 +32510,9 @@
         ],
         "x-permissions-current-code": "沿用客户端既有会话主体",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY"
+        "x-implementation-status": "PLANNED",
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/customer/v1/ad-interactions": {
@@ -32422,7 +32603,7 @@
         ],
         "x-permissions-current-code": "沿用客户端既有会话主体",
         "x-stage": "R2",
-        "x-implementation-status": "DESIGN_ONLY",
+        "x-implementation-status": "PLANNED",
         "requestBody": {
           "required": true,
           "content": {
@@ -32432,7 +32613,9 @@
               }
             }
           }
-        }
+        },
+        "x-baseline-tier": "B",
+        "x-owner": "OpsLead"
       }
     },
     "/api/driver/v1/auth/mock-sessions": {
