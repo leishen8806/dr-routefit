@@ -1,8 +1,20 @@
 [
   {
     "from": 65,
+    "to": 75,
+    "reason": "Allocated to unmerged feature branches (Backend1 064-069, Backend2 070-075 per board allocation); remove a number from this list when its migration merges into develop.",
+    "approvedBy": "CMP-1569"
+  },
+  {
+    "from": 77,
+    "to": 77,
+    "reason": "Allocated to BackendSenior 076-081 and not yet merged (076 and 078 already in develop); remove when merged.",
+    "approvedBy": "CMP-1569"
+  },
+  {
+    "from": 79,
     "to": 87,
-    "reason": "Numbers 065-087 are allocated to unmerged feature branches (Backend1 064-069, Backend2 070-075, BackendSenior 076-081, OpsLead 082-087 per board allocation); develop already holds 088. Remove each number from this range when its migration merges.",
+    "reason": "079-081 allocated to BackendSenior, 082-087 to OpsLead per board allocation, none merged yet (develop holds 088); remove each number when its migration merges.",
     "approvedBy": "CMP-1569"
   }
 ]
