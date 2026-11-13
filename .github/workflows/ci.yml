@@ -19,6 +19,31 @@ permissions:
 # postgres:16 defaults to 100. This observation has not been verified on Actions.
 # If CI hits 53200, consider --test-concurrency=1 (not silently enabled here).
 jobs:
+  # CMP-1417: pure file check, no npm ci / DB. Full history so the base-ref diff is never silently empty.
+  migration-numbering:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Migration numbering gate (unit tests)
+        run: node --test scripts/check-migration-numbering.test.mjs
+      - name: Migration numbering gate (pull_request)
+        if: github.event_name == 'pull_request'
+        run: node scripts/check-migration-numbering.mjs --base-ref "origin/${{ github.base_ref }}"
+      - name: Migration numbering gate (push)
+        if: github.event_name == 'push'
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          base="$BEFORE_SHA"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then base="origin/develop"; fi
+          node scripts/check-migration-numbering.mjs --base-ref "$base"
+
   prototype:
     runs-on: ubuntu-latest
     timeout-minutes: 10
