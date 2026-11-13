@@ -39,7 +39,7 @@
       "x-implementation-status": "PLANNED",
       "x-version-resource": "finance.payoutApproval.version",
       "x-owner": "BackendSenior",
-      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "approved（示例）", "version": 2}}, "rejected": {"status": 412, "body": {"error": {"code": "VERSION_CONFLICT", "message": "Demo approval version is stale (示例)", "messageKey": "errors.version_conflict", "retryable": false, "requestId": "demo-payout-412-approve", "fields": []}}}}
+      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "approved（示例）", "version": 2}}, "rejected": {"status": 403, "body": {"error": {"code": "SELF_APPROVAL_FORBIDDEN", "message": "Demo approval version is stale (示例)", "messageKey": "errors.version_conflict", "retryable": false, "requestId": "demo-payout-412-approve", "fields": []}}}}
     },
     {
       "operationId": "rejectPayoutApproval",
@@ -51,7 +51,7 @@
       "x-implementation-status": "PLANNED",
       "x-version-resource": "finance.payoutApproval.version",
       "x-owner": "BackendSenior",
-      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "rejected（示例）", "version": 2}}, "rejected": {"status": 412, "body": {"error": {"code": "VERSION_CONFLICT", "message": "Demo rejection version is stale (示例)", "messageKey": "errors.version_conflict", "retryable": false, "requestId": "demo-payout-412-reject", "fields": []}}}}
+      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "rejected（示例）", "version": 2}}, "rejected": {"status": 412, "body": {"error": {"code": "INVALID_STATE", "message": "Demo rejection version is stale (示例)", "messageKey": "errors.version_conflict", "retryable": false, "requestId": "demo-payout-412-reject", "fields": []}}}}
     },
     {
       "operationId": "confirmPayoutPaid",
@@ -63,7 +63,7 @@
       "x-implementation-status": "PLANNED",
       "x-version-resource": "finance.payoutApproval.version",
       "x-owner": "BackendSenior",
-      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "paid（示例）", "version": 3}}, "rejected": {"status": 428, "body": {"error": {"code": "PRECONDITION_REQUIRED", "message": "Demo paid confirmation requires a precondition (示例)", "messageKey": "errors.precondition_required", "retryable": false, "requestId": "demo-payout-428-confirm", "fields": []}}}}
+      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "paid（示例）", "version": 3}}, "rejected": {"status": 403, "body": {"error": {"code": "SELF_CONFIRM_FORBIDDEN", "message": "Demo paid confirmation requires a precondition (示例)", "messageKey": "errors.precondition_required", "retryable": false, "requestId": "demo-payout-428-confirm", "fields": []}}}}
     }
   ]
 }
