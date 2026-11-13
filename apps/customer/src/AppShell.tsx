@@ -14,7 +14,7 @@ export function AppShell({ children }: PropsWithChildren) {
     >
       <StatusBar style="dark" />
       {__DEV__ && Platform.OS === 'web' ? (
-        <View accessibilityRole="text" style={[styles.modeBadge, { backgroundColor: runtime.accentColor }]} testID="runtime-mode">
+        <View accessibilityRole="text" style={[styles.modeBadge, { backgroundColor: runtime.accentColor }]} testID="customer-home-runtime-mode">
           <Text style={[styles.modeText, { color: runtime.buttonTextColor }]}>{runtime.mode === 'telegram' ? t('modeTelegram') : t('modeH5')}</Text>
         </View>
       ) : null}
