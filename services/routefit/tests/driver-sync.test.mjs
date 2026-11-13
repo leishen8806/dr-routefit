@@ -31,18 +31,33 @@ test('offline cash report is recorded for independent finance review rather than
  const result=await writeDriverSync(db,principal,{deviceId,events:[event]});assert.deepEqual(result.results[0],{eventId:event.eventId,result:'NEEDS_REVIEW',resourceId:assignmentId,resourceVersion:1,errorCode:'SYNC_CASH_FINANCE_REVIEW_REQUIRED'});
 });
 
-test('driver order reads expose server-masked contact phones and never the stored phone',async()=>{
- const db={query:async(sql)=>{
+function driverOrderClient({assignmentState='accepted',orderState='executing',fulfillmentStage='in_transit',assigned=true}={}){
+ return {query:async(sql)=>{
   if(sql.includes("FROM org.principal WHERE"))return {rows:[{kind:'DRIVER',person_id:'66666666-6666-4666-8666-666666666666'}],rowCount:1};
-  if(sql.includes('FROM dispatch.assignment'))return {rows:[{ok:1}],rowCount:1};
-  if(sql.includes('SELECT snapshot FROM orders.draft'))return {rows:[{snapshot:{order:{id:orderId},pickup:{phone:'+85512345678'},delivery:{phone:'+85587654321'},items:[],quoteId:null}}],rowCount:1};
+  if(sql.includes('FROM dispatch.assignment'))return {rows:assigned?[{state:assignmentState}]:[],rowCount:assigned?1:0};
+  if(sql.includes('SELECT snapshot FROM orders.draft'))return {rows:[{snapshot:{order:{id:orderId,state:orderState,fulfillmentStage},pickup:{phone:'+85512345678'},delivery:{phone:'+85587654321'},items:[],quoteId:null}}],rowCount:1};
   if(sql.includes('FROM finance.allocation_reversal'))return {rows:[],rowCount:0};
   if(sql.includes('FROM finance.prepayment_receipt'))return {rows:[{reported:'0'}],rowCount:1};
   throw Error('Unexpected query: '+sql);
  }};
- const result=await readDriver(db,principal,'order',orderId,null);
+}
+test('driver order in transit returns full contact phones only to the assigned driver',async()=>{
+ const result=await readDriver(driverOrderClient(),principal,'order',orderId,null);
+ assert.equal(result.pickup.phone,'+85512345678');
+ assert.equal(result.delivery.phone,'+85587654321');
+});
+test('driver order after delivery returns server-masked contact phones',async()=>{
+ const result=await readDriver(driverOrderClient({assignmentState:'completed',orderState:'delivered',fulfillmentStage:'delivery_recorded'}),principal,'order',orderId,null);
  assert.equal(result.pickup.phone,'*******5678');
  assert.equal(result.delivery.phone,'*******4321');
  assert.notEqual(result.pickup.phone,'+85512345678');
  assert.notEqual(result.delivery.phone,'+85587654321');
+});
+test('driver order after cancellation returns server-masked contact phones',async()=>{
+ const result=await readDriver(driverOrderClient({assignmentState:'revoked',orderState:'cancelled'}),principal,'order',orderId,null);
+ assert.equal(result.pickup.phone,'*******5678');
+ assert.equal(result.delivery.phone,'*******4321');
+});
+test('other driver cannot read a previously assigned order contact phone',async()=>{
+ await assert.rejects(readDriver(driverOrderClient({assigned:false}),principal,'order',orderId,null),error=>error.status===404&&error.code==='NOT_FOUND');
 });
