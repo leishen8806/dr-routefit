@@ -169,7 +169,7 @@
       "get": {
         "operationId": "getPermissionCatalog",
         "summary": "全部模块和权限点目录",
-        "description": "全部模块和权限点目录。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
+        "description": "全部模块和权限点目录。【目录为全量，随各模块交付增长】：响应不固定枚举，module／code 均为开放字符串，新模块交付后在此追加；示例列出董事会定名的 22 个、Lead2 裁定的 4 个通知类，以及总表既有全部（共 64 个；Backend1 的 13 个客户端权限名交付后追加）。基准 BOARD-API-BASELINE-20261111 的 OpsLead 行；示例值均为演示数据（示例）。",
         "tags": [
           "ops"
         ],
@@ -283,16 +283,414 @@
             "body": {
               "modules": [
                 {
+                  "module": "ads",
+                  "label": "ads（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "ads:approve",
+                      "label": "ads:approve（示例）"
+                    },
+                    {
+                      "code": "ads:offline",
+                      "label": "ads:offline（示例）"
+                    },
+                    {
+                      "code": "ads:read",
+                      "label": "ads:read（示例）"
+                    },
+                    {
+                      "code": "ads:write",
+                      "label": "ads:write（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "audit",
+                  "label": "audit（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "audit:read",
+                      "label": "audit:read（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "coupons",
+                  "label": "coupons（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "coupons:approve",
+                      "label": "coupons:approve（示例）"
+                    },
+                    {
+                      "code": "coupons:create",
+                      "label": "coupons:create（示例）"
+                    },
+                    {
+                      "code": "coupons:read",
+                      "label": "coupons:read（示例）"
+                    },
+                    {
+                      "code": "coupons:risk:resolve",
+                      "label": "coupons:risk:resolve（示例）"
+                    },
+                    {
+                      "code": "coupons:stop",
+                      "label": "coupons:stop（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "customer:ads",
+                  "label": "customer:ads（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "customer:ads:read",
+                      "label": "customer:ads:read（示例）"
+                    },
+                    {
+                      "code": "customer:ads:report",
+                      "label": "customer:ads:report（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "customer:notifications",
+                  "label": "customer:notifications（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "customer:notifications:read",
+                      "label": "customer:notifications:read（示例）"
+                    },
+                    {
+                      "code": "customer:notifications:write",
+                      "label": "customer:notifications:write（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "customer:quotes",
+                  "label": "customer:quotes（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "customer:quotes:trial",
+                      "label": "customer:quotes:trial（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "dashboard",
+                  "label": "dashboard（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "dashboard:read",
+                      "label": "dashboard:read（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "delivery",
+                  "label": "delivery（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "delivery:config",
+                      "label": "delivery:config（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "dispatch",
+                  "label": "dispatch（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "dispatch:optimize",
+                      "label": "dispatch:optimize（示例）"
+                    },
+                    {
+                      "code": "dispatch:optimize:adopt",
+                      "label": "dispatch:optimize:adopt（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "driver:ads",
+                  "label": "driver:ads（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "driver:ads:read",
+                      "label": "driver:ads:read（示例）"
+                    },
+                    {
+                      "code": "driver:ads:report",
+                      "label": "driver:ads:report（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "driver:notifications",
+                  "label": "driver:notifications（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "driver:notifications:read",
+                      "label": "driver:notifications:read（示例）"
+                    },
+                    {
+                      "code": "driver:notifications:write",
+                      "label": "driver:notifications:write（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "drivers",
+                  "label": "drivers（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "drivers:application:review",
+                      "label": "drivers:application:review（示例）"
+                    },
+                    {
+                      "code": "drivers:read",
+                      "label": "drivers:read（示例）"
+                    },
+                    {
+                      "code": "drivers:suspend",
+                      "label": "drivers:suspend（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "finance",
+                  "label": "finance（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "finance:cash:policy",
+                      "label": "finance:cash:policy（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "kpi",
+                  "label": "kpi（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "kpi:adjust",
+                      "label": "kpi:adjust（示例）"
+                    },
+                    {
+                      "code": "kpi:appeal:decide",
+                      "label": "kpi:appeal:decide（示例）"
+                    },
+                    {
+                      "code": "kpi:read",
+                      "label": "kpi:read（示例）"
+                    },
+                    {
+                      "code": "kpi:rule:approve",
+                      "label": "kpi:rule:approve（示例）"
+                    },
+                    {
+                      "code": "kpi:rule:submit",
+                      "label": "kpi:rule:submit（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "merchants",
+                  "label": "merchants（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "merchants:approve",
+                      "label": "merchants:approve（示例）"
+                    },
+                    {
+                      "code": "merchants:contract:approve",
+                      "label": "merchants:contract:approve（示例）"
+                    },
+                    {
+                      "code": "merchants:contract:submit",
+                      "label": "merchants:contract:submit（示例）"
+                    },
+                    {
+                      "code": "merchants:create",
+                      "label": "merchants:create（示例）"
+                    },
+                    {
+                      "code": "merchants:read",
+                      "label": "merchants:read（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "open:orders",
+                  "label": "open:orders（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "open:orders:cancel",
+                      "label": "open:orders:cancel（示例）"
+                    },
+                    {
+                      "code": "open:orders:create",
+                      "label": "open:orders:create（示例）"
+                    },
+                    {
+                      "code": "open:orders:read",
+                      "label": "open:orders:read（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "open:quotes",
+                  "label": "open:quotes（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "open:quotes:create",
+                      "label": "open:quotes:create（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "open:tracking",
+                  "label": "open:tracking（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "open:tracking:read",
+                      "label": "open:tracking:read（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "openapi",
+                  "label": "openapi（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "openapi:clients:read",
+                      "label": "openapi:clients:read（示例）"
+                    },
+                    {
+                      "code": "openapi:clients:write",
+                      "label": "openapi:clients:write（示例）"
+                    },
+                    {
+                      "code": "openapi:keys:manage",
+                      "label": "openapi:keys:manage（示例）"
+                    },
+                    {
+                      "code": "openapi:logs:read",
+                      "label": "openapi:logs:read（示例）"
+                    },
+                    {
+                      "code": "openapi:webhooks:manage",
+                      "label": "openapi:webhooks:manage（示例）"
+                    }
+                  ]
+                },
+                {
                   "module": "payouts",
-                  "label": "出款审批",
+                  "label": "payouts（示例标签）",
                   "permissions": [
                     {
                       "code": "payouts:approve",
-                      "label": "审批出款"
+                      "label": "payouts:approve（示例）"
                     },
                     {
                       "code": "payouts:confirm-paid",
-                      "label": "确认已出款"
+                      "label": "payouts:confirm-paid（示例）"
+                    },
+                    {
+                      "code": "payouts:read",
+                      "label": "payouts:read（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "payroll",
+                  "label": "payroll（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "payroll:read",
+                      "label": "payroll:read（示例）"
+                    },
+                    {
+                      "code": "payroll:run",
+                      "label": "payroll:run（示例）"
+                    },
+                    {
+                      "code": "payroll:scheme:approve",
+                      "label": "payroll:scheme:approve（示例）"
+                    },
+                    {
+                      "code": "payroll:scheme:submit",
+                      "label": "payroll:scheme:submit（示例）"
+                    },
+                    {
+                      "code": "payroll:submit",
+                      "label": "payroll:submit（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "pricing",
+                  "label": "pricing（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "pricing:config:read",
+                      "label": "pricing:config:read（示例）"
+                    },
+                    {
+                      "code": "pricing:config:submit",
+                      "label": "pricing:config:submit（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "roles",
+                  "label": "roles（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "roles:read",
+                      "label": "roles:read（示例）"
+                    },
+                    {
+                      "code": "roles:write",
+                      "label": "roles:write（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "staff",
+                  "label": "staff（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "staff:read",
+                      "label": "staff:read（示例）"
+                    },
+                    {
+                      "code": "staff:write",
+                      "label": "staff:write（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "users",
+                  "label": "users（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "users:freeze",
+                      "label": "users:freeze（示例）"
+                    },
+                    {
+                      "code": "users:read",
+                      "label": "users:read（示例）"
+                    }
+                  ]
+                },
+                {
+                  "module": "vehicles",
+                  "label": "vehicles（示例标签）",
+                  "permissions": [
+                    {
+                      "code": "vehicles:read",
+                      "label": "vehicles:read（示例）"
                     }
                   ]
                 }
@@ -923,9 +1321,267 @@
         "rejected": {
           "status": 412,
           "body": {
-            "code": "VERSION_CONFLICT",
-            "retryable": false,
-            "requestId": "req-示例-0001"
+            "error": {
+              "code": "VERSION_CONFLICT",
+              "message": "Version conflict (sample)",
+              "messageKey": "error.version_conflict",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": [],
+              "currentVersion": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "listRoles",
+      "path": "/api/ops/v1/roles",
+      "method": "GET",
+      "description": "角色列表。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "roles:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "Role",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "items": [
+              {
+                "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c21",
+                "name": "示例角色（示例）",
+                "permissions": [
+                  "ads:read"
+                ],
+                "version": 1
+              }
+            ]
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "createRole",
+      "path": "/api/ops/v1/roles",
+      "method": "POST",
+      "description": "创建角色。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "roles:write"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "Role",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c21",
+            "name": "示例角色（示例）",
+            "permissions": [
+              "ads:read"
+            ],
+            "version": 1
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "listStaff",
+      "path": "/api/ops/v1/staff",
+      "method": "GET",
+      "description": "员工列表。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "staff:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "Staff",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "items": [
+              {
+                "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c31",
+                "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c32",
+                "roleIds": [
+                  "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c21"
+                ],
+                "state": "active",
+                "version": 1
+              }
+            ]
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "assignStaffRoles",
+      "path": "/api/ops/v1/staff",
+      "method": "POST",
+      "description": "给员工分配角色。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "staff:write"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "Staff",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 201,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c31",
+            "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c32",
+            "roleIds": [
+              "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c21"
+            ],
+            "state": "active",
+            "version": 1
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "patchStaffRoles",
+      "path": "/api/ops/v1/staff/{personId}",
+      "method": "PATCH",
+      "description": "修改员工角色。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "staff:write"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "Staff",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c31",
+            "personId": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c32",
+            "roleIds": [
+              "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c21"
+            ],
+            "state": "active",
+            "version": 2
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "listAuditLogs",
+      "path": "/api/ops/v1/audit-logs",
+      "method": "GET",
+      "description": "操作日志列表。董事会定名（补充-权限点定名-20261112，B-12 第二问 Q-V1 裁定），沿用总表已有名字。",
+      "x-permissions": [
+        "audit:read"
+      ],
+      "x-stage": "R2",
+      "x-baseline-tier": "B",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "AuditLog",
+      "x-owner": "OpsLead",
+      "x-examples": {
+        "success": {
+          "status": 200,
+          "body": {
+            "items": [
+              {
+                "id": "5d8c2f0e-1b7a-4c63-9a1e-0f3b6a7d9c51",
+                "action": "ad-campaign.approve",
+                "createdAt": "2026-11-12T03:00:00Z"
+              }
+            ]
+          }
+        },
+        "rejected": {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "Forbidden (sample)",
+              "messageKey": "error.forbidden",
+              "retryable": false,
+              "requestId": "demo-001",
+              "fields": []
+            }
           }
         }
       }
