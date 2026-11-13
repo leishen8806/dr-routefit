@@ -47,6 +47,13 @@ test('driver order in transit returns full contact phones only to the assigned d
  assert.equal(result.pickup.phone,'+85512345678');
  assert.equal(result.delivery.phone,'+85587654321');
 });
+test('driver order masks contacts unless the assigned driver has an accepted assignment and executing order',async()=>{
+ for(const state of [{assignmentState:'offered'},{orderState:'awaiting_dispatch'}]){
+  const result=await readDriver(driverOrderClient(state),principal,'order',orderId,null);
+  assert.equal(result.pickup.phone,'*******5678');
+  assert.equal(result.delivery.phone,'*******4321');
+ }
+});
 test('driver order after delivery returns server-masked contact phones',async()=>{
  const result=await readDriver(driverOrderClient({assignmentState:'completed',orderState:'delivered',fulfillmentStage:'delivery_recorded'}),principal,'order',orderId,null);
  assert.equal(result.pickup.phone,'*******5678');
