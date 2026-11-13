@@ -124,6 +124,17 @@ jobs:
       - run: npm ci
       - name: Install PostgreSQL client for trial backup/restore integration
         run: |
+          # Diagnostic: which PostgreSQL majors the runner image ships before we install anything.
+          if [ -d /usr/lib/postgresql ]; then
+            echo "runner image PostgreSQL majors:" && ls -1 /usr/lib/postgresql
+          else
+            echo "runner image has no /usr/lib/postgresql"
+          fi
+          # The runner's default apt sources no longer carry postgresql-client-16,
+          # so add the official PGDG repository, then install the exact major version.
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
           sudo apt-get update -qq
           # Client major version must equal the service container (postgres:16):
           # a newer pg_dump emits settings (e.g. transaction_timeout, PG17+) that a 16 server rejects.
