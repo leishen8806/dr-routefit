@@ -1,21 +1,1722 @@
 {
   "module": "driver-operations",
   "paths": {
-    "/api/ops/v1/drivers": { "get": { "operationId": "opsDriversList", "x-permissions": ["drivers:read"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver", "x-owner": "Backend2", "parameters": [{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}], "responses": {"200":{"description":"drivers","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}} } },
+    "/api/ops/v1/drivers": {
+      "get": {
+        "operationId": "opsDriversList",
+        "x-permissions": [
+          "drivers:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "driver",
+        "x-owner": "Backend2",
+        "description": "Returns only drivers in the authenticated caller's carrier scope. The carrier scope is derived from the session; cross-carrier drivers are never returned.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "drivers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpsDriversListResponse",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OpsDriverSummary"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "driver_demo_01",
+                  "carrierId": "carrier_demo_01",
+                  "name": "Sok Dara",
+                  "phone": "***-***-4821",
+                  "availability": "online",
+                  "currentAssignmentId": "assignment_demo_01",
+                  "cashLimitAmount": {
+                    "amountMinor": 25000,
+                    "currency": "USD"
+                  },
+                  "updatedAt": "2026-11-12T09:30:00Z"
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "You do not have permission to view drivers.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "req-demo-0001",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/ops/v1/undelivered-reasons": {
-      "get": { "operationId": "opsUndeliveredReasonsList", "x-permissions": ["delivery:config"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "undelivered-reason", "x-owner": "Backend2", "parameters": [{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}], "responses": {"200":{"description":"reasons","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}}}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}} },
-      "post": { "operationId": "opsUndeliveredReasonCreate", "x-permissions": ["delivery:config"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "undelivered-reason", "x-owner": "Backend2", "parameters": [{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string","minLength":16,"maxLength":128}}], "responses": {"201":{"description":"created","content":{"application/json":{"schema":{"type":"object"}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"id":"reason_demo","version":1},"rejected":{"code":"VALIDATION_FAILED"}} }
+      "get": {
+        "operationId": "opsUndeliveredReasonsList",
+        "x-permissions": [
+          "delivery:config"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "undelivered-reason",
+        "x-owner": "Backend2",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "reasons",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpsUndeliveredReasonsListResponse",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OpsUndeliveredReason"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "reason_demo_01",
+                  "code": "RECIPIENT_UNAVAILABLE",
+                  "label": "Recipient unavailable",
+                  "active": true,
+                  "version": 1,
+                  "updatedAt": "2026-11-12T09:30:00Z"
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "You do not have permission to view undelivered reasons.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "req-demo-0002",
+                "fields": []
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "opsUndeliveredReasonCreate",
+        "x-permissions": [
+          "delivery:config"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "undelivered-reason",
+        "x-owner": "Backend2",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpsUndeliveredReasonCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpsUndeliveredReason"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {
+              "id": "reason_demo_01",
+              "code": "RECIPIENT_UNAVAILABLE",
+              "label": "Recipient unavailable",
+              "active": true,
+              "version": 1,
+              "updatedAt": "2026-11-12T09:30:00Z"
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The undelivered reason request is invalid.",
+                "messageKey": "errors.validation_failed",
+                "retryable": false,
+                "requestId": "req-demo-0003",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
     },
     "/api/ops/v1/finance/cash-limit-policies": {
-      "get": { "operationId": "opsCashLimitPoliciesList", "x-permissions": ["finance:cash:policy"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "cash-limit-policy", "x-owner": "Backend2", "parameters": [{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}], "responses": {"200":{"description":"policies","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array","items":{"type":"object"}},"nextCursor":{"type":["string","null"]}}}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"items":[],"nextCursor":null},"rejected":{"code":"FORBIDDEN"}} },
-      "post": { "operationId": "opsCashLimitPolicyCreate", "x-permissions": ["finance:cash:policy"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "cash-limit-policy", "x-owner": "Backend2", "parameters": [{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string","minLength":16,"maxLength":128}}], "responses": {"201":{"description":"created","content":{"application/json":{"schema":{"type":"object"}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"id":"cash_policy_demo","version":1},"rejected":{"code":"VALIDATION_FAILED"}} }
+      "get": {
+        "operationId": "opsCashLimitPoliciesList",
+        "x-permissions": [
+          "finance:cash:policy"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "cash-limit-policy",
+        "x-owner": "Backend2",
+        "description": "Each policy declares whether approval or dual control is required; policy enforcement is out of scope for this contract.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "policies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpsCashLimitPoliciesListResponse",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OpsCashLimitPolicy"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "items": [
+                {
+                  "id": "cash_policy_demo_01",
+                  "name": "Standard driver custody",
+                  "scope": "driver",
+                  "limitAmount": {
+                    "amountMinor": 25000,
+                    "currency": "USD"
+                  },
+                  "approvalRequired": false,
+                  "dualControlRequired": false,
+                  "active": true,
+                  "version": 1,
+                  "updatedAt": "2026-11-12T09:30:00Z"
+                }
+              ],
+              "nextCursor": null
+            }
+          },
+          "rejected": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "You do not have permission to view cash-limit policies.",
+                "messageKey": "errors.forbidden",
+                "retryable": false,
+                "requestId": "req-demo-0004",
+                "fields": []
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "opsCashLimitPolicyCreate",
+        "x-permissions": [
+          "finance:cash:policy"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "cash-limit-policy",
+        "x-owner": "Backend2",
+        "description": "The response declares approval and dual-control requirements. Any approval control is implemented separately.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpsCashLimitPolicyCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpsCashLimitPolicy"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {
+              "id": "cash_policy_demo_01",
+              "name": "Standard driver custody",
+              "scope": "driver",
+              "limitAmount": {
+                "amountMinor": 25000,
+                "currency": "USD"
+              },
+              "approvalRequired": false,
+              "dualControlRequired": false,
+              "active": true,
+              "version": 1,
+              "updatedAt": "2026-11-12T09:30:00Z"
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The cash-limit policy request is invalid.",
+                "messageKey": "errors.validation_failed",
+                "retryable": false,
+                "requestId": "req-demo-0005",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
     },
-    "/api/driver/v1/driver-applications": { "post": { "operationId": "driverApplicationCreate", "x-permissions": ["driver-applications:write"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver-application", "x-owner": "Backend2", "parameters": [{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string","minLength":16,"maxLength":128}}], "responses": {"201":{"description":"submitted","content":{"application/json":{"schema":{"type":"object"}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"id":"application_demo","state":"pending"},"rejected":{"code":"VALIDATION_FAILED"}} } },
-    "/api/driver/v1/driver-applications/current": { "get": { "operationId": "driverApplicationCurrent", "x-permissions": ["driver-applications:read"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver-application", "x-owner": "Backend2", "responses": {"200":{"description":"current application","content":{"application/json":{"schema":{"type":"object"}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"state":"pending","version":1},"rejected":{"code":"NOT_FOUND"}} } },
-    "/api/driver/v1/driver-applications/current/actions/resubmit": { "post": { "operationId": "driverApplicationResubmit", "x-permissions": ["driver-applications:write"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver-application", "x-owner": "Backend2", "parameters": [{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string","minLength":16,"maxLength":128}}], "responses": {"200":{"description":"resubmitted","content":{"application/json":{"schema":{"type":"object"}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"state":"pending","version":2},"rejected":{"code":"INVALID_TRANSITION"}} } },
-    "/api/driver/v1/profile": { "get": { "operationId": "driverProfileGet", "x-permissions": ["driver:profile:read"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver-profile", "x-owner": "Backend2", "responses": {"200":{"description":"profile","content":{"application/json":{"schema":{"type":"object"}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"id":"driver_demo","availability":"offline"},"rejected":{"code":"NOT_FOUND"}} } },
-    "/api/driver/v1/availability/actions/go-online": { "post": { "operationId": "driverGoOnline", "x-permissions": ["driver:availability:write"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver-availability", "x-owner": "Backend2", "parameters": [{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string","minLength":16,"maxLength":128}}], "responses": {"200":{"description":"online","content":{"application/json":{"schema":{"type":"object"}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"availability":"online"},"rejected":{"code":"INVALID_TRANSITION"}} } },
-    "/api/driver/v1/availability/actions/go-offline": { "post": { "operationId": "driverGoOffline", "x-permissions": ["driver:availability:write"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver-availability", "x-owner": "Backend2", "parameters": [{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string","minLength":16,"maxLength":128}}], "responses": {"200":{"description":"offline","content":{"application/json":{"schema":{"type":"object"}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"availability":"offline"},"rejected":{"code":"INVALID_TRANSITION"}} } },
-    "/api/driver/v1/assignments/current": { "get": { "operationId": "driverCurrentAssignmentGet", "x-permissions": ["driver:tasks:read"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "assignment", "x-owner": "Backend2", "responses": {"200":{"description":"current assignment","content":{"application/json":{"schema":{"type":"object"}}}},"400":{"$ref":"#/components/responses/Error400"},"401":{"$ref":"#/components/responses/Error401"},"403":{"$ref":"#/components/responses/Error403"},"404":{"$ref":"#/components/responses/Error404"},"429":{"$ref":"#/components/responses/Error429"},"503":{"$ref":"#/components/responses/Error503"}}, "x-examples":{"success":{"id":"assignment_demo","offerExpiresAt":"example"},"rejected":{"code":"NOT_FOUND"}} } }
+    "/api/driver/v1/driver-applications": {
+      "post": {
+        "operationId": "driverApplicationCreate",
+        "x-permissions": [
+          "driver-applications:write"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "driver-application",
+        "x-owner": "Backend2",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DriverApplicationCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverApplication"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 201,
+            "body": {
+              "id": "application_demo_01",
+              "state": "pending",
+              "applicantName": "Sok Dara",
+              "phone": "***-***-4821",
+              "vehicleType": "motorbike",
+              "submittedAt": "2026-11-12T09:30:00Z",
+              "version": 1,
+              "rejectionReasons": []
+            }
+          },
+          "rejected": {
+            "status": 422,
+            "body": {
+              "error": {
+                "code": "VALIDATION_FAILED",
+                "message": "The driver application request is invalid.",
+                "messageKey": "errors.validation_failed",
+                "retryable": false,
+                "requestId": "req-demo-0006",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/driver/v1/driver-applications/current": {
+      "get": {
+        "operationId": "driverApplicationCurrent",
+        "x-permissions": [
+          "driver-applications:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "driver-application",
+        "x-owner": "Backend2",
+        "responses": {
+          "200": {
+            "description": "current application",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverApplication"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "application_demo_01",
+              "state": "pending",
+              "applicantName": "Sok Dara",
+              "phone": "***-***-4821",
+              "vehicleType": "motorbike",
+              "submittedAt": "2026-11-12T09:30:00Z",
+              "version": 1,
+              "rejectionReasons": []
+            }
+          },
+          "rejected": {
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "No current driver application was found.",
+                "messageKey": "errors.not_found",
+                "retryable": false,
+                "requestId": "req-demo-0007",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/driver/v1/driver-applications/current/actions/resubmit": {
+      "post": {
+        "operationId": "driverApplicationResubmit",
+        "x-permissions": [
+          "driver-applications:write"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "driver-application",
+        "x-owner": "Backend2",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DriverApplicationResubmitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "resubmitted or idempotency replay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverApplication"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "application_demo_01",
+              "state": "pending",
+              "applicantName": "Sok Dara",
+              "phone": "***-***-4821",
+              "vehicleType": "motorbike",
+              "submittedAt": "2026-11-12T09:30:00Z",
+              "version": 2,
+              "rejectionReasons": [],
+              "replayed": false
+            }
+          },
+          "replayed": {
+            "status": 200,
+            "body": {
+              "id": "application_demo_01",
+              "state": "pending",
+              "applicantName": "Sok Dara",
+              "phone": "***-***-4821",
+              "vehicleType": "motorbike",
+              "submittedAt": "2026-11-12T09:30:00Z",
+              "version": 2,
+              "rejectionReasons": [],
+              "replayed": true
+            }
+          },
+          "idempotencyKeyConflict": {
+            "status": 409,
+            "body": {
+              "error": {
+                "code": "IDEMPOTENCY_KEY_REUSED",
+                "message": "Idempotency key already used with a different request body.",
+                "messageKey": "errors.idempotency_key_reused",
+                "retryable": false,
+                "requestId": "req-demo-0008a",
+                "fields": []
+              }
+            }
+          },
+          "stateConflict": {
+            "status": 409,
+            "body": {
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "The application is no longer eligible for resubmission.",
+                "messageKey": "errors.invalid_transition",
+                "retryable": false,
+                "requestId": "req-demo-0008",
+                "fields": [],
+                "currentVersion": 3
+              }
+            }
+          },
+          "rejected": {
+            "status": 409,
+            "body": {
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "The application is no longer eligible for resubmission.",
+                "messageKey": "errors.invalid_transition",
+                "retryable": false,
+                "requestId": "req-demo-0008",
+                "fields": [],
+                "currentVersion": 3
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/driver/v1/profile": {
+      "get": {
+        "operationId": "driverProfileGet",
+        "x-permissions": [
+          "driver:profile:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "driver-profile",
+        "x-owner": "Backend2",
+        "responses": {
+          "200": {
+            "description": "profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "driver_demo_01",
+              "name": "Sok Dara",
+              "phone": "***-***-4821",
+              "availability": "offline",
+              "vehicleType": "motorbike",
+              "rating": "4.8",
+              "completedDeliveryCount": 42
+            }
+          },
+          "rejected": {
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Driver profile was not found.",
+                "messageKey": "errors.not_found",
+                "retryable": false,
+                "requestId": "req-demo-0009",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/driver/v1/availability/actions/go-online": {
+      "post": {
+        "operationId": "driverGoOnline",
+        "x-permissions": [
+          "driver:availability:write"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "driver-availability",
+        "x-owner": "Backend2",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "This state transition accepts an explicit empty JSON object.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DriverAvailabilityActionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "online or idempotency replay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverAvailability"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "driverId": "driver_demo_01",
+              "availability": "online",
+              "changedAt": "2026-11-12T09:30:00Z",
+              "version": 3,
+              "replayed": false
+            }
+          },
+          "replayed": {
+            "status": 200,
+            "body": {
+              "driverId": "driver_demo_01",
+              "availability": "online",
+              "changedAt": "2026-11-12T09:30:00Z",
+              "version": 3,
+              "replayed": true
+            }
+          },
+          "idempotencyKeyConflict": {
+            "status": 409,
+            "body": {
+              "error": {
+                "code": "IDEMPOTENCY_KEY_REUSED",
+                "message": "Idempotency key already used with a different request body.",
+                "messageKey": "errors.idempotency_key_reused",
+                "retryable": false,
+                "requestId": "req-demo-0010a",
+                "fields": []
+              }
+            }
+          },
+          "stateConflict": {
+            "status": 409,
+            "body": {
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "Driver is already online.",
+                "messageKey": "errors.invalid_transition",
+                "retryable": false,
+                "requestId": "req-demo-0010",
+                "fields": [],
+                "currentVersion": 3
+              }
+            }
+          },
+          "rejected": {
+            "status": 409,
+            "body": {
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "Driver is already online.",
+                "messageKey": "errors.invalid_transition",
+                "retryable": false,
+                "requestId": "req-demo-0010",
+                "fields": [],
+                "currentVersion": 3
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/driver/v1/availability/actions/go-offline": {
+      "post": {
+        "operationId": "driverGoOffline",
+        "x-permissions": [
+          "driver:availability:write"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "driver-availability",
+        "x-owner": "Backend2",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "This state transition accepts an explicit empty JSON object.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DriverAvailabilityActionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "offline or idempotency replay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverAvailability"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "driverId": "driver_demo_01",
+              "availability": "offline",
+              "changedAt": "2026-11-12T09:30:00Z",
+              "version": 4,
+              "replayed": false
+            }
+          },
+          "replayed": {
+            "status": 200,
+            "body": {
+              "driverId": "driver_demo_01",
+              "availability": "offline",
+              "changedAt": "2026-11-12T09:30:00Z",
+              "version": 4,
+              "replayed": true
+            }
+          },
+          "idempotencyKeyConflict": {
+            "status": 409,
+            "body": {
+              "error": {
+                "code": "IDEMPOTENCY_KEY_REUSED",
+                "message": "Idempotency key already used with a different request body.",
+                "messageKey": "errors.idempotency_key_reused",
+                "retryable": false,
+                "requestId": "req-demo-0011a",
+                "fields": []
+              }
+            }
+          },
+          "stateConflict": {
+            "status": 409,
+            "body": {
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "Driver is already offline.",
+                "messageKey": "errors.invalid_transition",
+                "retryable": false,
+                "requestId": "req-demo-0011",
+                "fields": [],
+                "currentVersion": 4
+              }
+            }
+          },
+          "rejected": {
+            "status": 409,
+            "body": {
+              "error": {
+                "code": "INVALID_TRANSITION",
+                "message": "Driver is already offline.",
+                "messageKey": "errors.invalid_transition",
+                "retryable": false,
+                "requestId": "req-demo-0011",
+                "fields": [],
+                "currentVersion": 4
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/driver/v1/assignments/current": {
+      "get": {
+        "operationId": "driverCurrentAssignmentGet",
+        "x-permissions": [
+          "driver:tasks:read"
+        ],
+        "x-stage": "R2",
+        "x-baseline-tier": "A",
+        "x-implementation-status": "CONTRACT_READY",
+        "x-version-resource": "assignment",
+        "x-owner": "Backend2",
+        "responses": {
+          "200": {
+            "description": "current assignment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverCurrentAssignment"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "x-examples": {
+          "success": {
+            "status": 200,
+            "body": {
+              "id": "assignment_demo_01",
+              "version": 7,
+              "orderId": "order_demo_01",
+              "vehicleId": "vehicle_demo_01",
+              "driverId": "driver_demo_01",
+              "state": "offered",
+              "pickup": {
+                "label": "Warehouse A",
+                "address": "Street 100"
+              },
+              "dropoff": {
+                "label": "Customer",
+                "address": "Street 271"
+              },
+              "offerExpiresAt": "2026-11-12T10:00:00Z",
+              "expiresAt": "2026-11-12T10:00:00Z",
+              "planVersion": 3,
+              "cashToCollectAmount": {
+                "amountMinor": 2500,
+                "currency": "USD"
+              }
+            }
+          },
+          "rejected": {
+            "status": 404,
+            "body": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "No current assignment was found.",
+                "messageKey": "errors.not_found",
+                "retryable": false,
+                "requestId": "req-demo-0012",
+                "fields": []
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OpsDriversListResponse": {
+        "type": "object",
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpsDriverSummary"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "OpsDriverSummary": {
+        "type": "object",
+        "required": [
+          "id",
+          "carrierId",
+          "name",
+          "phone",
+          "availability",
+          "cashLimitAmount",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "carrierId": {
+            "type": "string",
+            "description": "Carrier identifier, always within the authenticated caller's carrier scope."
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Masked phone number."
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline",
+              "busy"
+            ]
+          },
+          "currentAssignmentId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cashLimitAmount": {
+            "$ref": "#/components/schemas/Money",
+            "description": "Server-provided amount; clients must not calculate it."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OpsUndeliveredReasonsListResponse": {
+        "type": "object",
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpsUndeliveredReason"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "OpsUndeliveredReason": {
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "label",
+          "active",
+          "version",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OpsUndeliveredReasonCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "label"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "OpsCashLimitPoliciesListResponse": {
+        "type": "object",
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpsCashLimitPolicy"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "OpsCashLimitPolicy": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "scope",
+          "limitAmount",
+          "approvalRequired",
+          "dualControlRequired",
+          "active",
+          "version",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "limitAmount": {
+            "$ref": "#/components/schemas/Money",
+            "description": "Server-provided amount; clients must not calculate it."
+          },
+          "approvalRequired": {
+            "type": "boolean",
+            "description": "Declaration only; approval control is out of scope."
+          },
+          "dualControlRequired": {
+            "type": "boolean",
+            "description": "Declaration only; dual-control mechanism is out of scope."
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OpsCashLimitPolicyCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "scope"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "DriverApplicationCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "applicantName",
+          "phone",
+          "vehicleType"
+        ],
+        "properties": {
+          "applicantName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "vehicleType": {
+            "type": "string"
+          }
+        }
+      },
+      "DriverApplicationResubmitRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "correctionNote"
+        ],
+        "properties": {
+          "correctionNote": {
+            "type": "string"
+          }
+        }
+      },
+      "DriverApplication": {
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "applicantName",
+          "phone",
+          "vehicleType",
+          "submittedAt",
+          "version",
+          "rejectionReasons"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ]
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Masked phone number."
+          },
+          "vehicleType": {
+            "type": "string"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "rejectionReasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "replayed": {
+            "type": "boolean",
+            "description": "True when this response replays a successful request with the same idempotency key."
+          }
+        }
+      },
+      "DriverProfile": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "phone",
+          "availability",
+          "vehicleType",
+          "rating",
+          "completedDeliveryCount"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Masked phone number."
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline",
+              "busy"
+            ]
+          },
+          "vehicleType": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "string"
+          },
+          "completedDeliveryCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "DriverAvailabilityActionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Explicit empty request object for an availability state transition."
+      },
+      "DriverAvailability": {
+        "type": "object",
+        "required": [
+          "driverId",
+          "availability",
+          "changedAt",
+          "version",
+          "replayed"
+        ],
+        "properties": {
+          "driverId": {
+            "type": "string"
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline"
+            ]
+          },
+          "changedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "replayed": {
+            "type": "boolean",
+            "description": "True when this response replays a successful request with the same idempotency key."
+          }
+        }
+      },
+      "DriverCurrentAssignment": {
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "orderId",
+          "vehicleId",
+          "driverId",
+          "state",
+          "pickup",
+          "dropoff",
+          "offerExpiresAt",
+          "expiresAt",
+          "planVersion",
+          "cashToCollectAmount"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "description": "Assignment concurrency version."
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "vehicleId": {
+            "type": "string"
+          },
+          "driverId": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "pickup": {
+            "$ref": "#/components/schemas/DriverAssignmentStop"
+          },
+          "dropoff": {
+            "$ref": "#/components/schemas/DriverAssignmentStop"
+          },
+          "offerExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Legacy offered-task expiry; equal to expiresAt while the assignment is offered."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Driver client assignment expiry; equal to offerExpiresAt while the assignment is offered."
+          },
+          "planVersion": {
+            "type": "integer",
+            "description": "Route plan concurrency version."
+          },
+          "cashToCollectAmount": {
+            "$ref": "#/components/schemas/Money",
+            "description": "Server-provided amount; clients must not calculate it."
+          }
+        }
+      },
+      "DriverAssignmentStop": {
+        "type": "object",
+        "required": [
+          "label",
+          "address"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          }
+        }
+      }
+    }
   }
 }
