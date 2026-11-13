@@ -69,6 +69,57 @@
         "x-permissions": ["driver:undelivered-reasons:read"], "x-permissions-note": "New permission name follows existing driver:profile:read and driver:availability:write construction.", "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "undelivered-reason.directory.version", "x-owner": "Backend2",
         "x-examples": {"success": {"status": 200, "body": {"items": [{"id": "undelivered-reason-demo-0001", "code": "RECIPIENT_UNAVAILABLE", "label": "Recipient unavailable (sample)", "active": true, "version": 1, "updatedAt": "2026-11-13T09:00:00Z"}], "nextCursor": null}}, "rejected": {"status": 401, "body": {"error": {"code": "UNAUTHENTICATED", "message": "Authentication required (sample).", "messageKey": "errors.unauthenticated", "retryable": false, "requestId": "demo-driver-0001", "fields": []}}}}
       }
+    },
+    "/api/ops/v1/driver-applications/{applicationId}/actions/approve": {
+      "post": {
+        "operationId": "opsDriverApplicationApprove",
+        "summary": "Approve driver application",
+        "description": "Approves one in-scope pending application; the supplied review version must match the server version.",
+        "tags": ["ops"], "security": [{"WebSession": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "applicationId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}, {"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "minLength": 16, "maxLength": 128, "pattern": "^[!-~]{16,128}$"}}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DriverApplicationReviewAction"}}}},
+        "responses": {"200": {"description": "Application approved", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DriverApplication"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}, "412": {"$ref": "#/components/responses/Error412"}, "428": {"$ref": "#/components/responses/Error428"}, "429": {"$ref": "#/components/responses/Error429"}, "503": {"$ref": "#/components/responses/Error503"}},
+        "x-permissions": ["drivers:application:review"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver.application.version", "x-owner": "Backend2",
+        "x-examples": {"success": {"status": 200, "body": {"id": "driver-application-demo-0001", "state": "approved", "applicantName": "Sample Applicant", "phone": "***-***-0002", "vehicleType": "sample-van", "submittedAt": "2026-11-13T09:00:00Z", "version": 2, "rejectionReasons": []}}, "rejected": {"status": 412, "body": {"error": {"code": "VERSION_CONFLICT", "message": "Application changed (sample).", "messageKey": "errors.versionConflict", "retryable": true, "requestId": "demo-ops-0005", "fields": []}}}}
+      }
+    },
+    "/api/ops/v1/driver-applications/{applicationId}/actions/return": {
+      "post": {
+        "operationId": "opsDriverApplicationReturn",
+        "summary": "Return one driver application item",
+        "description": "Returns a specific application item for correction; the reason identifies the item and correction required.",
+        "tags": ["ops"], "security": [{"WebSession": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "applicationId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}, {"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "minLength": 16, "maxLength": 128, "pattern": "^[!-~]{16,128}$"}}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DriverApplicationReviewAction"}}}},
+        "responses": {"200": {"description": "Application item returned", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DriverApplication"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}, "412": {"$ref": "#/components/responses/Error412"}, "428": {"$ref": "#/components/responses/Error428"}, "429": {"$ref": "#/components/responses/Error429"}, "503": {"$ref": "#/components/responses/Error503"}},
+        "x-permissions": ["drivers:application:review"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver.application.version", "x-owner": "Backend2",
+        "x-examples": {"success": {"status": 200, "body": {"id": "driver-application-demo-0001", "state": "rejected", "applicantName": "Sample Applicant", "phone": "***-***-0002", "vehicleType": "sample-van", "submittedAt": "2026-11-13T09:00:00Z", "version": 2, "rejectionReasons": ["vehicle-document (sample)"]}}, "rejected": {"status": 404, "body": {"error": {"code": "NOT_FOUND", "message": "Application was not found (sample).", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-ops-0006", "fields": []}}}}
+      }
+    },
+    "/api/recipient/v1/payment-intents": {
+      "post": {
+        "operationId": "recipientPaymentIntent",
+        "summary": "Create recipient payment intent",
+        "description": "Creates a payment intent only for the single order bound to the short-lived recipient token. The server rejects any body orderId, quote, or ledger item outside that order. All payment-code values are samples only; no merchant configuration is implied.",
+        "tags": ["recipient"], "security": [{"RecipientToken": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "minLength": 16, "maxLength": 128, "pattern": "^[!-~]{16,128}$"}}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PaymentIntentRequest"}}}},
+        "responses": {"202": {"description": "Sample payment intent accepted", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PaymentIntent"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}, "409": {"$ref": "#/components/responses/Error409"}, "412": {"$ref": "#/components/responses/Error412"}, "422": {"$ref": "#/components/responses/Error422"}, "423": {"$ref": "#/components/responses/Error423"}, "428": {"$ref": "#/components/responses/Error428"}, "429": {"$ref": "#/components/responses/Error429"}, "503": {"$ref": "#/components/responses/Error503"}},
+        "x-permissions": ["recipient:payment-intents:write"], "x-permissions-note": "New permission name follows recipient:delivery:read construction.", "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "recipient.paymentIntent.version", "x-owner": "Backend2",
+        "x-examples": {"success": {"status": 202, "body": {"id": "payment-intent-sample-0001", "version": 1, "orderId": "recipient-order-sample-0001", "provider": "KESS", "mode": "sandbox", "state": "waiting", "money": {"amountMinor": 1200, "currency": "USD"}, "feeItems": [{"id": "fee-item-sample-0001", "purpose": "DELIVERY", "money": {"amountMinor": 1200, "currency": "USD"}, "direction": "CHARGE", "basis": "sample"}], "paymentUrl": "https://api.routefit.invalid/KHQR-SAMPLE-0001", "expiresAt": "2026-11-13T10:00:00Z", "receiptId": null, "settlementState": "not_received", "lastCheckedAt": null}}, "rejected": {"status": 403, "body": {"error": {"code": "RECIPIENT_ORDER_SCOPE_DENIED", "message": "Recipient token is limited to one order (sample).", "messageKey": "errors.recipientOrderScopeDenied", "retryable": false, "requestId": "demo-recipient-0001", "fields": []}}}}
+      }
+    },
+    "/api/recipient/v1/payment-intents/{intentId}": {
+      "get": {
+        "operationId": "recipientPaymentIntentStatus",
+        "summary": "Get recipient payment status",
+        "description": "Returns an intent only when both the intent and its order match the single order bound to the short-lived recipient token.",
+        "tags": ["recipient"], "security": [{"RecipientToken": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "intentId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}],
+        "responses": {"200": {"description": "Sample payment intent status", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PaymentIntent"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}, "429": {"$ref": "#/components/responses/Error429"}, "503": {"$ref": "#/components/responses/Error503"}},
+        "x-permissions": ["recipient:payment-intents:read"], "x-permissions-note": "New permission name follows recipient:delivery:read construction.", "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "recipient.paymentIntent.version", "x-owner": "Backend2",
+        "x-examples": {"success": {"status": 200, "body": {"id": "payment-intent-sample-0001", "version": 1, "orderId": "recipient-order-sample-0001", "provider": "KESS", "mode": "sandbox", "state": "succeeded", "money": {"amountMinor": 1200, "currency": "USD"}, "feeItems": [{"id": "fee-item-sample-0001", "purpose": "DELIVERY", "money": {"amountMinor": 1200, "currency": "USD"}, "direction": "CHARGE", "basis": "sample"}], "paymentUrl": "https://api.routefit.invalid/KHQR-SAMPLE-0001", "expiresAt": "2026-11-13T10:00:00Z", "receiptId": "receipt-sample-0001", "settlementState": "not_received", "lastCheckedAt": "2026-11-13T09:30:00Z"}}, "rejected": {"status": 404, "body": {"error": {"code": "NOT_FOUND", "message": "Payment intent was not found (sample).", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-recipient-0002", "fields": []}}}}
+      }
     }
   }
 }
