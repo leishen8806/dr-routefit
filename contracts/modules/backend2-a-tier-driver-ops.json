@@ -1,0 +1,74 @@
+{
+  "module": "backend2-a-tier-driver-ops",
+  "owner": "Backend2",
+  "source": "CMP-1673",
+  "pathDecision": "First-batch A-tier declarations for driver operations and the driver-visible undelivered-reason directory. All examples are synthetic.",
+  "paths": {
+    "/api/ops/v1/drivers/{driverId}": {
+      "get": {
+        "operationId": "opsDriverDetail",
+        "summary": "Driver detail",
+        "description": "Returns a driver only when it is within the authenticated operator's carrier scope.",
+        "tags": ["ops"],
+        "security": [{"WebSession": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "driverId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}],
+        "responses": {
+          "200": {"description": "Driver detail", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/OpsDriverSummary"}}}},
+          "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}, "429": {"$ref": "#/components/responses/Error429"}, "503": {"$ref": "#/components/responses/Error503"}
+        },
+        "x-permissions": ["drivers:read"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver.profile.version", "x-owner": "Backend2",
+        "x-examples": {"success": {"status": 200, "body": {"id": "driver-demo-0001", "carrierId": "carrier-demo-0001", "name": "Sample Driver", "phone": "***-***-0001", "availability": "offline", "currentAssignmentId": null, "cashLimitAmount": {"amountMinor": 25000, "currency": "USD"}, "updatedAt": "2026-11-13T09:00:00Z"}}, "rejected": {"status": 404, "body": {"error": {"code": "NOT_FOUND", "message": "Driver was not found (sample).", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-ops-0001", "fields": []}}}}
+      }
+    },
+    "/api/ops/v1/drivers/{driverId}/actions/suspend": {
+      "post": {
+        "operationId": "opsDriverSuspend",
+        "summary": "Suspend driver dispatching",
+        "description": "Stops the selected in-scope driver from receiving assignments.",
+        "tags": ["ops"], "security": [{"WebSession": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "driverId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}, {"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "minLength": 16, "maxLength": 128, "pattern": "^[!-~]{16,128}$"}}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/EmptyCommand"}}}},
+        "responses": {"200": {"description": "Driver suspended", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ResourceVersion"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}, "412": {"$ref": "#/components/responses/Error412"}, "428": {"$ref": "#/components/responses/Error428"}, "429": {"$ref": "#/components/responses/Error429"}, "503": {"$ref": "#/components/responses/Error503"}},
+        "x-permissions": ["drivers:suspend"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver.availability.version", "x-owner": "Backend2",
+        "x-examples": {"success": {"status": 200, "body": {"id": "driver-demo-0001", "version": 2}}, "rejected": {"status": 412, "body": {"error": {"code": "VERSION_CONFLICT", "message": "Driver availability changed (sample).", "messageKey": "errors.versionConflict", "retryable": true, "requestId": "demo-ops-0002", "fields": []}}}}
+      }
+    },
+    "/api/ops/v1/drivers/{driverId}/actions/resume": {
+      "post": {
+        "operationId": "opsDriverResume",
+        "summary": "Resume driver dispatching",
+        "description": "Allows the selected in-scope driver to receive assignments again.",
+        "tags": ["ops"], "security": [{"WebSession": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "driverId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}, {"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "minLength": 16, "maxLength": 128, "pattern": "^[!-~]{16,128}$"}}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/EmptyCommand"}}}},
+        "responses": {"200": {"description": "Driver resumed", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ResourceVersion"}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}, "412": {"$ref": "#/components/responses/Error412"}, "428": {"$ref": "#/components/responses/Error428"}, "429": {"$ref": "#/components/responses/Error429"}, "503": {"$ref": "#/components/responses/Error503"}},
+        "x-permissions": ["drivers:suspend"], "x-permissions-note": "Resume uses drivers:suspend as the inverse of the baseline suspend action.", "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver.availability.version", "x-owner": "Backend2",
+        "x-examples": {"success": {"status": 200, "body": {"id": "driver-demo-0001", "version": 3}}, "rejected": {"status": 403, "body": {"error": {"code": "FORBIDDEN", "message": "Permission denied (sample).", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-ops-0003", "fields": []}}}}
+      }
+    },
+    "/api/ops/v1/driver-applications/{applicationId}": {
+      "get": {
+        "operationId": "opsDriverApplicationDetail",
+        "summary": "Driver application detail and document photos",
+        "description": "Returns one driver application and its available document-photo metadata only within the authenticated review scope.",
+        "tags": ["ops"], "security": [{"WebSession": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "applicationId", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Id"}}],
+        "responses": {"200": {"description": "Application detail", "content": {"application/json": {"schema": {"type": "object", "additionalProperties": false, "required": ["application", "documentPhotos"], "properties": {"application": {"$ref": "#/components/schemas/DriverApplication"}, "documentPhotos": {"type": "array", "items": {"$ref": "#/components/schemas/EvidenceFile"}}}}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}, "429": {"$ref": "#/components/responses/Error429"}, "503": {"$ref": "#/components/responses/Error503"}},
+        "x-permissions": ["drivers:application:review"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "driver.application.version", "x-owner": "Backend2",
+        "x-examples": {"success": {"status": 200, "body": {"application": {"id": "driver-application-demo-0001", "state": "pending", "applicantName": "Sample Applicant", "phone": "***-***-0002", "vehicleType": "sample-van", "submittedAt": "2026-11-13T09:00:00Z", "version": 1, "rejectionReasons": []}, "documentPhotos": [{"id": "evidence-demo-0001", "version": 1, "state": "available", "mimeType": "image/jpeg", "sizeBytes": 1024, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}]}}, "rejected": {"status": 404, "body": {"error": {"code": "NOT_FOUND", "message": "Application was not found (sample).", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-ops-0004", "fields": []}}}}
+      }
+    },
+    "/api/driver/v1/undelivered-reasons": {
+      "get": {
+        "operationId": "driverUndeliveredReasonsList",
+        "summary": "Undelivered reason directory",
+        "description": "Returns the active reason directory for the authenticated driver; it does not record a delivery attempt.",
+        "tags": ["driver"], "security": [{"AccessToken": []}],
+        "parameters": [{"$ref": "#/components/parameters/Language"}, {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}}, {"name": "cursor", "in": "query", "schema": {"type": "string", "minLength": 1, "maxLength": 2048}}],
+        "responses": {"200": {"description": "Undelivered reason directory", "content": {"application/json": {"schema": {"type": "object", "required": ["items", "nextCursor"], "properties": {"items": {"type": "array", "items": {"$ref": "#/components/schemas/OpsUndeliveredReason"}}, "nextCursor": {"type": ["string", "null"]}}}}}}, "400": {"$ref": "#/components/responses/Error400"}, "401": {"$ref": "#/components/responses/Error401"}, "403": {"$ref": "#/components/responses/Error403"}, "404": {"$ref": "#/components/responses/Error404"}, "429": {"$ref": "#/components/responses/Error429"}, "503": {"$ref": "#/components/responses/Error503"}},
+        "x-permissions": ["driver:undelivered-reasons:read"], "x-permissions-note": "New permission name follows existing driver:profile:read and driver:availability:write construction.", "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "PLANNED", "x-version-resource": "undelivered-reason.directory.version", "x-owner": "Backend2",
+        "x-examples": {"success": {"status": 200, "body": {"items": [{"id": "undelivered-reason-demo-0001", "code": "RECIPIENT_UNAVAILABLE", "label": "Recipient unavailable (sample)", "active": true, "version": 1, "updatedAt": "2026-11-13T09:00:00Z"}], "nextCursor": null}}, "rejected": {"status": 401, "body": {"error": {"code": "UNAUTHENTICATED", "message": "Authentication required (sample).", "messageKey": "errors.unauthenticated", "retryable": false, "requestId": "demo-driver-0001", "fields": []}}}}
+      }
+    }
+  }
+}
