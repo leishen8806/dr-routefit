@@ -187,7 +187,26 @@ test('order view renders an accessible sample-data table and marks actions as fr
 test('order view keeps its explicit sample-data and frontend-only notice', () => {
   const markup = renderOperationsPage('orders');
 
-  assert.match(markup, /<p role="note">以下为演示数据（示例）；当前操作为纯前端，接入接口后替换。<\/p>/);
+  assert.match(markup, /<p role="note">以下为演示数据（示例）；所有订单号、金额与时间均为示例，当前操作为纯前端。<\/p>/);
+});
+
+test('order view follows the demo with status filters, eight order columns, and a detail entry', () => {
+  const markup = renderOperationsPage('orders');
+
+  assert.match(markup, /role="tablist" aria-label="订单状态筛选"/);
+  assert.match(markup, /待派车/);
+  assert.match(markup, /待付款/);
+  assert.match(markup, /配送中/);
+  assert.match(markup, /已签收/);
+  assert.match(markup, /有异常/);
+  assert.match(markup, /运单号/);
+  assert.match(markup, /商家/);
+  assert.match(markup, /收件人\s*\/\s*件数/);
+  assert.match(markup, /司机/);
+  assert.match(markup, /运费/);
+  assert.match(markup, /代收货款/);
+  assert.match(markup, /下单/);
+  assert.match(markup, /查看订单详情/);
 });
 
 test('native drawer declares web dialog and modal semantics', async () => {

@@ -1,13 +1,12 @@
+import { ORDER_COLUMNS, ORDER_DEMO_ROWS, ORDER_STATUS_FILTERS } from './orders-demo.mjs';
+
 const pages = {
   orders: {
     id: 'orders',
     title: '订单',
-    description: '查看订单状态、时效风险与处理入口',
-    columns: ['订单号', '客户', '状态', '当前环节', '时效'],
-    rows: [
-      ['RF-240811-018', '金边家居', '配送中', '司机已取货', '18:00 前'],
-      ['RF-240811-019', '森速商贸', '待派单', '等待运力匹配', '示例：2 小时'],
-    ],
+    description: '订单状态与处理入口（全部为演示示例）',
+    columns: ORDER_COLUMNS,
+    rows: ORDER_DEMO_ROWS.map((row) => row.slice(0, -1)),
     action: '查看订单详情',
   },
   capacity: {
@@ -103,7 +102,10 @@ export function getOperationsPage(id, configuredPages) {
 }
 
 function isValidOperationsRow(page, row) {
-  return Array.isArray(page?.columns) && Array.isArray(row) && row.length === page.columns.length;
+  return Array.isArray(page?.columns)
+    && Array.isArray(row)
+    && row.length >= 5
+    && row.length <= page.columns.length;
 }
 
 export function getOperationsRows(id, configuredPages) {
@@ -121,7 +123,7 @@ export function getOperationsRecord(id, index, configuredPages) {
   return {
     pageId: page.id,
     title: page.title,
-    fields: page.columns.map((column, fieldIndex) => [column, row[fieldIndex]]),
+    fields: page.columns.slice(0, row.length).map((column, fieldIndex) => [column, row[fieldIndex]]),
   };
 }
 
@@ -170,6 +172,18 @@ function recordUnavailable() {
 export function renderOperationsPage(id, configuredPages) {
   const page = getOperationsPage(id, configuredPages);
   if (!page) return notFound();
+
+  if (id === 'orders' && configuredPages === undefined) {
+    const headings = `${page.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join('')}<th scope="col">操作</th>`;
+    const rows = ORDER_DEMO_ROWS.map((row, index) => `<tr><td>${row.slice(0, -1).map((value) => `<span>${escapeHtml(value)}</span>`).join('</td><td>')}</td><td><button type="button" data-mode="frontend-only" data-action="open-detail" data-record-index="${index}">查看订单详情</button></td></tr>`).join('');
+    const filters = ORDER_STATUS_FILTERS.map(([value, label]) => `<button type="button" role="tab" aria-selected="${value === 'all'}" data-order-filter="${value}">${label}</button>`).join('');
+    return `<section aria-labelledby="operations-page-title" data-page="orders">
+  <header><h1 id="operations-page-title">订单</h1><p>${escapeHtml(page.description)}</p></header>
+  <p role="note">以下为演示数据（示例）；所有订单号、金额与时间均为示例，当前操作为纯前端。</p>
+  <div role="tablist" aria-label="订单状态筛选">${filters}</div>
+  <table><thead><tr>${headings}</tr></thead><tbody>${rows}</tbody></table>
+</section>`;
+  }
 
   const headings = `${page.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join('')}<th scope="col">操作</th>`;
   const rows = (Array.isArray(page.rows) ? page.rows : []).flatMap((row, index) => (
