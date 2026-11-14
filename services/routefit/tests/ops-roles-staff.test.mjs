@@ -74,6 +74,16 @@ test('getPermissionCatalog: roles:read gets the catalog with an ETag and 304 on 
   assert.equal(again.status,304);assert.equal(await again.text(),'');
  });
 });
+// Regression guard for the global `result.status!==304` skip in http.mjs: only 304 may bypass response-schema validation.
+test('response-schema validation still rejects a non-304 response whose body violates the schema',async()=>{
+ PERMISSION_MODULES.push({bogus:true});
+ try{
+  await withServer(['roles:read'],async call=>{
+   const response=await call('GET','/api/ops/v1/permission-catalog');
+   assert.equal(response.status,422);assert.equal((await response.json()).error.code,'VALIDATION_FAILED');
+  });
+ }finally{PERMISSION_MODULES.pop();}
+});
 test('getPermissionCatalog: without roles:read the request is rejected with 403',async()=>{
  await withServer(['roles:write','staff:write','staff:read'],async call=>{const response=await call('GET','/api/ops/v1/permission-catalog');assertForbidden(response,await response.json());});
 });
