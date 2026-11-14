@@ -69,6 +69,18 @@ test('real PostgreSQL order-draft HTTP integration',async t=>{
    const submitted=await customerRequest('/orders/'+customerOrder.order.id+'/actions/submit',{body:{},version:1});assert.equal(submitted.status,200,JSON.stringify(submitted.data));assert.deepEqual([submitted.data.order.state,submitted.data.order.version],['validating',2]);
    assert.equal((await customerRequest('/orders/'+customerOrder.order.id+'/actions/submit',{actor:1,body:{},version:1})).status,404);
   });
+  await t.test('a frozen customer is forbidden from creating an order',async()=>{
+   const freezeId=randomUUID();
+   await f.owner.query(`INSERT INTO party.account_freeze(id,company_id,principal_id,action,reason,version)
+    VALUES($1,$2,$3,'FREEZE','DEMO review',1)`,[freezeId,actors[0].companyId,actors[0].principalId]);
+   try{
+    const input={...draft,pickup:{...draft.pickup,point:{lng:104.9,lat:11.5}},delivery:{...draft.delivery,point:{lng:104.9,lat:11.5}}};delete input.customerId;
+    assert.equal((await customerRequest('/orders',{body:input})).status,403);
+   }finally{
+    await f.owner.query(`INSERT INTO party.account_freeze(id,company_id,principal_id,action,reason,version)
+     VALUES($1,$2,$3,'UNFREEZE','DEMO review',2)`,[randomUUID(),actors[0].companyId,actors[0].principalId]);
+   }
+  });
   await t.test('company and same-company customer scopes cover reads, writes, RLS and revocation',async()=>{
    for(const actor of [1,2]){
     assert.equal((await request('/orders/'+order.order.id,{actor})).status,404);
