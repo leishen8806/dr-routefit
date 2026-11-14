@@ -8,7 +8,7 @@ import {
   getOperationsRecord,
   getOperationsRows,
 } from './operations-pages.mjs';
-import { ORDER_DEMO_ROWS, ORDER_STATUS_FILTERS } from './orders-demo.mjs';
+import { ORDER_DEMO_ROWS, ORDER_DETAIL_RECIPIENTS, ORDER_DETAIL_TIMELINES, ORDER_STATUS_FILTERS } from './orders-demo.mjs';
 
 type OperationsPageProps = {
   pageId: string;
@@ -29,6 +29,8 @@ export function OperationsPage({ pageId, configuredPages }: OperationsPageProps)
   const selectedRecord = selectedIndex === null ? null : getOperationsRecord(pageId, selectedIndex, configuredPages);
   const drawerAccessibility = selectedRecord ? getOperationsDrawerAccessibility(pageId, configuredPages) : null;
   const isOrders = pageId === 'orders' && configuredPages === undefined;
+  const selectedOrder = isOrders && selectedIndex !== null ? ORDER_DEMO_ROWS[selectedIndex] : null;
+  const orderTimeline = isOrders && selectedIndex !== null ? ORDER_DETAIL_TIMELINES[selectedIndex] : null;
   const visibleRows = isOrders
     ? rows.filter(({ index }: { index: number }) => orderFilter === 'all' || ORDER_DEMO_ROWS[index]?.[8] === orderFilter)
     : rows;
@@ -45,10 +47,20 @@ export function OperationsPage({ pageId, configuredPages }: OperationsPageProps)
       {hasRejectedRows && <Text accessibilityRole="alert" style={styles.unavailable}>部分配置记录暂不可用，已从列表中隐藏。</Text>}
       <Text style={styles.note}>以下均为示例数据；订单号、金额与时间均为示例，当前页面操作均为纯前端。</Text>
     </Panel>
-    {selectedRecord && <Panel title={`${selectedRecord.title}详情`}>
+    {selectedRecord && <Panel title={selectedOrder ? selectedOrder[0] : `${selectedRecord.title}详情`}>
       <View role="dialog" aria-modal={true} accessibilityHint="演示数据（示例）；当前操作为纯前端。" accessibilityLabel={drawerAccessibility?.accessibilityLabel} accessibilityViewIsModal={drawerAccessibility?.isModal} style={styles.detail}>
-        {selectedRecord.fields.map(([label, value]: [string, string]) => <View key={label} style={styles.detailRow}><Text style={styles.detailLabel}>{label}</Text><Text style={styles.detailValue}>{value}</Text></View>)}
-        <Pressable accessibilityLabel="关闭详情" accessibilityRole="button" onPress={() => setSelectedIndex(null)} style={styles.closeButton}><Text style={styles.closeButtonText}>关闭（纯前端）</Text></Pressable>
+        {selectedOrder && orderTimeline ? <>
+          <View style={styles.orderMeta}><Text style={styles.statusTag}>{selectedOrder[3]}</Text><Text style={styles.meta}>{selectedOrder[1]}</Text></View>
+          {[
+            ['收件人', ORDER_DETAIL_RECIPIENTS[selectedIndex!]],
+            ['司机', selectedOrder[4]],
+            ['运费', selectedOrder[5]],
+            ['代收货款', selectedOrder[6] === '—' ? '无（示例）' : selectedOrder[6]],
+          ].map(([label, value]) => <View key={label} style={styles.detailRow}><Text style={styles.detailLabel}>{label}</Text><Text style={styles.detailValue}>{value}</Text></View>)}
+          <View><Text style={styles.recordTitle}>记录</Text>{orderTimeline.map(([message, time]) => <View key={time} style={styles.timelineRow}><Text style={styles.timelineDot}>•</Text><View><Text style={styles.detailValue}>{message}</Text><Text style={styles.timelineTime}>{time}</Text></View></View>)}</View>
+          {selectedOrder[8] === 'plain' && <Pressable accessibilityLabel="去调度台派车" accessibilityRole="button" style={styles.dispatchButton}><Text style={styles.closeButtonText}>去调度台派车（示例）</Text></Pressable>}
+        </> : selectedRecord.fields.map(([label, value]: [string, string]) => <View key={label} style={styles.detailRow}><Text style={styles.detailLabel}>{label}</Text><Text style={styles.detailValue}>{value}</Text></View>)}
+        <Pressable accessibilityLabel="关闭" accessibilityRole="button" onPress={() => setSelectedIndex(null)} style={styles.closeButton}><Text style={styles.closeButtonText}>关闭</Text></Pressable>
       </View>
     </Panel>}
   </AdminPage>;
@@ -72,6 +84,13 @@ const styles = StyleSheet.create({
   detailRow: { gap: 4 },
   detailLabel: { color: designTokens.color.muted, fontSize: 13, fontWeight: '500' },
   detailValue: { color: designTokens.color.navy, fontSize: 16, fontWeight: '400', lineHeight: 24 },
+  orderMeta: { alignItems: 'center', flexDirection: 'row', gap: 8 },
+  meta: { color: designTokens.color.muted, fontSize: 14, fontWeight: '400' },
+  recordTitle: { color: designTokens.color.navy, fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  timelineRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  timelineDot: { color: designTokens.color.navy, fontSize: 18, lineHeight: 22 },
+  timelineTime: { color: designTokens.color.muted, fontSize: 13, lineHeight: 20 },
+  dispatchButton: { alignSelf: 'flex-start', backgroundColor: designTokens.color.teal, borderRadius: 8, minHeight: 44, paddingHorizontal: 16, paddingVertical: 11 },
   closeButton: { alignSelf: 'flex-start', backgroundColor: designTokens.color.navy, borderRadius: 8, minHeight: 44, paddingHorizontal: 16, paddingVertical: 11 },
   closeButtonText: { color: designTokens.color.surface, fontSize: 14, fontWeight: '600' },
 });

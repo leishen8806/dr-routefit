@@ -1,4 +1,10 @@
-import { ORDER_COLUMNS, ORDER_DEMO_ROWS, ORDER_STATUS_FILTERS } from './orders-demo.mjs';
+import {
+  ORDER_COLUMNS,
+  ORDER_DEMO_ROWS,
+  ORDER_DETAIL_RECIPIENTS,
+  ORDER_DETAIL_TIMELINES,
+  ORDER_STATUS_FILTERS,
+} from './orders-demo.mjs';
 
 const pages = {
   orders: {
@@ -203,6 +209,30 @@ export function renderOperationsDetail(id, index, configuredPages) {
   const record = getOperationsRecord(id, index, configuredPages);
   if (!page || !record) return recordUnavailable();
   const accessibility = getOperationsDrawerAccessibility(id, configuredPages);
+
+  if (id === 'orders' && configuredPages === undefined) {
+    const [trackingNumber, merchant, , status, driver, fee, cod, , statusClass] = ORDER_DEMO_ROWS[index];
+    const fields = [
+      ['收件人', ORDER_DETAIL_RECIPIENTS[index]],
+      ['司机', driver],
+      ['运费', fee],
+      ['代收货款', cod === '—' ? '无（示例）' : cod],
+    ];
+    const keyValues = fields.map(([label, value]) => `<div data-order-detail-kv><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
+    const records = ORDER_DETAIL_TIMELINES[index].map(([message, time]) => `<li><span class="timeline-dot"></span><div>${escapeHtml(message)}<time>${escapeHtml(time)}</time></div></li>`).join('');
+    const dispatchAction = statusClass === 'plain'
+      ? '<button type="button" data-mode="frontend-only" data-action="go-dispatch">去调度台派车（示例）</button>'
+      : '';
+
+    return `<aside role="dialog" aria-modal="${accessibility.isModal}" aria-label="${escapeHtml(accessibility.accessibilityLabel)}" aria-describedby="operations-detail-note">
+  <header><h2 class="num">${escapeHtml(trackingNumber)}</h2><button type="button" data-mode="frontend-only" data-action="close-detail" aria-label="关闭">关闭</button></header>
+  <div class="order-detail-meta"><span class="chip status-${escapeHtml(statusClass)}">${escapeHtml(status)}</span><span class="meta">${escapeHtml(merchant)}</span></div>
+  <dl class="order-detail-kv">${keyValues}</dl>
+  <section aria-label="记录"><h3>记录</h3><ol class="timeline">${records}</ol></section>
+  ${dispatchAction}
+  <p id="operations-detail-note" role="note">演示数据（示例）；当前操作为纯前端。</p>
+</aside>`;
+  }
 
   const fields = record.fields.map(([column, value]) => `<div><dt>${escapeHtml(column)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
   return `<aside role="dialog" aria-modal="${accessibility.isModal}" aria-label="${escapeHtml(accessibility.accessibilityLabel)}" aria-describedby="operations-detail-note">

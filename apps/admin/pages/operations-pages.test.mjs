@@ -255,6 +255,14 @@ test('detail drawer keeps row context and labels its action as frontend-only', (
   assert.match(markup, /data-action="close-detail"/);
 });
 
+test('order detail drawer renders the demo status, four key values, and record timeline', () => {
+  const markup = renderOperationsDetail('orders', 0);
+
+  assert.match(markup, /class="chip status-/);
+  assert.match(markup, />\u8bb0\u5f55</);
+  assert.equal([...markup.matchAll(/data-order-detail-kv/g)].length, 4);
+});
+
 test('detail drawer marks its close control as frontend-only', () => {
   const markup = renderOperationsDetail('support', 0);
 
