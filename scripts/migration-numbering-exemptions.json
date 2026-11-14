@@ -1,6 +1,12 @@
 [
   {
     "from": 65,
+    "to": 69,
+    "reason": "Allocated to unmerged feature branches (Backend1 064-069, Backend2 070-075 per board allocation); remove a number from this list when its migration merges into develop.",
+    "approvedBy": "CMP-1569"
+  },
+  {
+    "from": 71,
     "to": 75,
     "reason": "Allocated to unmerged feature branches (Backend1 064-069, Backend2 070-075 per board allocation); remove a number from this list when its migration merges into develop.",
     "approvedBy": "CMP-1569"
