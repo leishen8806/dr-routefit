@@ -15,6 +15,18 @@ const batches={
   third:['opsDriverApplicationReturn','recipientPaymentIntent','recipientPaymentIntentStatus'],
 };
 
+const expectedStatusById={
+  opsDriverDetail:'CONTRACT_READY',
+  opsDriverSuspend:'CONTRACT_READY',
+  driverUndeliveredReasonsList:'CONTRACT_READY',
+  opsDriverResume:'CONTRACT_READY',
+  opsDriverApplicationDetail:'CONTRACT_READY',
+  opsDriverApplicationApprove:'CONTRACT_READY',
+  opsDriverApplicationReturn:'CONTRACT_READY',
+  recipientPaymentIntent:'PLANNED',
+  recipientPaymentIntentStatus:'PLANNED',
+};
+
 async function load(){
   const [module,contract]=await Promise.all([
     readFile(modulePath,'utf8').then(JSON.parse),
@@ -39,12 +51,13 @@ function resolveSchema(contract,schema){
   return Object.fromEntries(Object.entries(schema).map(([key,value])=>[key,resolveSchema(contract,value)]));
 }
 
-function assertDeclared(operations){
+function assertDeclared(operations,expectedStatuses=expectedStatusById){
   for(const operation of operations){
     assert.equal(operation['x-owner'],'Backend2');
     assert.equal(operation['x-baseline-tier'],'A');
     assert.equal(operation['x-stage'],'R2');
-    assert.equal(operation['x-implementation-status'],'PLANNED');
+    assert.ok(Object.hasOwn(expectedStatuses,operation.operationId),`unexpected operationId: ${operation.operationId}`);
+    assert.equal(operation['x-implementation-status'],expectedStatuses[operation.operationId]);
     assert.ok(operation['x-examples'].success.body);
     assert.deepEqual(Object.keys(operation['x-examples'].rejected.body),['error']);
     assert.match(operation['x-examples'].rejected.body.error.requestId,/^[\x00-\x7F]+$/);
