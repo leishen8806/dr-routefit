@@ -2842,6 +2842,36 @@
           }
         }
       }
+    },
+    "/api/driver/v1/orders/{orderId}/collection-intents": {
+      "post": {
+        "operationId": "driverCollectionIntentCreate", "x-permissions": ["driver:collection-intents:write"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "CONTRACT_READY", "x-version-resource": "collectionIntent.version", "x-owner": "Backend1",
+        "parameters": [{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],
+        "responses": {"201":{"description":"Collection intent created","content":{"application/json":{"schema":{"type":"object"}}}},"403":{"$ref":"#/components/responses/Error403"}},
+        "x-examples":{"success":{"status":201,"body":{"id":"collection-intent-example-0001","status":"PENDING"}},"rejected":{"status":403,"body":{"error":{"code":"FORBIDDEN","message":"Caller lacks the required permission.","messageKey":"errors.forbidden","retryable":false,"requestId":"demo-req-0030","fields":[]}}}}
+      },
+      "get": {
+        "operationId": "driverCollectionIntentsList", "x-permissions": ["driver:collection-intents:read"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "CONTRACT_READY", "x-version-resource": "collectionIntent.version", "x-owner": "Backend1",
+        "parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],
+        "responses":{"200":{"description":"Collection intent page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array"},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"403":{"$ref":"#/components/responses/Error403"}},
+        "x-examples":{"success":{"status":200,"body":{"items":[],"nextCursor":null}},"rejected":{"status":403,"body":{"error":{"code":"FORBIDDEN","message":"Caller lacks the required permission.","messageKey":"errors.forbidden","retryable":false,"requestId":"demo-req-0031","fields":[]}}}}
+      }
+    },
+    "/api/driver/v1/orders/{orderId}/collection-intents/{intentId}/actions/confirm": {
+      "post": {
+        "operationId":"driverCollectionIntentConfirm", "x-permissions":["driver:collection-intents:write"], "x-stage":"R2", "x-baseline-tier":"A", "x-implementation-status":"CONTRACT_READY", "x-version-resource":"collectionIntent.version", "x-owner":"Backend1",
+        "parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],
+        "responses":{"200":{"description":"Collection intent confirmed","content":{"application/json":{"schema":{"type":"object"}}}},"403":{"$ref":"#/components/responses/Error403"}},
+        "x-examples":{"success":{"status":200,"body":{"id":"collection-intent-example-0001","status":"CONFIRMED"}},"rejected":{"status":403,"body":{"error":{"code":"FORBIDDEN","message":"Caller lacks the required permission.","messageKey":"errors.forbidden","retryable":false,"requestId":"demo-req-0032","fields":[]}}}}
+      }
+    },
+    "/api/driver/v1/orders/{orderId}/delivery-scans": {
+      "post": {
+        "operationId":"driverDeliveryScanCreate", "x-permissions":["driver:delivery:scan"], "x-stage":"R2", "x-baseline-tier":"A", "x-implementation-status":"CONTRACT_READY", "x-version-resource":"deliveryScan.id", "x-owner":"Backend1",
+        "parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],
+        "responses":{"201":{"description":"Delivery scan created","content":{"application/json":{"schema":{"type":"object"}}}},"403":{"$ref":"#/components/responses/Error403"}},
+        "x-examples":{"success":{"status":201,"body":{"id":"delivery-scan-example-0001","status":"RECORDED"}},"rejected":{"status":403,"body":{"error":{"code":"FORBIDDEN","message":"Caller lacks the required permission.","messageKey":"errors.forbidden","retryable":false,"requestId":"demo-req-0033","fields":[]}}}}
+      }
     }
   },
   "x-recorded-operations": [
@@ -2871,7 +2901,7 @@
       "path": "/api/ops/v1/route-pricing/configurations",
       "method": "GET",
       "x-permissions": [
-        "pricing:config:read"
+        "pricing:read"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "A",
@@ -2893,7 +2923,7 @@
       "path": "/api/ops/v1/route-pricing/configurations",
       "method": "POST",
       "x-permissions": [
-        "pricing:config:submit"
+        "pricing:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "A",
@@ -2915,7 +2945,7 @@
       "path": "/api/ops/v1/coupons",
       "method": "GET",
       "x-permissions": [
-        "coupons:read"
+        "marketing:coupon:read"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -2937,7 +2967,7 @@
       "path": "/api/ops/v1/coupons/batches",
       "method": "POST",
       "x-permissions": [
-        "coupons:create"
+        "marketing:coupon:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3022,7 +3052,7 @@
       "path": "/api/ops/v1/merchants/{merchantId}/contract",
       "method": "GET",
       "x-permissions": [
-        "merchants:read"
+        "merchant:contract:read"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3044,7 +3074,7 @@
       "path": "/api/ops/v1/merchants/{merchantId}/contract",
       "method": "POST",
       "x-permissions": [
-        "merchants:contract:submit"
+        "merchant:contract:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3108,7 +3138,7 @@
       "path": "/api/ops/v1/merchants/{merchantId}/sku-dimensions",
       "method": "GET",
       "x-permissions": [
-        "merchants:read"
+        "merchant:catalog:read"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3130,7 +3160,7 @@
       "path": "/api/ops/v1/merchants/{merchantId}/sku-dimensions",
       "method": "POST",
       "x-permissions": [
-        "merchants:create"
+        "merchant:catalog:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3152,7 +3182,7 @@
       "path": "/api/ops/v1/users/{userId}/actions/freeze",
       "method": "POST",
       "x-permissions": [
-        "users:freeze"
+        "user:freeze:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3174,7 +3204,7 @@
       "path": "/api/ops/v1/users/{userId}/actions/unfreeze",
       "method": "POST",
       "x-permissions": [
-        "users:freeze"
+        "user:freeze:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3190,6 +3220,42 @@
           "code": "INVALID_TRANSITION"
         }
       }
+    },
+    {
+      "operationId": "opsDriverApplications",
+      "path": "/api/ops/v1/driver-applications",
+      "method": "GET",
+      "x-permissions": ["drivers:application:review"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "CONTRACT_READY",
+      "x-version-resource": "none",
+      "x-owner": "Backend1",
+      "x-examples": {"success": {"status": 200}, "rejected": {"status": 403, "code": "FORBIDDEN"}}
+    },
+    {
+      "operationId": "driverAssignmentLoadScanCreate",
+      "path": "/api/driver/v1/assignments/{assignmentId}/load-scans",
+      "method": "POST",
+      "x-permissions": ["driver:tasks:execute"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "CONTRACT_READY",
+      "x-version-resource": "none",
+      "x-owner": "Backend1",
+      "x-examples": {"success": {"status": 201}, "rejected": {"status": 403, "code": "FORBIDDEN"}}
+    },
+    {
+      "operationId": "driverDeliveryAttemptCreate",
+      "path": "/api/driver/v1/orders/{orderId}/delivery-attempts",
+      "method": "POST",
+      "x-permissions": ["driver:delivery:record"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "CONTRACT_READY",
+      "x-version-resource": "none",
+      "x-owner": "Backend1",
+      "x-examples": {"success": {"status": 201}, "rejected": {"status": 403, "code": "FORBIDDEN"}}
     }
   ],
   "operations": [
