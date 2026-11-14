@@ -13,7 +13,9 @@ test('Backend1 module contract makes every owned operation reviewable under stan
     'listVehicleTariffs', 'createVehicleTariff',
     'listValueAddedServices', 'createValueAddedService',
     'listFxRates', 'createFxRate', 'createPricingQuoteTrial',
-    'createCustomerQuoteTrial', 'listCustomerServiceOptions'
+    'createCustomerQuoteTrial', 'listCustomerServiceOptions',
+    'driverCollectionIntentCreate', 'driverCollectionIntentsList',
+    'driverCollectionIntentConfirm', 'driverDeliveryScanCreate'
   ];
   const requiredBOperations = [
     'listMerchants', 'createMerchant', 'getMerchant',
@@ -45,7 +47,7 @@ test('Backend1 module contract makes every owned operation reviewable under stan
     assert.ok(operation['x-examples']?.success);
     assert.ok(operation['x-examples']?.rejected);
   }
-  assert.equal(module['x-recorded-operations'].length, 16);
+  assert.equal(module['x-recorded-operations'].length, 19);
 
   const baselineOperations = requiredAOperations.map(operationId => {
     const operation = moduleOperations.find(candidate => candidate.operationId === operationId);
