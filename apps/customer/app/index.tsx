@@ -12,6 +12,22 @@ import { promotionNavigationTarget, safeNavigationTarget } from '../src/renderSa
 
 type Tab = 'send' | 'orders' | 'messages' | 'profile';
 type Page = 'home' | Tab;
+type OrderFilter = 'all' | 'pending' | 'inTransit' | 'delivered' | 'exception';
+
+const orderFilterCopy: Record<OrderFilter, CopyKey> = {
+  all: 'allOrders',
+  pending: 'pendingOrders',
+  inTransit: 'inTransitOrders',
+  delivered: 'deliveredOrders',
+  exception: 'exceptionOrders',
+};
+
+function orderFilterForStatus(status: string): Exclude<OrderFilter, 'all'> {
+  if (status === 'delivered') return 'delivered';
+  if (status === 'payment_pending') return 'pending';
+  if (status === 'exception') return 'exception';
+  return 'inTransit';
+}
 
 const tabs: readonly { key: Tab; label: CopyKey }[] = [
   { key: 'send', label: 'send' },
@@ -60,7 +76,7 @@ export default function HomePage() {
   const [feePayer, setFeePayer] = useState<'sender' | 'recipient'>('sender');
   const [declaredValue, setDeclaredValue] = useState('');
   const [driverNote, setDriverNote] = useState('');
-  const [orderFilter, setOrderFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [orderFilter, setOrderFilter] = useState<OrderFilter>('all');
   const [draft, setDraft] = useState<ReturnType<ReturnType<typeof createDemoCustomerFlow>['createDraft']> | null>(null);
   const [form, setForm] = useState({ pickup: '', recipient: '', destination: '', item: '', vehicle: '' });
   const { language, setLanguage, t } = useLanguage();
@@ -74,7 +90,7 @@ export default function HomePage() {
   const orderDetail = experience.findOrderDetail(overview.order.id);
   const orderTimeline = experience.getOrderTrackingTimeline(overview.order.id);
   const orders = experience.listOrders();
-  const filteredOrders = orderFilter === 'completed' ? [] : orders;
+  const filteredOrders = orderFilter === 'all' ? orders : orders.filter((entry) => orderFilterForStatus(entry.status) === orderFilter);
   const paymentIntent = experience.getExamplePaymentConfirmation();
   const demoConfiguration = experience.getDemoConfiguration();
   const customerFlow = useMemo(() => createDemoCustomerFlow(), []);
@@ -290,7 +306,7 @@ export default function HomePage() {
               <View testID="customer-orders-example-detail">
               <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
               <View style={styles.choiceRow} testID="customer-orders-filters">
-                {(['all', 'active', 'completed'] as const).map((filter) => <Pressable key={filter} onPress={() => setOrderFilter(filter)} style={[styles.choiceButton, orderFilter === filter && styles.choiceButtonActive]} testID={`customer-orders-filter-${filter}`}><Text style={[styles.choiceText, face, orderFilter === filter && styles.choiceTextActive]}>{t(filter === 'all' ? 'allOrders' : filter === 'active' ? 'activeOrders' : 'completedOrders')}</Text></Pressable>)}
+                {(['all', 'pending', 'inTransit', 'delivered', 'exception'] as const).map((filter) => <Pressable key={filter} onPress={() => setOrderFilter(filter)} style={[styles.choiceButton, orderFilter === filter && styles.choiceButtonActive]} testID={`customer-orders-filter-${filter === 'inTransit' ? 'in-transit' : filter}`}><Text style={[styles.choiceText, face, orderFilter === filter && styles.choiceTextActive]}>{t(orderFilterCopy[filter])}</Text></Pressable>)}
               </View>
               <Text style={[styles.detailTitle, face]}>{t('orderDetail')}</Text>
               <Text style={[styles.detailStatus, face]}>{t('orderStatus')}</Text>
@@ -298,9 +314,12 @@ export default function HomePage() {
                 <View key={entry.id} style={styles.orderRow} testID={`customer-orders-example-${entry.id}`}>
                   <Text style={[styles.detailHint, face]}>{entry.id}</Text>
                   <Text style={[styles.detailHint, face]}>{t('orderExampleTitle')}</Text>
-                  <Text style={[styles.detailHint, face]}>{t('orderStatus')}</Text>
+                  <Text style={[styles.detailHint, face]}>{t(orderFilterCopy[orderFilterForStatus(entry.status)])}</Text>
                   <Text style={[styles.detailHint, face]} testID={`customer-orders-route-${entry.id}`}>{t('route')} · {t('warehouseSend')} → {t('recipient')}</Text>
                   {trackTarget ? <Link href={trackTarget} style={styles.trackLink}>{t('viewDetails')}</Link> : null}
+                  <Pressable accessibilityRole="button" onPress={() => setActiveTab('send')} testID={`customer-orders-resend-${entry.id}`}>
+                    <Text style={[styles.trackLink, face]}>{t('resendOrder')}</Text>
+                  </Pressable>
                 </View>
               ))}
               <View style={styles.flowSummary}>

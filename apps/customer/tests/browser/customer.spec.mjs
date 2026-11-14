@@ -96,7 +96,15 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await expect(page.getByTestId('customer-orders-example-EXAMPLE-CUSTOMER-001')).toContainText('EXAMPLE-CUSTOMER-001');
   await expect(page.getByTestId('customer-orders-list')).toBeVisible();
   await expect(page.getByTestId('customer-orders-filters')).toBeVisible();
+  await expect(page.getByTestId('customer-orders-filter-all')).toHaveText('All');
+  await expect(page.getByTestId('customer-orders-filter-pending')).toHaveText('Awaiting payment');
+  await expect(page.getByTestId('customer-orders-filter-in-transit')).toHaveText('In transit');
+  await expect(page.getByTestId('customer-orders-filter-delivered')).toHaveText('Delivered');
+  await expect(page.getByTestId('customer-orders-filter-exception')).toHaveText('Exception');
   await expect(page.getByTestId('customer-orders-route-EXAMPLE-CUSTOMER-001')).toBeVisible();
+  await expect(page.getByTestId('customer-orders-resend-EXAMPLE-CUSTOMER-001')).toHaveText('Send again');
+  await page.getByTestId('customer-orders-resend-EXAMPLE-CUSTOMER-001').click();
+  await expect(page.getByTestId('customer-send-pickup')).toBeVisible();
   await page.getByTestId('customer-home-tab-messages').click();
   await expect(page.getByTestId('customer-messages-example')).toContainText('A driver has been assigned to your example order.');
 
