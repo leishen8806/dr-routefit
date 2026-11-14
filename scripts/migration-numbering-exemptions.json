@@ -13,8 +13,14 @@
   },
   {
     "from": 79,
+    "to": 81,
+    "reason": "079-081 allocated to BackendSenior per board allocation, none merged yet (develop holds 088); remove each number when its migration merges.",
+    "approvedBy": "CMP-1569"
+  },
+  {
+    "from": 83,
     "to": 87,
-    "reason": "079-081 allocated to BackendSenior, 082-087 to OpsLead per board allocation, none merged yet (develop holds 088); remove each number when its migration merges.",
+    "reason": "083-087 allocated to OpsLead per board allocation, none merged yet (develop holds 088); 082 merged with CMP-1708; remove each number when its migration merges.",
     "approvedBy": "CMP-1569"
   }
 ]
