@@ -7,7 +7,7 @@ import { adminNavigation } from './navigation.mjs';
 export function AdminShell({ children }: PropsWithChildren) {
   const pathname = usePathname();
   return <View style={styles.frame}><View style={styles.sidebar}><Text style={styles.brand}>DR RouteFit</Text><Text style={styles.caption}>运营管理后台</Text><View accessibilityRole="navigation" style={styles.nav}>
-    {adminNavigation.map((item) => <Link asChild href={item.href} key={item.id}><Pressable accessibilityRole="link" style={[styles.item, pathname === item.href && styles.itemActive]}><Text style={[styles.itemText, pathname === item.href && styles.itemTextActive]}>{item.label}</Text></Pressable></Link>)}
+    {adminNavigation.map((item) => <Link asChild href={item.href} key={item.id}><Pressable accessibilityRole="link" style={pathname === item.href ? { ...styles.item, ...styles.itemActive } : styles.item}><Text style={[styles.itemText, pathname === item.href && styles.itemTextActive]}>{item.label}</Text></Pressable></Link>)}
   </View><Text style={styles.footer}>示例数据 · 权限与金额校验由服务端执行</Text></View><View style={styles.main}>{children}</View></View>;
 }
 
