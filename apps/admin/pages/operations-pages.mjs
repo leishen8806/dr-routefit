@@ -1,13 +1,18 @@
+import {
+  ORDER_COLUMNS,
+  ORDER_DEMO_ROWS,
+  ORDER_DETAIL_RECIPIENTS,
+  ORDER_DETAIL_TIMELINES,
+  ORDER_STATUS_FILTERS,
+} from './orders-demo.mjs';
+
 const pages = {
   orders: {
     id: 'orders',
     title: '订单',
-    description: '查看订单状态、时效风险与处理入口',
-    columns: ['订单号', '客户', '状态', '当前环节', '时效'],
-    rows: [
-      ['RF-240811-018', '金边家居', '配送中', '司机已取货', '18:00 前'],
-      ['RF-240811-019', '森速商贸', '待派单', '等待运力匹配', '示例：2 小时'],
-    ],
+    description: '订单状态与处理入口（全部为演示示例）',
+    columns: ORDER_COLUMNS,
+    rows: ORDER_DEMO_ROWS.map((row) => row.slice(0, -1)),
     action: '查看订单详情',
   },
   capacity: {
@@ -103,7 +108,10 @@ export function getOperationsPage(id, configuredPages) {
 }
 
 function isValidOperationsRow(page, row) {
-  return Array.isArray(page?.columns) && Array.isArray(row) && row.length === page.columns.length;
+  return Array.isArray(page?.columns)
+    && Array.isArray(row)
+    && row.length >= 5
+    && row.length <= page.columns.length;
 }
 
 export function getOperationsRows(id, configuredPages) {
@@ -121,7 +129,7 @@ export function getOperationsRecord(id, index, configuredPages) {
   return {
     pageId: page.id,
     title: page.title,
-    fields: page.columns.map((column, fieldIndex) => [column, row[fieldIndex]]),
+    fields: page.columns.slice(0, row.length).map((column, fieldIndex) => [column, row[fieldIndex]]),
   };
 }
 
@@ -171,6 +179,18 @@ export function renderOperationsPage(id, configuredPages) {
   const page = getOperationsPage(id, configuredPages);
   if (!page) return notFound();
 
+  if (id === 'orders' && configuredPages === undefined) {
+    const headings = `${page.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join('')}<th scope="col">操作</th>`;
+    const rows = ORDER_DEMO_ROWS.map((row, index) => `<tr><td>${row.slice(0, -1).map((value) => `<span>${escapeHtml(value)}</span>`).join('</td><td>')}</td><td><button type="button" data-mode="frontend-only" data-action="open-detail" data-record-index="${index}">查看订单详情</button></td></tr>`).join('');
+    const filters = ORDER_STATUS_FILTERS.map(([value, label]) => `<button type="button" role="tab" aria-selected="${value === 'all'}" data-order-filter="${value}">${label}</button>`).join('');
+    return `<section aria-labelledby="operations-page-title" data-page="orders">
+  <header><h1 id="operations-page-title">订单</h1><p>${escapeHtml(page.description)}</p></header>
+  <p role="note">以下为演示数据（示例）；所有订单号、金额与时间均为示例，当前操作为纯前端。</p>
+  <div role="tablist" aria-label="订单状态筛选">${filters}</div>
+  <table><thead><tr>${headings}</tr></thead><tbody>${rows}</tbody></table>
+</section>`;
+  }
+
   const headings = `${page.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join('')}<th scope="col">操作</th>`;
   const rows = (Array.isArray(page.rows) ? page.rows : []).flatMap((row, index) => (
     isValidOperationsRow(page, row)
@@ -189,6 +209,30 @@ export function renderOperationsDetail(id, index, configuredPages) {
   const record = getOperationsRecord(id, index, configuredPages);
   if (!page || !record) return recordUnavailable();
   const accessibility = getOperationsDrawerAccessibility(id, configuredPages);
+
+  if (id === 'orders' && configuredPages === undefined) {
+    const [trackingNumber, merchant, , status, driver, fee, cod, , statusClass] = ORDER_DEMO_ROWS[index];
+    const fields = [
+      ['收件人', ORDER_DETAIL_RECIPIENTS[index]],
+      ['司机', driver],
+      ['运费', fee],
+      ['代收货款', cod === '—' ? '无（示例）' : cod],
+    ];
+    const keyValues = fields.map(([label, value]) => `<div data-order-detail-kv><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
+    const records = ORDER_DETAIL_TIMELINES[index].map(([message, time]) => `<li><span class="timeline-dot"></span><div>${escapeHtml(message)}<time>${escapeHtml(time)}</time></div></li>`).join('');
+    const dispatchAction = statusClass === 'plain'
+      ? '<button type="button" data-mode="frontend-only" data-action="go-dispatch">去调度台派车（示例）</button>'
+      : '';
+
+    return `<aside role="dialog" aria-modal="${accessibility.isModal}" aria-label="${escapeHtml(accessibility.accessibilityLabel)}" aria-describedby="operations-detail-note">
+  <header><h2 class="num">${escapeHtml(trackingNumber)}</h2><button type="button" data-mode="frontend-only" data-action="close-detail" aria-label="关闭">关闭</button></header>
+  <div class="order-detail-meta"><span class="chip status-${escapeHtml(statusClass)}">${escapeHtml(status)}</span><span class="meta">${escapeHtml(merchant)}</span></div>
+  <dl class="order-detail-kv">${keyValues}</dl>
+  <section aria-label="记录"><h3>记录</h3><ol class="timeline">${records}</ol></section>
+  ${dispatchAction}
+  <p id="operations-detail-note" role="note">演示数据（示例）；当前操作为纯前端。</p>
+</aside>`;
+  }
 
   const fields = record.fields.map(([column, value]) => `<div><dt>${escapeHtml(column)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
   return `<aside role="dialog" aria-modal="${accessibility.isModal}" aria-label="${escapeHtml(accessibility.accessibilityLabel)}" aria-describedby="operations-detail-note">
