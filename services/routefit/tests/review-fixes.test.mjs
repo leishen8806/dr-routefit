@@ -21,6 +21,29 @@ test('open API prefix fails closed when an open authentication provider is not i
  }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 });
 
+test('open authentication injection is called and its omission fails closed',async()=>{
+ let calls=0;
+ const injected=apiServer({pool:{connect:async()=>{throw new Error('open authentication must reject before database access');}},authenticate:()=>{throw new Error('staff authentication must not run for open API');},openAuthenticate:async request=>{
+  calls++;
+  assert.equal(request.url,'/api/open/v1/injection');
+  return {subjectId:'subject-injection',scopes:['order:read'],apiKeyId:'key-injection'};
+ }});
+ injected.listen(0,'127.0.0.1');await once(injected,'listening');
+ try{
+  const response=await fetch(`http://127.0.0.1:${injected.address().port}/api/open/v1/injection`);
+  assert.equal(response.status,404,'an authenticated unknown open route continues through ordinary routing');
+  assert.equal(calls,1,'the injected open authentication provider must receive the request');
+ }finally{injected.closeAllConnections();await new Promise(resolve=>injected.close(resolve));}
+
+ const defaulted=apiServer({pool:{connect:async()=>{throw new Error('open authentication must reject before database access');}},authenticate:()=>{throw new Error('staff authentication must not run for open API');}});
+ defaulted.listen(0,'127.0.0.1');await once(defaulted,'listening');
+ try{
+  const response=await fetch(`http://127.0.0.1:${defaulted.address().port}/api/open/v1/injection`);
+  assert.equal(response.status,401,'missing open authentication injection must fail closed');
+  assert.equal((await response.json()).error.code,'UNAUTHORIZED');
+ }finally{defaulted.closeAllConnections();await new Promise(resolve=>defaulted.close(resolve));}
+});
+
 test('open API response hook receives the authenticated key and final response status after the response is written',async()=>{
  let resolveEvent;const observed=new Promise(resolve=>{resolveEvent=resolve;});
  const server=apiServer({pool:{connect:async()=>{throw new Error('no route must not open a database transaction');}},authenticate:()=>{throw new Error('staff authentication must not run for open API');},openAuthenticate:async()=>({subjectId:'subject-1',scopes:['order:read'],apiKeyId:'key-1'}),afterOpenResponse:event=>resolveEvent(event)});
