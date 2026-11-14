@@ -28298,7 +28298,7 @@
           }
         },
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-owner": "BackendSenior"
       }
     },
@@ -28333,7 +28333,7 @@
           }
         },
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-owner": "BackendSenior"
       }
     },
@@ -28381,7 +28381,7 @@
           }
         },
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-owner": "BackendSenior"
       }
     },
@@ -28429,7 +28429,7 @@
           }
         },
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-owner": "BackendSenior"
       }
     },
@@ -28477,7 +28477,7 @@
           }
         },
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-owner": "BackendSenior"
       }
     },
