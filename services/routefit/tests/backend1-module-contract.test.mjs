@@ -37,7 +37,10 @@ test('Backend1 module contract makes every owned operation reviewable under stan
   for (const operation of moduleOperations) {
     assert.equal(operation['x-stage'], 'R2');
     assert.ok(['A', 'B'].includes(operation['x-baseline-tier']));
-    assert.equal(operation['x-implementation-status'], 'PLANNED');
+    assert.equal(
+      operation['x-implementation-status'],
+      requiredAOperations.includes(operation.operationId) ? 'CONTRACT_READY' : 'PLANNED'
+    );
     assert.equal(operation['x-owner'], 'Backend1');
     assert.ok(operation['x-examples']?.success);
     assert.ok(operation['x-examples']?.rejected);
