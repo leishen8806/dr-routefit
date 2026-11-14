@@ -36565,7 +36565,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver.profile.version",
         "x-owner": "Backend2",
         "x-examples": {
@@ -36690,7 +36690,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver.availability.version",
         "x-owner": "Backend2",
         "x-examples": {
@@ -36807,7 +36807,7 @@
         "x-permissions-note": "Resume uses drivers:suspend as the inverse of the baseline suspend action.",
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver.availability.version",
         "x-owner": "Backend2",
         "x-examples": {
@@ -36912,7 +36912,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver.application.version",
         "x-owner": "Backend2",
         "x-examples": {
@@ -37049,7 +37049,7 @@
         "x-permissions-note": "New permission name follows existing driver:profile:read and driver:availability:write construction.",
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "undelivered-reason.directory.version",
         "x-owner": "Backend2",
         "x-examples": {
@@ -37174,7 +37174,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver.application.version",
         "x-owner": "Backend2",
         "x-examples": {
@@ -37296,7 +37296,7 @@
         ],
         "x-stage": "R2",
         "x-baseline-tier": "A",
-        "x-implementation-status": "PLANNED",
+        "x-implementation-status": "CONTRACT_READY",
         "x-version-resource": "driver.application.version",
         "x-owner": "Backend2",
         "x-examples": {
