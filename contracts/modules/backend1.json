@@ -1242,7 +1242,7 @@
               "error": {
                 "code": "VALIDATION_FAILED",
                 "message": "Merchant details are invalid.",
-                "messageKey": "errors.validationFailed",
+                "messageKey": "errors.validation_failed",
                 "retryable": false,
                 "requestId": "demo-req-0002",
                 "fields": []
@@ -1309,7 +1309,7 @@
               "error": {
                 "code": "NOT_FOUND",
                 "message": "Merchant was not found.",
-                "messageKey": "errors.notFound",
+                "messageKey": "errors.not_found",
                 "retryable": false,
                 "requestId": "demo-req-0003",
                 "fields": []
@@ -1369,7 +1369,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0004", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0004", "fields": []}}
           }
         }
       }
@@ -1424,7 +1424,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0005", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0005", "fields": []}}
           }
         }
       }
@@ -1479,7 +1479,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0006", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0006", "fields": []}}
           }
         }
       }
@@ -1534,7 +1534,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0007", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0007", "fields": []}}
           }
         }
       }
@@ -1671,7 +1671,7 @@
           },
           "rejected": {
             "status": 422,
-            "body": {"error": {"code": "VALIDATION_FAILED", "message": "Contract details are invalid.", "messageKey": "errors.validationFailed", "retryable": false, "requestId": "demo-req-0009", "fields": []}}
+            "body": {"error": {"code": "VALIDATION_FAILED", "message": "Contract details are invalid.", "messageKey": "errors.validation_failed", "retryable": false, "requestId": "demo-req-0009", "fields": []}}
           }
         }
       }
@@ -1726,7 +1726,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Contract was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0010", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Contract was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0010", "fields": []}}
           }
         }
       }
@@ -1847,7 +1847,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "User was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0012", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "User was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0012", "fields": []}}
           }
         }
       }
@@ -2879,7 +2879,7 @@
       "operationId": "createRouteQuote",
       "path": "/api/customer/v1/route-quotes",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["customer:quote:create"],
       "x-permissions-note": "Awaiting Lead decision for customer quote permission.",
       "x-stage": "R2",
       "x-baseline-tier": "A",
@@ -2988,7 +2988,7 @@
       "operationId": "lockOrderCoupon",
       "path": "/api/customer/v1/orders/{orderId}/actions/lock-coupon",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["customer:order:write"],
       "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3009,7 +3009,7 @@
       "operationId": "redeemOrderCoupon",
       "path": "/api/customer/v1/orders/{orderId}/actions/redeem-coupon",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["order:payment:confirm"],
       "x-permissions-note": "Awaiting Lead decision for payment-confirmation permission.",
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3030,7 +3030,7 @@
       "operationId": "releaseOrderCoupon",
       "path": "/api/customer/v1/orders/{orderId}/actions/release-coupon",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["customer:order:write"],
       "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3095,7 +3095,7 @@
       "operationId": "activateMerchantContract",
       "path": "/api/ops/v1/merchants/{merchantId}/contract/actions/activate",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["merchant:contract:write"],
       "x-permissions-note": "Awaiting Q-V1 decision: activate differs from baseline approve.",
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3116,7 +3116,7 @@
       "operationId": "expireMerchantContract",
       "path": "/api/ops/v1/merchants/{merchantId}/contract/actions/expire",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["merchant:contract:write"],
       "x-permissions-note": "Awaiting Q-V1 decision: expire is absent from baseline actions.",
       "x-stage": "R2",
       "x-baseline-tier": "B",

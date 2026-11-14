@@ -34225,7 +34225,7 @@
               "error": {
                 "code": "VALIDATION_FAILED",
                 "message": "Merchant details are invalid.",
-                "messageKey": "errors.validationFailed",
+                "messageKey": "errors.validation_failed",
                 "retryable": false,
                 "requestId": "demo-req-0002",
                 "fields": []
@@ -34293,7 +34293,7 @@
               "error": {
                 "code": "NOT_FOUND",
                 "message": "Merchant was not found.",
-                "messageKey": "errors.notFound",
+                "messageKey": "errors.not_found",
                 "retryable": false,
                 "requestId": "demo-req-0003",
                 "fields": []
@@ -34378,7 +34378,7 @@
               "error": {
                 "code": "NOT_FOUND",
                 "message": "Merchant was not found.",
-                "messageKey": "errors.notFound",
+                "messageKey": "errors.not_found",
                 "retryable": false,
                 "requestId": "demo-req-0004",
                 "fields": []
@@ -34463,7 +34463,7 @@
               "error": {
                 "code": "NOT_FOUND",
                 "message": "Merchant was not found.",
-                "messageKey": "errors.notFound",
+                "messageKey": "errors.not_found",
                 "retryable": false,
                 "requestId": "demo-req-0005",
                 "fields": []
@@ -34548,7 +34548,7 @@
               "error": {
                 "code": "NOT_FOUND",
                 "message": "Merchant was not found.",
-                "messageKey": "errors.notFound",
+                "messageKey": "errors.not_found",
                 "retryable": false,
                 "requestId": "demo-req-0006",
                 "fields": []
@@ -34633,7 +34633,7 @@
               "error": {
                 "code": "NOT_FOUND",
                 "message": "Merchant was not found.",
-                "messageKey": "errors.notFound",
+                "messageKey": "errors.not_found",
                 "retryable": false,
                 "requestId": "demo-req-0007",
                 "fields": []
@@ -34817,7 +34817,7 @@
               "error": {
                 "code": "VALIDATION_FAILED",
                 "message": "Contract details are invalid.",
-                "messageKey": "errors.validationFailed",
+                "messageKey": "errors.validation_failed",
                 "retryable": false,
                 "requestId": "demo-req-0009",
                 "fields": []
@@ -34902,7 +34902,7 @@
               "error": {
                 "code": "NOT_FOUND",
                 "message": "Contract was not found.",
-                "messageKey": "errors.notFound",
+                "messageKey": "errors.not_found",
                 "retryable": false,
                 "requestId": "demo-req-0010",
                 "fields": []
@@ -35064,7 +35064,7 @@
               "error": {
                 "code": "NOT_FOUND",
                 "message": "User was not found.",
-                "messageKey": "errors.notFound",
+                "messageKey": "errors.not_found",
                 "retryable": false,
                 "requestId": "demo-req-0012",
                 "fields": []
