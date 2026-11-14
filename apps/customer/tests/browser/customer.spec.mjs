@@ -21,7 +21,7 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await expect(page.getByTestId('customer-home-runtime-mode')).toContainText('H5');
   await expect(page.getByTestId('customer-home-brand-mark')).toBeVisible();
   await expect(page.getByTestId('customer-home-brand-mark').locator('path')).toHaveAttribute('d', 'M16 53 V13 A4 4 0 0 1 20 9 H38 A13 13 0 0 1 51 22 A13 13 0 0 1 38 35 H26 L44 53');
-  await expect(page.getByText('ការផ្ញើនឹងមកដល់ឆាប់ៗ')).toBeVisible();
+  await expect(page.getByTestId('customer-home-title')).toContainText('ទំព័រដើម');
   await expect(page.getByTestId('customer-home-route-diagram')).toHaveCount(1);
   await expect(page.getByTestId('customer-home-startup-ad')).toBeVisible();
   await expect(page.getByTestId('customer-home-startup-ad-card')).toBeVisible();
@@ -31,6 +31,9 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await expect(page.getByTestId('customer-home-promotion-card')).toBeVisible();
   await expect(page.getByTestId('customer-home-promotion')).toHaveCSS('background-color', 'rgba(11, 37, 69, 0.42)');
   await page.getByTestId('customer-home-promotion-dismiss').click();
+
+  await expect(page.getByTestId('customer-home-quick-actions')).toBeVisible();
+  await expect(page.getByTestId('customer-home-recent-deliveries')).toBeVisible();
 
   for (const tab of ['send', 'orders', 'messages', 'profile']) {
     await page.getByTestId(`customer-home-tab-${tab}`).click();
@@ -50,6 +53,14 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await expect(page.getByTestId('customer-send-destination')).toBeVisible();
   await expect(page.getByTestId('customer-send-item')).toBeVisible();
   await expect(page.getByTestId('customer-send-vehicle')).toBeVisible();
+  await expect(page.getByTestId('customer-send-sender-address')).toBeVisible();
+  await expect(page.getByTestId('customer-send-recipient-actions')).toBeVisible();
+  await expect(page.getByTestId('customer-send-pickup-slot')).toBeVisible();
+  await expect(page.getByTestId('customer-send-weight-tier')).toBeVisible();
+  await expect(page.getByTestId('customer-send-insurance')).toBeVisible();
+  await expect(page.getByTestId('customer-send-fee-payer')).toBeVisible();
+  await expect(page.getByTestId('customer-send-driver-note')).toBeVisible();
+  await expect(page.getByTestId('customer-send-service-agreement')).toBeVisible();
   await page.getByTestId('customer-send-bulk-select').click();
   await page.getByTestId('customer-send-pickup').fill('Example pickup');
   await page.getByTestId('customer-send-recipient').fill('Example recipient');
@@ -60,6 +71,7 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await page.getByTestId('customer-ship-submit').click();
   await expect(page.getByTestId('customer-send-quote')).toContainText('8.5000 USD');
   await expect(page.getByTestId('customer-send-quote')).toContainText('Example vehicle');
+  await expect(page.getByTestId('customer-send-quote')).toContainText('Example');
   await page.getByTestId('customer-quote-confirm').click();
   await expect(page.getByTestId('customer-payment-confirmation')).toBeVisible();
   await page.getByTestId('customer-payment-cancel').click();
@@ -82,6 +94,17 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
 
   await page.getByTestId('customer-home-tab-orders').click();
   await expect(page.getByTestId('customer-orders-example-EXAMPLE-CUSTOMER-001')).toContainText('EXAMPLE-CUSTOMER-001');
+  await expect(page.getByTestId('customer-orders-list')).toBeVisible();
+  await expect(page.getByTestId('customer-orders-filters')).toBeVisible();
+  await expect(page.getByTestId('customer-orders-filter-all')).toHaveText('All');
+  await expect(page.getByTestId('customer-orders-filter-pending')).toHaveText('Awaiting payment');
+  await expect(page.getByTestId('customer-orders-filter-in-transit')).toHaveText('In transit');
+  await expect(page.getByTestId('customer-orders-filter-delivered')).toHaveText('Delivered');
+  await expect(page.getByTestId('customer-orders-filter-exception')).toHaveText('Exception');
+  await expect(page.getByTestId('customer-orders-route-EXAMPLE-CUSTOMER-001')).toBeVisible();
+  await expect(page.getByTestId('customer-orders-resend-EXAMPLE-CUSTOMER-001')).toHaveText('Send again');
+  await page.getByTestId('customer-orders-resend-EXAMPLE-CUSTOMER-001').click();
+  await expect(page.getByTestId('customer-send-pickup')).toBeVisible();
   await page.getByTestId('customer-home-tab-messages').click();
   await expect(page.getByTestId('customer-messages-example')).toContainText('A driver has been assigned to your example order.');
 
@@ -93,7 +116,7 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
 
   await page.getByTestId('customer-home-track-link').click();
   await expect(page).toHaveURL(/\/track$/);
-  await expect(page.getByText('查件功能即将开放')).toBeVisible();
+  await expect(page.getByTestId('customer-track-recipient-example')).toBeVisible();
 });
 
 test('does not render a clickable element for an executable advertisement target', async ({ page }) => {
