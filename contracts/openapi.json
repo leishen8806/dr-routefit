@@ -15438,7 +15438,7 @@
       "get": {
         "operationId": "driverOrder",
         "summary": "本人任务所需交接资料",
-        "description": "仅当前任务必要客户联系/件级信息，任务结束按留存策略裁剪；不返回财务采购成本。",
+        "description": "仅当前任务必要客户联系/件级信息。仅已指派且正在执行 in_transit 交付的本人可获完整号码；送达、取消、状态或归属无法确认时仅返回后四位掩码；未指派司机返回404。OpenAPI 仅声明两种服务端投影均合法，状态条件由服务端强制。",
         "tags": [
           "driver"
         ],
@@ -15485,7 +15485,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CustomerOrderDetail"
+                  "$ref": "#/components/schemas/DriverOrderDetail"
                 }
               }
             }
@@ -41008,6 +41008,49 @@
           }
         ]
       },
+      "DriverLocation": {
+        "type": "object",
+        "description": "Driver order contact projection; the server returns a full E.164 phone only for the assigned driver during in-transit delivery, otherwise it returns a last-four mask.",
+        "additionalProperties": false,
+        "properties": {
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "contactName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^(?:\\+[1-9][0-9]{7,14}|\\*{7}[0-9]{4})$",
+            "description": "Server-projected: full E.164 only for the assigned driver while assignment is accepted and the order is executing/in_transit; after delivery or cancellation, and whenever state or ownership cannot be established, return ******* plus the final four digits."
+          },
+          "point": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Point"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "landmark": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "address",
+          "contactName",
+          "phone",
+          "point"
+        ]
+      },
       "CargoItem": {
         "type": "object",
         "description": "逐包装件；尺寸为包装后实测；缺失尺寸不得自动放行",
@@ -42483,6 +42526,56 @@
             ],
             "quoteId": "demo-001"
           }
+        ]
+      },
+      "DriverOrderDetail": {
+        "type": "object",
+        "description": "Driver order detail. Contact phone values are server-projected according to assignment ownership and delivery lifecycle; the schema permits both valid projections because OpenAPI cannot encode the runtime state condition.",
+        "additionalProperties": false,
+        "properties": {
+          "order": {
+            "$ref": "#/components/schemas/OrderSummary"
+          },
+          "pickup": {
+            "$ref": "#/components/schemas/DriverLocation"
+          },
+          "delivery": {
+            "$ref": "#/components/schemas/DriverLocation"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItem"
+            },
+            "minItems": 1,
+            "maxItems": 200
+          },
+          "evidenceFileIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "quoteId": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "order",
+          "pickup",
+          "delivery",
+          "items",
+          "evidenceFileIds",
+          "quoteId"
         ]
       },
       "TimelineEvent": {

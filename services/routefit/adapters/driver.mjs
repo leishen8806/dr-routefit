@@ -9,6 +9,7 @@ import {writeException} from './exceptions.mjs';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const cursorKey=randomBytes(32),sign=value=>createHmac('sha256',cursorKey).update(value).digest('base64url');
 const view=row=>({id:row.id,version:Number(row.version),orderId:row.order_id,vehicleId:row.vehicle_id,driverId:row.driver_id,state:row.state,expiresAt:new Date(row.expires_at).toISOString(),planVersion:Number(row.plan_version)});
+const maskedPhone=phone=>`*******${String(phone??'').replace(/\D/g,'').slice(-4)}`;
 export async function driverIdentity(client,principal){const row=(await client.query("SELECT kind,person_id FROM org.principal WHERE company_id=$1 AND id=$2 AND status='ACTIVE'",[principal.companyId,principal.principalId])).rows[0];ensure(row&&['DRIVER','PARTNER_DRIVER'].includes(row.kind)&&row.person_id,403,'DRIVER_IDENTITY_REQUIRED','当前会话不是有效司机身份');return row;}
 const driver=driverIdentity;
 export async function authorizeDriverEvidence(client,principal,type,id){
@@ -139,7 +140,7 @@ export async function readDriver(client,principal,kind,id,query){
   const items=[];for(const row of rows){let transfer=items.at(-1);if(!transfer||transfer.id!==row.id){transfer={id:row.id,version:Number(row.version),status:row.state,items:[],initiatedAt:new Date(row.created_at).toISOString()};items.push(transfer);}transfer.items.push({itemId:row.item_id,packageIds:row.package_ids});}return {items};
  }
  if(kind==='departure-readiness'){const current=await record(client,principal,id);const {ready,reasons}=await departureReadiness(client,principal,current);return {ready,reasons};}
- ensure(kind==='order'&&uuid.test(id),404,'NOT_FOUND','资源不存在');const allowed=(await client.query("SELECT 1 FROM dispatch.assignment WHERE company_id=$1 AND driver_id=$2 AND order_id=$3 AND state IN ('offered','accepted')",[principal.companyId,principal.principalId,id])).rowCount;ensure(allowed,404,'NOT_FOUND','资源不存在');const order=await getOrder(client,principal,id);return {order:order.order,pickup:order.pickup,delivery:order.delivery,items:order.items,evidenceFileIds:[],quoteId:order.quoteId};
+ ensure(kind==='order'&&uuid.test(id),404,'NOT_FOUND','资源不存在');const assignment=(await client.query('SELECT state FROM dispatch.assignment WHERE company_id=$1 AND driver_id=$2 AND order_id=$3 ORDER BY updated_at DESC,id DESC LIMIT 1',[principal.companyId,principal.principalId,id])).rows[0];ensure(assignment,404,'NOT_FOUND','资源不存在');const order=await getOrder(client,principal,id),inTransit=assignment.state==='accepted'&&order.order.state==='executing'&&order.order.fulfillmentStage==='in_transit',phone=contact=>inTransit?contact:maskedPhone(contact);return {order:order.order,pickup:{...order.pickup,phone:phone(order.pickup.phone)},delivery:{...order.delivery,phone:phone(order.delivery.phone)},items:order.items,evidenceFileIds:[],quoteId:order.quoteId};
 }
 export async function writeDriver(client,principal,kind,id,input,version){
  await driver(client,principal);const current=await record(client,principal,id,true);ensure(Number(current.version)===version,412,'VERSION_CONFLICT','指派已变化，请重新查询');

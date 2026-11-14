@@ -2,7 +2,7 @@
   "module": "backend2-driver-contact-cash",
   "owner": "Backend2",
   "source": "CMP-1442",
-  "pathDecision": "Existing driver read and cash-report paths are recorded without renaming; client projections receive a fixed last-four phone mask and cash inputs are checked against server ledger facts.",
+  "pathDecision": "Existing driver read and cash-report paths are recorded without renaming; driver contact projection follows the assigned order lifecycle while cash inputs are checked against server ledger facts.",
   "paths": {},
   "x-recorded-operations": [
     {
@@ -15,7 +15,7 @@
       "x-implementation-status": "LOCAL_IMPLEMENTED_NOT_DEPLOYED",
       "x-version-resource": "read only",
       "x-owner": "Backend2",
-      "x-contact-projection": "pickup.phone and delivery.phone are server-projected as ******* plus the final four digits; full numbers are never returned to the driver client.",
+      "x-contact-projection": "pickup.phone and delivery.phone are server-projected: only the assigned driver while assignment.state=accepted and order.state=executing with fulfillmentStage=in_transit receives the complete number; after delivery or cancellation, or for every other client surface, the server returns ******* plus the final four digits. An unassigned driver receives NOT_FOUND.",
       "x-examples": {
         "success": {"status": 200, "body": {"pickup": {"phone": "*******5678"}, "delivery": {"phone": "*******4321"}}},
         "rejected": {"status": 404, "code": "NOT_FOUND"}
