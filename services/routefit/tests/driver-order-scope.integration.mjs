@@ -52,6 +52,7 @@ test('driver order RLS keeps only actually assigned drivers visible',async t=>{
   for(const state of ['offered','accepted','completed'])await t.test(`AC-3 driver assigned in ${state} reads the order`,async()=>{await setState(state);assert.equal((await rowsFor(fixture.driver.principalId)).rowCount,1);});
   for(const state of ['rejected','expired','revoked','superseded'])await t.test(`AC-3 driver assigned in ${state} cannot read the order`,async()=>{await setState(state);assert.equal((await rowsFor(fixture.driver.principalId)).rowCount,0);});
   await t.test('AC-4 another driver without an assignment cannot read the order',async()=>{await setState('completed');assert.equal((await rowsFor(otherDriverId)).rowCount,0);});
+  await t.test('AC-5 an accepted driver can update the order',async()=>{await setState('accepted');assert.equal((await asDriver(fixture.driver.principalId,client=>client.query('UPDATE orders.draft SET updated_at=clock_timestamp() WHERE company_id=$1 AND id=$2',[companyId,scenario.scenario.orderId]))).rowCount,1);});
   await t.test('AC-5 a completed driver cannot update the order',async()=>{await setState('completed');await assert.rejects(asDriver(fixture.driver.principalId,client=>client.query('UPDATE orders.draft SET updated_at=clock_timestamp() WHERE company_id=$1 AND id=$2',[companyId,scenario.scenario.orderId])),error=>error.code==='42501');});
   await t.test('AC-6 removing the driver identity predicate exposes the order, and restoring it hides it',async()=>{
    const policy=await (await import('node:fs/promises')).readFile(new URL('../db/migrations/070_orders_draft_driver_assignment_visibility.sql',import.meta.url),'utf8');
@@ -62,5 +63,13 @@ test('driver order RLS keeps only actually assigned drivers visible',async t=>{
    assert.equal((await rowsFor(otherDriverId)).rowCount,0,'restored policy must hide the order from the unassigned driver');
   });
   await t.test('AC-7 an unset app.principal_id cannot read the order',async()=>{await setState('completed');assert.equal((await rowsFor(null)).rowCount,0);});
+  await t.test('AC-8 adding revoked back to the policy exposes the order, and restoring it hides the order',async()=>{
+   await setState('revoked');
+   const policy=await (await import('node:fs/promises')).readFile(new URL('../db/migrations/070_orders_draft_driver_assignment_visibility.sql',import.meta.url),'utf8');
+   const allowed="a.state IN ('offered','accepted','completed')",mutated=policy.replace(allowed,"a.state IN ('offered','accepted','completed','revoked')");assert.notEqual(mutated,policy,'mutation must add revoked to the allowed states');
+   try{await fixture.owner.query(mutated);assert.equal((await rowsFor(fixture.driver.principalId)).rowCount,1,'adding revoked must expose the order to its former driver');}
+   finally{await fixture.owner.query(policy);}
+   assert.equal((await rowsFor(fixture.driver.principalId)).rowCount,0,'restored policy must hide the revoked assignment from its former driver');
+  });
  }finally{await runtime?.end();await scenario?.cleanup();await fixture.cleanup();}
 });
