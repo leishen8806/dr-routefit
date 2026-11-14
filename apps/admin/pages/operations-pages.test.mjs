@@ -209,6 +209,13 @@ test('order view follows the demo with status filters, eight order columns, and 
   assert.match(markup, /查看订单详情/);
 });
 
+test('native order list renders its state as a visible status tag', async () => {
+  const nativePageSource = await readFile(new URL('./OperationsPage.tsx', import.meta.url), 'utf8');
+
+  assert.match(nativePageSource, /columnIndex === 3 && styles\.statusTag/);
+  assert.match(nativePageSource, /statusTag: \{/);
+});
+
 test('native drawer declares web dialog and modal semantics', async () => {
   const nativePageSource = await readFile(new URL('./OperationsPage.tsx', import.meta.url), 'utf8');
   const drawerView = nativePageSource.match(/<View role="dialog"[^>]+>/)?.[0] ?? '';

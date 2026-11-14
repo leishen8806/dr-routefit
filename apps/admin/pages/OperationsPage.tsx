@@ -40,7 +40,7 @@ export function OperationsPage({ pageId, configuredPages }: OperationsPageProps)
       </View>}
       <View style={styles.table} accessibilityRole="summary">
         <View style={[styles.row, styles.header]}>{page.columns.map((column: string) => <Text key={column} style={styles.headerText}>{column}</Text>)}</View>
-        {visibleRows.map(({ row, index }: { row: string[]; index: number }) => <Pressable key={`${page.id}-${index}`} accessibilityLabel={`${page.action}：${row[0]}`} accessibilityRole="button" onPress={() => setSelectedIndex(index)} style={styles.row}>{row.map((value: string, columnIndex: number) => <Text key={`${columnIndex}-${value}`} style={styles.cell}>{value}</Text>)}</Pressable>)}
+        {visibleRows.map(({ row, index }: { row: string[]; index: number }) => <Pressable key={`${page.id}-${index}`} accessibilityLabel={`${page.action}：${row[0]}`} accessibilityRole="button" onPress={() => setSelectedIndex(index)} style={styles.row}>{row.map((value: string, columnIndex: number) => <Text key={`${columnIndex}-${value}`} style={[styles.cell, isOrders && columnIndex === 3 && styles.statusTag]}>{value}</Text>)}</Pressable>)}
       </View>
       {hasRejectedRows && <Text accessibilityRole="alert" style={styles.unavailable}>部分配置记录暂不可用，已从列表中隐藏。</Text>}
       <Text style={styles.note}>以下均为示例数据；订单号、金额与时间均为示例，当前页面操作均为纯前端。</Text>
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
   filterSelected: { backgroundColor: designTokens.color.navy, borderColor: designTokens.color.navy },
   filterText: { color: designTokens.color.navy, fontSize: 13, fontWeight: '600' },
   filterTextSelected: { color: designTokens.color.surface },
+  statusTag: { alignSelf: 'flex-start', backgroundColor: designTokens.color.background, borderColor: designTokens.color.muted, borderRadius: 999, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 2 },
   row: { backgroundColor: designTokens.color.surface, flexDirection: 'row', flexWrap: 'wrap', gap: 12, padding: 12 },
   header: { backgroundColor: designTokens.color.background },
   headerText: { color: designTokens.color.navy, flexGrow: 1, fontSize: 14, fontWeight: '600', minWidth: 108 },
