@@ -1,8 +1,8 @@
 [
   {
-    "from": 65,
+    "from": 70,
     "to": 75,
-    "reason": "Allocated to unmerged feature branches (Backend1 064-069, Backend2 070-075 per board allocation); remove a number from this list when its migration merges into develop.",
+    "reason": "Allocated to unmerged Backend2 070-075 migrations per board allocation; remove a number from this list when its migration merges into develop.",
     "approvedBy": "CMP-1569"
   },
   {
