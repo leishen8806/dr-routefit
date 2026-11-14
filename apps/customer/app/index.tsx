@@ -11,6 +11,7 @@ import { createDemoCustomerFlow } from '../src/customerFlow.mjs';
 import { promotionNavigationTarget, safeNavigationTarget } from '../src/renderSafety.mjs';
 
 type Tab = 'send' | 'orders' | 'messages' | 'profile';
+type Page = 'home' | Tab;
 
 const tabs: readonly { key: Tab; label: CopyKey }[] = [
   { key: 'send', label: 'send' },
@@ -47,8 +48,11 @@ function TabIcon({ tab, selected }: { tab: Tab; selected: boolean }) {
 }
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<Tab>('send');
+  const [activeTab, setActiveTab] = useState<Page>('home');
   const [sendMode, setSendMode] = useState<'single' | 'bulk'>('single');
+  const [shipmentMethod, setShipmentMethod] = useState<'warehouse' | 'pickup'>('warehouse');
+  const [deliveryTime, setDeliveryTime] = useState<'today' | 'tomorrow'>('today');
+  const [goodsType, setGoodsType] = useState<CopyKey>('dailyGoods');
   const [paymentConfirmationOpen, setPaymentConfirmationOpen] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const [codDeclared, setCodDeclared] = useState(false);
@@ -71,7 +75,7 @@ export default function HomePage() {
   const messages = experience.listMessages();
   const profile = experience.getProfileSummary();
   const compact = width < 720;
-  const activeCopy = emptyCopy[activeTab];
+  const activeCopy = activeTab === 'home' ? { title: 'homeTitle' as const, body: 'intro' as const } : emptyCopy[activeTab];
   const face = { fontFamily: fontFamily[language] };
   const advertisementTargets = Array.isArray(advertTarget) ? advertTarget : advertTarget ? [advertTarget] : [];
   const unsafeAdvertisement = advertisementTargets.some((target) => promotionNavigationTarget({ target }) === null);
@@ -166,10 +170,67 @@ export default function HomePage() {
 
         <View accessibilityLiveRegion="polite" style={[styles.emptyPanel, { backgroundColor: runtime.surfaceColor }]} testID="customer-home-content-panel">
           <View style={styles.emptyRule} />
+          {activeTab === 'home' ? (
+            <>
+              <View style={styles.homeActions} testID="customer-home-quick-actions">
+                <Pressable onPress={() => setActiveTab('send')} style={[styles.homeAction, styles.homeActionPrimary]} testID="customer-home-send-action">
+                  <Text style={[styles.homeActionTitle, face]}>{t('quickSend')}</Text>
+                  <Text style={[styles.homeActionHint, face]}>{t('quickSendHint')}</Text>
+                </Pressable>
+                <Pressable onPress={() => setSendMode('bulk')} style={styles.homeAction} testID="customer-home-batch-action">
+                  <Text style={[styles.homeActionTitle, face]}>{t('quickBatch')}</Text>
+                  <Text style={[styles.homeActionHint, face]}>{t('quickBatchHint')}</Text>
+                </Pressable>
+              </View>
+              <View style={styles.quickGrid}>
+                {(['quickFee', 'quickAddressBook', 'quickCod', 'quickSupport'] as const).map((key) => (
+                  <Pressable key={key} style={styles.quickButton} testID={`customer-home-${key}`}>
+                    <Text style={[styles.quickButtonText, face]}>{t(key)}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <View style={styles.recentCard} testID="customer-home-recent-deliveries">
+                <View style={styles.recentHeader}>
+                  <Text style={[styles.recentTitle, face]}>{t('recentDeliveries')}</Text>
+                  <Pressable onPress={() => setActiveTab('orders')} testID="customer-home-view-all"><Text style={[styles.trackLink, face]}>{t('viewAll')}</Text></Pressable>
+                </View>
+                {orders.slice(0, 3).map((entry) => (
+                  <Link href={trackTarget ?? '/track'} key={entry.id} style={styles.recentOrder} testID={`customer-home-recent-${entry.id}`}>
+                    <Text style={[styles.detailHint, face]}>{entry.id}</Text>
+                    <Text style={[styles.detailStatus, face]}>{t('orderStatus')}</Text>
+                    <Text style={[styles.detailHint, face]}>{t('demoOrderEvent')}</Text>
+                  </Link>
+                ))}
+              </View>
+            </>
+          ) : null}
           <Text style={[styles.emptyTitle, face]}>{t(activeTab === 'orders' ? 'orderExampleTitle' : activeTab === 'messages' ? 'messageExampleTitle' : activeTab === 'profile' ? 'profileExampleTitle' : activeCopy.title)}</Text>
           <Text style={[styles.emptyBody, face]}>{activeTab === 'send' ? t(activeCopy.body) : t('noRealData')}</Text>
           {activeTab === 'send' ? (
             <>
+              <View style={styles.sendSection}>
+                <Text style={[styles.inputLabel, face]}>{t('recipientInfo')}</Text>
+                <Text style={[styles.detailHint, face]}>{t('example')}</Text>
+              </View>
+              <View style={styles.sendSection}>
+                <Text style={[styles.inputLabel, face]}>{t('shipmentMethod')}</Text>
+                <View style={styles.choiceRow}>
+                  {(['warehouse', 'pickup'] as const).map((method) => <Pressable key={method} onPress={() => setShipmentMethod(method)} style={[styles.choiceButton, shipmentMethod === method && styles.choiceButtonActive]} testID={`customer-send-method-${method}`}><Text style={[styles.choiceText, face, shipmentMethod === method && styles.choiceTextActive]}>{t(method === 'warehouse' ? 'warehouseSend' : 'doorPickup')}</Text></Pressable>)}
+                </View>
+              </View>
+              <View style={styles.sendSection}>
+                <Text style={[styles.inputLabel, face]}>{t('deliveryTime')}</Text>
+                <View style={styles.choiceRow}>
+                  {(['today', 'tomorrow'] as const).map((time) => <Pressable key={time} onPress={() => setDeliveryTime(time)} style={[styles.choiceButton, deliveryTime === time && styles.choiceButtonActive]} testID={`customer-send-time-${time}`}><Text style={[styles.choiceText, face, deliveryTime === time && styles.choiceTextActive]}>{t(time === 'today' ? 'todayDelivery' : 'tomorrowDelivery')}</Text></Pressable>)}
+                </View>
+              </View>
+              <View style={styles.sendSection}>
+                <Text style={[styles.inputLabel, face]}>{t('goodsType')}</Text>
+                <View style={styles.choiceRow}>{(['dailyGoods', 'clothing', 'food', 'medicine', 'digitalGoods', 'documents'] as const).map((kind) => <Pressable key={kind} onPress={() => setGoodsType(kind)} style={[styles.choiceButton, goodsType === kind && styles.choiceButtonActive]}><Text style={[styles.choiceText, face, goodsType === kind && styles.choiceTextActive]}>{t(kind)}</Text></Pressable>)}</View>
+              </View>
+              <View style={styles.sendSection}>
+                <Text style={[styles.inputLabel, face]}>{t('weight')}</Text><Text style={[styles.detailHint, face]}>{t('lockedPrice')} · {t('example')}</Text>
+              </View>
               <View style={styles.choiceRow}>
                 {(['single', 'bulk'] as const).map((mode) => (
                   <Pressable key={mode} onPress={() => setSendMode(mode)} style={[styles.choiceButton, sendMode === mode && styles.choiceButtonActive]} testID={mode === 'single' ? 'customer-send-single-select' : 'customer-send-bulk-select'}>
@@ -179,8 +240,8 @@ export default function HomePage() {
               </View>
               {(['pickup', 'recipient', 'destination', 'item', 'vehicle'] as const).map((field) => <View key={field} style={styles.inputGroup}><Text style={[styles.inputLabel, face]}>{t(field)}</Text><TextInput accessibilityLabel={t(field)} onChangeText={(value) => setForm((current) => ({ ...current, [field]: value }))} placeholder={t('example')} style={[styles.input, face]} testID={`customer-send-${field}`} value={form[field]} /></View>)}
               <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: codDeclared }} onPress={() => setCodDeclared((current) => !current)} style={styles.choiceButton} testID="customer-send-cod-declare"><Text style={[styles.choiceText, face]}>{t('cod')}</Text></Pressable>
-              <Pressable accessibilityRole="button" onPress={() => setDraft(customerFlow.createDraft({ pickup: form.pickup, recipient: form.recipient, destination: form.destination, item: form.item, vehicle: form.vehicle, codAmountMinor: codDeclared ? overview.order.cod.amountMinor : 0n }))} style={styles.confirmButton} testID="customer-ship-submit"><Text style={[styles.confirmText, face]}>{t('confirm')}</Text></Pressable>
-              {draft ? <View style={styles.flowSummary} testID="customer-send-quote"><Text style={[styles.flowText, face]}>{demoConfiguration.quote.displayAmount}</Text><Text style={[styles.flowText, face]}>{demoConfiguration.quote.vehicleLabel}</Text><Text style={[styles.flowText, face]}>{t('example')}</Text></View> : null}
+              <Pressable accessibilityRole="button" onPress={() => setDraft(customerFlow.createDraft({ pickup: form.pickup, recipient: form.recipient, destination: form.destination, item: form.item, vehicle: form.vehicle, codAmountMinor: codDeclared ? overview.order.cod.amountMinor : 0n }))} style={styles.confirmButton} testID="customer-ship-submit"><Text style={[styles.confirmText, face]}>{t('submitOrder')}</Text></Pressable>
+              {draft ? <View style={styles.flowSummary} testID="customer-send-quote"><Text style={[styles.flowText, face]}>{t('quote')}</Text><Text style={[styles.flowText, face]}>{demoConfiguration.quote.displayAmount}</Text><Text style={[styles.flowText, face]}>{demoConfiguration.quote.vehicleLabel}</Text><Text style={[styles.flowText, face]}>{t('example')}</Text><Text style={[styles.detailHint, face]}>{t('quoteValid')}</Text></View> : null}
               <Pressable accessibilityRole="button" onPress={openExamplePaymentConfirmation} style={styles.flowSummary} testID="customer-quote-confirm">
                 <Text style={[styles.flowText, face]}>{t('quote')}</Text>
                 <Text style={[styles.flowText, face]}>{t('payment')}</Text>
@@ -192,16 +253,18 @@ export default function HomePage() {
             </>
           ) : null}
           {activeTab === 'orders' ? (
-            <View style={styles.detailCard} testID="customer-orders-example-detail">
+            <View style={styles.detailCard} testID="customer-orders-list">
+              <View testID="customer-orders-example-detail">
               <View style={styles.exampleBadge}><Text style={[styles.exampleBadgeText, face]}>{t('example')}</Text></View>
               <Text style={[styles.detailTitle, face]}>{t('orderDetail')}</Text>
               <Text style={[styles.detailStatus, face]}>{t('orderStatus')}</Text>
               {orders.map((entry) => (
-                <View key={entry.id} style={styles.orderRow} testID={`customer-orders-example-${entry.id}`}>
+                <Link href={trackTarget ?? '/track'} key={entry.id} style={styles.orderRow} testID={`customer-orders-example-${entry.id}`}>
                   <Text style={[styles.detailHint, face]}>{entry.id}</Text>
                   <Text style={[styles.detailHint, face]}>{t('orderExampleTitle')}</Text>
                   <Text style={[styles.detailHint, face]}>{t('orderStatus')}</Text>
-                </View>
+                  <Text style={[styles.trackLink, face]}>{t('viewDetails')}</Text>
+                </Link>
               ))}
               <View style={styles.flowSummary}>
                 <Text style={[styles.flowText, face]}>{t('quote')}</Text>
@@ -214,6 +277,7 @@ export default function HomePage() {
                   {orderTimeline.stops.map((stop) => <View key={stop.state} style={[styles.orderTimelineStop, stop.active && styles.orderTimelineStopActive]} />)}
                 </View>
               ) : null}
+              </View>
             </View>
           ) : null}
           {activeTab === 'messages' ? (
@@ -326,6 +390,19 @@ const styles = StyleSheet.create({
   emptyRule: { backgroundColor: designTokens.color.amber, height: 3, marginBottom: designTokens.space.x6, width: 48 },
   emptyTitle: { color: designTokens.color.ink, fontSize: 22, fontWeight: '600', lineHeight: 32 },
   emptyBody: { color: designTokens.color.muted, fontSize: 16, lineHeight: 27, marginTop: designTokens.space.x2, maxWidth: 600 },
+  homeActions: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3 },
+  homeAction: { backgroundColor: '#F8FAFC', borderColor: designTokens.color.line, borderRadius: designTokens.radius.medium, borderWidth: 1, flex: 1, minWidth: 190, padding: designTokens.space.x4 },
+  homeActionPrimary: { backgroundColor: '#E9F7F3', borderColor: designTokens.color.teal },
+  homeActionTitle: { color: designTokens.color.navy, fontSize: 18, fontWeight: '600', lineHeight: 26 },
+  homeActionHint: { color: designTokens.color.muted, fontSize: 13, lineHeight: 20, marginTop: designTokens.space.x2 },
+  quickGrid: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.medium, borderWidth: 1, flexDirection: 'row', flexWrap: 'wrap', marginTop: designTokens.space.x4, overflow: 'hidden' },
+  quickButton: { alignItems: 'center', borderColor: designTokens.color.line, borderRightWidth: 1, borderTopWidth: 1, flexGrow: 1, minHeight: 64, justifyContent: 'center', minWidth: 130, padding: designTokens.space.x3 },
+  quickButtonText: { color: designTokens.color.navy, fontSize: 14, fontWeight: '500', textAlign: 'center' },
+  recentCard: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.medium, borderWidth: 1, marginTop: designTokens.space.x4, overflow: 'hidden' },
+  recentHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: designTokens.space.x4, paddingTop: designTokens.space.x3 },
+  recentTitle: { color: designTokens.color.ink, fontSize: 17, fontWeight: '600' },
+  recentOrder: { borderColor: designTokens.color.line, borderTopWidth: 1, gap: 2, padding: designTokens.space.x4 },
+  sendSection: { borderColor: designTokens.color.line, borderTopWidth: 1, marginTop: designTokens.space.x6, paddingTop: designTokens.space.x4 },
   choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: designTokens.space.x3, marginTop: designTokens.space.x6 },
   choiceButton: { borderColor: designTokens.color.line, borderRadius: designTokens.radius.small, borderWidth: 1, justifyContent: 'center', minHeight: 44, paddingHorizontal: designTokens.space.x4 },
   choiceButtonActive: { backgroundColor: '#E9F7F3', borderColor: designTokens.color.teal },

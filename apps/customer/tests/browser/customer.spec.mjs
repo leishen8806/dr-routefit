@@ -32,6 +32,9 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await expect(page.getByTestId('customer-home-promotion')).toHaveCSS('background-color', 'rgba(11, 37, 69, 0.42)');
   await page.getByTestId('customer-home-promotion-dismiss').click();
 
+  await expect(page.getByTestId('customer-home-quick-actions')).toBeVisible();
+  await expect(page.getByTestId('customer-home-recent-deliveries')).toBeVisible();
+
   for (const tab of ['send', 'orders', 'messages', 'profile']) {
     await page.getByTestId(`customer-home-tab-${tab}`).click();
     await page.getByTestId('customer-home-content-panel').scrollIntoViewIfNeeded();
@@ -60,6 +63,7 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
   await page.getByTestId('customer-ship-submit').click();
   await expect(page.getByTestId('customer-send-quote')).toContainText('8.5000 USD');
   await expect(page.getByTestId('customer-send-quote')).toContainText('Example vehicle');
+  await expect(page.getByTestId('customer-send-quote')).toContainText('Example');
   await page.getByTestId('customer-quote-confirm').click();
   await expect(page.getByTestId('customer-payment-confirmation')).toBeVisible();
   await page.getByTestId('customer-payment-cancel').click();
@@ -82,6 +86,7 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
 
   await page.getByTestId('customer-home-tab-orders').click();
   await expect(page.getByTestId('customer-orders-example-EXAMPLE-CUSTOMER-001')).toContainText('EXAMPLE-CUSTOMER-001');
+  await expect(page.getByTestId('customer-orders-list')).toBeVisible();
   await page.getByTestId('customer-home-tab-messages').click();
   await expect(page.getByTestId('customer-messages-example')).toContainText('A driver has been assigned to your example order.');
 
@@ -93,7 +98,7 @@ test('H5 mode supports three languages and all four tabs', async ({ page }) => {
 
   await page.getByTestId('customer-home-track-link').click();
   await expect(page).toHaveURL(/\/track$/);
-  await expect(page.getByText('查件功能即将开放')).toBeVisible();
+  await expect(page.getByTestId('customer-track-recipient-example')).toBeVisible();
 });
 
 test('does not render a clickable element for an executable advertisement target', async ({ page }) => {
