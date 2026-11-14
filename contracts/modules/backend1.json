@@ -3228,10 +3228,13 @@
       "x-permissions": ["drivers:application:review"],
       "x-stage": "R2",
       "x-baseline-tier": "A",
-      "x-implementation-status": "CONTRACT_READY",
+      "x-implementation-status": "PLANNED",
       "x-version-resource": "none",
       "x-owner": "Backend1",
-      "x-examples": {"success": {"status": 200}, "rejected": {"status": 403, "code": "FORBIDDEN"}}
+      "x-examples": {
+        "success": {"status": 200, "body": {"items": [], "nextCursor": null}},
+        "rejected": {"status": 403, "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0041", "fields": []}}}
+      }
     },
     {
       "operationId": "driverAssignmentLoadScanCreate",
@@ -3240,10 +3243,13 @@
       "x-permissions": ["driver:tasks:execute"],
       "x-stage": "R2",
       "x-baseline-tier": "A",
-      "x-implementation-status": "CONTRACT_READY",
+      "x-implementation-status": "PLANNED",
       "x-version-resource": "none",
       "x-owner": "Backend1",
-      "x-examples": {"success": {"status": 201}, "rejected": {"status": 403, "code": "FORBIDDEN"}}
+      "x-examples": {
+        "success": {"status": 201, "body": {"id": "demo-load-scan-0001", "version": 1}},
+        "rejected": {"status": 403, "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0042", "fields": []}}}
+      }
     },
     {
       "operationId": "driverDeliveryAttemptCreate",
@@ -3252,10 +3258,13 @@
       "x-permissions": ["driver:delivery:record"],
       "x-stage": "R2",
       "x-baseline-tier": "A",
-      "x-implementation-status": "CONTRACT_READY",
+      "x-implementation-status": "PLANNED",
       "x-version-resource": "none",
       "x-owner": "Backend1",
-      "x-examples": {"success": {"status": 201}, "rejected": {"status": 403, "code": "FORBIDDEN"}}
+      "x-examples": {
+        "success": {"status": 201, "body": {"id": "demo-delivery-attempt-0001", "version": 1}},
+        "rejected": {"status": 403, "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0043", "fields": []}}}
+      }
     }
   ],
   "operations": [

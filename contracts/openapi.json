@@ -16776,7 +16776,7 @@
           }
         },
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-owner": "Backend1"
       }
     },
@@ -17118,7 +17118,7 @@
           }
         },
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-owner": "Backend1"
       }
     },
@@ -17174,7 +17174,7 @@
           }
         },
         "x-baseline-tier": "A",
-        "x-implementation-status": "CONTRACT_READY",
+        "x-implementation-status": "PLANNED",
         "x-owner": "Backend1"
       }
     },
