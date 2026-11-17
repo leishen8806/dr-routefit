@@ -1,0 +1,18 @@
+export const backend1Routes=[
+ {method:'POST',pattern:/^\/api\/customer\/v1\/route-quotes$/,operation:'createRouteQuote',schema:'RouteQuote',input:'RouteQuoteCreate',kind:'route-quote',write:true,permission:'customer:quote:create'},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/route-pricing\/configurations$/,operation:'listRoutePricingConfigurations',schema:'RoutePricingConfigurationPage',kind:'pricing-configurations',permission:'pricing:read'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/route-pricing\/configurations$/,operation:'createRoutePricingConfiguration',schema:'RoutePricingConfiguration',input:'RoutePricingConfigurationCreate',kind:'pricing-configuration-create',write:true,permission:'pricing:write'},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/coupons$/,operation:'listCoupons',schema:'CouponPage',kind:'coupons',permission:'marketing:coupon:read'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/coupons\/batches$/,operation:'createCouponBatch',schema:'CouponBatch',input:'CouponBatchCreate',kind:'coupon-batch-create',write:true,permission:'marketing:coupon:write'},
+ {method:'POST',pattern:/^\/api\/customer\/v1\/orders\/([^/]+)\/actions\/lock-coupon$/,operation:'lockOrderCoupon',schema:'CouponLock',input:'CouponLockAction',kind:'coupon-lock',write:true,permission:'customer:order:write'},
+ {method:'POST',pattern:/^\/api\/customer\/v1\/orders\/([^/]+)\/actions\/redeem-coupon$/,operation:'redeemOrderCoupon',schema:'CouponRedemption',input:'CouponRedeemAction',kind:'coupon-redeem',write:true,permission:'order:payment:confirm'},
+ {method:'POST',pattern:/^\/api\/customer\/v1\/orders\/([^/]+)\/actions\/release-coupon$/,operation:'releaseOrderCoupon',schema:'CouponRelease',input:'CouponReleaseAction',kind:'coupon-release',write:true,permission:'customer:order:write'},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/merchants\/([^/]+)\/contract$/,operation:'getMerchantContract',schema:'MerchantContract',kind:'merchant-contract',permission:'merchant:contract:read'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/merchants\/([^/]+)\/contract$/,operation:'createMerchantContract',schema:'MerchantContract',input:'MerchantContractCreate',kind:'merchant-contract-create',write:true,permission:'merchant:contract:write'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/merchants\/([^/]+)\/contract\/actions\/activate$/,operation:'activateMerchantContract',schema:'MerchantContract',input:'MerchantContractTransitionAction',kind:'merchant-contract-activate',write:true,version:true,permission:'merchant:contract:write'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/merchants\/([^/]+)\/contract\/actions\/expire$/,operation:'expireMerchantContract',schema:'MerchantContract',input:'MerchantContractTransitionAction',kind:'merchant-contract-expire',write:true,version:true,permission:'merchant:contract:write'},
+ {method:'GET',pattern:/^\/api\/ops\/v1\/merchants\/([^/]+)\/sku-dimensions$/,operation:'listMerchantSkuDimensions',schema:'SkuDimensionPage',kind:'merchant-sku-dimensions',permission:'merchant:catalog:read'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/merchants\/([^/]+)\/sku-dimensions$/,operation:'createMerchantSkuDimension',schema:'SkuDimension',input:'SkuDimensionCreate',kind:'merchant-sku-dimension-create',write:true,permission:'merchant:catalog:write'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/users\/([^/]+)\/actions\/freeze$/,operation:'freezeUser',schema:'UserFreezeState',input:'UserFreezeAction',kind:'user-freeze',write:true,version:true,permission:'user:freeze:write'},
+ {method:'POST',pattern:/^\/api\/ops\/v1\/users\/([^/]+)\/actions\/unfreeze$/,operation:'unfreezeUser',schema:'UserFreezeState',input:'UserUnfreezeAction',kind:'user-unfreeze',write:true,version:true,permission:'user:freeze:write'}
+];
