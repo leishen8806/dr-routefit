@@ -1242,7 +1242,7 @@
               "error": {
                 "code": "VALIDATION_FAILED",
                 "message": "Merchant details are invalid.",
-                "messageKey": "errors.validationFailed",
+                "messageKey": "errors.validation_failed",
                 "retryable": false,
                 "requestId": "demo-req-0002",
                 "fields": []
@@ -1309,7 +1309,7 @@
               "error": {
                 "code": "NOT_FOUND",
                 "message": "Merchant was not found.",
-                "messageKey": "errors.notFound",
+                "messageKey": "errors.not_found",
                 "retryable": false,
                 "requestId": "demo-req-0003",
                 "fields": []
@@ -1369,7 +1369,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0004", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0004", "fields": []}}
           }
         }
       }
@@ -1424,7 +1424,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0005", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0005", "fields": []}}
           }
         }
       }
@@ -1479,7 +1479,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0006", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0006", "fields": []}}
           }
         }
       }
@@ -1534,7 +1534,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0007", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Merchant was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0007", "fields": []}}
           }
         }
       }
@@ -1671,7 +1671,7 @@
           },
           "rejected": {
             "status": 422,
-            "body": {"error": {"code": "VALIDATION_FAILED", "message": "Contract details are invalid.", "messageKey": "errors.validationFailed", "retryable": false, "requestId": "demo-req-0009", "fields": []}}
+            "body": {"error": {"code": "VALIDATION_FAILED", "message": "Contract details are invalid.", "messageKey": "errors.validation_failed", "retryable": false, "requestId": "demo-req-0009", "fields": []}}
           }
         }
       }
@@ -1726,7 +1726,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "Contract was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0010", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "Contract was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0010", "fields": []}}
           }
         }
       }
@@ -1847,7 +1847,7 @@
           },
           "rejected": {
             "status": 404,
-            "body": {"error": {"code": "NOT_FOUND", "message": "User was not found.", "messageKey": "errors.notFound", "retryable": false, "requestId": "demo-req-0012", "fields": []}}
+            "body": {"error": {"code": "NOT_FOUND", "message": "User was not found.", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-req-0012", "fields": []}}
           }
         }
       }
@@ -2842,6 +2842,36 @@
           }
         }
       }
+    },
+    "/api/driver/v1/orders/{orderId}/collection-intents": {
+      "post": {
+        "operationId": "driverCollectionIntentCreate", "x-permissions": ["driver:collection-intents:write"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "CONTRACT_READY", "x-version-resource": "collectionIntent.version", "x-owner": "Backend1",
+        "parameters": [{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],
+        "responses": {"201":{"description":"Collection intent created","content":{"application/json":{"schema":{"type":"object"}}}},"403":{"$ref":"#/components/responses/Error403"}},
+        "x-examples":{"success":{"status":201,"body":{"id":"collection-intent-example-0001","status":"PENDING"}},"rejected":{"status":403,"body":{"error":{"code":"FORBIDDEN","message":"Caller lacks the required permission.","messageKey":"errors.forbidden","retryable":false,"requestId":"demo-req-0030","fields":[]}}}}
+      },
+      "get": {
+        "operationId": "driverCollectionIntentsList", "x-permissions": ["driver:collection-intents:read"], "x-stage": "R2", "x-baseline-tier": "A", "x-implementation-status": "CONTRACT_READY", "x-version-resource": "collectionIntent.version", "x-owner": "Backend1",
+        "parameters":[{"name":"limit","in":"query","schema":{"type":"integer"}},{"name":"cursor","in":"query","schema":{"type":"string"}}],
+        "responses":{"200":{"description":"Collection intent page","content":{"application/json":{"schema":{"type":"object","properties":{"items":{"type":"array"},"nextCursor":{"type":["string","null"]}},"required":["items","nextCursor"]}}}},"403":{"$ref":"#/components/responses/Error403"}},
+        "x-examples":{"success":{"status":200,"body":{"items":[],"nextCursor":null}},"rejected":{"status":403,"body":{"error":{"code":"FORBIDDEN","message":"Caller lacks the required permission.","messageKey":"errors.forbidden","retryable":false,"requestId":"demo-req-0031","fields":[]}}}}
+      }
+    },
+    "/api/driver/v1/orders/{orderId}/collection-intents/{intentId}/actions/confirm": {
+      "post": {
+        "operationId":"driverCollectionIntentConfirm", "x-permissions":["driver:collection-intents:write"], "x-stage":"R2", "x-baseline-tier":"A", "x-implementation-status":"CONTRACT_READY", "x-version-resource":"collectionIntent.version", "x-owner":"Backend1",
+        "parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],
+        "responses":{"200":{"description":"Collection intent confirmed","content":{"application/json":{"schema":{"type":"object"}}}},"403":{"$ref":"#/components/responses/Error403"}},
+        "x-examples":{"success":{"status":200,"body":{"id":"collection-intent-example-0001","status":"CONFIRMED"}},"rejected":{"status":403,"body":{"error":{"code":"FORBIDDEN","message":"Caller lacks the required permission.","messageKey":"errors.forbidden","retryable":false,"requestId":"demo-req-0032","fields":[]}}}}
+      }
+    },
+    "/api/driver/v1/orders/{orderId}/delivery-scans": {
+      "post": {
+        "operationId":"driverDeliveryScanCreate", "x-permissions":["driver:delivery:scan"], "x-stage":"R2", "x-baseline-tier":"A", "x-implementation-status":"CONTRACT_READY", "x-version-resource":"deliveryScan.id", "x-owner":"Backend1",
+        "parameters":[{"name":"Idempotency-Key","in":"header","required":true,"schema":{"type":"string"}}],
+        "responses":{"201":{"description":"Delivery scan created","content":{"application/json":{"schema":{"type":"object"}}}},"403":{"$ref":"#/components/responses/Error403"}},
+        "x-examples":{"success":{"status":201,"body":{"id":"delivery-scan-example-0001","status":"RECORDED"}},"rejected":{"status":403,"body":{"error":{"code":"FORBIDDEN","message":"Caller lacks the required permission.","messageKey":"errors.forbidden","retryable":false,"requestId":"demo-req-0033","fields":[]}}}}
+      }
     }
   },
   "x-recorded-operations": [
@@ -2849,7 +2879,7 @@
       "operationId": "createRouteQuote",
       "path": "/api/customer/v1/route-quotes",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["customer:quote:create"],
       "x-permissions-note": "Awaiting Lead decision for customer quote permission.",
       "x-stage": "R2",
       "x-baseline-tier": "A",
@@ -2871,7 +2901,7 @@
       "path": "/api/ops/v1/route-pricing/configurations",
       "method": "GET",
       "x-permissions": [
-        "pricing:config:read"
+        "pricing:read"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "A",
@@ -2893,7 +2923,7 @@
       "path": "/api/ops/v1/route-pricing/configurations",
       "method": "POST",
       "x-permissions": [
-        "pricing:config:submit"
+        "pricing:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "A",
@@ -2915,7 +2945,7 @@
       "path": "/api/ops/v1/coupons",
       "method": "GET",
       "x-permissions": [
-        "coupons:read"
+        "marketing:coupon:read"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -2937,7 +2967,7 @@
       "path": "/api/ops/v1/coupons/batches",
       "method": "POST",
       "x-permissions": [
-        "coupons:create"
+        "marketing:coupon:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -2958,7 +2988,7 @@
       "operationId": "lockOrderCoupon",
       "path": "/api/customer/v1/orders/{orderId}/actions/lock-coupon",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["customer:order:write"],
       "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -2979,7 +3009,7 @@
       "operationId": "redeemOrderCoupon",
       "path": "/api/customer/v1/orders/{orderId}/actions/redeem-coupon",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["order:payment:confirm"],
       "x-permissions-note": "Awaiting Lead decision for payment-confirmation permission.",
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3000,7 +3030,7 @@
       "operationId": "releaseOrderCoupon",
       "path": "/api/customer/v1/orders/{orderId}/actions/release-coupon",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["customer:order:write"],
       "x-permissions-note": "Awaiting Lead decision for customer coupon permission.",
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3022,7 +3052,7 @@
       "path": "/api/ops/v1/merchants/{merchantId}/contract",
       "method": "GET",
       "x-permissions": [
-        "merchants:read"
+        "merchant:contract:read"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3044,7 +3074,7 @@
       "path": "/api/ops/v1/merchants/{merchantId}/contract",
       "method": "POST",
       "x-permissions": [
-        "merchants:contract:submit"
+        "merchant:contract:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3065,7 +3095,7 @@
       "operationId": "activateMerchantContract",
       "path": "/api/ops/v1/merchants/{merchantId}/contract/actions/activate",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["merchant:contract:write"],
       "x-permissions-note": "Awaiting Q-V1 decision: activate differs from baseline approve.",
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3086,7 +3116,7 @@
       "operationId": "expireMerchantContract",
       "path": "/api/ops/v1/merchants/{merchantId}/contract/actions/expire",
       "method": "POST",
-      "x-permissions": [],
+      "x-permissions": ["merchant:contract:write"],
       "x-permissions-note": "Awaiting Q-V1 decision: expire is absent from baseline actions.",
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3108,7 +3138,7 @@
       "path": "/api/ops/v1/merchants/{merchantId}/sku-dimensions",
       "method": "GET",
       "x-permissions": [
-        "merchants:read"
+        "merchant:catalog:read"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3130,7 +3160,7 @@
       "path": "/api/ops/v1/merchants/{merchantId}/sku-dimensions",
       "method": "POST",
       "x-permissions": [
-        "merchants:create"
+        "merchant:catalog:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3152,7 +3182,7 @@
       "path": "/api/ops/v1/users/{userId}/actions/freeze",
       "method": "POST",
       "x-permissions": [
-        "users:freeze"
+        "user:freeze:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3174,7 +3204,7 @@
       "path": "/api/ops/v1/users/{userId}/actions/unfreeze",
       "method": "POST",
       "x-permissions": [
-        "users:freeze"
+        "user:freeze:write"
       ],
       "x-stage": "R2",
       "x-baseline-tier": "B",
@@ -3189,6 +3219,51 @@
           "status": 409,
           "code": "INVALID_TRANSITION"
         }
+      }
+    },
+    {
+      "operationId": "opsDriverApplications",
+      "path": "/api/ops/v1/driver-applications",
+      "method": "GET",
+      "x-permissions": ["drivers:application:review"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "none",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {"status": 200, "body": {"items": [], "nextCursor": null}},
+        "rejected": {"status": 403, "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0041", "fields": []}}}
+      }
+    },
+    {
+      "operationId": "driverAssignmentLoadScanCreate",
+      "path": "/api/driver/v1/assignments/{assignmentId}/load-scans",
+      "method": "POST",
+      "x-permissions": ["driver:tasks:execute"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "none",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {"status": 201, "body": {"id": "demo-load-scan-0001", "version": 1}},
+        "rejected": {"status": 403, "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0042", "fields": []}}}
+      }
+    },
+    {
+      "operationId": "driverDeliveryAttemptCreate",
+      "path": "/api/driver/v1/orders/{orderId}/delivery-attempts",
+      "method": "POST",
+      "x-permissions": ["driver:delivery:record"],
+      "x-stage": "R2",
+      "x-baseline-tier": "A",
+      "x-implementation-status": "PLANNED",
+      "x-version-resource": "none",
+      "x-owner": "Backend1",
+      "x-examples": {
+        "success": {"status": 201, "body": {"id": "demo-delivery-attempt-0001", "version": 1}},
+        "rejected": {"status": 403, "body": {"error": {"code": "FORBIDDEN", "message": "Caller lacks the required permission.", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-req-0043", "fields": []}}}
       }
     }
   ],
