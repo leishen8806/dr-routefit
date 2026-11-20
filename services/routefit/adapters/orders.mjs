@@ -1,6 +1,7 @@
 import {randomBytes,createHmac,timingSafeEqual} from 'node:crypto';
 import {ensure} from '../domain/errors.mjs';
 import {validateOrderDraft,orderDetail} from '../domain/orders.mjs';
+import {assertAccountCanTransact} from '../domain/user-freeze.mjs';
 
 // shortcut: cursors last one local process; use a managed shared key when deploying multiple instances.
 const cursorKey=randomBytes(32),sign=value=>createHmac('sha256',cursorKey).update(value).digest('base64url');
@@ -53,6 +54,11 @@ export async function collectionState(client,principal,id){
 }
 export async function writeOrder(client,principal,id,body,version){
  validateOrderDraft(body);
+ if(!id){
+  const freeze=(await client.query(`SELECT action,reason FROM party.account_freeze
+   WHERE company_id=$1 AND principal_id=$2 ORDER BY version DESC LIMIT 1`,[principal.companyId,principal.principalId])).rows[0];
+  assertAccountCanTransact({id:principal.principalId,state:freeze?.action==='FREEZE'?'FROZEN':'ACTIVE',freezeReason:freeze?.reason},'ORDER_CREATE');
+ }
  const previous=id?await getOrder(client,principal,id,true):null;
  if(previous){ensure(previous.order.version===version,412,'VERSION_CONFLICT','订单版本已变化，请重新查询');ensure(previous.order.state==='draft',409,'INVALID_STATE','仅草稿可修改');}
  await authorizedCustomer(client,principal,body.customerId);
