@@ -23,6 +23,7 @@ test('driver cash report creates one driver-custody fact with delivery and insur
  assert.equal(result.state,'reported');assert.equal(result.custodyType,'DRIVER');assert.equal(result.money.amountMinor,120);assert.equal(result.unallocatedMinor,0);
  assert.ok(calls.some(sql=>sql.includes('INSERT INTO finance.receipt_order')));assert.ok(calls.some(sql=>sql.includes('INSERT INTO finance.receipt_evidence')));
  await assert.rejects(()=>writeDriverCashReport(client,driver,{...report,codAmountMinor:1,cashVoucherRef:'cash-2'}),{code:'COD_NOT_CONFIGURED'});
+ await assert.rejects(()=>writeDriverCashReport(client,driver,{...report,currency:'KHR',cashVoucherRef:'cash-2-khr'}),{code:'CASH_AMOUNT_EXCEEDS_DUE'});
  await assert.rejects(()=>writeDriverCashReport(client,driver,{...report,deliveryAmountMinor:9000000000000,insuranceAmountMinor:1,cashVoucherRef:'cash-3'}),{code:'CASH_AMOUNT_OUT_OF_RANGE'});
  await assert.rejects(()=>writeDriverCashReport(client,driver,{...report,deliveryAmountMinor:-1,cashVoucherRef:'cash-4'}),{code:'CASH_AMOUNT_OUT_OF_RANGE'});
 });

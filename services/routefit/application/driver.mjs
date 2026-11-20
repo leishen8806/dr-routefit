@@ -3,7 +3,7 @@ export const driverRoutes=[
  {method:'GET',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)$/,operation:'driverAssignment',schema:'Assignment',kind:'assignment',permission:'driver:tasks:read'},
  {method:'GET',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)\/custody-transfers$/,operation:'driverPendingCustodyTransfers',schema:'DriverCustodyTransferPage',kind:'custody-transfers',permission:'driver:tasks:read'},
  {method:'GET',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)\/departure-readiness$/,operation:'driverDepartureReadiness',schema:'DepartureReadiness',kind:'departure-readiness',permission:'driver:tasks:read'},
- {method:'GET',pattern:/^\/api\/driver\/v1\/orders\/([^/]+)$/,operation:'driverOrder',schema:'CustomerOrderDetail',kind:'order',permission:'driver:tasks:read'},
+ {method:'GET',pattern:/^\/api\/driver\/v1\/orders\/([^/]+)$/,operation:'driverOrder',schema:'DriverOrderDetail',kind:'order',permission:'driver:tasks:read'},
  {method:'POST',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)\/actions\/accept$/,operation:'driverAccept',schema:'Assignment',input:'AcceptAssignment',kind:'accept',permission:'driver:tasks:accept',version:true},
  {method:'POST',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)\/actions\/reject$/,operation:'driverReject',schema:'Assignment',input:'Reason',kind:'reject',permission:'driver:tasks:reject',version:true},
  {method:'POST',pattern:/^\/api\/driver\/v1\/assignments\/([^/]+)\/actions\/depart$/,operation:'driverDepart',schema:'Assignment',input:'EvidenceAction',kind:'depart',permission:'driver:tasks:execute',version:true},
