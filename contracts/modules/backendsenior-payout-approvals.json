@@ -12,10 +12,10 @@
       "x-permissions": ["payouts:read"],
       "x-stage": "R2",
       "x-baseline-tier": "A",
-      "x-implementation-status": "PLANNED",
+      "x-implementation-status": "CONTRACT_READY",
       "x-version-resource": "finance.payoutApproval.version",
       "x-owner": "BackendSenior",
-      "x-examples": {"success": {"status": 200, "body": {"items": [], "nextCursor": null}}, "rejected": {"status": 403, "code": "FORBIDDEN"}}
+      "x-examples": {"success": {"status": 200, "body": {"items": [{"id": "payout-approval-demo-001", "state": "submitted（示例）", "version": 1}]}}, "rejected": {"status": 403, "body": {"error": {"code": "FORBIDDEN", "message": "Demo access denied (示例)", "messageKey": "errors.forbidden", "retryable": false, "requestId": "demo-payout-403", "fields": []}}}}
     },
     {
       "operationId": "getPayoutApproval",
@@ -24,10 +24,10 @@
       "x-permissions": ["payouts:read"],
       "x-stage": "R2",
       "x-baseline-tier": "A",
-      "x-implementation-status": "PLANNED",
+      "x-implementation-status": "CONTRACT_READY",
       "x-version-resource": "finance.payoutApproval.version",
       "x-owner": "BackendSenior",
-      "x-examples": {"success": {"status": 200, "body": {"state": "submitted", "version": 1}}, "rejected": {"status": 404, "code": "NOT_FOUND"}}
+      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "submitted（示例）", "version": 1}}, "rejected": {"status": 404, "body": {"error": {"code": "NOT_FOUND", "message": "Demo payout approval was not found (示例)", "messageKey": "errors.not_found", "retryable": false, "requestId": "demo-payout-404", "fields": []}}}}
     },
     {
       "operationId": "approvePayoutApproval",
@@ -36,10 +36,10 @@
       "x-permissions": ["payouts:approve"],
       "x-stage": "R2",
       "x-baseline-tier": "A",
-      "x-implementation-status": "PLANNED",
+      "x-implementation-status": "CONTRACT_READY",
       "x-version-resource": "finance.payoutApproval.version",
       "x-owner": "BackendSenior",
-      "x-examples": {"success": {"status": 200, "body": {"state": "approved", "version": 2}}, "rejected": {"status": 422, "code": "SELF_APPROVAL_FORBIDDEN"}}
+      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "approved（示例）", "version": 2}}, "rejected": {"status": 403, "body": {"error": {"code": "SELF_APPROVAL_FORBIDDEN", "message": "示例：审批人不能是自己", "messageKey": "errors.self_approval_forbidden", "retryable": false, "requestId": "demo-payout-412-approve", "fields": []}}}}
     },
     {
       "operationId": "rejectPayoutApproval",
@@ -48,10 +48,10 @@
       "x-permissions": ["payouts:approve"],
       "x-stage": "R2",
       "x-baseline-tier": "A",
-      "x-implementation-status": "PLANNED",
+      "x-implementation-status": "CONTRACT_READY",
       "x-version-resource": "finance.payoutApproval.version",
       "x-owner": "BackendSenior",
-      "x-examples": {"success": {"status": 200, "body": {"state": "rejected", "version": 2}}, "rejected": {"status": 409, "code": "INVALID_STATE"}}
+      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "rejected（示例）", "version": 2}}, "rejected": {"status": 412, "body": {"error": {"code": "INVALID_STATE", "message": "示例：当前状态不允许该操作", "messageKey": "errors.invalid_state", "retryable": false, "requestId": "demo-payout-412-reject", "fields": []}}}}
     },
     {
       "operationId": "confirmPayoutPaid",
@@ -60,10 +60,10 @@
       "x-permissions": ["payouts:confirm-paid"],
       "x-stage": "R2",
       "x-baseline-tier": "A",
-      "x-implementation-status": "PLANNED",
+      "x-implementation-status": "CONTRACT_READY",
       "x-version-resource": "finance.payoutApproval.version",
       "x-owner": "BackendSenior",
-      "x-examples": {"success": {"status": 200, "body": {"state": "paid", "version": 3, "paymentMode": "SIMULATED"}}, "rejected": {"status": 422, "code": "SELF_CONFIRM_FORBIDDEN"}}
+      "x-examples": {"success": {"status": 200, "body": {"id": "payout-approval-demo-001", "state": "paid（示例）", "version": 3}}, "rejected": {"status": 403, "body": {"error": {"code": "SELF_CONFIRM_FORBIDDEN", "message": "示例：确认付款人不能是审批人", "messageKey": "errors.self_confirm_forbidden", "retryable": false, "requestId": "demo-payout-428-confirm", "fields": []}}}}
     }
   ]
 }
